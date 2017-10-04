@@ -1,61 +1,62 @@
 from tests import manybodyNeighborlistTester
 from ase import Atoms
 from ase.neighborlist import NeighborList
-from ase.build import bulk
+from ase.db import connect
+import spglib as spg
+
+"""
+BUG: AssertionError: Testing number of neighbors from mbnl_tester with 
+     bothways=True for different indexes failed for structure BaZrO3-perovskite
+
+"""
 
 
-mbnl_T = manybodyNeighborlistTester.manybodyNeighborlistTester()
+mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()
 
-atoms = bulk("Al").repeat(2)
+neighbor_cutoff = 6.
 
-neighbor_cutoff = 6.3
+db = connect("structures_for_testing.db")
 
-# set ut atoms and icet structure
-atoms = bulk('Ti', "bcc", a=3.321).repeat(2)
-atoms.set_pbc((True, True, True))
+for row in db.select('natoms>1'):
 
+    atoms_row = row.toatoms()
 
-ase_nl = NeighborList(len(atoms) * [neighbor_cutoff / 2.0], skin=1e-8,
-                      bothways=True, self_interaction=False)
-ase_nl.update(atoms)
+    ase_nl = NeighborList(len(atoms_row) * [neighbor_cutoff / 2.0], skin=1e-8,
+                          bothways=True, self_interaction=False)
+    ase_nl.update(atoms_row)
 
+    order = 3
 
-index = 1
-order = 3
-bothways = False
+    mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()
+    count_neighbors = {}
 
+    dataset = spg.get_symmetry_dataset(atoms_row, symprec=1e-5, angle_tolerance=-1.0, hall_number=0)
 
-nbrs = mbnl_T.build(order*[ase_nl], index, bothways=bothways)
+    if not dataset == None:
+        for index, wyckoff in enumerate(dataset['wyckoffs']):
+            neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=True)
+            if wyckoff in count_neighbors:
+                print(index, wyckoff, count_neighbors[wyckoff],len(neighbors))
+                assert count_neighbors[wyckoff] == len(neighbors), "Testing number "\
+                "of neighbors from mbnl_tester with bothways=True failed for "\
+                "structure {}".format(row.tag)
+            else:
+                count_neighbors[wyckoff] = len(neighbors)
+                print(index, wyckoff, count_neighbors[wyckoff])
 
+    print("second part ...")
+    mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()
+    count_neighbors = {}
 
-# test that mbnl_T give same amount of neighobrs for first and last site
-# when bothways = True
-mbnl_T = manybodyNeighborlistTester.manybodyNeighborlistTester()
+    if not dataset == None:
+        for index, wyckoff in enumerate(dataset['wyckoffs']):
+            neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=False)
+            if wyckoff in count_neighbors:
+                print(index, wyckoff, count_neighbors[wyckoff],len(neighbors))
+                assert count_neighbors[wyckoff] == len(neighbors), "Testing number "\
+                "of neighbors from mbnl_tester with bothways=False failed for "\
+                "structure {}".format(row.tag)
+            else:
+                count_neighbors[wyckoff] = len(neighbors)
+                print(index, wyckoff, count_neighbors[wyckoff])
 
-order = 3
-bothways = True
-index1 = 0
-index2 = len(atoms) - 1
-
-nbrs1 = mbnl_T.build(order*[ase_nl], index1, bothways)
-nbrs2 = mbnl_T.build(order*[ase_nl], index2,  bothways)
-# print(len(nbrs1), len(nbrs2)) #debug
-assert len(nbrs1) == len(nbrs2), "bothways = True should give same number of"\
-    " neigbhors independent on what index you look at. {} != {}".format(
-        len(nbrs1), len(nbrs2))
-
-
-# test that mbnl_T do not give same amount of neighobrs for first and last site
-# when bothways = False
-mbnl_T = manybodyNeighborlistTester.manybodyNeighborlistTester()
-
-order = 3
-bothways = False
-index1 = 0
-index2 = len(atoms) - 1
-
-nbrs1 = mbnl_T.build(order*[ase_nl], index1, bothways)
-nbrs2 = mbnl_T.build(order*[ase_nl], index2,  bothways)
-# print(len(nbrs1), len(nbrs2)) #debug
-assert len(nbrs1) > len(nbrs2), "bothways = False should not give same number of neighbors independent on what index you look at. {} != {}".format(
-    len(nbrs1), len(nbrs2))

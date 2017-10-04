@@ -3,9 +3,9 @@ from icetdev.structure import *
 import numpy.random as random
 import numpy as np
 from ase import Atoms
-import spglib as spg
 from ase.neighborlist import NeighborList
 from ase.db import connect
+import spglib as spg
 
 """
 BUG: AssertionError: Testing len of neighborlist indices failed for structure PdH-slab-surface 
