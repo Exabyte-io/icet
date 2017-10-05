@@ -54,7 +54,7 @@ for row in db.select('natoms>1'):
         neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=False)
         if wyckoff in count_neighbors:
             print(index, wyckoff, count_neighbors[wyckoff], len(neighbors))
-            assert count_neighbors[wyckoff] == len(neighbors), "Testing number "\
+            assert count_neighbors[wyckoff] > len(neighbors), "Testing number "\
             "of neighbors from mbnl_tester with bothways=False failed for "\
             "structure {}".format(row.tag)
         else:

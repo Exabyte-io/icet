@@ -36,12 +36,12 @@ atoms_6 = Atoms('BaZrO3', positions=[(0, 0, 0), (b,b,b),
 
 # surface slab (two elements, pbc=[True, True, False])
 atoms_7 = fcc111('Pd', a=1.0, size=(2,2,3))
-atoms_7.center(vacuum=6.0, axis=2)
+atoms_7.center(vacuum=4.0, axis=2)
 
 # Nanoparticle (single element, pbc=False)
 lc=1.0
 atoms_8 = Icosahedron('Au', noshells=3, latticeconstant=lc)
-atoms_8.center(vacuum=6.0, axis=(0, 1, 2))
+atoms_8.center(vacuum=4.0, axis=(0, 1, 2))
 
 
 db = connect('structures_for_testing.db')
@@ -53,4 +53,4 @@ db.write(atoms_4, tag='NaCl-rocksalt-cubic-cell')
 db.write(atoms_5, tag='Ni-hcp-hexagonal-cell')
 db.write(atoms_6, tag='BaZrO3-perovskite')
 db.write(atoms_7, tag='Pd-slab-surface')
-db.write(atoms_8, tag='Au-nanoparticle')
+#db.write(atoms_8, tag='Au-nanoparticle')

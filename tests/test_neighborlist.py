@@ -17,7 +17,7 @@ Raises:
 
 db = connect('structures_for_testing.db')
 
-neighbor_cutoff = 4.0
+neighbor_cutoff = 1.6
 
 for row in db.select('natoms>1'):
 
