@@ -10,24 +10,27 @@ import time
 from icetdev.clusterCounts import *
 import random
 
-"""
-BUG: AssertionError: Testing clusters of cluster map failed for structure Al-fcc-primitive_cell
-"""
 
-def setup_test_orbitlist(atoms, cutoffs):
+def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag, cutoffs, repeatInteger):
     """
-    A helper for getting structure, mbnl and neighborlists used for setting up a orbitlist without symmetry
-    """
-    structure = structure_from_atoms(atoms)
-    mbnl = ManybodyNeighborlist()
-    neighborlists = get_neighborlists(atoms=atoms, cutoffs=cutoffs)
-    mbnl.build(neighborlists, 0, True)
-    return structure, mbnl, neighborlists
- 
-def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag,  cutoffs, repeatInteger):
-    """
-    Creates a primitive orbitlist and create an orbitlist on supercell and
+    This function creates a primitive orbitlist and create an orbitlist on supercell and
     then compares the counting over both of them.
+    What is symmetry orbitlist 
+
+    Args:
+        atoms_primitive (ASE atoms):
+        atoms_tag (ASE tag): Human readable string to ...
+        cutoffs : List of floats
+        repeatInteger (int): 
+
+    Raises:
+        AssertionError: When testing for supercell (e.g., atoms_2 in database)
+        RuntimeError: Testing for rocksalt, hcp, perovskite, non-pbc structures
+
+    TODO: 
+        - Improve docstring
+        - Test should perform quickly even having many structures in the database
+         
     """
     atoms = atoms_primitive.copy()
     atoms_repeat = atoms_primitive.copy().repeat(repeatInteger)
@@ -35,42 +38,50 @@ def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag,  cutof
         if random.random() < 0.5:
             atom.symbol = "H"
 
-    structure_supercell = structure_from_atoms(atoms_repeat)
+    """ Set up neighborlists """
+    neighborlists_primitive = get_neighborlists(atoms=atoms, cutoffs=cutoffs)
+    structure = structure_from_atoms(atoms)
+    structure_repeat = structure_from_atoms(atoms_repeat)
+    neighborlists_supercell = get_neighborlists(
+        atoms=atoms_repeat, cutoffs=cutoffs)
 
-    structure, mbnl, neighborlists = setup_test_orbitlist(atoms, cutoffs)
+    """ Orbitlist primitive """
+    orbitlist_primitive = orbitList.OrbitList(neighborlists_primitive, structure)
+    orbitlist_primitive.sort()
 
-    orbitlist_primitive = orbitList.OrbitList(neighborlists, structure)
+    """ Orbitlist supercell """
+    orbitlist_supercell = orbitList.OrbitList(
+        neighborlists_supercell, structure_repeat)
+    orbitlist_supercell.sort()
 
+    """ Set up clustercounts and count cluster """
     clusterCount_local = ClusterCounts()
 
     clusterCount_local.count_each_local_orbitlist(
-        structure_supercell, orbitlist_primitive)
-
-    structure_supercell, mbnl, neighborlists = setup_test_orbitlist(
-        atoms_repeat, cutoffs)
-
-    orbitlist_supercell = orbitList.OrbitList(neighborlists, structure_supercell)
+        structure_repeat, orbitlist_primitive)
 
     clusterCount_supercell = ClusterCounts()
 
     clusterCount_supercell.count_orbitlist(
-        structure_supercell, orbitlist_supercell)
+        structure_repeat, orbitlist_supercell)
 
+    """ Get the clustercount map """
     cluster_map_local = clusterCount_local.get_cluster_counts()
 
     cluster_map_supercell = clusterCount_supercell.get_cluster_counts()
 
     assert len(cluster_map_local) == len(
-        cluster_map_supercell), "Testing len of cluster map failed for structure {}".format(atoms_tag)
+        cluster_map_supercell), "Testing lenght of cluster count using no symmetry "\
+        "local orbitlist failed for structure {}".format(atoms_tag)
 
     assert cluster_map_local.keys() == cluster_map_supercell.keys(
-        ), "Testing keys of cluster map failed for structure {}".format(atoms_tag) 
-mbnl.build and mbnl.tester
+        ), "Testing keys of cluster count using no symmetry local orbitlist "\
+        "failed for structure {}".format(atoms_tag)
+
     for key in cluster_map_local.keys():
-        print(cluster_map_local[key])
-        print(cluster_map_supercell[key])
-        assert cluster_map_local[key] == cluster_map_supercell[key], "Testing cluster mapping failed for structure {}".format(atoms_tag)
-        print(" ")
+        assert cluster_map_local[key] == cluster_map_supercell[key], "Testing cluster "\
+            "count using no symmetry local orbitlist failed for {} when "\
+            "counts {} != {}".format(atoms_tag, cluster_map_local[key], cluster_map_supercell[key])
 
 
 def get_total_count(cluster_count_dict, cluster):
@@ -83,53 +94,76 @@ def get_total_count(cluster_count_dict, cluster):
     return count
 
 
-def test_no_symmetry_vs_symmetry_count(primitive_atoms, atoms_tag, cutoffs, repeatInteger):
+def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag, cutoffs, repeatInteger):
     """
     Here we use a cutoff so that no extra clusters are found in the symmetry case
-    and compare the counts found in both methods (should be equal)
+    and compare the counts found in both methods
     """
-    atoms = primitive_atoms.copy()
-    atoms_repeat = primitive_atoms.copy().repeat(repeatInteger)
+    atoms = atoms_primitive.copy()
+    atoms_repeat = atoms_primitive.copy().repeat(repeatInteger)
     for atom in atoms_repeat:
         if random.random() < 0.3:
             atom.symbol = "H"
 
     structure_repeat = structure_from_atoms(atoms_repeat)
-mbnl.build and mbnl.tester
-    # counting without symmetry
-    structure, mbnl, neighborlists = setup_test_orbitlist(atoms, cutoffs)
+
+    structure = structure_from_atoms(atoms)
+
+    neighborlists = get_neighborlists(atoms=atoms, cutoffs=cutoffs)
+
+    """ Get orbitlist no symmetry case """
     orbitlist_no_symmetry = orbitList.OrbitList(neighborlists, structure)
+
+    """ Set up cluster count and count """
     clusterCount_no_symmetry = ClusterCounts()
     clusterCount_no_symmetry.count_each_local_orbitlist(
         structure_repeat, orbitlist_no_symmetry)
-    clusterCountMap_no_symmetry = clusterCount_no_symmetry.get_cluster_counts()
 
-    # counting with symmetry
+    """ Get the clustercount map """
+    cluster_map_no_symmetry = clusterCount_no_symmetry.get_cluster_counts()
+
+    """ get orbitlist symmetry case """
     orbitlist_symmetry = create_orbit_list(structure, cutoffs, verbosity=0)
-    clustercounts_symmetry = ClusterCounts()
-    clustercounts_symmetry.count_each_local_orbitlist(
+
+    """ Set up clustercount and count """
+    clusterCount_symmetry = ClusterCounts()
+    clusterCount_symmetry.count_each_local_orbitlist(
         structure_repeat, orbitlist_symmetry)
-    clusterCountMap_symmetry = clustercounts_symmetry.get_cluster_counts()
+
+    """ Get the clustercount map """
+    cluster_map_symmetry = clusterCount_symmetry.get_cluster_counts()
 
     assert orbitlist_symmetry.size() == orbitlist_no_symmetry.size(
-    ), "testing count orbitlist symmetry failed for structure {}".format(atoms_tag)
+    ), "Testing count orbitlist of symmetry case failed for {} when counts "\
+    "{}!={}".format(atoms_tag, orbitlist_symmetry.size(), orbitlist_no_symmetry.size())
 
-    for key in clusterCountMap_no_symmetry.keys():
-        assert get_total_count(clusterCountMap_no_symmetry, key) == get_total_count(
-            clusterCountMap_symmetry, key), "testing cluster multiplicity failed for structure {}".format(atoms_tag)
+    #for key in cluster_map_no_symmetry.keys():
+    #    print(cluster_map_no_symmetry[key])
+    #    print(cluster_map_symmetry[key])
+    #    print(" ")
 
-        for element_key in clusterCountMap_no_symmetry[key]:
-            assert clusterCountMap_no_symmetry[key][element_key] == clusterCountMap_symmetry[key][
-                element_key], "testing element combination failed for structure {}".format(atoms_tag)
 
-db = connect('structures_for_testing.db')
+    for key in cluster_map_no_symmetry.keys():
+        assert get_total_count(cluster_map_no_symmetry, key) == get_total_count(
+            cluster_map_symmetry, key), "Testing cluster multiplicity of symmetry case failed for "\
+            "{} when total count {}!={} ".format(atoms_tag, get_total_count(cluster_map_symmetry, key),
+                                                     get_total_count(cluster_map_no_symmetry, key))
+
+        for element_key in cluster_map_no_symmetry[key]:
+            assert cluster_map_no_symmetry[key][element_key] == cluster_map_symmetry[key][
+                element_key], "Testing element combination in cluster count of symmetry case "\
+                "failed for {}".format(atoms_tag)
+
+db = connect("structures_for_testing.db")
 
 for row in db.select():
     atoms_row = row.toatoms()
     atoms_tag = row.tag
-    N = 6
-    cutoffs = [1.6] * 3
+    N = 3
+    cutoffs = [1.4] * 4
     if atoms_row.get_pbc().all() == True:
+        #start = time.time()
         test_no_symmetry_local_orbitlist_counting(atoms_row, atoms_tag, cutoffs, N)
         test_no_symmetry_vs_symmetry_count(atoms_row, atoms_tag, cutoffs, N)
-
+        #elapsed_time = time.time() - start
+        #print("Test succeed for {} after {} secs".format(atoms_tag,elapsed_time))
