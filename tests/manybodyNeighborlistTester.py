@@ -58,8 +58,6 @@ class manybodyNeighborlistTester():
 
         # add neighbors of higher order (k>=2)
         for k in range(2, len(neighborlists) + 2):
-            
-            #pdb.set_trace()
 
             # get neighbors of index in icet format
             ngb = self.get_ngb_from_nl(neighborlists[k - 2], index)
@@ -144,28 +142,28 @@ class manybodyNeighborlistTester():
         Return intersection of ngb_i with ngb_j using the is_j_in_ngb bool method
         """
         ngb_ij = []
-        for n in ngb_i:
-            if self.is_n_in_ngb(n, ngb_j):
-                ngb_ij.append(n)
+        for j in ngb_i:
+            if self.is_j_in_ngb(j, ngb_j):
+                ngb_ij.append(j)
         return ngb_ij
 
-    def is_n_in_ngb(self, n, ngb):
+    def is_j_in_ngb(self, j, ngb):
         """
-        Returns true if there is an index in ngb that is equal to n
+        Returns true if there is an index in ngb that is equal to j
         """
-        for m in ngb:
-            if m[0] == n[0] and (m[1] == n[1]).all():
+        for k in ngb:
+            if k[0] == j[0] and (k[1] == j[1]).all():
                 return True
         return False
 
     def filter_ngb_from_smaller(self, ngb_i, j):
         """
-        Returns all k in N_i that are bigger than j
+        Returns all k in ngb_i that are bigger than j
         """
         ngb_j_filtered = []
-        for n in ngb_i:
-            if self.compare_neighbors(j, n):
-                ngb_j_filtered.append(n)
+        for k in ngb_i:
+            if self.compare_neighbors(j, k):
+                ngb_j_filtered.append(k)
         return ngb_j_filtered
 
     def translate_all_ngb(self, ngb, offset):

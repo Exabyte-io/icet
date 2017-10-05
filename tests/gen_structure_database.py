@@ -13,7 +13,7 @@ TODO: Unit test should be compact and quick to execute
 atoms_1 = bulk('Al','fcc', a=1.0)
 
 # FCC (single element, cubic structure, pbc=[True,True,True])
-atoms_2 = bulk('Al', 'fcc', a=1.0).repeat(2)
+atoms_2 = bulk('Al', 'bcc', a=1.0).repeat(2)
 atoms_2.pbc = [True,True,True]
 
 # BCC (two elements, cubic structure, pbc=True)
@@ -23,7 +23,7 @@ for atom in atoms_3:
         atom.symbol='W'
 
 # rocksalt (two elements, cubic structure)        
-atoms_4 = bulk('NaCl', 'rocksalt', a=1.0).repeat(2)
+atoms_4 = bulk('NaCl', 'rocksalt', a=1.0).repeat(1)
 
 # HCP (single element, hexagonal structure)
 atoms_5 = bulk('Ni', 'hcp', a=0.625, c=1.0).repeat(1)
@@ -36,7 +36,7 @@ atoms_6 = Atoms('BaZrO3', positions=[(0, 0, 0), (b,b,b),
 
 # surface slab (two elements, pbc=[True, True, False])
 atoms_7 = fcc111('Pd', a=1.0, size=(2,2,3))
-atoms_7.center(vacuum=10.0, axis=2)
+atoms_7.center(vacuum=6.0, axis=2)
 
 # Nanoparticle (single element, pbc=False)
 lc=1.0
