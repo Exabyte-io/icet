@@ -36,27 +36,27 @@ for row in db.select('natoms>1'):
 
     dataset = spg.get_symmetry_dataset(atoms_row, symprec=1e-5, angle_tolerance=-1.0, hall_number=0)
 
-    for index, wyckoff in enumerate(dataset['wyckoffs']):
+    for index, equiv_index in enumerate(dataset['equivalent_atoms']):
         neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=True)
-        if wyckoff in count_neighbors:
-            print(index, wyckoff, count_neighbors[wyckoff], len(neighbors))
-            assert count_neighbors[wyckoff] == len(neighbors), "Testing number "\
-                "of neighbors from mbnl_tester with bothways=True failed for "\
-                "structure {}".format(row.tag)
+        if equiv_index in count_neighbors:
+            #print(index, equiv_index, count_neighbors[equiv_index], len(neighbors))
+            assert count_neighbors[equiv_index] == len(neighbors), "Testing number "\
+                "of neighbors from mbnl_tester with bothways=True failed for {} "\
+                "when counts {}!={}".format(row.tag, len(neighbors), count_neighbors[equiv_index])
         else:
-            count_neighbors[wyckoff] = len(neighbors)
-            print(index, wyckoff, count_neighbors[wyckoff])
+            count_neighbors[equiv_index] = len(neighbors)
+            #print(index, equiv_index, count_neighbors[equiv_index])
 
     mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()
     count_neighbors = {}
 
-    for index, wyckoff in enumerate(dataset['wyckoffs']):
+    for index, equiv_index in enumerate(dataset['equivalent_atoms']):
         neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=False)
-        if wyckoff in count_neighbors:
-            print(index, wyckoff, count_neighbors[wyckoff], len(neighbors))
-            assert count_neighbors[wyckoff] > len(neighbors), "Testing number "\
-            "of neighbors from mbnl_tester with bothways=False failed for "\
-            "structure {}".format(row.tag)
+        if equiv_index in count_neighbors:
+            #print(index, equiv_index, count_neighbors[equiv_index], len(neighbors))
+            assert count_neighbors[equiv_index] >= len(neighbors), "Testing number "\
+                "of neighbors from mbnl_tester with bothways=False failed for {} "\
+                "when counts {}<{}".format(row.tag, len(neighbors), count_neighbors[equiv_index])
         else:
-            count_neighbors[wyckoff] = len(neighbors)
-            print(index, wyckoff, count_neighbors[wyckoff])
+            count_neighbors[equiv_index] = len(neighbors)
+            #print(index, equiv_index, count_neighbors[equiv_index])

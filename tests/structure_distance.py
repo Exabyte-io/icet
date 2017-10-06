@@ -12,7 +12,7 @@ DISTTOL = 1e-8
 # TODO: Will mic functionality be included in a near future. Otherwise testing with 
 #       chain HOC is senseless
 # TODO: Notation should be explicit to avoid conflicts between ase and icet namespace
-# TODO: Improve the names for some icet functions, e.g. get_distance2
+
 
 db = connect('structures_for_testing.db')
 
@@ -20,7 +20,7 @@ db = connect('structures_for_testing.db')
 for row in db.select():
     atoms_row = row.toatoms()
     structure = structure_from_atoms(atoms_row)
-    nl = NeighborList(len(atoms_row)*[10])
+    nl = NeighborList(len(atoms_row)*[2.6])
     nl.update(atoms_row)
     for index in range(len(atoms_row)):
         indices, offsets = nl.get_neighbors(index)

@@ -35,9 +35,9 @@ for row in db.select('natoms>1'):
     neighbors = nl.get_neighbors(1)
     indices = []
     offsets = []
-    for nbr in neighbors:
-        indices.append(nbr.index)
-        offsets.append(nbr.unitcellOffset)
+    for ngb in neighbors:
+        indices.append(ngb.index)
+        offsets.append(ngb.unitcellOffset)
 
     assert len(indices) == len(ase_indices), "Testing size of neighborlist indices "\
         "failed for {} when gives {} != {} ".format(row.tag, len(indices), len(ase_indices))
@@ -56,11 +56,16 @@ for row in db.select('natoms>1'):
 
 
     count_neighbors = {}
+    inequiv_index = {}
     dataset = spg.get_symmetry_dataset(atoms_row, symprec=1e-5, angle_tolerance=-1.0, hall_number=0)
-    for atom, wyckoff in enumerate(dataset['wyckoffs']):
-        atom_neighbors = nl.get_neighbors(atom)
-        if wyckoff in count_neighbors:
-            assert count_neighbors[wyckoff] == len(atom_neighbors), "Testing number of neighbors "\
-            "failed for {}".format(row.tag)
+    for index, equiv_index in enumerate(dataset['equivalent_atoms']):
+        neighbors = nl.get_neighbors(index)
+        if equiv_index in count_neighbors:
+            #print(index, equiv_index, count_neighbors[equiv_index], len(neighbors))
+            assert count_neighbors[equiv_index] == len(neighbors), "Testing number of neighbors "\
+                "failed for {} when counts {}({}) at atom {}({}) ".format(
+                    row.tag, len(neighbors), count_neighbors[equiv_index], index, inequiv_index[equiv_index])
         else:
-            count_neighbors[wyckoff] = len(atom_neighbors)
+            count_neighbors[equiv_index] = len(neighbors)
+            inequiv_index[equiv_index] = index
+            #print(index, equiv_index, count_neighbors[equiv_index], len(neighbors))
