@@ -1,5 +1,3 @@
-import numpy as np
-import numpy.random as random
 from ase import Atoms
 from ase.db import connect
 from ase.neighborlist import NeighborList
@@ -58,21 +56,21 @@ for row in db.select('natoms>1'):
     order = 5
     bothways = True
     count_neighbors = {}
-    wyckoff_index = {}
+    inequiv_index = {}
 
     dataset = spg.get_symmetry_dataset(atoms_row, symprec=1e-5, angle_tolerance=-1.0, hall_number=0)
 
-    for index, wyckoff in enumerate(dataset['wyckoffs']):
+    for index, equiv_index in enumerate(dataset['equivalent_atoms']):
         neighbors = mbnl.build(order * [nl], index, bothways)
-        if wyckoff in count_neighbors:
-            #print(index, wyckoff, count_neighbors[wyckoff], len(neighbors))
-            assert count_neighbors[wyckoff] == len(neighbors), "Testing number "\
+        if equiv_index in count_neighbors:
+            #print(index, equiv_index, count_neighbors[equiv_index], len(neighbors))
+            assert count_neighbors[equiv_index] == len(neighbors), "Testing number "\
                 "of neighbors from mbnl with bothways=True failed for "\
                 "structure {}".format(row.tag)
         else:
-            count_neighbors[wyckoff] = len(neighbors)
-            wyckoff_index[wyckoff] = index
-            #print(index, wyckoff, count_neighbors[wyckoff])
+            count_neighbors[equiv_index] = len(neighbors)
+            inequiv_index[equiv_index] = index
+            #print(index, equiv_index, count_neighbors[wyckoff])
 
 
 
@@ -86,9 +84,9 @@ for row in db.select('natoms>1'):
     bothways = True
     max_order = 4
 
-    for i in wyckoff_index:
+    for i in inequiv_index:
         for j in range(2, max_order):
-            index = wyckoff_index[i]
+            index = inequiv_index[i]
             order = j
             ngb_tester = mbnl_tester.build(
                 (order - 1) * [ase_nl], index, bothways)
@@ -100,9 +98,9 @@ for row in db.select('natoms>1'):
 
     # test that bothways = false also works
     bothways = False
-    for i in wyckoff_index:
+    for i in inequiv_index:
         for j in range(1, max_order):
-            index = wyckoff_index[i]
+            index = inequiv_index[i]
             order = j
             ngb_tester = mbnl_tester.build(order * [ase_nl], index, bothways)
             ngb_icetdev = mbnl.build(order * [nl], index, bothways)
