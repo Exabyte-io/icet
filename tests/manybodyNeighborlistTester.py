@@ -12,7 +12,6 @@ class manybodyNeighborlistTester():
     This is used both as a tester of the c++ version and also as a venue
     to try out new functionalities.
 
-
     Functionalities are similar to ASE neigbhorlist but is extended
     for more connections than for pairs.
 
@@ -36,9 +35,9 @@ class manybodyNeighborlistTester():
         Will take the neighborlist object (nl) and combine the neighbors
         of index "index" up to order "order".
 
-        Parameters:
+        Args:
         neighborlists : list of ASE neighborlists
-        index: index to return neighbors from
+        index: index to return neighbors from neighborlist
         bothways: False will return all indices that are bigger than site "index"
                   True will return also return indices that are smaller.
         """
@@ -56,10 +55,10 @@ class manybodyNeighborlistTester():
         self.add_pairs(index, neighborlists[0],
                        manybody_neighbor_indices, bothways)
 
-        # add neighbors of higher order (k>=2)
+        """ Add neighbors of higher order (k>=2) """
         for k in range(2, len(neighborlists) + 2):
 
-            # get neighbors of index in icet format
+            """ Get neighbors of index in icet format """
             ngb = self.get_ngb_from_nl(neighborlists[k - 2], index)
 
             number_of_sites = len(neighborlists[k - 2].positions)
@@ -87,7 +86,7 @@ class manybodyNeighborlistTester():
         current_original_neighbors :
         bothways : False will return all indices that are bigger than site "index"
                    True will return also return indices that are smaller.
-        orden : highest order for manybody neighbor indices.
+        order : highest order for manybody neighbor indices.
         """
         for j in ngb_i:
             

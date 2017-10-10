@@ -8,14 +8,15 @@ from tests import manybodyNeighborlistTester
 import spglib as spg
 
 """
-Include some docstring here explaining the current test
+This test compares manybodyneighborlist obtained from c++ implementation (mbnl.icetdev)
+and the one obtained from python implmentation (mbnl.tester)
 
 Parameters:
-    neighbor_cutoff =
-    order(int): 
+    neighbor_cutoff : cutoff radii for neighbor search
+    order(int) : highest order for manybody neighbor indices 
 
-Raises: 
-    AssertionError: if 
+Raises:
+    AssertionError: if neighbors in manybodyneighborlist are not the same in both implementations 
 """
 
 neighbor_cutoff = 1.4
@@ -26,26 +27,26 @@ for row in db.select('natoms>1'):
     atoms_row = row.toatoms()
     structure = structure_from_atoms(atoms_row)
 
-    # set up icet neighborlist for input to manybody neighborlist
+    """ Set up icet neighborlist for input to manybody neighborlist """
     nl = Neighborlist(neighbor_cutoff)
     nl.build(structure)
     ngb_1 = nl.get_neighbors(0)
     ngb_2 = nl.get_neighbors(1)
 
-    # set up manybody neighborlist
+    """ Set up manybody neighborlist """
     mbnl = ManybodyNeighborlist()
 
-    # this is intersect between neighbors of atom 0 and atom 1
+    """" This is intersect between neighbors of atom 0 and atom 1 """
     intersect = mbnl.calc_intersection(ngb_1, ngb_2)
 
-    # test intersect by doing a naive intersect
+    """ Test intersect by doing a naive intersect """
     naive_intersect = []
     for n1 in ngb_1:
         for n2 in ngb_2:
             if n1.index == n2.index and (n1.unitcellOffset == n2.unitcellOffset).all():
                 naive_intersect.append(n1)
 
-    # assert that all the intersects are equal
+    """ Assert that all the intersects are equal """
     for n1, n2 in zip(intersect, naive_intersect):
         assert n1.index == n2.index and (
             n1.unitcellOffset == n2.unitcellOffset).all(), "Testing for instersects from mbnl "\
@@ -74,7 +75,7 @@ for row in db.select('natoms>1'):
 
 
 
-    # compare neighborlists from mbnl.icetdev and mbnl.tester 
+    """ Compare neighborlists from mbnl.icetdev and mbnl.tester """
     mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()
 
     ase_nl = NeighborList(len(atoms_row) * [neighbor_cutoff / 2.0], skin=1e-8,
@@ -91,12 +92,12 @@ for row in db.select('natoms>1'):
             ngb_tester = mbnl_tester.build(
                 (order - 1) * [ase_nl], index, bothways)
             ngb_icetdev = mbnl.build((order - 1) * [nl], index, bothways)
-            assert len(ngb_tester) == len(ngb_icetdev), "Testing number of neighbors from "\
+            assert len(ngb_tester) == len(ngb_icetdev), "Testing number of neighbors "\
                 "from mbnl and mbnl.tester failed with bothways=True at index {0} "\
                 "with order {1} for {3}".format(index, order, row.tag)
 
 
-    # test that bothways = false also works
+    """ Test that bothways = false also works """
     bothways = False
     for i in inequiv_index:
         for j in range(1, max_order):

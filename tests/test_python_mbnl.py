@@ -5,14 +5,14 @@ from ase.db import connect
 import spglib as spg
 
 """
-Include some docstring here explaining the current test
+Testing manybodyneighborlist implemented in python (mblnl.tester) againts ASE neighborlist
 
 Parameters:
-    neighbor_cutoff =
-    order(int): 
+    neighbor_cutoff : cutoff radii for neighbor search
+    order(int) : highest order for manybody neighbor indices 
 
 Raises: 
-    AssertionError: if 
+    AssertionError: if lists of neighbors obatined from mbnl.tester and ASE are not the same
 """
 
 mbnl_tester = manybodyNeighborlistTester.manybodyNeighborlistTester()

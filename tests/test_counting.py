@@ -13,24 +13,22 @@ import random
 
 def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag, cutoffs, repeatInteger):
     """
-    This function creates a primitive orbitlist and create an orbitlist on supercell and
-    then compares the counting over both of them.
-    What is symmetry orbitlist 
+    This function creates a primitive orbitlist (no-symmetry) and an orbitlist on supercell
+    (symmetry) and then compares the cluster counting over both of them.
+
 
     Args:
-        atoms_primitive (ASE atoms):
-        atoms_tag (ASE tag): Human readable string to ...
-        cutoffs : List of floats
-        repeatInteger (int): 
+        atoms_primitive : ASE atom object
+        atoms_tag : Human readable string  describing ASE atom object
+        cutoffs (list of float): List of cutoff radii, one for each order of cluster
+                                 (pairs, triplet, quadruplets, etc)
+        repeatInteger (int): Create a number of repeated ASE atom object
 
     Raises:
-        AssertionError: When testing for supercell (e.g., atoms_2 in database)
+        AssertionError : If total count or keys or count of clusters obtained from
+                         symmetry and no-symmetry orbitlist are not equal.
         RuntimeError: Testing for rocksalt, hcp, perovskite, non-pbc structures
 
-    TODO: 
-        - Improve docstring
-        - Test should perform quickly even having many structures in the database
-         
     """
     atoms = atoms_primitive.copy()
     atoms_repeat = atoms_primitive.copy().repeat(repeatInteger)
@@ -71,7 +69,7 @@ def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag, cutoff
     cluster_map_supercell = clusterCount_supercell.get_cluster_counts()
 
     assert len(cluster_map_local) == len(
-        cluster_map_supercell), "Testing lenght of cluster count using no symmetry "\
+        cluster_map_supercell), "Testing total count of clusters using no symmetry "\
         "local orbitlist failed for structure {}".format(atoms_tag)
 
     assert cluster_map_local.keys() == cluster_map_supercell.keys(
@@ -87,6 +85,11 @@ def test_no_symmetry_local_orbitlist_counting(atoms_primitive, atoms_tag, cutoff
 def get_total_count(cluster_count_dict, cluster):
     """
     Returns the total count of a particular cluster
+
+    Args:
+        cluster_count_dict : cluster counting dictionary
+        cluster : key of a particular cluster
+
     """
     count = 0
     for counts in cluster_count_dict[cluster]:
@@ -96,8 +99,22 @@ def get_total_count(cluster_count_dict, cluster):
 
 def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag, cutoffs, repeatInteger):
     """
-    Here we use a cutoff so that no extra clusters are found in the symmetry case
-    and compare the counts found in both methods
+    This function creates a no-symmetry local orbitlist from the neighborlist of a primitive 
+    cell and compares the cluster counting with the one obtained from symmetry orbitlist created
+    from the primitive structure and the cutoff
+
+    Args:
+        atoms_primitive : ASE atom object
+        atoms_tag : Human readable string  describing ASE atom object
+        cutoffs (list of float): List of cutoff radii, one for each order of cluster
+                                 (pairs, triplet, quadruplets, etc)
+        repeatInteger (int): Create a number of repeated ASE atom object
+
+    Raises:
+        AssertionError : If total count or keys or count of clusters obtained from
+                         symmetry and no-symmetry orbitlist are not equal.
+        RuntimeError: Testing for rocksalt, hcp, perovskite, non-pbc structures
+
     """
     atoms = atoms_primitive.copy()
     atoms_repeat = atoms_primitive.copy().repeat(repeatInteger)
@@ -117,12 +134,14 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag, cutoffs, repe
     """ Set up cluster count and count """
     clusterCount_no_symmetry = ClusterCounts()
     clusterCount_no_symmetry.count_each_local_orbitlist(
-        structure_repeat, orbitlist_no_symmetry)
+        structure_repeat, orbitlist_no_symmetry) Here we use a cutoff so that no extra clusters are found in the symmetry case
+    and compare the counts found in both methods
+
 
     """ Get the clustercount map """
     cluster_map_no_symmetry = clusterCount_no_symmetry.get_cluster_counts()
 
-    """ get orbitlist symmetry case """
+    """ Get orbitlist symmetry case """
     orbitlist_symmetry = create_orbit_list(structure, cutoffs, verbosity=0)
 
     """ Set up clustercount and count """

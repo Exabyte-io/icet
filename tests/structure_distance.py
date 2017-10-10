@@ -6,17 +6,13 @@ from icetdev import *
 from icetdev.structure import *
 from ase.neighborlist import NeighborList
 
-#Distance tolerance for comparing distances 
+""" Distance tolerance for comparing distances """ 
 DISTTOL = 1e-8
 
-# TODO: Will mic functionality be included in a near future. Otherwise testing with 
-#       chain HOC is senseless
-# TODO: Notation should be explicit to avoid conflicts between ase and icet namespace
+""" Test distance calculator with offsets """
 
+db = connect("structures_for_testing.db")
 
-db = connect('structures_for_testing.db')
-
-# Test distance calculator with offsets
 for row in db.select():
     atoms_row = row.toatoms()
     structure = structure_from_atoms(atoms_row)
