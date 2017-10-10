@@ -123,6 +123,16 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag, cutoffs, repe
             atom.symbol = "H"
 
     structure_repeat = structure_from_atoms(atoms_repeat)
+    structure = structure_from_atoms(atoms)
+
+    ####################################
+    #                                  #
+    #      no symmetry counting        #
+    #                                  #
+    ####################################
+
+    # get neighborlist
+    neighborlists = get_neighborlists(atoms=atoms, cutoffs=cutoffs)
 
     structure = structure_from_atoms(atoms)
 
