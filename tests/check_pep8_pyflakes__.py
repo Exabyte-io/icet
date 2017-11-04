@@ -28,7 +28,7 @@ warnings_to_ignore_pep8 : list of str
 
 # General settings
 rootdir = '../'
-test_directories = ['hiphive', 'tests', 'doc', 'tutorial', 'examples']
+test_directories = ['icetdev', 'tests', 'doc', 'examples']
 warnings_to_ignore_pyflakes = []
 warnings_to_ignore_pep8 = []
 
