@@ -15,15 +15,15 @@ build_linux:
       - build
 
 
-run_tests:
+tests:
   stage: test
   tags:
     - linux
   dependencies:
     - build_linux
   script:
-    - export PYTHONPATH=/builds/icet/icet-dev:$PYTHONPATH
-    - export PYTHONPATH=/builds/icet/icet-dev/build/src/:$PYTHONPATH
+    - export PYTHONPATH=$PWD:$PYTHONPATH
+    - export PYTHONPATH=$PWD/build/src/:$PYTHONPATH
     - python3 tests/__init__.py
 
 
@@ -45,6 +45,15 @@ coverage:
     expire_in: 15 days
     paths:
       - coverage/
+
+
+pyflakes_pep8:
+  stage: test
+  tags:
+    - linux
+  script:
+    - python3 tests/check_pep8_pyflakes__.py
+  allow_failure: true
 
 
 pages:
