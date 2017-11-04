@@ -20,8 +20,8 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../icetdev'))
-sys.path.insert(0, os.path.abspath('../examples'))
+sys.path.insert(0, os.path.abspath('../../icetdev'))
+sys.path.insert(0, os.path.abspath('../../examples'))
 
 # -- General configuration ------------------------------------------------
 
@@ -58,8 +58,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'icet'
-copyright = u'2017, Mattias Ångqvist'
-author = u'Mattias Ångqvist'
+copyright = u'2017, icet developer group'
+author = u'icet developer group'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -271,8 +271,8 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'iceT.tex', 'iceT Documentation',
-     u'Mattias Ångqvist', 'manual'),
+    (master_doc, 'icet.tex', 'icet Documentation',
+     u'icet developer group', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

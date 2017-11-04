@@ -52,10 +52,3 @@ Bibliography
    | *Multicomponent multisublattice alloys, nonconfigurational entropy and other additions to the Alloy Theoretic Automated Toolkit*
    | Calphad **33**, 266 (2009)
    | `doi: 10.1016/j.calphad.2008.12.005 <http://dx.doi.org/10.1016/j.calphad.2008.12.005>`_
-
-.. cmt::
-   | [xxx]
-   | name,
-   | *title*,
-   | jrnl **vol**, page (yr);
-   | `doi: <http://dx.doi.org/>`_   

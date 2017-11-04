@@ -45,7 +45,7 @@ Now we have enough information to create our clusterspace,
 
 To summarize here are the final example script needed to setup a basic clusterspace
 
-.. literalinclude:: ../../../../examples/get_clustervector.py
+.. literalinclude:: ../../../examples/get_clustervector.py
    :language: python
    :start-after: # Step 1
    :end-before: # Step 1.1
@@ -118,7 +118,7 @@ are 1.0 since these will all be the spin squared. The remaining elements in the 
 
 Let's insert a germanium in the supercell and get the clustervector:
 
-.. literalinclude:: ../../../../examples/get_clustervector.py
+.. literalinclude:: ../../../examples/get_clustervector.py
    :language: python
    :start-after: # Step 3
    
@@ -149,6 +149,6 @@ Thus:
 Entire example script:
 ----------------------------------
 
-.. literalinclude:: ../../../../examples/get_clustervector.py
+.. literalinclude:: ../../../examples/get_clustervector.py
    :language: python
 
