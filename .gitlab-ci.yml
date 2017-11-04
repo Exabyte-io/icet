@@ -57,6 +57,9 @@ pages:
     - mv cayman-theme-master public/.test/
     - cp doc/homepage/index.html public/.test/index.html
     - sphinx-build doc/userguide/ public/.test/userguide/
+    - apt-get install doxygen
+    - doxygen doc/apidoc/Doxyfile
+    - mv html/ public/.test/apidoc/
     - mv coverage/ public/.test/
   artifacts:
     paths:
