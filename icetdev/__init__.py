@@ -2,6 +2,7 @@ from __future__ import print_function, division
 from .structure import Structure
 from .cluster_space import ClusterSpace
 from .cluster_expansion import ClusterExpansion
+from .structure_container import StructureContainer
 
 '''
 icet module
