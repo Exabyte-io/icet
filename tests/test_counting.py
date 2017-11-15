@@ -17,13 +17,13 @@ def get_equivalent_clustermap_key(key1, clustermap_keys, tol=1e-3):
     '''
 
     for key2 in clustermap_keys:
-        if len(key1.get_sites()) == len(key2.get_sites()):
-            if np.linalg.norm(np.array(key1.get_distances())
-                              - np.array(key2.get_distances())) < tol:
-                if np.abs(key1.get_geometrical_size()
-                          - key2.get_geometrical_size()) < tol:
-                    if np.linalg.norm(np.array(key1.get_sites())
-                                      - np.array(key2.get_sites())) < tol:
+        if len(key1.sites) == len(key2.sites):
+            if np.linalg.norm(np.array(key1.distances)
+                              - np.array(key2.distances)) < tol:
+                if np.abs(key1.geometrical_size
+                          - key2.geometrical_size) < tol:
+                    if np.linalg.norm(np.array(key1.sites)
+                                      - np.array(key2.sites)) < tol:
                         return key2
     raise Exception('Did not find a matching key')
 
@@ -218,19 +218,19 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag,
     for key1, key2 in zip(sorted(cluster_map_no_symmetry.keys()),
                           sorted(cluster_map_symmetry.keys())):
         msg = 'sizes for keys are not equal'
-        msg += ' {} != {}'.format(key1.get_geometrical_size(),
-                                  key2.get_geometrical_size())
-        assert (key1.get_geometrical_size()
-                - key2.get_geometrical_size()) < 1e-3, msg
+        msg += ' {} != {}'.format(key1.geometrical_size,
+                                  key2.geometrical_size)
+        assert (key1.geometrical_size
+                - key2.geometrical_size) < 1e-3, msg
 
         msg = 'clusters are not of the same order.'
-        msg += ' {} != {}'.format(key1.get_distances(), key2.get_distances())
-        assert len(key1.get_distances()) == len(key2.get_distances()), msg
+        msg += ' {} != {}'.format(key1.distances, key2.distances)
+        assert len(key1.distances) == len(key2.distances), msg
 
         msg = 'sizes for keys are not equal'
-        msg += ' {} ! {} '.format(key1.get_distances(), key2.get_distances())
-        assert np.linalg.norm(np.array(key1.get_distances())
-                              - np.array(key2.get_distances())) < 1e-3, msg
+        msg += ' {} ! {} '.format(key1.distances, key2.distances)
+        assert np.linalg.norm(np.array(key1.distances)
+                              - np.array(key2.distances)) < 1e-3, msg
 
         msg = 'Testing cluster multiplicity of symmetry case failed'
         msg = ' for {} when total count'.format(atoms_tag)

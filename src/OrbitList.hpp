@@ -61,7 +61,7 @@ class OrbitList
         unsigned int count = 0;
         for (const auto &orbit : _orbitList)
         {
-            if (orbit.getRepresentativeCluster().getNumberOfBodies() == N)
+            if (orbit.getRepresentativeCluster().order() == N)
             {
                 count++;
             }
@@ -99,7 +99,7 @@ class OrbitList
 
     int findOrbit(const Cluster &) const;
 
-    /** 
+    /**
     Prints information about the orbitlist
     */
 
@@ -175,21 +175,21 @@ class OrbitList
 
     ///Adds the permutation information to the orbits
     void addPermutationInformationToOrbits(const std::vector<LatticeSite> &, const std::vector<std::vector<LatticeSite>> &);
-    
-    ///Returns all columns from the given rows in permutation matrix    
+
+    ///Returns all columns from the given rows in permutation matrix
     std::vector<std::vector<LatticeSite>> getAllColumnsFromRow(const std::vector<int> &, const std::vector<std::vector<LatticeSite>> &, bool, bool sortIt=true ) const;
-    
+
     ///First construct rows_sort = sorted(rows)  then returns true/false if rows_sort exists in taken_rows
     bool isRowsTaken(const std::unordered_set<std::vector<int>, VectorHash> &taken_rows, std::vector<int> rows) const;
 
     ///Will find the sites in col1, extract and return all columns along with their unit cell translated indistinguishable sites
-    std::vector<std::vector<LatticeSite>> getAllColumnsFromSites(const std::vector<LatticeSite> &, 
+    std::vector<std::vector<LatticeSite>> getAllColumnsFromSites(const std::vector<LatticeSite> &,
         const std::vector<LatticeSite> &,
         const std::vector<std::vector<LatticeSite>> & ) const;
 
-    ///Check that the lattice neighbors do not have any unitcell offsets in a pbc=false direction        
+    ///Check that the lattice neighbors do not have any unitcell offsets in a pbc=false direction
     bool isSitesPBCCorrect(const std::vector<LatticeSite> &sites) const;
-        
+
   private:
     int findOrbit(const Cluster &, const std::unordered_map<Cluster, int> &) const;
     Structure _primitiveStructure;

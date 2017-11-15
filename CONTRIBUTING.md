@@ -17,7 +17,7 @@ Some general guidelines:
   * Good: `get_number_of_allowed_elements` (Python),
     `getNumberOfAllowedElements` (C++)
   * Avoid: `get_Mi` or any variation thereof
-  * Avoid remotely resembling `int mytmp = 13`
+  * Avoid anything remotely resembling `int mytmp = 13`
 
 * Document and comment, document and comment, document and comment, document
   and comment, document and comment ... (it cannot be said too often).<br>

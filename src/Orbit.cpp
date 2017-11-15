@@ -5,7 +5,7 @@ Orbit::Orbit(const Cluster &cluster)
     _representativeCluster = cluster;
 }
 
-/** 
+/**
 Returns the number of exactly equal sites in equivalent sites vector
 
 This is used among other things to debug orbits when duplicates is not expected

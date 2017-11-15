@@ -50,9 +50,9 @@ class Orbit
         return _equivalentSites.size();
     }
     ///Returns the geometric size of the orbit defines as the mean distance to the center of the
-    double getGeometricalSize() const
+    double geometricalSize() const
     {
-        return _representativeCluster.getGeometricalSize();
+        return _representativeCluster.geometricalSize();
     }
     ///Return the sorted, reprasentative cluster for this orbit
     Cluster getRepresentativeCluster() const
@@ -119,19 +119,19 @@ class Orbit
         ///Return the number of bodies of the cluster that represent this orbit
         unsigned int getClusterSize() const
         {
-            return _representativeCluster.getNumberOfBodies();
+            return _representativeCluster.order();
         }
         ///Compare operator for automatic sorting in containers
         friend bool operator==(const Orbit &orbit1, const Orbit &orbit2)
         {
 
             /// First test against number of bodies in cluster
-            if (orbit1.getRepresentativeCluster().getNumberOfBodies() != orbit2.getRepresentativeCluster().getNumberOfBodies())
+            if (orbit1.getRepresentativeCluster().order() != orbit2.getRepresentativeCluster().order())
             {
                 return false;
             }
             ///not equal size: compare by geometrical size
-            if (fabs(orbit1.getGeometricalSize() - orbit2.getGeometricalSize()) > 1e-5) // @TODO: remove 1e-4 and add tunable parameter
+            if (fabs(orbit1.geometricalSize() - orbit2.geometricalSize()) > 1e-5) // @TODO: remove 1e-4 and add tunable parameter
             {
                 return false;
             }
@@ -151,14 +151,14 @@ class Orbit
         {
 
             /// First test against number of bodies in cluster
-            if (orbit1.getRepresentativeCluster().getNumberOfBodies() != orbit2.getRepresentativeCluster().getNumberOfBodies())
+            if (orbit1.getRepresentativeCluster().order() != orbit2.getRepresentativeCluster().order())
             {
-                return orbit1.getRepresentativeCluster().getNumberOfBodies() < orbit2.getRepresentativeCluster().getNumberOfBodies();
+                return orbit1.getRepresentativeCluster().order() < orbit2.getRepresentativeCluster().order();
             }
             ///not equal size: compare by geometrical size
-            if (fabs(orbit1.getGeometricalSize() - orbit2.getGeometricalSize()) > 1e-5) // @TODO: remove 1e-4 and add tunable parameter
+            if (fabs(orbit1.geometricalSize() - orbit2.geometricalSize()) > 1e-5) // @TODO: remove 1e-4 and add tunable parameter
             {
-                return orbit1.getGeometricalSize() < orbit2.getGeometricalSize();
+                return orbit1.geometricalSize() < orbit2.geometricalSize();
             }
 
             // check size of vector of equivalent sites

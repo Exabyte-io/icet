@@ -5,7 +5,7 @@ Counts clusters given this compact form of latticeneighbors (see ManybodyNeighbo
 */
 // build(const Neighborlist &nl, int index, int order, bool);
 void ClusterCounts::countLatticeSites(const Structure &structure,
-                                          const std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> &latticeNeighbors)
+                                      const std::vector<std::pair<std::vector<LatticeSite>,std::vector<LatticeSite>>> &latticeNeighbors)
 {
     for (const auto &neighborPair : latticeNeighbors)
     {
@@ -90,7 +90,7 @@ void ClusterCounts::countOrbitlist(const Structure &structure, const OrbitList &
     {
         Cluster repr_cluster = orbitlist.getOrbit(i).getRepresentativeCluster();
         repr_cluster.setClusterTag(i);
-        if(orderIntact && repr_cluster.getNumberOfBodies()!= 1)
+        if(orderIntact && repr_cluster.order()!= 1)
         {
             count(structure, orbitlist.getOrbit(i).getPermutatedEquivalentSites(), repr_cluster);
         }

@@ -55,6 +55,22 @@ PYBIND11_PLUGIN(_icetdev)
              py::arg("cell"),
              py::arg("pbc"),
              py::arg("tolerance") = 1e-5)
+        .def("get_pbc", &Structure::getPBC,
+             "Returns the periodic boundary conditions.")
+        .def("set_pbc", &Structure::setPBC,
+             "Sets the periodic boundary conditions.")
+        .def_property("pbc",
+                      &Structure::getPBC,
+                      &Structure::setPBC,
+                      "3-dimensional vector : periodic boundary conditions")
+        .def("get_cell", &Structure::getCell,
+             "Returns the cell metric.")
+        .def("set_cell", &Structure::setCell,
+             "Sets the cell metric.")
+        .def_property("cell",
+                      &Structure::getCell,
+                      &Structure::setCell,
+                      "3x3 array : cell metric")
         .def("get_positions",
              &Structure::getPositions,
              "Returns the positions in Cartesian coordinates.\n"
@@ -186,22 +202,6 @@ PYBIND11_PLUGIN(_icetdev)
              "\nReturns\n-------\n"
              "list of LatticeSite object\n"
              "    list of lattice sites")
-        .def("get_pbc", &Structure::getPBC,
-             "Returns the periodic boundary conditions.")
-        .def("set_pbc", &Structure::setPBC,
-             "Sets the periodic boundary conditions.")
-        .def_property("pbc",
-                      &Structure::getPBC,
-                      &Structure::setPBC,
-                      "3-dimensional vector : periodic boundary conditions")
-        .def("get_cell", &Structure::getCell,
-             "Returns the cell metric.")
-        .def("set_cell", &Structure::setCell,
-             "Sets the cell metric.")
-        .def_property("cell",
-                      &Structure::getCell,
-                      &Structure::setCell,
-                      "3x3 array : cell metric")
         .def("__len__", &Structure::size);
 
     py::class_<Neighborlist>(m, "Neighborlist")
@@ -250,29 +250,48 @@ PYBIND11_PLUGIN(_icetdev)
         .def("build", &ManybodyNeighborlist::build);
 
     py::class_<Cluster>(m, "Cluster")
-        // .def(py::init<std::vector<int> &, std::vector<double> &, const bool, const int>(), pybind11::arg("sites"),
-        //      pybind11::arg("distances"), pybind11::arg("sortedCluster") = true, pybind11::arg("clusterTag") = 0)
         .def(py::init<const Structure &,
              const std::vector<LatticeSite> &,
              const bool, const int>(),
              pybind11::arg("structure"),
-             pybind11::arg("latticeNeighbors"),
-             pybind11::arg("sortedCluster") = true,
-             pybind11::arg("clusterTag") = 0)
-        .def("count", &Cluster::count)
-        .def("get_count", &Cluster::getCount)
-        .def("get_sites", &Cluster::getSites)
-        .def("get_distances", &Cluster::getDistances)
+             pybind11::arg("lattice_sites"),
+             pybind11::arg("sorted_cluster") = true,
+             pybind11::arg("tag") = 0,
+             "Initialize a cluster instance.\n"
+             "\nParameters\n----------\n"
+             "structure : icet Structure instance\n"
+             "    atomic configuration\n",
+             "lattice_sites : list of ints\n"
+             "    list of lattice sites that form the cluster\n",
+             "sorted_cluster : boolean\n"
+             "    True if the cluster is sorted\n",
+             "tag : int\n"
+             "    cluster tag")
+        //.def("count", &Cluster::count)
+        //.def("get_count", &Cluster::getCount)
         .def("print", &Cluster::print)
-        .def("is_sorted", &Cluster::isSorted)
-        .def("get_clustertag", &Cluster::getClusterTag)
-        .def("get_geometrical_size", &Cluster::getGeometricalSize)
-        .def("get_number_of_bodies",&Cluster::getNumberOfBodies)
+        .def_property_readonly("sites",
+                               &Cluster::sites,
+                               "list of ints : site indices")
+        .def_property_readonly("distances",
+                               &Cluster::distances,
+                               "list of floats : list of distances between sites")
+        .def_property_readonly("sorted",
+                               &Cluster::isSorted,
+                               "boolean : True/False if the cluster is sorted/unsorted")
+        .def_property_readonly("tag",
+                               &Cluster::tag,
+                               "int : cluster tag (defined for sorted cluster)")
+        .def_property_readonly("geometrical_size",
+                               &Cluster::geometricalSize,
+                               "float : the geometrical size of the cluster")
+        .def_property_readonly("order",
+                               &Cluster::order,
+                               "int : order of the cluster (= number of sites)")
         .def("__hash__", [](const Cluster &cluster) { return std::hash<Cluster>{}(cluster); })
+        .def("__len__", &Cluster::order)
         .def(py::self < py::self)
-        .def(py::self == py::self)
-        .def("__len__", &Cluster::getNumberOfBodies);
-        // .def(hash(py::self))
+        .def(py::self == py::self);
         ;
 
     py::class_<PermutationMap>(m, "PermutationMap")

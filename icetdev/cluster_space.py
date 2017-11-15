@@ -71,8 +71,8 @@ class ClusterSpace(_ClusterSpace):
                          orbit_index=0, mc_vector=[0]*5):
             from collections import OrderedDict
             fields = OrderedDict([
-                ('order',   '{:2}'.format(len(cluster))),
-                ('radius',  '{:9.4f}'.format(cluster.get_geometrical_size())),
+                ('order',   '{:2}'.format(cluster.order)),
+                ('radius',  '{:9.4f}'.format(cluster.geometrical_size)),
                 ('multiplicity', '{:4}'.format(multiplicity)),
                 ('index',     '{:4}'.format(index)),
                 ('orbit',     '{:4}'.format(orbit_index)),

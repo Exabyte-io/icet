@@ -155,7 +155,7 @@ namespace std
         }
     };
 
-    /// Compute hash for a list lattice site.
+    /// Compute hash for a list of lattice sites.
     template <>
     struct hash<std::vector<LatticeSite>>
     {

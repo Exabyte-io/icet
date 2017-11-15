@@ -530,16 +530,16 @@ void OrbitList::checkEquivalentClusters() const
 
                 throw std::runtime_error("found a \"equivalent\" cluster that were not equal representative cluster");
             }
-            if (fabs(equivalentCluster.getGeometricalSize() - representative_cluster.getGeometricalSize()) > 1e-3)
+            if (fabs(equivalentCluster.geometricalSize() - representative_cluster.geometricalSize()) > 1e-3)
             {
-                std::cout << " found a \"equivalent\" cluster that were not equal representative cluster" << std::endl;
+                std::cout << " found an 'equivalent' cluster that does not equal the representative cluster" << std::endl;
                 std::cout << "representative_cluster:" << std::endl;
                 representative_cluster.print();
 
                 std::cout << "equivalentCluster:" << std::endl;
                 equivalentCluster.print();
                 std::cout << " test geometric size: " << icet::getGeometricalRadius(sites, _primitiveStructure) << " " << std::endl;
-                throw std::runtime_error("found a \"equivalent\" cluster that were not equal representative cluster");
+                throw std::runtime_error("found an 'equivalent' cluster that does not equal the representative cluster");
             }
         }
     }
