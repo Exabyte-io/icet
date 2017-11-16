@@ -52,7 +52,7 @@ sc = StructureContainer(cs, atoms_list)
 assert sc.get_number_of_structures() == number_of_structures
 
 # testing structure getter
-assert isinstance(sc.get_structures(conf.tag), Atoms)
+assert isinstance(sc.get_structure(conf.tag), Atoms)
 
 # testing clustervector
 cv_target = np.array(cs.get_clustervector(conf))

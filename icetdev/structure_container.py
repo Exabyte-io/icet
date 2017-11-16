@@ -41,7 +41,7 @@ class StructureContainer(object):
         '''
         return len(self._structure_list)
 
-    def get_structures(self, user_tag):
+    def get_structure(self, user_tag):
         '''
         Return the structure in the form of an ASE Atoms object.
 
