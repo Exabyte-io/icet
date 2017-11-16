@@ -1,21 +1,23 @@
 import logging
+from collections import OrderedDict
+
 
 class StructureContainer(object):
 
     def __init__(self, clusterspace, atoms_list=None):
-
         '''
-        Initializes a structure_container object
-    
-        This class serves as a container for ase-atoms objects, their fit
-        properties and their fit_cvs (clustervectors). 
+        Initializes a StructureContainer object.
+
+        This class serves as a container for ASE Atoms objects, their fit
+        properties and their cluster vectors.
 
         Attributes:
         -----------
         clusterspace : icet ClusterSpace object
+            the cluster space used for evaluating the cluster vectors
 
-        atoms_list : list of ASE-Atoms objects 
-
+        atoms_list : list of ASE-Atoms objects
+            input structures
         '''
 
         self._clusterspace = clusterspace
@@ -36,15 +38,18 @@ class StructureContainer(object):
 
     def get_number_of_structures(self):
         '''
-        Return total number of structures in structure list
-        
+        Return the total number of structures in the container.
         '''
         return len(self._structure_list)
 
     def get_structures(self, user_tag):
         '''
-        Return actual structure in the form of ASE Atoms object 
-        
+        Return the structure in the form of an ASE Atoms object.
+
+        Parameters
+        ----------
+        user_tag : str
+            tag assigned during structure addition
         '''
         for structure in self._structure_list:
             if structure.user_tag == user_tag:
@@ -52,8 +57,12 @@ class StructureContainer(object):
 
     def get_clustervector(self, user_tag):
         '''
-        Return clustervector of actual structure in structure list
+        Return cluster vector of structure in container.
 
+        Parameters
+        ----------
+        user_tag : str
+            tag assigned during structure addition
         '''
         for structure in self._structure_list:
             if structure.user_tag == user_tag:
@@ -62,11 +71,11 @@ class StructureContainer(object):
     def get_properties(self, key, user_tag):
         '''
         Return a list of avaliable properties
-        
+
         Parameters
         ----------
         key : str
-            name the desired property listed in user keys of structures 
+            name the desired property listed in user keys of structures
         user_tag : str
             custom user tag to identify strcuture
         '''
@@ -74,11 +83,9 @@ class StructureContainer(object):
             if structure.user_tag == user_tag:
                 return structure.properties[key]
 
-    # basic information of the structure list 
     def print_structures(self):
-        ''' 
-        Print basic information about each structure in structure list 
-        
+        '''
+        Print basic information about each structure in structure list
         '''
         def repr_structure(index, structure):
             fields = OrderedDict([
@@ -103,8 +110,7 @@ class StructureContainer(object):
         for i, structure in enumerate(self._structure_list):
             logging.info(repr_structure(i, structure))
 
-
-    def add_structure(self, atoms, user_tag=None, 
+    def add_structure(self, atoms, user_tag=None,
                       compute_cvs=True,
                       map_to_prototype=False):
         '''
@@ -117,13 +123,11 @@ class StructureContainer(object):
         user_tag : str
             custom user tag to identify structure
         compute_clustervector: bool
-            if True, clustervector is computed
+            if True clustervector is computed
         '''
 
         atoms_copy = atoms.copy()
-
         atoms_copy.keys = atoms.keys
-
         structure = FitStructure(atoms_copy, user_tag=atoms.tag)
 
         if compute_cvs:
@@ -150,10 +154,12 @@ class FitStructure:
     user_tag : str
         custom user tag
     cvs : list of floats
-        clustervector 
+        clustervector
     '''
 
     def __init__(self, atoms, user_tag=None, cvs=None):
+        assert isinstance(user_tag, str) or user_tag is None, \
+            'user_tag must be a string'
         self._atoms = atoms
         self._user_tag = user_tag
         self.set_cvs(cvs)
@@ -182,7 +188,7 @@ class FitStructure:
 
         Parameters
         ----------
-        cvs : list of float 
+        cvs : list of float
             clustervector for this structure
         '''
         if cvs is not None:
@@ -192,4 +198,3 @@ class FitStructure:
 
     def __len__(self):
         return len(self._atoms)
-

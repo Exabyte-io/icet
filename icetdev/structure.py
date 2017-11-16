@@ -4,16 +4,16 @@ from _icetdev import Structure
 @classmethod
 def __structure_from_atoms(self, conf):
     '''
-    Creates an icet structure object from an ASE atoms object.
+    Creates an icet Structure object from an ASE Atoms object.
 
     Parameters
     ----------
-    conf : ASE atoms object
+    conf : ASE Atoms object
         input configuration
 
     Returns
     -------
-    icet structure object
+    icet Structure object
         output configuration
     '''
     return self(conf.positions,
@@ -27,11 +27,11 @@ Structure.from_atoms = __structure_from_atoms
 
 def __structure_to_atoms(self):
     '''
-    Returns the structure as an ASE atoms object.
+    Returns the structure as an ASE Atoms object.
 
     Returns
     -------
-    ASE atoms object
+    ASE Atoms object
         atomic configuration
     '''
     import ase
