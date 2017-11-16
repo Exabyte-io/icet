@@ -39,7 +39,7 @@ atoms2 = atoms2.repeat(2)
 structure2 = Structure.from_atoms(atoms2)
 
 #create orbitlist from shuffled structure
-orbitlist_2 = create_orbit_list(structure2, cutoffs, verbosity=0)
+orbitlist_2 = create_orbit_list(structure2, cutoffs, verbosity=4)
 
 
 assert len(orbitlist_1) == len(orbitlist_2), \

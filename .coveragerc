@@ -19,12 +19,17 @@ exclude_lines =
     pragma: no cover
 
     # Don't complain about missing debug-only code:
-    def __repr__
     if self\.debug
 
     # Don't complain if tests don't hit defensive assertion code:
     raise AssertionError
     raise NotImplementedError
+
+    # Don't complain if tests do not hit sanity checks intended for user feedback
+    raise Exception
+
+    # Exclude functions that use some form of GUI
+    def view_singlets
 
     # Don't complain if non-runnable code isn't run:
     if 0:

@@ -76,7 +76,7 @@ def __get_fractional_positions_from_neigborlist(structure, neighborlist):
     return fractional_positions
 
 
-def permutation_matrices_from_atoms(atoms, cutoffs=None,
+def permutation_matrices_from_atoms(atoms, cutoffs,
                                     find_prim=True, verbosity=0):
     '''Set up a list of permutation maps from an atoms object.
 
@@ -84,8 +84,8 @@ def permutation_matrices_from_atoms(atoms, cutoffs=None,
     ----------
     atoms : ASE Atoms object
         input structure
-    cutoffs : list
-        cutoffs per cluster order
+    cutoffs : list of float
+        cutoff radii
     find_primitive : boolean
         if True the symmetries of the primitive structure will be employed
     verbosity : int
@@ -117,7 +117,7 @@ def permutation_matrices_from_atoms(atoms, cutoffs=None,
 
     # Create neighborlists from the different cutoffs
     prim_structure = Structure.from_atoms(atoms_prim)
-    neighborlists = get_neighborlists(structure=prim_structure,
+    neighborlists = get_neighborlists(prim_structure,
                                       cutoffs=cutoffs)
     # get fractional positions for each neighborlist
     for i, neighborlist in enumerate(neighborlists):
@@ -134,7 +134,7 @@ def permutation_matrices_from_atoms(atoms, cutoffs=None,
     return permutation_matrices, prim_structure, neighborlists
 
 
-def permutation_matrix_from_atoms(atoms, cutoff=None,
+def permutation_matrix_from_atoms(atoms, cutoff,
                                   find_prim=True, verbosity=0):
     '''Set up a list of permutation maps from an atoms object.
 
@@ -142,8 +142,8 @@ def permutation_matrix_from_atoms(atoms, cutoff=None,
     ----------
     atoms : ASE Atoms object
         input structure
-    cutoffs : list
-        cutoffs per cluster order
+    cutoff : float
+        cutoff radius
     find_primitive : boolean
         if True the symmetries of the primitive structure will be employed
     verbosity : int
