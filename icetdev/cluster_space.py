@@ -1,7 +1,7 @@
 from _icetdev import ClusterSpace as _ClusterSpace
 from icetdev import Structure
 from icetdev.orbit_list import create_orbit_list
-from icetdev.permutation_map import vacuum_on_non_pbc
+from icetdev.permutation_map import add_vacuum_in_non_periodic_directions
 from ase import Atoms
 import numpy
 
@@ -36,9 +36,9 @@ class ClusterSpace(_ClusterSpace):
         elif isinstance(atoms, Structure):
             structure = atoms
         else:
-            msg = 'Unknown structure format'
-            msg += ' {} (ClusterSpace)'.format(type(atoms))
-            raise Exception(msg)
+            msg = ['Unknown structure format']
+            msg += ['{} (ClusterSpace)'.format(type(atoms))]
+            raise Exception(' '.join(msg))
 
         # set up orbit list
         orbit_list = create_orbit_list(structure, cutoffs, verbosity=verbosity)
@@ -64,7 +64,7 @@ class ClusterSpace(_ClusterSpace):
 
     def __repr__(self):
         '''
-        String representation of the clusterspcace.
+        String representation of the cluster space.
         '''
 
         def repr_cluster(index, cluster, multiplicity=0,
@@ -105,8 +105,8 @@ class ClusterSpace(_ClusterSpace):
         index = 0
         print_threshold = 50
         while index < len(self):
-            if (len(self) > print_threshold
-                    and index > 10 and index < len(self) - 10):
+            if (len(self) > print_threshold and
+                    index > 10 and index < len(self) - 10):
                 index = len(self) - 10
                 s += [' ...']
 
@@ -131,7 +131,7 @@ class ClusterSpace(_ClusterSpace):
 
         Parameters
         ----------
-        atoms : ASE atoms object / icet structure object (bi-optional)
+        atoms : ASE atoms object / icet Structure object (bi-optional)
             atomic configuration
 
         Returns
@@ -148,13 +148,13 @@ class ClusterSpace(_ClusterSpace):
             raise Exception(msg)
 
         # if pbc is not true one needs to massage the structure a bit
-        if not numpy.array(structure.get_pbc()).all() == True:
+        if numpy.array(structure.get_pbc()).all():
             atoms = structure.to_atoms()
-            vacuum_on_non_pbc(atoms)
+            atoms.wrap()
             structure = Structure.from_atoms(atoms)
         else:
             atoms = structure.to_atoms()
-            atoms.wrap()
+            add_vacuum_in_non_periodic_directions(atoms)
             structure = Structure.from_atoms(atoms)
         return _ClusterSpace.get_clustervector(self, structure)
 
@@ -165,10 +165,10 @@ def get_singlet_info(atoms, return_clusterspace=False):
 
     Parameters
     ----------
-    atoms : ASE atoms object / icet structure object (bi-optional)
+    atoms : ASE atoms object / icet Structure object (bi-optional)
         atomic configuration
     return_clusterspace : boolean
-        return the clusterspace created in the process
+        return the cluster space created in the process
 
     Returns
     -------
@@ -211,11 +211,11 @@ def get_singlet_info(atoms, return_clusterspace=False):
 
 def view_singlets(atoms):
     '''
-    Visualize singlets in a structure using the ASE gui.
+    Visualize singlets in a structure using the ASE GUI.
 
     Parameters
     ----------
-    atoms : ASE atoms object / icet structure object (bi-optional)
+    atoms : ASE atoms object / icet Structure object (bi-optional)
         atomic configuration
     '''
 
@@ -260,6 +260,7 @@ def get_Mi_from_dict(Mi, structure):
     for all_comp in Mi_ret:
         if all_comp == -1:
             raise Exception(
-                'Error: the calculated Mi from dict did not cover all sites on input structure. \n Were all sites in primitive mapped?')
+                'The calculated Mi from dict did not cover all sites of the'
+                ' input structure.\n Were all sites in primitive mapped?')
 
     return Mi_ret
