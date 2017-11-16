@@ -22,17 +22,17 @@ def __fractional_to_cartesian(fractional_coordinates, cell):
     return cartesian_coordinates
 
 
-def __get_latNbr_permutation_matrix(structure, permutation_matrix,
-                                    prune=True, verbosity=0):
+def __get_lattice_site_permutation_matrix(structure, permutation_matrix,
+                                          prune=True, verbosity=0):
     '''
-    Return a transformed permutation matrix with lattice neighbors instead of
+    Return a transformed permutation matrix with lattice sites instead of
     fractional coordinates.
 
     Permutation matrix is in row major format which we will keep
     '''
     pm_frac = permutation_matrix.get_permutated_positions()
 
-    pm_latNbrs = []
+    pm_lattice_sites = []
     for row in pm_frac:
         positions = __fractional_to_cartesian(row, structure.cell)
         lat_nbrs = []
@@ -46,22 +46,23 @@ def __get_latNbr_permutation_matrix(structure, permutation_matrix,
                 except:
                     continue
         if len(lat_nbrs) > 0:
-            pm_latNbrs.append(lat_nbrs)
+            pm_lattice_sites.append(lat_nbrs)
         else:
             print('lat nbrs are zero')
     if prune:
         if verbosity > 2:
-            print('size before pruning {} '.format(len(pm_latNbrs)))
-        pm_latNbrs = __prune_permutation_matrix(pm_latNbrs, verbosity=0)
+            print('size before pruning {} '.format(len(pm_lattice_sites)))
+        pm_lattice_sites = __prune_permutation_matrix(pm_lattice_sites,
+                                                      verbosity=0)
         if verbosity > 2:
-            print('size after pruning {} '.format(len(pm_latNbrs)))
+            print('size after pruning {} '.format(len(pm_lattice_sites)))
 
-    return pm_latNbrs
+    return pm_lattice_sites
 
 
 def __prune_permutation_matrix(permutation_matrix, verbosity=0):
     '''
-    Prunes the matrix so that the first column only contains unique elements
+    Prunes the matrix so that the first column only contains unique elements.
     '''
     for i in range(len(permutation_matrix)):
         for j in reversed(range(len(permutation_matrix))):
@@ -94,53 +95,55 @@ def create_orbit_list(structure, cutoffs, verbosity=0):
     OrbitList object
     '''
     max_cutoff = np.max(cutoffs)
-    total_time_taken = 0
+    total_time_spent = 0
 
     t0 = time.time()
     permutation_matrix, prim_structure, neighborlist \
         = permutation_matrix_from_atoms(structure.to_atoms(), max_cutoff)
     t1 = time.time()
-    time_taken = t1 - t0
-    total_time_taken += time_taken
+    time_spent = t1 - t0
+    total_time_spent += time_spent
 
     if verbosity > 3:
-        print('Done getting permutation_matrix. Time {} s'.format(time_taken))
-    total_time_taken += time_taken
+        print('Done getting permutation_matrix. Time {} s'.format(time_spent))
+    total_time_spent += time_spent
 
     t0 = time.time()
-    neighborlists = get_neighborlists(structure=prim_structure,
-                                      cutoffs=cutoffs)
+    neighborlists = get_neighborlists(prim_structure, cutoffs=cutoffs)
     t1 = time.time()
-    time_taken = t1 - t0
-    total_time_taken += time_taken
+    time_spent = t1 - t0
+    total_time_spent += time_spent
 
     if verbosity > 3:
-        print('Done getting neighborlists. Time {} s'.format(time_taken))
+        print('Done getting neighborlists. Time {} s'.format(time_spent))
 
     t0 = time.time()
-    # transform permutation_matrix to be in lattice neigbhor format
-    pm_lattice_neighbors \
-        = __get_latNbr_permutation_matrix(prim_structure, permutation_matrix,
-                                          prune=True, verbosity=verbosity)
+    # transform permutation_matrix to be in lattice site format
+    pm_lattice_sites \
+        = __get_lattice_site_permutation_matrix(prim_structure,
+                                                permutation_matrix,
+                                                prune=True,
+                                                verbosity=verbosity)
     t1 = time.time()
-    time_taken = t1 - t0
-    total_time_taken += time_taken
+    time_spent = t1 - t0
+    total_time_spent += time_spent
 
     if verbosity > 3:
         msg = ['Transformation of permutation matrix to lattice neighbor']
-        msg += ['format completed (time: {} s)'.format(time_taken)]
+        msg += ['format completed (time: {} s)'.format(time_spent)]
         print(' '.join(msg))
 
     t0 = time.time()
-    orbitlist = OrbitList(prim_structure, pm_lattice_neighbors, neighborlists)
+    orbitlist = OrbitList(prim_structure, pm_lattice_sites, neighborlists)
     t1 = time.time()
-    time_taken = t1 - t0
-    total_time_taken += time_taken
+    time_spent = t1 - t0
+    total_time_spent += time_spent
 
     if verbosity > 3:
-        print('Done construction orbitlist. Time {0} s'.format(time_taken))
+        print('Finished construction of orbitlist.'
+              ' Time {} s'.format(time_spent))
 
     if verbosity > 3:
-        print('Total time {0} s'.format(total_time_taken))
+        print('Total time {} s'.format(total_time_spent))
 
     return orbitlist
