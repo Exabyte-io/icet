@@ -1,17 +1,16 @@
 from _icetdev import Neighborlist
 from icetdev.structure import Structure
+from ase import Atoms
 
 
-def get_neighborlists(atoms=None, structure=None, cutoffs=None):
+def get_neighborlists(atoms, cutoffs=None):
     '''
     Return list of icet neigbhorlists from a configuration and cutoffs
 
     Parameters
     ----------
-    atoms:
-        ASE atoms object (bi-optional) need atleast this or structure
-    structure:
-        icet structure object (bi-optional) need atleast this or atoms
+    atoms : ASE atoms object / icet structure object (bi-optional)
+        atomic configuration
     cutoffs:
         positive floats indicating the cutoffs for the various clusters
 
@@ -20,12 +19,15 @@ def get_neighborlists(atoms=None, structure=None, cutoffs=None):
     list of neighborlists
     '''
 
-    if structure is None:
-        if atoms is None:
-            raise Exception(
-                'Error: both atoms and structure is None in get_mbnls')
-        else:
-            structure = Structure.from_atoms(atoms)
+    # deal with different types of structure objects
+    if isinstance(atoms, Atoms):
+        structure = Structure.from_atoms(atoms)
+    elif isinstance(atoms, Structure):
+        structure = atoms
+    else:
+        msg = ['Unknown structure format']
+        msg += ['{} (ClusterSpace)'.format(type(atoms))]
+        raise Exception(' '.join(msg))
 
     neighborlists = []
     if cutoffs is None:

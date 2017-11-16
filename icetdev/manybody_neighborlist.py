@@ -2,19 +2,17 @@ from _icetdev import ManybodyNeighborlist
 from icetdev.lattice_site import LatticeSite
 from icetdev.neighborlist import get_neighborlists
 from icetdev.structure import Structure
+from ase import Atoms
 
 
-def get_all_lattice_neighbors(atoms=None, structure=None,
-                              neighborlists=None, cutoffs=None):
+def get_all_lattice_neighbors(atoms, neighborlists=None, cutoffs=None):
     '''
     Generate lattice neighbors for a configuration.
 
     Parameters
     ----------
-    atoms : ASE Atoms object
-        input structure (bi-optional)
-    structure :  icet Structure object
-        input structure (bi-optional)
+    atoms : ASE atoms object / icet structure object (bi-optional)
+        atomic configuration
     neighborlists : array/list of icet NeighborList objects
         neighbor lists; if None neighbor lists will be created, which
         requires cutoffs to be specified
@@ -32,12 +30,16 @@ def get_all_lattice_neighbors(atoms=None, structure=None,
 
     bothways = False
     lattice_neighbors = []
-    # get structure
-    if structure is None:
-        if atoms is None:
-            raise Exception('Need to specify either atoms or structure')
-        else:
-            structure = Structure.from_atoms(atoms)
+
+    # deal with different types of structure objects
+    if isinstance(atoms, Atoms):
+        structure = Structure.from_atoms(atoms)
+    elif isinstance(atoms, Structure):
+        structure = atoms
+    else:
+        msg = ['Unknown structure format']
+        msg += ['{} (ClusterSpace)'.format(type(atoms))]
+        raise Exception(' '.join(msg))
 
     # get neigbhor lists
     if neighborlists is None:
