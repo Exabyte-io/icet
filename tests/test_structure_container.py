@@ -14,41 +14,35 @@ subelements = ['Ag', 'Au']
 cutoffs = [4.0] * 3
 atoms_prim = bulk('Ag')
 
-atoms_supercell = atoms_prim.repeat(3)
+atoms_supercell = atoms_prim.repeat(2)
 
 
-def random_configuration(atoms_supercell, subelements):
+def generate_configuration(atoms_supercell):
     '''
-    Generate a random structure with atoms_supercell as a base
-    and fill it randomly with elements in subelements
-
+    Generate a structure for testing.
     '''
 
     from ase.calculators.emt import EMT
-    import random
-    random.seed(23)
     conf = atoms_supercell.copy()
-    for atom in conf:
-        elem = random.choice(subelements)
-        atom.symbol = elem
 
     calc = EMT()
     conf.set_calculator(calc)
     conf.get_total_energy()
-    conf.keys = {'energy':conf.get_total_energy(), 'efermi':0.1, 'eLUMO':3.0}
-
-    formula = conf.get_chemical_formula()
-    tag = '{}'.format(formula)
-    conf.tag = tag
+    conf.keys = {'energy': conf.get_total_energy(),
+                 'efermi': 0.1,
+                 'LUMO': 3.0}
 
     return conf
 
 
+print('')
 atoms_list = []
-number_of_structures = 10
+number_of_structures = 4
 
 for index in range(number_of_structures):
-    conf = random_configuration(atoms_supercell, subelements)
+    conf = generate_configuration(atoms_supercell)
+    tag = 'user-provided-name-{}'.format(index)
+    conf.tag = tag
     atoms_list.append(conf)
 
 cs = ClusterSpace(atoms_prim, cutoffs, subelements)
@@ -60,7 +54,7 @@ assert sc.get_number_of_structures() == number_of_structures
 # testing structure getter
 assert isinstance(sc.get_structures(conf.tag), Atoms)
 
-# testing clustervector 
+# testing clustervector
 cv_target = np.array(cs.get_clustervector(conf))
 cv = sc.get_clustervector(conf.tag)
 assert np.all(np.abs(cv_target - cv) < 1e-6)
@@ -68,3 +62,6 @@ assert np.all(np.abs(cv_target - cv) < 1e-6)
 # testing list of available properties
 en = sc.get_properties('energy', conf.tag)
 assert en == conf.keys['energy']
+
+# test __repr__ function of StructureContainer class
+print(sc)

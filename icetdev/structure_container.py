@@ -1,4 +1,3 @@
-import logging
 from collections import OrderedDict
 
 
@@ -83,16 +82,16 @@ class StructureContainer(object):
             if structure.user_tag == user_tag:
                 return structure.properties[key]
 
-    def print_structures(self):
+    def __repr__(self):
         '''
         Print basic information about each structure in structure list
         '''
         def repr_structure(index, structure):
             fields = OrderedDict([
-                ('index',     '{:4}'.format(index)),
-                ('user_tag',  '{:24}'.format(structure.user_tag)),
-                ('numatoms',  '{:5}'.format(len(structure))),
-                ('properties',   '{:7.4f}'.format(structure.properties))])
+                ('index',      '{:4}'.format(index)),
+                ('user_tag',   '{:24}'.format(structure.user_tag)),
+                ('numatoms',   '{:5}'.format(len(structure))),
+                ('properties', '{:}'.format(structure.properties))])
             s = []
             for name, value in fields.items():
                 n = max(len(name), len(value))
@@ -104,11 +103,12 @@ class StructureContainer(object):
 
         dummy = self._structure_list[0]
         n = len(repr_structure(-1, dummy))
-        logging.info('{s:-^{n}}'.format(s=' Structures ', n=n))
-        logging.info(repr_structure(-1, dummy))
-
+        s = []
+        s += ['{s:-^{n}}'.format(s=' Structure Container ', n=n)]
+        s += [repr_structure(-1, dummy)]
         for i, structure in enumerate(self._structure_list):
-            logging.info(repr_structure(i, structure))
+            s += [repr_structure(i, structure)]
+        return '\n'.join(s)
 
     def add_structure(self, atoms, user_tag=None,
                       compute_cvs=True,
