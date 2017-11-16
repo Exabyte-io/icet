@@ -1,51 +1,59 @@
 import numpy as np
 
+
 class ClusterExpansion(object):
-    """
-        Cluster expansion model
+    '''
+    Cluster expansion model
 
-        attributes:
-        -----------
-        clusterspace : icet clusterspace object
-        parameters : list of floats
-
-    """
+    Attributes
+    ----------
+    clusterspace : icet ClusterSpace object
+        the cluster space that was used for constructing the cluster expansion
+    parameters : list of floats
+        effective cluster interactions (ECIs)
+    '''
 
     def __init__(self, clusterspace, parameters):
-        """
-        Init
-        Parameters:
-        -----------
-            :param clusterspace: icet ClusterSpace object
-            :param parameters: list of floats
-        """
+        '''
+        Initialize a ClusterExpansion object.
+
+        Parameters
+        ----------
+        clusterspace : icet ClusterSpace object
+            the cluster space to be used for constructing the cluster expansion
+        parameters : list of floats
+            effective cluster interactions (ECIs)
+        '''
         self._clusterspace = clusterspace
         self._parameters = parameters
 
     def predict(self, structure):
-        """
-        Predict a property from the input structure
+        '''
+        Use the cluster expansion to predict the property of interest
+        (e.g., the energy) for the input structure.
 
-        Parameters:
-        -----------
-            :param structure: icet Structure or ASE Atoms object
+        Parameters
+        ----------
+        structure : icet Structure or ASE Atoms object
+            input structure
 
-        Returns:
+        Returns
         -------
         float
-            The predicted property of the structure
-        """
+            property value predicted by the cluster expansion
+        '''
 
-        clustervector = self.clusterspace.get_clustervector(structure)        
-        property = np.dot(clustervector, self.parameters)
-        return property
+        clustervector = self.clusterspace.get_clustervector(structure)
+        prop = np.dot(clustervector, self.parameters)
+        return prop
 
     @property
     def clusterspace(self):
-        '''icet clusterspace object'''
+        '''icet ClusterSpace object : cluster space the cluster expansion is
+        based on'''
         return self._clusterspace
 
     @property
     def parameters(self):
-        '''parameters'''
+        '''list of floats : effective cluster interactions (ECIs)'''
         return self._parameters
