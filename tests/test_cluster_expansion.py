@@ -28,6 +28,7 @@ def test_clusterexpansion_model(atoms, cutoffs, subelements):
     assert isinstance(predicted_val, float), 'Prediction is not of float type'
 
 
+print('')
 db = connect('structures_for_testing.db')
 subelements = ['H', 'He', 'Pb']
 cutoffs = [1.4] * 3
