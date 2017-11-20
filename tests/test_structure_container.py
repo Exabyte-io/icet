@@ -64,7 +64,7 @@ class TestStructureContainer(unittest.TestCase):
     '''
     Container for tests of the class functionality
     '''
-    
+
     def setUp(self):
         '''
         Instantiate class before each test.
@@ -171,6 +171,10 @@ index |   user_tag   |              properties               | numatoms | fit_re
         '''
         sc_cs = self.sc.get_cluster_space
         self.assertEqual(sc_cs, cs)
+
+def suite():
+    test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStructureContainer)
+    return test_suite
 
 
 if __name__ == '__main__':

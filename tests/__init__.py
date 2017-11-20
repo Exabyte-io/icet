@@ -2,7 +2,7 @@ from __future__ import print_function
 import os
 import unittest
 from glob import glob
-
+import test_structure_container as TestStructureContainer
 
 class ScriptTestCase(unittest.TestCase):
     def __init__(self, methodname='testfile', filename=None):
@@ -60,7 +60,10 @@ def run_test(verbosity=2, files=None):
     for test in tests:
         if test.endswith('__.py'):
             continue
-        testSuite.addTest(ScriptTestCase(filename=os.path.abspath(test)))
+        elif test.endswith('_container.py'):
+            testSuite.addTest(TestStructureContainer.suite())
+        else:
+            testSuite.addTest(ScriptTestCase(filename=os.path.abspath(test)))
 
     print('')
     ttr = unittest.TextTestRunner(verbosity=verbosity)
