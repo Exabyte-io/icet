@@ -159,10 +159,8 @@ As an issue reporter:
             _I can explain my temperature dependent observations._
          2. _As a developer, I would like to easily figure out how to best_
             _contribute to the IceT project._
-
      For a discussion of good user stories, see 
-     [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories).
-     
+     [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
      It is also a good idea to describe how a succesful implementation can be 
      demonstrated. E.g.:
      
