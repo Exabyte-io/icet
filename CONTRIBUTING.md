@@ -163,7 +163,9 @@ As an issue reporter:
      For a discussion of good user stories, see 
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories).
      
-     It is also a good idea to describe how a succesful implementation can be demonstrated. E.g.:
+     It is also a good idea to describe how a succesful implementation can be 
+     demonstrated. E.g.:
+     
          1. DEMO: Demonstrate that a user via python can;
              1. import neutron powder diffraction data 
              2. Make a IceT / MCHammer simulation for finite temperature
@@ -175,6 +177,7 @@ As an issue reporter:
                homepage
             2. Contribute successfully to the code (i.e. pass a review) after
                having read the guidelines.
+               
    * When creating a __bug report__, it is important to describe how the bug can 
      be reproduced.
 * Invite comments from users, developers, and the [product owner
