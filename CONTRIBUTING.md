@@ -154,11 +154,12 @@ As an issue reporter:
      Good practise is to write a 
      [user story](https://www.mountaingoatsoftware.com/agile/user-stories), 
      e.g.:
-         1. As a user at a neutron source, I would like to be able to compare 
-            my acquired powder diffraction data with IceT simulations, so that I
-            can explain my temperature dependent observations.
-         2. As a developer, I would like to easily figure out how to best 
-            contribute to the IceT project. 
+         1. _As a user at a neutron source, I would like to be able to compare_ 
+            _my acquired powder diffraction data with IceT simulations, so that_
+            _I can explain my temperature dependent observations._
+         2. _As a developer, I would like to easily figure out how to best_
+            _contribute to the IceT project._
+
      For a discussion of good user stories, see 
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
      It is also a good idea to describe how a succesful implementation can be demonstrated.
