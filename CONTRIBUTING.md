@@ -162,8 +162,20 @@ As an issue reporter:
 
      For a discussion of good user stories, see 
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
-     It is also a good idea to describe how a succesful implementation can be demonstrated.
-   * When creating a __bug report__, it is important to describe how the bug can be reproduced.
+     It is also a good idea to describe how a succesful implementation can be demonstrated. E.g.:
+         1. DEMO: Demonstrate that a user via python can 
+             1. import neutron powder diffraction data 
+             2. Make a IceT / MCHammer simulation for finite temperature
+             3. Calculate the scattering curves from the ensemble obtained from 
+                the Ice/MCHammer simulation
+             4. Plot experimental data and simulation data in the same widget
+         2. DEMO: A potential developer, rather than actual developer, can 
+            1. find the contribution guidelines when pointed to the IceT 
+               homepage
+            2. Contribute successfully to the code (i.e. pass a review) after
+               having read the guidelines.
+   * When creating a __bug report__, it is important to describe how the bug can 
+     be reproduced.
 * Invite comments from users, developers, and the [product owner
   ](https://en.wikipedia.org/wiki/Scrum_(software_development)#Product_owner) 
   and other stakeholders via the GitLab interface (e.g., use `@username` to 
