@@ -87,15 +87,16 @@ class ClusterSpace(_ClusterSpace):
             return ' | '.join(s)
 
         # basic information
-        s = ['Clusterspace']
+        cluster = self.get_orbit(0).get_representative_cluster()
+        n = len(repr_cluster(-1, cluster))
+        s = []
+        s += ['{s:-^{n}}'.format(s=' Cluster Space ', n=n)]
         s += [' subelements: {}'.format(' '.join(self.get_atomic_numbers()))]
         s += [' cutoffs: {}'.format(' '.join(['{}'.format(co)
                                              for co in self.cutoffs]))]
-        s += [' total size of clusterspace: {}'.format(len(self))]
+        s += [' number of orbits: {}'.format(len(self))]
 
         # table header
-        cluster = self.get_orbit(0).get_representative_cluster()
-        n = len(repr_cluster(-1, cluster))
         horizontal_line = '{s:-^{n}}'.format(s='', n=n)
         s += [horizontal_line]
         s += [repr_cluster(-1, cluster)]

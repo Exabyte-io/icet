@@ -22,7 +22,7 @@ tests:
   dependencies:
     - build_linux
   script:
-    - pip3 install coverage
+    - export PATH=${PATH}:${HOME}/.local/bin
     - export PYTHONPATH=$PWD:$PYTHONPATH
     - export PYTHONPATH=$PWD/build/src/:$PYTHONPATH
     - coverage run tests/__init__.py
