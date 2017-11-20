@@ -144,29 +144,45 @@ Commits/issues/merge requests
 
 Bug reports, features suggestions, code review etc must be handled via gitlab.
 The following [workflow](https://xkcd.com/1172/) is *strongly* encouraged:
-* creatie an issue
-* invite comments from users, developers, and the [product
-  owner](https://en.wikipedia.org/wiki/Scrum_(software_development)#Product_owner)
+
+__Preparation phase:__
+As an issue reporter:
+* Create an issue in the Backlog. 
+** When creating an issue for a __feature request__, it is good practise to describe who the issue is to be developed for, what should be achieved, and ensure that implementation of the feature result in user value. Good practise is to write a [user story](https://www.mountaingoatsoftware.com/agile/user-stories), e.g.:
+1. As a user at a neutron source, I would like to be able to compare my acquired powder diffraction data with IceT simulations, so that I can explain my temperature dependent observations.
+2. As a developer, I would like to easily figure out how to best contribute to the IceT project. 
+For a discussion of good user stories, see [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
+It is also a good idea to describe how a succesful implementation can be demonstrated.
+** When creating a bug report, it is important to describe how the bug can be reproduced.
+* Invite comments from users, developers, and the [product
+  owner](https://en.wikipedia.org/wiki/Scrum_(software_development)#Product_owner) and other stakeholders
   via the GitLab interface (e.g., use `@username` to address specific team
   members in issue descriptions, messages, or discussions)
-* review the input; in the case of *any* somewhat larger issues the decision
-  whether (and how) to move ahead *must* be discussed and approved by at least
-  one more experienced team member, preferably the product owner
-* create a branch from the issue via the GitLab interface
-* once the work on the issue has been completed *first* clean up your code and
-  review the [items that will be covered during code review (see
-  below)](http://commadot.com/wtf-per-minute/); *then* submit a merge request
-* the merge request must be [reviewed by *another* developer](https://www.xkcd.com/1833/) for
+* Review the input and make adjustments according to input. If the issue is considered to take more than five days to complete, try to split it into smaller ones, each with their own user story.
+* Once the issue is ready for development, the product owner and *only* the product owner (or a person appointed by the product owner) can move the issue to the 'todo' column. The product owner may choose to assign the issue to a developer or let it be up for grasp for anyone interested.
+
+__Development phase:__
+As a developer:
+* If the issue is not already assigned to you, assign it to yourself. Move the issue to the 'doing' column.
+* Create a branch from the issue via the GitLab interface. Ensure that other people can see from the issue which branch you are working on. 
+* Once the work on the issue has been completed *first* clean up your code and
+  review the [items that will be covered during review (see
+  below)](http://commadot.com/wtf-per-minute/). Make sure that the described demonstration can be done, that there are unit tests, and developer and user documentation. 
+* Move the issue to the column 'review'. Reassign the issue to the reviewer or leave the issue unassigned and thus up for grasp. 
+
+__Review phase:__
+* The development related to the issue must be [reviewed by *another* developer](https://www.xkcd.com/1833/) for
   * code passes all existing tests
   * functionality
   * performance
   * code quality
   * compliance to style guide
   * addition of new unit tests
-  In this step, the responsibility for making the code compliant resides with
+  * demonstration is fulfilled
+* If the code review is successful the code is merged into master by the
+  reviewer. If the review is unsuccesful, the reviewer's comments are added as a comment to the issue. Reviewer moves the issue back to the 'todo' column and reassign the issue to the developer. 
+  The responsibility for making the code compliant resides with
   the developer *not* the reviewer.
-* if the code review is successful the code is merged into master by the
-  reviewer
 For almost all issues, the time from creating a branch to merging into master
 should not exceed two weeks (one week is preferable).
 
