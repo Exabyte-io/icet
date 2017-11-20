@@ -163,7 +163,6 @@ As an issue reporter:
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
      It is also a good idea to describe how a succesful implementation can be 
      demonstrated. E.g.:
-     
          1. DEMO: Demonstrate that a user via python can;
              1. import neutron powder diffraction data 
              2. Make a IceT / MCHammer simulation for finite temperature
