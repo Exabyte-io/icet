@@ -104,8 +104,8 @@ correctness](https://isocpp.org/wiki/faq/const-correctness).
 Python
 ------
 
-Code should be [pep8](https://www.python.org/dev/peps/pep-0008/) compliant and
-pass [pyflakes](https://pypi.python.org/pypi/pyflakes). (Eventually,
+Code should be [pep8](https://www.Python.org/dev/peps/pep-0008/) compliant and
+pass [pyflakes](https://pypi.Python.org/pypi/pyflakes). (Eventually,
 pep8/pyflakes will be added to the CI, at which point code *must* be
 compliant.)
 
@@ -117,7 +117,7 @@ Python Docstrings](http://sphinxcontrib-
 napoleon.readthedocs.io/en/latest/example_numpy.html).
 
 When in doubt ask the main developers. Also [the coding conventions from
-ASE](https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html)
+ASE](https://wiki.fysik.dtu.dk/ase/development/Python_codingstandard.html)
 provide useful guidelines.
 
 Good job, you are still reading! [Will you make it to the
@@ -134,7 +134,7 @@ like [Silicon Valley](https://www.youtube.com/watch?v=SsoOG6ZeyUI) you should
 know that [developers who use spaces make more
 money](https://stackoverflow.blog/2017/06/15/developers-use-spaces-make-money-use-tabs/).
 Also the use of spaces is strongly recommended by our beloved
-[pep8](https://www.python.org/dev/peps/pep-0008/) standard.
+[pep8](https://www.Python.org/dev/peps/pep-0008/) standard.
 
 
 Commits/issues/merge requests
@@ -156,31 +156,31 @@ As an issue reporter:
      [user story](https://www.mountaingoatsoftware.com/agile/user-stories), 
      e.g.:
          1. _As a user at a neutron source, I would like to be able to compare_ 
-            _my acquired powder diffraction data with IceT simulations, so that_
+            _my acquired powder diffraction data with `icet` simulations, so that_
             _I can explain my temperature dependent observations._
          2. _As a developer, I would like to easily figure out how to best_
-            _contribute to the IceT project._
+            _contribute to the `icet` project._
 
          For a discussion of good user stories, see 
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
      It is also a good idea to describe how a succesful implementation can be 
-     demonstrated. E.g. for the above user stories we can write:
-         1. DEMO: Demonstrate that a user via python can;
-             1. import neutron powder diffraction data 
-             2. Make a IceT / MCHammer simulation for finite temperature
+     demonstrated. For example for the above user stories we can write:
+         1. DEMO: Demonstrate that a user via Python can;
+             1. Import neutron powder diffraction data 
+             2. Carry out an `icet`/`mchammer` simulation at finite temperature
              3. Calculate the scattering curves from the ensemble obtained from 
-                the Ice/MCHammer simulation
+                the `icet`/`mchammer` simulation
              4. Plot experimental data and simulation data in the same widget
-         2. DEMO: A potential developer, rather than actual developer, can; 
-            1. find the contribution guidelines when pointed to the IceT 
+         2. DEMO: A potential developer, rather than an actual developer, can
+            1. find the contribution guidelines when pointed to the `icet` 
                homepage
             2. Contribute successfully to the code (i.e. pass a review) after
                having read the guidelines.
                
    * When creating a __bug report__, it is important to describe how the bug can 
      be reproduced.
-* Invite comments from users, developers, and the [product owner
-  ](https://en.wikipedia.org/wiki/Scrum_(software_development)#Product_owner) 
+* Invite comments from users, developers, and the [product
+  owner](https://en.wikipedia.org/wiki/Scrum_(software_development)#Product_owner) 
   and other stakeholders via the GitLab interface (e.g., use `@username` to 
   address specific team members in issue descriptions, messages, or discussions)
 * Review the input and make adjustments according to input. If the issue is 
@@ -188,15 +188,14 @@ As an issue reporter:
   smaller ones, each with their own user story.
 * Once the issue is ready for development, the product owner and *only* the 
   product owner (or a person appointed by the product owner) can move the issue 
-  to the 'todo' column. The product owner may choose to assign the issue to a 
+  to the `To Do` column. The product owner may choose to assign the issue to a 
   developer or let it be up for grasp for anyone interested.
 
 __Development phase:__
 
 As a developer:
 * If the issue is not already assigned to you, assign it to yourself. Move the 
-  issue to the 'doing' column.
-
+  issue to the `Doing` column.
 * Create a branch from the issue via the GitLab interface. Ensure that other 
   people can see from the issue which branch you are working on. 
 * Once the work on the issue has been completed *first* clean up your code and
@@ -204,7 +203,7 @@ As a developer:
   below)](http://commadot.com/wtf-per-minute/). Make sure that the described 
   demonstration can be done, that there are unit tests (or regression tests in
   case of bug fixes), and developer and user documentation. 
-* Move the issue to the column 'review'. Reassign the issue to [*another* 
+* Move the issue to the column `Review`. Reassign the issue to [*another* 
   developer](https://www.xkcd.com/1833/) or leave the issue unassigned and thus 
   up for grasp by *another* developer
 
@@ -223,10 +222,11 @@ As a reviewer:
   * compliance to style guide
   * addition of new unit tests
   * demonstration is fulfilled
+
 * If the code review is successful the code is merged into master by the
   reviewer. If the review is unsuccesful, the reviewer's comments are added as a 
-  comment to the issue. Reviewer moves the issue back to the 'todo' column and 
-  reassign the issue to the developer. 
+  comment to the issue. Reviewer moves the issue back to the `To Do` column and 
+  reassigns the issue to the developer. 
   The responsibility for making the code compliant resides with
   the developer *not* the reviewer.
 For almost all issues, the time from creating a branch to merging into master
@@ -248,14 +248,6 @@ commit/issue/merge request.
 * MAINT: maintenance commit (refactoring, typos, etc.)
 * STY: style fix (whitespace, PEP8)
 * TST: addition or modification of tests
-* REL: related to releases
-
-Less common:
-* API: an (incompatible) API change
-* DEP: deprecate something, or remove a deprecated object
-* DEV: development tool or utility
-* FIG: images and figures
-* REV: revert an earlier commit
 
 The first line should not exceed 78 characters. If you require more
 space, insert an empty line after the "title" and add a longer message
