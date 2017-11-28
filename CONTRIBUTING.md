@@ -146,6 +146,7 @@ Bug reports, features suggestions, code review etc must be handled via gitlab.
 The following [workflow](https://xkcd.com/1172/) is *strongly* encouraged:
 
 __Preparation phase:__
+
 As an issue reporter:
 * Create an issue in the Backlog. 
    * When creating an issue for a __feature request__, it is good practise to 
@@ -159,10 +160,11 @@ As an issue reporter:
             _I can explain my temperature dependent observations._
          2. _As a developer, I would like to easily figure out how to best_
             _contribute to the IceT project._
-     For a discussion of good user stories, see 
+
+         For a discussion of good user stories, see 
      [discussion on Mountain Goat's homepage](https://www.mountaingoatsoftware.com/agile/user-stories)
      It is also a good idea to describe how a succesful implementation can be 
-     demonstrated. E.g.:
+     demonstrated. E.g. for the above user stories we can write:
          1. DEMO: Demonstrate that a user via python can;
              1. import neutron powder diffraction data 
              2. Make a IceT / MCHammer simulation for finite temperature
@@ -190,22 +192,30 @@ As an issue reporter:
   developer or let it be up for grasp for anyone interested.
 
 __Development phase:__
+
 As a developer:
 * If the issue is not already assigned to you, assign it to yourself. Move the 
   issue to the 'doing' column.
+
 * Create a branch from the issue via the GitLab interface. Ensure that other 
   people can see from the issue which branch you are working on. 
 * Once the work on the issue has been completed *first* clean up your code and
   review the [items that will be covered during review (see
   below)](http://commadot.com/wtf-per-minute/). Make sure that the described 
-  demonstration can be done, that there are unit tests, and developer and user 
-  documentation. 
-* Move the issue to the column 'review'. Reassign the issue to the reviewer or 
-  leave the issue unassigned and thus up for grasp. 
+  demonstration can be done, that there are unit tests (or regression tests in
+  case of bug fixes), and developer and user documentation. 
+* Move the issue to the column 'review'. Reassign the issue to [*another* 
+  developer](https://www.xkcd.com/1833/) or leave the issue unassigned and thus 
+  up for grasp by *another* developer
 
 __Review phase:__
-* The development related to the issue must be [reviewed by *another* 
-  developer](https://www.xkcd.com/1833/) for
+
+As a reviewer:
+* If the issue up for review is not already assigned to you, assign it to 
+  yourself. 
+
+* The development related to the issue must be reviewed for
+  * sufficient test coverage. 
   * code passes all existing tests
   * functionality
   * performance
