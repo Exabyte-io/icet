@@ -62,7 +62,7 @@ class ClusterSpace(_ClusterSpace):
         _ClusterSpace.__init__(self, Mi, chemical_symbols, orbit_list)
         self.cutoffs = cutoffs
 
- def __repr__(self):
+    def __repr__(self):
         '''
         String representation of the clusterspcace.
         '''

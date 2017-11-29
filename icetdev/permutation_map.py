@@ -9,7 +9,7 @@ from icetdev.structure import Structure
 from icetdev.tools.geometry import get_scaled_positions
 
 
-def add_vacuum_in_non_periodic_directions(atoms, vacuum=30.0):
+def __vacuum_on_non_pbc(atoms):
     '''
     Add vacuum in non-periodic directions.
 
@@ -17,15 +17,23 @@ def add_vacuum_in_non_periodic_directions(atoms, vacuum=30.0):
     ----------
     atoms : ASE Atoms object
         input structure
+
+    Returns
+    -------
+    ASE Atoms object
+        output structure
     '''
+
     vacuum_axis = []
     for i, pbc in enumerate(atoms.pbc):
         if not pbc:
             vacuum_axis.append(i)
 
     if len(vacuum_axis) > 0:
-        atoms.center(vacuum=vacuum, axis=vacuum_axis)
+        atoms.center(30, axis=vacuum_axis)
     atoms.wrap()
+
+    return atoms
 
 
 def __get_primitive_structure(atoms):
@@ -43,7 +51,7 @@ def __get_primitive_structure(atoms):
         output structure
     '''
 
-    add_vacuum_in_non_periodic_directions(atoms)
+    atoms = __vacuum_on_non_pbc(atoms)
     lattice, scaled_positions, numbers = spglib.standardize_cell(
         atoms, to_primitive=True, no_idealize=True)
     scaled_positions = [np.round(pos, 12) for pos in scaled_positions]
@@ -51,6 +59,15 @@ def __get_primitive_structure(atoms):
                        numbers=numbers, cell=lattice, pbc=atoms.pbc)
     atoms_prim.wrap()
     return atoms_prim
+
+def vacuum_on_non_pbc(atoms):
+    '''
+    Returns atoms with non pbc after adding vacuum along non 
+    periodic directions 
+
+    '''
+    atoms = __vacuum_on_non_pbc(atoms)
+    return atoms
 
 
 def __get_fractional_positions_from_neigborlist(structure, neighborlist):
