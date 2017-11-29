@@ -59,6 +59,21 @@ OrbitList LocalOrbitlistGenerator::generateLocalOrbitlist(const Vector3d &primOf
     return _orbitlist.getLocalOrbitList(_supercell, primOffset, _primToSupercellMap);
 }
 
+
+/// Generate the complete orbitlist (the sum of all local orbitlists)
+OrbitList LocalOrbitlistGenerator::generateFullOrbitlist()
+{
+    OrbitList orbitList = OrbitList();
+    for(int i = 0; i < getUniqueOffsetsCount(); i++)
+    {
+        orbitList += generateLocalOrbitlist(i);
+    }
+    return orbitList;
+
+
+}
+
+
 //clears the unordered_map and the vector
 void LocalOrbitlistGenerator::clear()
 {

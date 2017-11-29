@@ -253,10 +253,12 @@ class Orbit
 
             for (size_t i = 0; i < rep_sites_this.size(); i++)
             {
-                if (rep_sites_this[i].index() != rep_sites_rhs[i].index())
-                {
-                    throw std::runtime_error("Error: this orbit and orbit_rhs do not have the same reference cluster in function: Orbit &operator+=");
-                }
+                // 
+                // if (rep_sites_this[i].index() != rep_sites_rhs[i].index())
+                // {
+                //     std::cout<< rep_sites_this[i].index()<< " "<< rep_sites_rhs[i].index()<<std::endl;
+                //     throw std::runtime_error("Error: this orbit and orbit_rhs do not have the same reference cluster in function: Orbit &operator+=");
+                // }
                 if (i == 0)
                 {
                     offsetOfOffsets = rep_sites_this[i].unitcellOffset() - rep_sites_rhs[i].unitcellOffset();
@@ -281,11 +283,9 @@ class Orbit
 
             const auto rhsEquivalentSites = orbit_rhs.getEquivalentSites();
             const auto rhsEquivalentSitesPermutations = orbit_rhs.getEquivalentSitesPermutations();
-            std::cout<<"size before "<< _equivalentSites.size()<<std::endl;
             //Insert rhs eq sites and corresponding permutations
             _equivalentSites.insert(_equivalentSites.end(), rhsEquivalentSites.begin(), rhsEquivalentSites.end());
             _equivalentSitesPermutations.insert(_equivalentSitesPermutations.end(), rhsEquivalentSitesPermutations.begin(), rhsEquivalentSitesPermutations.end());
-            std::cout<<"size after "<< _equivalentSites.size()<<std::endl;
             return *this;
         }
 

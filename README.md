@@ -2,20 +2,15 @@
 [![coverage report](https://gitlab.com/icet/icet-dev/badges/master/coverage.svg)](https://icet.gitlab.io/icet-dev/.test/coverage)
 
 
-icet2 &mdash; The tea party for runaways
-========================================
+icet &mdash; The Pythonic approach to cluster expansions
+========================================================
 
-This repo represents the next stage in the development of *icet* - the pythonic
-approach to cluster expansions. Eventually, the code will enable the
-construction and sampling of cluster expansions for multi-component systems.
-Extensive functionality will be provided to access both high and low-level
-information concerning, e.g., cluster space, cluster vectors, and effective
-cluster interactions. The Monte Carlo module will enable sampling in different
-thermodynamic ensembles and provide a flexible framework for extracting
-thermodynamic averages of various quantities.
+`icet` is a Python environment for the construction and sampling of alloy
+cluster expansions. It features a Python interface that enables seamless
+integration with other Python libraries including for example [NumPy](
+href=")http://www.numpy.org/), [SciPy](https://www.scipy.org/), or [scikit-
+learn](http://scikit-learn.org/). Yet, all computationally demanding parts are
+written in C++ providing performance while maintaining portability.
 
-
-useful links
-============
-https://github.com/pybind/pybind11  
-http://pybind11.readthedocs.io/en/master/index.html
+A detailed description of the features of `icet` along with background
+information and tutorials can be found in the user guide.

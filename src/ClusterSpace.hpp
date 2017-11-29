@@ -89,6 +89,12 @@ class ClusterSpace
         return _primitive_orbitlist.getOrbit(index);
     }
 
+    OrbitList getOrbitList() const
+    {
+        return _primitive_orbitlist;
+    }   
+
+    ///returns the primitive structure    
     Structure getPrimitiveStructure() const
     {
         return _primitive_structure;

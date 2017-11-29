@@ -4,8 +4,8 @@ import time
 from _icetdev import OrbitList
 from icetdev.neighborlist import get_neighborlists
 from icetdev.permutation_map import permutation_matrix_from_atoms
-
-
+from icetdev.local_orbitlist_generator import LocalOrbitlistGenerator
+from icetdev.structure import Structure
 def __fractional_to_cartesian(fractional_coordinates, cell):
     '''
     Convert from fractional to Cartesian coordinates.
@@ -75,6 +75,21 @@ def __prune_permutation_matrix(permutation_matrix, verbosity=0):
                     msg += ['i: {} j: {}'.format(i, j)]
                     print(' '.join(msg))
     return permutation_matrix
+
+
+def _get_supercell_orbitlist(self, atoms):
+    """
+    Returns a orbitlist for a supercell structure
+
+    atoms: ASE atoms object
+    """
+    structure = Structure.from_atoms(atoms)
+    log = LocalOrbitlistGenerator(self, structure)
+
+    supercell_orbitlist = log.generate_full_orbitlist()
+
+    return supercell_orbitlist
+OrbitList.get_supercell_orbitlist = _get_supercell_orbitlist
 
 
 def create_orbit_list(structure, cutoffs, verbosity=0):

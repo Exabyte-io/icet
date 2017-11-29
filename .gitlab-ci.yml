@@ -1,4 +1,4 @@
-image: registry.gitlab.com/icet/icet-dev:latest
+image: registry.gitlab.com/materials-modeling/icet:latest
 
 
 build_linux:

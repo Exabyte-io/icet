@@ -47,6 +47,9 @@ class LocalOrbitlistGenerator
     ///generate and returns the local orbitlist with the input offset (require that the offset is in uniquecell offset?)
     OrbitList generateLocalOrbitlist(const Vector3d & ) ;
 
+    /// Generate the full orbitlist from this structure
+    OrbitList generateFullOrbitlist();
+    
     //clears the unordered_map and the vector    
     void clear();
 

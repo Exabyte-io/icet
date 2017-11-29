@@ -171,7 +171,7 @@ class OrbitList
         return *this;
     }
 
-    OrbitList getSupercellOrbitlist(const Structure &superCell) const;
+    // OrbitList getSupercellOrbitlist(const Structure &superCell) const;
 
     ///Adds the permutation information to the orbits
     void addPermutationInformationToOrbits(const std::vector<LatticeSite> &, const std::vector<std::vector<LatticeSite>> &);
