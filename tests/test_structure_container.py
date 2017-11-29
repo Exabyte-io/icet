@@ -70,7 +70,7 @@ class TestStructureContainer(unittest.TestCase):
         Instantiate class before each test.
 
         '''
-        self.sc = StructureContainer(cs, atoms_list, properties)
+        self.sc = StructureContainer(cs, atoms_list)
 
     def test_init(self):
         '''
@@ -78,7 +78,7 @@ class TestStructureContainer(unittest.TestCase):
         (initialization) of tested class work
 
         '''
-        self.sc = StructureContainer(cs, atoms_list, properties)
+        self.sc = StructureContainer(cs, atoms_list)
 
     def test_len(self):
         '''
@@ -137,12 +137,13 @@ class TestStructureContainer(unittest.TestCase):
 
         '''
         retval = self.sc.__repr__()
-        target = """------------------------------- Structure Container -------------------------------
+        target = """-------------- Structure Container ---------------
 Total number of structures: 3
-index |   user_tag   |              properties               | numatoms | fit_ready
-   0  | Ag8          | energy: 0.001584   volumen:136.835858 |      8   |   True   
-   1  | Ag7Au        | energy:-0.000915   volumen:136.835858 |      8   |   True   
-   2  | Ag6Au2       | energy:-0.003188   volumen:136.835858 |      8   |   True   """
+index |   user_tag   | natoms | fit_ready | energy
+--------------------------------------------------
+   0  | None         |     8  |   True    | 0.002 
+   1  | None         |     8  |   True    | -0.001
+   2  | None         |     8  |   True    | -0.003"""
         self.assertEqual(target, retval)
 
     def test_get_properties(self):

@@ -64,7 +64,7 @@ class ClusterSpace(_ClusterSpace):
 
     def __repr__(self):
         '''
-        String representation of the clusterspcace.
+        String representation of the clusterspace.
         '''
 
         def repr_cluster(index, cluster, multiplicity=0,

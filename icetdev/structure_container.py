@@ -2,9 +2,8 @@ import numpy as np
 
 class StructureContainer(object):
 
-    def __init__(self, clusterspace,
-                 atoms_list=None,
-                 properties=None):
+    def __init__(self, clusterspace, 
+                 list_of_atoms=None):
 
         '''
         Initializes a StructureContainer object
@@ -17,19 +16,28 @@ class StructureContainer(object):
         clusterspace : icet ClusterSpace object
             the cluster space used for evaluating the cluster vectors
 
-        atoms_list : list of ASE Atoms objects
-            input structures
+        list_of_atoms : list or tuple (bi-optional)
+            list of input structures (ASE Atom objects) or tuple
+            with input structures, set of properties (dict) and user_tag (string).
+
+        TODO:
+        * Overload initialization for use cases where a duple as 
+        (structure, properties) or (structure, user_tag) is passed 
         '''
 
         self._clusterspace = clusterspace
 
-        # Add atomic structures
-        if atoms_list is not None:
-            if not isinstance(atoms_list, list):
-                raise ValueError('atoms_list must be list or None.')
+       # Add atomic structures
+        if list_of_atoms is not None:
+            if not isinstance(list_of_atoms, (list, tuple)):
+                raise ValueError('atoms_list must be list or tuple or None.')
+            if not isinstance(list_of_atoms, tuple):
+                list_of_atoms = [(atoms, None, None) for atoms in list_of_atoms]
             self._structure_list = []
-            for atoms, properties in zip(atoms_list, properties):
-                self.add_structure(atoms=atoms, properties=properties)
+            for atoms, properties, user_tag in list_of_atoms:
+                self.add_structure(atoms=atoms,
+                                   properties=properties,
+                                   user_tag=user_tag)
 
     def __len__(self):
         return len(self._structure_list)
@@ -37,7 +45,7 @@ class StructureContainer(object):
     def __getitem__(self, ind):
         return self._structure_list[ind]
 
-    def get_structure_indices(self, user_tag=None):
+    def __get_structure_indices(self, user_tag=None):
         '''
         Get structure indices via user_tag
 
@@ -49,25 +57,34 @@ class StructureContainer(object):
         Returns
         -------
         list
-            List of structures with corresponding user_tag
+            List of indexes of structures with a given user_tag
         '''
         return [i for i, s in enumerate(self) if user_tag is None or s.user_tag == user_tag]
+
+    def get_structure_indices(self, user_tag=None):
+        '''
+        Returns a lis of indexes of structures with
+        a given user_tag
+        '''
+        return self.__get_structure_indices(user_tag)
 
     def __repr__(self):
         '''
         Print basic information about each structure in structure list
 
-        TODO: print properties (with default units) in more fancy way
         '''
         def repr_structure(index, structure):
             from collections import OrderedDict
             fields = OrderedDict([
                 ('index',     '{:4}'.format(index)),
                 ('user_tag',  '{:12}'.format(structure.user_tag)),
-                ('properties', '{:}'.format('   '.join(['{:}:{:9.6f}'.format(k ,v)
-                                                       for k, v in sorted(structure.properties.items())]))),
-                ('numatoms',  '{:5}'.format(len(structure))),
+                ('natoms',    '{:5}'.format(len(structure))),
                 ('fit_ready', '{:5}'.format(str(structure.fit_ready)))])
+            sorted(structure.properties.items())
+            fields.update(structure.properties.items())
+            for key, value in fields.items():
+                if isinstance(value, float):
+                    fields[key] = '{:.3f}'.format(value)
             s = []
             for name, value in fields.items():
                 n = max(len(name), len(value))
@@ -85,6 +102,7 @@ class StructureContainer(object):
         s += ['{s:-^{n}}'.format(s=' Structure Container ', n=n)]
         s += ['Total number of structures: {}'.format(len(self))]
         s += [repr_structure(-1, dummy)]
+        s += [horizontal_line]
         # table body
         index = 0
         print_threshold = 24
@@ -102,8 +120,7 @@ class StructureContainer(object):
 
     def add_structure(self, atoms, user_tag=None,
                       properties=None,
-                      compute_clustervectors=True,
-                      map_to_prototype=False):
+                      compute_clustervectors=True):
         '''
         Add a structure to the training set.
 
@@ -117,21 +134,23 @@ class StructureContainer(object):
             if True, clustervector is computed
 
         '''
-        import logging
         atoms_copy = atoms.copy()
 
-        if user_tag is None:
-            user_tag = atoms_copy.get_chemical_formula(mode='hill')
+        if user_tag is not None:
+            if not isinstance(user_tag, str):
+                raise Exception('Skipping atoms object, user_tag has wrong type (str)')
+                return
+
+        if properties is None:
+            if atoms.calc is not None:
+                properties = {'energy': atoms.get_potential_energy()/len(atoms)}
+            else:
+                raise Exception('Skipping atoms object, no properties found')
+                return
 
         structure = FitStructure(atoms_copy, user_tag)
 
-        if properties is not None:
-            structure.set_properties(properties)
-        elif atoms.calc is not None:
-            structure.set_properties({'energy': atoms.get_potential_energy()/len(atoms)})
-        else:
-            raise Exception('Skipping atoms object, no properties found')
-            return
+        structure.set_properties(properties)
 
         if compute_clustervectors:
             cv = self._clusterspace.get_clustervector(atoms_copy)
@@ -160,9 +179,11 @@ class StructureContainer(object):
             cv_list = [s.clustervector
                        for s in self._structure_list if s.fit_ready]
             prop_list = [s.properties[key]
-                      for s in self._structure_list if s.fit_ready]
+                         for s in self._structure_list if s.fit_ready]
         else:
             cv_list, prop_list = [], []
+            if isinstance(structures, str):
+                structures = self.__get_structure_indices(structures)
             for i in structures:
                 if not self._structure_list[i].fit_ready:
                     raise ValueError('Structure {} is not fit ready'.format(i))
@@ -218,9 +239,11 @@ class StructureContainer(object):
         '''
         if structures is None:
             prop_list = [s.properties[key]
-                      for s in self._structure_list] #if fit_ready
+                         for s in self._structure_list] #if fit_ready
         else:
             prop_list = []
+            if isinstance(structures, str):
+                structures = self.__get_structure_indices(structures)
             for i in structures:
                 if not self._structure_list[i].fit_ready:
                     raise ValueError('Structure {} is not fit ready'.format(i))
@@ -244,6 +267,8 @@ class StructureContainer(object):
                       for s in self._structure_list]
         else:
             s_list = []
+            if isinstance(structures, str):
+                structures = self.__get_structure_indices(structures)
             for i in structures:
                 if not self._structure_list[i].fit_ready:
                     raise ValueError('Structure {} is not fit ready'.format(i))
