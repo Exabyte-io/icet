@@ -58,6 +58,7 @@ class StructureContainer(object):
         -------
         list
             List of indexes of structures with a given user_tag
+        
         '''
         return [i for i, s in enumerate(self) if user_tag is None or s.user_tag == user_tag]
 
@@ -65,6 +66,7 @@ class StructureContainer(object):
         '''
         Returns a lis of indexes of structures with
         a given user_tag
+        
         '''
         return self.__get_structure_indices(user_tag)
 
@@ -145,7 +147,7 @@ class StructureContainer(object):
             if atoms.calc is not None:
                 properties = {'energy': atoms.get_potential_energy()/len(atoms)}
             else:
-                raise Exception('Skipping atoms object, no properties found')
+                raise Exception('Skipping atoms object, properties not found')
                 return
 
         structure = FitStructure(atoms_copy, user_tag)
@@ -165,7 +167,7 @@ class StructureContainer(object):
 
         Parameters
         ----------
-        structures: list, tuple, int
+        structures: list, int, str
             list of integers corresponding to structure indices. Defaults to
             None and in that case returns all fit data available.
 
@@ -192,7 +194,7 @@ class StructureContainer(object):
 
         if len(cv_list) == 0:
             raise Exception('No available fit data for {}'.format(structures))
-            return np.array([]), np.array([])
+
         return np.array(cv_list), np.array(prop_list)
 
     def load_properties(self, structures=None, properties=None):
@@ -202,7 +204,7 @@ class StructureContainer(object):
 
         Parameters
         ----------
-        structures: list, tuple, int
+        structures: list, tuple, int, str
             list of indices of the desired structures
 
         properties: dict
@@ -224,12 +226,12 @@ class StructureContainer(object):
 
     def get_properties(self, structures=None, key='energy'):
         '''
-        Return a list of properties of a list
-        of structures.
+        Return a list of properties of a given list of indexes or
+        user_tag of structures.
 
         Parameters
         ----------
-        structures: list, tuple, int
+        structures: list, tuple, int, str
             list of indices of the desired structures
 
         key : string
@@ -279,7 +281,8 @@ class StructureContainer(object):
     @property
     def get_cluster_space(self):
         '''
-        Returns a copy of the icet ClusterSpace object. 
+        Returns a copy of the icet ClusterSpace object.
+
         '''
         return self._clusterspace
 
