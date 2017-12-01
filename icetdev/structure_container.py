@@ -1,9 +1,11 @@
 import numpy as np
+from ase import Atoms
 
 class StructureContainer(object):
 
     def __init__(self, clusterspace, 
-                 list_of_atoms=None):
+                 list_of_atoms=None,
+                 list_of_properties=None):
 
         '''
         Initializes a StructureContainer object
@@ -18,26 +20,32 @@ class StructureContainer(object):
 
         list_of_atoms : list or tuple (bi-optional)
             list of input structures (ASE Atom objects) or tuple
-            with input structures, set of properties (dict) and user_tag (string).
+            with input structures and user_tag (string).
 
-        TODO:
-        * Overload initialization for use cases where a duple as 
-        (structure, properties) or (structure, user_tag) is passed 
         '''
 
         self._clusterspace = clusterspace
 
        # Add atomic structures
         if list_of_atoms is not None:
-            if not isinstance(list_of_atoms, (list, tuple)):
-                raise ValueError('atoms_list must be list or tuple or None.')
-            if not isinstance(list_of_atoms, tuple):
-                list_of_atoms = [(atoms, None, None) for atoms in list_of_atoms]
+            assert isinstance(list_of_atoms, (list, tuple)), 'atoms_list must be list or tuple or None'
+
+            if list_of_properties is not None:
+                msg = ['len(list_of_properties) does not equal len(list_of_atoms)']
+                assert(len(list_of_properties) == len(list_of_atoms)), msg
+            else:
+                list_of_properties = [None]*len(list_of_atoms)
+
+            # transform list to tuple
+            if isinstance(list_of_atoms, list):
+                list_of_atoms = [(atoms, None) for atoms in list_of_atoms]
+
             self._structure_list = []
-            for atoms, properties, user_tag in list_of_atoms:
-                self.add_structure(atoms=atoms,
-                                   properties=properties,
-                                   user_tag=user_tag)
+            for (atoms, user_tag), properties in zip(list_of_atoms, list_of_properties):
+                try:
+                    self.add_structure(atoms=atoms, user_tag=user_tag, properties=properties)
+                except ValueError:
+                    print('Skipping list object')
 
     def __len__(self):
         return len(self._structure_list)
@@ -82,8 +90,7 @@ class StructureContainer(object):
                 ('user_tag',  '{:12}'.format(structure.user_tag)),
                 ('natoms',    '{:5}'.format(len(structure))),
                 ('fit_ready', '{:5}'.format(str(structure.fit_ready)))])
-            sorted(structure.properties.items())
-            fields.update(structure.properties.items())
+            fields.update(sorted(structure.properties.items()))
             for key, value in fields.items():
                 if isinstance(value, float):
                     fields[key] = '{:.3f}'.format(value)
@@ -132,23 +139,25 @@ class StructureContainer(object):
             the structure to be added
         user_tag : str
             custom user tag to identify structure
+        properties : dict
+            set of properties. Default is set to energy if there
+            is a calculator attached to ASE Atom object
         compute_clustervector: bool
             if True, clustervector is computed
 
         '''
-        atoms_copy = atoms.copy()
+        assert isinstance(atoms, Atoms), 'atoms has not ASE Atoms format'
 
         if user_tag is not None:
-            if not isinstance(user_tag, str):
-                raise Exception('Skipping atoms object, user_tag has wrong type (str)')
-                return
+            assert isinstance(user_tag, str), 'user_tag has wrong type (str)'
 
+        atoms_copy = atoms.copy()
         if properties is None:
-            if atoms.calc is not None:
-                properties = {'energy': atoms.get_potential_energy()/len(atoms)}
-            else:
-                raise Exception('Skipping atoms object, properties not found')
-                return
+            assert atoms.calc is not None, 'Properties not found'
+            from ase.calculators.calculator import get_calculator
+            calculator = atoms.get_calculator()
+            assert not calculator.calculation_required(atoms, ['energy']), 'Calculation is required'
+            properties = {'energy': atoms.get_potential_energy()}
 
         structure = FitStructure(atoms_copy, user_tag)
 
@@ -161,7 +170,7 @@ class StructureContainer(object):
         self._structure_list.append(structure)
 
 
-    def get_fit_data(self, structures=None, key='energy'):
+    def get_fit_data(self, structure=None, key='energy'):
         '''Return fit data for all structures. The cluster vectors and
         target properties for all structures are stacked into numpy arrays.
 
@@ -177,7 +186,7 @@ class StructureContainer(object):
             cluster vectors and target properties for all structures
 
         '''
-        if structures is None:
+        if structure is None:
             cv_list = [s.clustervector
                        for s in self._structure_list if s.fit_ready]
             prop_list = [s.properties[key]
@@ -197,22 +206,21 @@ class StructureContainer(object):
 
         return np.array(cv_list), np.array(prop_list)
 
-    def load_properties(self, structures=None, properties=None):
+
+    def add_properties(self, structures=None, properties=None):
         '''
         This method allows you to add properties and/or modify
         the values of existing properties
 
         Parameters
         ----------
-        structures: list, tuple, int, str
+        structures: list, int
             list of indices of the desired structures
 
         properties: dict
             properties to add
 
         '''
-        if properties is None:
-            raise ValueError('load_properties() requires at least properties in arguments')
 
         if structures is None:
             for s, prop in zip(self._structure_list, properties):
@@ -226,7 +234,7 @@ class StructureContainer(object):
 
     def get_properties(self, structures=None, key='energy'):
         '''
-        Return a list of properties of a given list of indexes or
+        Return a list of properties of a given list of indexes or 
         user_tag of structures.
 
         Parameters
@@ -260,7 +268,7 @@ class StructureContainer(object):
 
         Parameters
         ----------
-        structures: list, tuple, int
+        structures: list, int
             list of indices of the desired structures
 
         '''
@@ -270,6 +278,9 @@ class StructureContainer(object):
         else:
             s_list = []
             if isinstance(structures, str):
+                
+
+
                 structures = self.__get_structure_indices(structures)
             for i in structures:
                 if not self._structure_list[i].fit_ready:
@@ -344,7 +355,7 @@ class FitStructure:
         Parameters
         ----------
         cvs : list of float
-            clustervector for this structure
+            clustervector for this structureassert(isinstance(atoms, Atoms) for atoms in list_of_atoms)
 
         '''
         if cv is not None:

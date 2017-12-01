@@ -57,7 +57,7 @@ properties = []
 for conf in atoms_list:
     conf.set_calculator(calc)
     conf.properties = {'energy':conf.get_potential_energy()/len(conf), 
-                       'volumen':conf.get_volume()}
+                       'volume':conf.get_volume()}
     properties.append(conf.properties)
 
 class TestStructureContainer(unittest.TestCase):
@@ -70,7 +70,7 @@ class TestStructureContainer(unittest.TestCase):
         Instantiate class before each test.
 
         '''
-        self.sc = StructureContainer(cs, atoms_list)
+        self.sc = StructureContainer(cs, atoms_list, properties)
 
     def test_init(self):
         '''
@@ -78,7 +78,7 @@ class TestStructureContainer(unittest.TestCase):
         (initialization) of tested class work
 
         '''
-        self.sc = StructureContainer(cs, atoms_list)
+        self.sc = StructureContainer(cs, atoms_list, properties)
 
     def test_len(self):
         '''
@@ -115,6 +115,7 @@ class TestStructureContainer(unittest.TestCase):
         conf_4[1].symbol = 'Au'
         conf_4[2].symbol = 'Au'
         conf_4.set_calculator(calc)
+        conf_4.get_potential_energy()
 
         self.sc.add_structure(conf_4)
 
@@ -137,14 +138,15 @@ class TestStructureContainer(unittest.TestCase):
 
         '''
         retval = self.sc.__repr__()
-        target = """-------------- Structure Container ---------------
+        target = """------------------- Structure Container --------------------
 Total number of structures: 3
-index |   user_tag   | natoms | fit_ready | energy
---------------------------------------------------
-   0  | None         |     8  |   True    | 0.002 
-   1  | None         |     8  |   True    | -0.001
-   2  | None         |     8  |   True    | -0.003"""
+index |   user_tag   | natoms | fit_ready | energy | volume 
+------------------------------------------------------------
+   0  | None         |     8  |   True    | 0.002  | 136.836
+   1  | None         |     8  |   True    | -0.001 | 136.836
+   2  | None         |     8  |   True    | -0.003 | 136.836"""
         self.assertEqual(target, retval)
+
 
     def test_get_properties(self):
         '''
@@ -154,7 +156,7 @@ index |   user_tag   | natoms | fit_ready | energy
         p_list = self.sc.get_properties()
         self.assertTrue(isinstance(properties, float) for properties in p_list)
 
-    def test_load_properties(self):
+    def test_add_properties(self):
         '''
         Testing load_properties functionality
 
@@ -163,7 +165,7 @@ index |   user_tag   | natoms | fit_ready | energy
         for conf in atoms_list:
             extra_properties.append({'total_energy': conf.get_total_energy()})
 
-        self.sc.load_properties(properties=extra_properties)
+        self.sc.add_properties(properties=extra_properties)
         p_list = self.sc.get_properties(key='total_energy')
         self.assertTrue(isinstance(properties, float) for properties in p_list)
 
