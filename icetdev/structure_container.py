@@ -1,6 +1,6 @@
 import numpy as np
 from ase import Atoms
-from ase.calculators.calculator import all_properties
+from ase.calculators.calculator import all_properties as ase_all_properties
 from ase.calculators.calculator import PropertyNotImplementedError
 
 class StructureContainer(object):
@@ -135,8 +135,9 @@ class StructureContainer(object):
         user_tag : str
             custom user tag to label structure
         properties : dict
-            calculated scalar properties. Default to avaliable
-            properties in case of find a calculator attached to atom object
+            scalar properties. If properties are not specified the atoms 
+            object are required to have an attached ASE calculator object 
+            with a calculated potential energy
         compute_clustervector: bool
             if True, clustervector is computed
 
@@ -148,11 +149,11 @@ class StructureContainer(object):
 
         atoms_copy = atoms.copy()
         if properties is None:
-            assert atoms.calc is not None, 'Properties not found'
+            assert atoms.calc is not None, 'Calculator not found'
             msg = 'Not relaxed structure, calculation required'
             assert len(atoms.calc.check_state(atoms)) == 0, msg
             properties = {}
-            for prop in all_properties:
+            for prop in ase_all_properties:
                 try:
                     val = atoms.calc.get_property(prop, atoms, False)
                 except PropertyNotImplementedError:
@@ -172,6 +173,16 @@ class StructureContainer(object):
             structure.set_clustervector(cv)
 
         self._structure_list.append(structure)
+
+    def update_fit_data(self):
+        '''
+        Calculated cluster vector for each structure which is not
+        fit_ready
+        '''
+        for structure in self._structure_list:
+            if not structure.fit_ready:
+                cv = self._clusterspace.get_clustervector(structure.atoms)
+                structure.set_clustervector(cv)
 
 
     def get_fit_data(self, structure_indices=None, key='energy'):
