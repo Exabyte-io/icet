@@ -107,7 +107,9 @@ class TestStructureContainer(unittest.TestCase):
     def test_add_structure(self):
         '''
         Testing add_structure functionality
-
+        TODO: 
+            This unit test is not completely isolated since  
+            `get_structure_indices` method is being called here.        
         '''
         #structure #4
         conf_4 = atoms_supercell.copy()
@@ -115,20 +117,13 @@ class TestStructureContainer(unittest.TestCase):
         conf_4[1].symbol = 'Au'
         conf_4[2].symbol = 'Au'
         conf_4.set_calculator(calc)
-        conf_4.get_potential_energy()
+        conf_4.calc.get_potential_energy(conf_4)
 
         self.sc.add_structure(conf_4)
 
         list_index = [x for x in range(len(atoms_list)+1)]
         new_indices = self.sc.get_structure_indices()
         self.assertEqual(new_indices, list_index)
-
-    def test_update_fit_data(self):
-        '''
-        Testing update_fit_data functionality
-        '''
-        self.sc.update_fit_data()
-
 
     def test_get_fit_data(self):
         '''
@@ -145,13 +140,13 @@ class TestStructureContainer(unittest.TestCase):
 
         '''
         retval = self.sc.__repr__()
-        target = """------------------- Structure Container --------------------
+        target = """------------- Structure Container --------------
 Total number of structures: 3
-index |   user_tag   | natoms | fit_ready | energy | volume 
-------------------------------------------------------------
-   0  | None         |     8  |   True    | 0.013  | 136.836
-   1  | None         |     8  |   True    | -0.007 | 136.836
-   2  | None         |     8  |   True    | -0.026 | 136.836"""
+index |   user_tag   | natoms | energy | volume 
+------------------------------------------------
+   0  | None         |     8  | 0.013  | 136.836
+   1  | None         |     8  | -0.007 | 136.836
+   2  | None         |     8  | -0.026 | 136.836"""
         self.assertEqual(target, retval)
 
 

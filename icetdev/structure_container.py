@@ -1,6 +1,5 @@
 import numpy as np
 from ase import Atoms
-from ase.calculators.calculator import all_properties as ase_all_properties
 from ase.calculators.calculator import PropertyNotImplementedError
 
 class StructureContainer(object):
@@ -21,10 +20,11 @@ class StructureContainer(object):
 
         list_of_atoms : list or list of tuples (bi-optional)
             list of input structures (ASE Atom objects) or list of pairs
-            structures-user_tag, e.g. [(atom, user_tag)]. user_tag should be str
+            structures-user_tag, e.g. [(atom, user_tag)], where user_tag 
+            should be a type str
 
         list_of_properties : list of dict
-            list with properties dictionary
+            list of properties. properties should be given as dict
         '''
 
         self._clusterspace = clusterspace
@@ -69,7 +69,7 @@ class StructureContainer(object):
         Returns
         -------
         list of integers
-            List of indices of structures with a given user_tag
+            List of structure's indices
         '''
         return [i for i, s in enumerate(self) if user_tag is None or s.user_tag == user_tag]
 
@@ -83,8 +83,7 @@ class StructureContainer(object):
             fields = OrderedDict([
                 ('index',     '{:4}'.format(index)),
                 ('user_tag',  '{:12}'.format(structure.user_tag)),
-                ('natoms',    '{:5}'.format(len(structure))),
-                ('fit_ready', '{:5}'.format(str(structure.fit_ready)))])
+                ('natoms',    '{:5}'.format(len(structure)))])
             fields.update(sorted(structure.properties.items()))
             for key, value in fields.items():
                 if isinstance(value, float):
@@ -123,8 +122,7 @@ class StructureContainer(object):
 
 
     def add_structure(self, atoms, user_tag=None,
-                      properties=None,
-                      compute_clustervectors=True):
+                      properties=None):
         '''
         Add a structure to the structure list.
 
@@ -138,8 +136,6 @@ class StructureContainer(object):
             scalar properties. If properties are not specified the atoms 
             object are required to have an attached ASE calculator object 
             with a calculated potential energy
-        compute_clustervector: bool
-            if True, clustervector is computed
 
         '''
         assert isinstance(atoms, Atoms), 'atoms has not ASE Atoms format'
@@ -149,41 +145,28 @@ class StructureContainer(object):
 
         atoms_copy = atoms.copy()
         if properties is None:
-            assert atoms.calc is not None, 'Calculator not found'
+            properties = {}
+            assert atoms.calc is not None, 'No calculator attached to atoms could be found'
             msg = 'Not relaxed structure, calculation required'
             assert len(atoms.calc.check_state(atoms)) == 0, msg
-            properties = {}
-            for prop in ase_all_properties:
-                try:
-                    val = atoms.calc.get_property(prop, atoms, False)
-                except PropertyNotImplementedError:
-                    pass
-                else:
-                    if isinstance(val, float):
-                        properties[prop] = val
+            try:
+                energy = atoms.calc.get_property('energy', atoms, 
+                                                 allow_calculation=False)
+            except PropertyNotImplementedError:
+                pass
+            else:
+                properties['energy'] = energy/len(atoms)
 
-        assert properties, 'Attached calculator does not have scalar properties'
+        assert properties, 'Attached calculator does not have energy as a property'
 
         structure = FitStructure(atoms_copy, user_tag)
 
         structure.set_properties(properties)
 
-        if compute_clustervectors:
-            cv = self._clusterspace.get_clustervector(atoms_copy)
-            structure.set_clustervector(cv)
+        cv = self._clusterspace.get_clustervector(atoms_copy)
+        structure.set_clustervector(cv)
 
         self._structure_list.append(structure)
-
-    def update_fit_data(self):
-        '''
-        Calculated cluster vector for each structure which is not
-        fit_ready
-        '''
-        for structure in self._structure_list:
-            if not structure.fit_ready:
-                cv = self._clusterspace.get_clustervector(structure.atoms)
-                structure.set_clustervector(cv)
-
 
     def get_fit_data(self, structure_indices=None, key='energy'):
         '''
@@ -192,26 +175,27 @@ class StructureContainer(object):
 
         Parameters
         ----------
-        structure_indices: list of integers
-            list of structure indices. Defaults to
-            None and in that case returns all fit data available.
+        structure_indices : list of integers
+            list of structure indices. By default (``None``) the
+            method will return all fit data available.
+
+        key : str
+            key of properties dictionary
 
         Returns
         -------
         numpy array, numpy array
-            cluster vectors and target properties for all structures
+            cluster vectors and target properties for desired structures
 
         '''
         if structure_indices is None:
             cv_list = [s.clustervector
-                       for s in self._structure_list if s.fit_ready]
+                       for s in self._structure_list]
             prop_list = [s.properties[key]
-                         for s in self._structure_list if s.fit_ready]
+                         for s in self._structure_list]
         else:
             cv_list, prop_list = [], []
             for i in structure_indices:
-                if not self._structure_list[i].fit_ready:
-                    raise ValueError('Structure {} is not fit ready'.format(i))
                 cv_list.append(self._structure_list[i].clustervector)
                 prop_list.append(self._structure_list[i].properties[key])
 
@@ -229,8 +213,8 @@ class StructureContainer(object):
         Parameters
         ----------
         structure_indices: list of integers
-            list of structure indices. Default to None and
-            in that case properties will be added to all structures
+            list of structure indices. By default (``None``) the
+            method will add the properties to all structures.
 
         properties: list of dict
             list of properties
@@ -243,8 +227,6 @@ class StructureContainer(object):
                 s.set_properties(prop)
         else:
             for i, prop in zip(structure_indices, properties):
-                if not self._structure_list[i].fit_ready:
-                    raise ValueError('Structure {} is not fit ready'.format(i))
                 self._structure_list[i].set_properties(prop)
 
 
@@ -260,16 +242,14 @@ class StructureContainer(object):
             None and in that case returns properties of all structures
 
         key : string
-            key of property. Default to 'energy'
+            key of properties dictionary. Default to 'energy'
         '''
         if structure_indices is None:
             prop_list = [s.properties[key]
-                         for s in self._structure_list] #if fit_ready
+                         for s in self._structure_list]
         else:
             prop_list = []
             for i in structure_indices:
-                if not self._structure_list[i].fit_ready:
-                    raise ValueError('Structure {} is not fit ready'.format(i))
                 prop_list.append(self._structure_list[i].properties[key])
 
         return prop_list
@@ -281,19 +261,16 @@ class StructureContainer(object):
 
         Parameters
         ----------
-        structure_indices: list, tuple
-            list of integers corresponding to structure indices. Default to
-            None and then returns all structures
+        structure_indices: list of integers
+            list of structure indices. By default (``None``) the
+            method will return all structures listed in the container
 
         '''
         if structure_indices is None:
-            s_list = [s.atoms
-                      for s in self._structure_list]
+            s_list = [s.atoms for s in self._structure_list]
         else:
             s_list = []
             for i in structure_indices:
-                if not self._structure_list[i].fit_ready:
-                    raise ValueError('Structure {} is not fit ready'.format(i))
                 s_list.append(self._structure_list[i].atoms)
 
         return s_list
@@ -302,7 +279,6 @@ class StructureContainer(object):
     def get_cluster_space(self):
         '''
         Returns a copy of the icet ClusterSpace object.
-
         '''
         return self._clusterspace
 
@@ -328,7 +304,6 @@ class FitStructure:
     def __init__(self, atoms, user_tag, cv=None, properties=None):
         self._atoms = atoms
         self._user_tag = user_tag
-        self._fit_ready = False
         self._properties = {}
         self.set_clustervector(cv)
         self.set_properties(properties)
@@ -353,13 +328,6 @@ class FitStructure:
         '''dict : properties'''
         return self._properties
 
-    @property
-    def fit_ready(self):
-        '''boolean : True if the structure is prepared for fitting, i.e. the
-        clustervector is available'''
-        return self._fit_ready
-
-
     def set_clustervector(self, cv):
         '''
         Set the clustervectors to structure.
@@ -372,7 +340,6 @@ class FitStructure:
         '''
         if cv is not None:
             self._clustervector = cv
-            self._fit_ready = True
         else:
             self._clustervector = None
 
