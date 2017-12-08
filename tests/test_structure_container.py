@@ -178,11 +178,11 @@ index |   user_tag   | natoms | energy | volume
         s_list = self.sc.get_structure()
         self.assertTrue(isinstance(atoms, Atoms) for atoms in s_list)
 
-    def test_get_cluster_space(self):
+    def test_cluster_space(self):
         '''
-        Testing get_clusterspace functionality
+        Testing clusterspace functionality
         '''
-        cs_onlyread = self.sc.get_cluster_space
+        cs_onlyread = self.sc.cluster_space
         self.assertEqual(cs_onlyread, cs)
 
 

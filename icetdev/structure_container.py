@@ -275,9 +275,9 @@ class StructureContainer(object):
         return s_list
 
     @property
-    def get_cluster_space(self):
+    def cluster_space(self):
         '''
-        Returns a copy of the icet ClusterSpace object.
+        Returns the icet ClusterSpace object.
         '''
         return self._clusterspace
 
