@@ -146,18 +146,17 @@ class StructureContainer(object):
         atoms_copy = atoms.copy()
         if properties is None:
             properties = {}
-            assert atoms.calc is not None, 'No calculator attached to atoms could be found'
+            assert atoms.calc is not None, 'Neither property or calculator could be found'
             msg = 'Not relaxed structure, calculation required'
             assert len(atoms.calc.check_state(atoms)) == 0, msg
             try:
-                energy = atoms.calc.get_property('energy', atoms, 
-                                                 allow_calculation=False)
+                energy = atoms.get_potential_energy()
             except PropertyNotImplementedError:
                 pass
             else:
                 properties['energy'] = energy/len(atoms)
 
-        assert properties, 'Attached calculator does not have energy as a property'
+        assert properties, 'Calculator does not have energy as a property'
 
         structure = FitStructure(atoms_copy, user_tag)
 

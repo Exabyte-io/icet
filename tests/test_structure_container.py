@@ -23,6 +23,7 @@ the structure_container.py file
 import unittest
 
 from icetdev import ClusterSpace, StructureContainer
+from icetdev.structure_container import FitStructure
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase import Atoms
@@ -117,7 +118,7 @@ class TestStructureContainer(unittest.TestCase):
         conf_4[1].symbol = 'Au'
         conf_4[2].symbol = 'Au'
         conf_4.set_calculator(calc)
-        conf_4.calc.get_potential_energy(conf_4)
+        conf_4.get_potential_energy()
 
         self.sc.add_structure(conf_4)
 
@@ -185,9 +186,76 @@ index |   user_tag   | natoms | energy | volume
         self.assertEqual(cs_onlyread, cs)
 
 
+class TestFitStructure(unittest.TestCase):
+    def setUp(self):
+        '''
+        Instantiate class before each test
+        '''
+        cv = cs.get_clustervector(conf_1)
+        prop = properties[0]
+        self.fit_structure = FitStructure(conf_1, "conf_1", cv, prop)
+
+    def test_init(self):
+        '''
+        Just testing that the setup
+        (initialization) of tested class work
+        '''
+        self.fit_structure = FitStructure(conf_1, None)
+
+    def test_clustervector(self):
+        '''
+        Testing clustervector attribute
+        '''
+        cv  = self.fit_structure.clustervector
+        self.assertTrue(all(isinstance(val, float) for val in cv))
+
+    
+    def test_atoms(self):
+        '''
+        Testing atoms attribute
+        '''
+        atoms  = self.fit_structure.atoms
+        self.assertTrue(isinstance(atoms, Atoms))
+
+    def test_user_tag(self):
+        '''
+        Testing user_tag attribute
+        '''
+        user_tag = self.fit_structure.user_tag
+        self.assertTrue(isinstance(user_tag, str))
+        
+    def test_properties(self):
+        '''
+        Testing properties attribute
+        '''
+        properties_dict = self.fit_structure.properties
+        self.assertTrue(isinstance(properties_dict, dict))
+
+    def test_set_properties(self):
+        '''
+        Testing set_properties functionality
+        '''
+        extra_prop = {'total_energy': conf_1.get_total_energy()}
+        self.fit_structure.set_properties(extra_prop)
+        properties_dict = self.fit_structure.properties
+        self.assertTrue(isinstance(properties_dict, dict))
+
+    def test_set_clustervector(self):
+        '''
+        Testing set_clustervector functionality
+        '''
+        self.fit_structure.set_clustervector(None)
+        cv  = self.fit_structure.clustervector
+        self.assertTrue(cv is None)
+
 
 def suite():
-    test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestStructureContainer)
+    test_classes_to_run = [TestStructureContainer, TestFitStructure]
+    suites_list = []
+    for test_class in test_classes_to_run:
+        suite = unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
+        suites_list.append(suite)
+    test_suite = unittest.TestSuite(suites_list)
     return test_suite
 
 
