@@ -1,18 +1,46 @@
+'''
+This examples demonstrates how to count the number of clusters for a structure.
+'''
+
+# Start import
 from icetdev.cluster_counts import ClusterCounts
+from icetdev.structure import Structure
+from icetdev.permutation_map import __get_primitive_structure
+from icetdev.orbit_list import create_orbit_list
 from ase.build import bulk
 import numpy as np
-atoms = bulk("Ti","bcc", a=3.43).repeat([2,2,1])
-atoms.pbc = [True,True,False]
-atoms.set_chemical_symbols([['Ti','W'][n] for n in np.round(np.random.random((len(atoms),))).astype(int)])
+# End import
 
-cluster_counts = ClusterCounts()
+# Create a titanium, single-layered, sheet and randomly populate some of the
+# sites with W atoms.
+# Start setup
+atoms = bulk("Ti", "bcc", a=3.43).repeat([2, 2, 1])
+atoms.pbc = [True, True, False]
+
+atoms.set_chemical_symbols([['Ti', 'W'][n] for n in
+                           np.round(np.random.random((len(atoms),
+                                                      ))).astype(int)])
+# End setup
+
+# Determine the orbitlist for the corresponding primitive structure for all
+# pair clusters withhin the cutoff distance (4 angstrom).
+# Start orbitlist
 cutoffs = [4]
-cluster_counts.count_clusters(atoms=atoms, cutoffs=cutoffs)
+prim_atoms = __get_primitive_structure(atoms)
+prim_structure = Structure.from_atoms(prim_atoms)
+prim_orbitlist = create_orbit_list(prim_structure, cutoffs)
+# End orbitlist
 
+# Use the primitive orbitlist to count the number of clusters.
+# Start counting
+structure = Structure.from_atoms(atoms)
+cluster_counts = ClusterCounts()
+cluster_counts.count_clusters(structure, prim_orbitlist)
+# End counting
+
+# Print all of the clusters that were found.
+# Start results
 print("number of atoms {0}".format(len(atoms)))
-print("Found {} clusters".format(cluster_counts.size()))
+print("Found {} clusters".format(cluster_counts.__len__()))
 cluster_counts.print()
-#cluster_count_map = cluster_counts.get_cluster_counts()
-
-#for cluster in cluster_count_map:
-#    print(cluster)
+# End results
