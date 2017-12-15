@@ -1,67 +1,52 @@
-from icetdev.permutation_map import PermutationMap
-from icetdev.tools.geometry import get_scaled_positions
+"""
+This examples generate a permutation map for a structure
+"""
 
-from icetdev.structure import *
-from icetdev.neighborlist import *
-from ase import Atoms
+# Start import
+from icetdev.permutation_map import permutation_matrix_from_atoms
 from ase.build import bulk
-
-import spglib as spglib
-
 import numpy as np
-# ASE atoms
+# End import
+
+# Create a prototype Al structure in the form of a 1x1x1 unit cell.
+# Start setup
 atoms = bulk("Al", "fcc", a=2.0).repeat(1)
+# End setup
 
-#get neighborlist
-neighbor_cutoff = 2.0 #Ångström
-structure = structure_from_atoms(atoms)
-nl = Neighborlist(neighbor_cutoff)
-nl.build(structure)
-pos_neighbors = []
-for latNbr in nl.get_neighbors(0):
-    pos = structure.get_position(latNbr)
-    pos_neighbors.append(pos)
+# Generate a permutation map (matrix) for all neighbors within the cutoff
+# (2.0 A).
+# Start permutation
+neighbor_cutoff = 2.0
+permutation_map, prim_structure, neighbor_list =\
+    permutation_matrix_from_atoms(atoms, neighbor_cutoff, verbosity=3)
+# End permutation
 
-frac_coordinates = get_scaled_positions(np.array(pos_neighbors), cell=atoms.cell, wrap=False, pbc = structure.pbc)
-
-for fpos, pos in zip(frac_coordinates,pos_neighbors):
-    print(fpos, pos, np.dot(fpos, atoms.cell), pos - np.dot(fpos, atoms.cell))
-
-#print(structure.cell)
-#exit(1)
-
-symmetry = spglib.get_symmetry(atoms)
-translations = symmetry['translations']
-rotations = symmetry['rotations']
-permutation_map = PermutationMap(translations, rotations)
-
-#pos = atoms.get_scaled_positions()
-
-
-assert len(rotations) == len(translations)
-
-print("len of pos {}".format(len(frac_coordinates)))
-permutation_map.build(frac_coordinates)
+# Extract the permutated positions.
+# Start perm_pos
 perm_pos = permutation_map.get_permutated_positions()
-print("size of perm pos",len(perm_pos))
 ind_pos, unique_pos = permutation_map.get_indiced_positions()
-#exit(1)
+# End perm_pos
+
+# Print the fractional coordinates for the permutated positions.
+# Start frac_coor
 print("Permutated fractional coordinates")
-print("len of permutation pos",len(perm_pos))
 for pp in perm_pos:
     unique_rows = np.vstack({tuple(row) for row in pp})
     for el in unique_rows:
         print(el, end=' ')
-    print("")        
-    
+    print("")
+# End frac_coor
 
-print("indices positions")
+# Print the permutated indices and positions.
+# Start ind_pos
+print("Permutated indices and positions")
+for i, pos in enumerate(ind_pos):
+    print(i, len(set(pos)), pos)
+# End ind_pos
 
-for i,pos in enumerate(ind_pos):
-    print(i,len(set(pos)), pos)
-#for ind in list(map(list, zip(*ind_pos))):
-#    print(ind[0], set(ind))
-
-print("index and unique position")
+# Print the permutated indices and positions.
+# Start uni_ind_pos
+print("Unique permutated indices and positions")
 for index, dist in enumerate(unique_pos):
     print(index, dist)
+# End uni_ind_pos
