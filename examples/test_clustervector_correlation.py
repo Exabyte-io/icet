@@ -1,17 +1,18 @@
 """
-This script checks the column correlation for a set of clustervectors,
-it will be asserted that no columns are not highly correlated
+This examples demonstrates how to checks the column correlation for a set of
+clustervectors and asserts that none of the columns are highly correlated
 """
 
-from icetdev import clusterspace
-from icetdev.clusterspace import create_clusterspace
-from icetdev.structure import structure_from_atoms
+# Start import
+from icetdev.cluster_space import ClusterSpace
+from icetdev.structure import Structure
 from ase.build import bulk, make_supercell
 import numpy as np
 import random
 from ase.db import connect
+# End import
 
-
+# Start generate_random_structure
 def generateRandomStructure(atoms_prim, subelements):
     """
     Generate a random structure with atoms_prim as a base
@@ -25,8 +26,10 @@ def generateRandomStructure(atoms_prim, subelements):
         at.symbol = element
 
     return atoms
+# End generate_random_structure
 
 
+# Start generate_cv_set
 def generateCVSet(n, atoms_prim, subelements, clusterspace):
     """
     generate a set of clustervectors from clusterspace
@@ -34,13 +37,15 @@ def generateCVSet(n, atoms_prim, subelements, clusterspace):
     clustervectors = []
     for i in range(n):
         conf = generateRandomStructure(atoms_prim, subelements)
-        conf = structure_from_atoms(conf)
+        conf = Structure().from_atoms(conf)
         cv = clusterspace.get_clustervector(conf)
         clustervectors.append(cv)
 
     return clustervectors
+# End generate_cv_set
 
 
+# Start get_column_correlation
 def getColumnCorrelation(i, j, cv_matrix):
     """
     Returns the correlation between column i and j
@@ -49,43 +54,51 @@ def getColumnCorrelation(i, j, cv_matrix):
     """
     col_i = cv_matrix[:, i]
     col_j = cv_matrix[:, j]
-    
-    
+
     corr = np.dot(col_i, col_j) / \
         (np.linalg.norm(col_i) * np.linalg.norm(col_j))
-          
+
     return corr
+# End get_column_correlation
 
 
+# Start assert_no_correlation
 def assertNoCorrelation(cvs, tol=0.99):
     """
-    check that no column in cvs are above tolerance
+    Check that no column in cvs are above tolerance
     """
     cvs_matrix = np.array(cvs)
     for i in range(len(cvs[0])):
-        if i == 0: #dont loop over zerolet since this is always ones
+        # Do not loop over zerolet since this is always ones
+        if i == 0:
             continue
         for j in range(len(cvs[0])):
             if j <= i:
                 continue
             corr = getColumnCorrelation(i, j, cvs_matrix)
-            assert corr < tol, "columns {} and {} were correletated with {}".format(
-                i, j, corr)
+            assert corr < tol, "columns {} and {} were correletated with"\
+                " {}".format(i, j, corr)
+# End assert_no_correlation
 
-
-db = connect("structures_for_testing.db")
-
-subelements = ["H", "He", "Pb"]
-for row in db.select():
+# Test the correlation between columns for a set of structures in a
+# pregenerated database.
+# Start test
+db = connect("PdHVac-fcc.db")
+subelements = ["Pd", "H", "V"]
+for row in db.select("id<=10"):
     atoms_row = row.toatoms()
-    atoms_tag = row.tag
+    atoms_id = row.id
+    atoms_form = row.formula
     cutoffs = [1.1] * 1
-    if atoms_row.get_pbc().all() == True:
-        print("Testing structure: {} with cutoffs {}".format(atoms_tag, cutoffs))
+    if atoms_row.get_pbc().all():
+        print("Testing structure: {}(id={}) with cutoffs {}".format(atoms_form,
+                                                                    atoms_id,
+                                                                    cutoffs))
         atoms_row.wrap()
-        clusterspace = create_clusterspace(atoms_row,cutoffs,subelements)
+        clusterspace = ClusterSpace(atoms_row, cutoffs, subelements)
 
         cvs = generateCVSet(20, atoms_row, subelements, clusterspace)
         assertNoCorrelation(cvs)
         print("size of atoms {}. len of cv {}".format(
-            len(atoms_row.repeat([5,3,2])), len(cvs[0])))
+            len(atoms_row.repeat([5, 3, 2])), len(cvs[0])))
+# End test
