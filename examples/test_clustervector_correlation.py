@@ -6,11 +6,11 @@ clustervectors and asserts that none of the columns are highly correlated
 # Start import
 from icetdev.cluster_space import ClusterSpace
 from icetdev.structure import Structure
-from ase.build import bulk, make_supercell
 import numpy as np
 import random
 from ase.db import connect
 # End import
+
 
 # Start generate_random_structure
 def generateRandomStructure(atoms_prim, subelements):

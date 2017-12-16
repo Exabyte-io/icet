@@ -5,7 +5,6 @@ This examples demonstrates how to construct cluster vectors.
 # Start import
 from icetdev.cluster_space import ClusterSpace
 from ase.build import bulk
-from ase import Atoms
 # End import
 
 # Create a prototype structure, decide which additional elements to populate
