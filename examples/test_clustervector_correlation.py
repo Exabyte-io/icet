@@ -38,7 +38,7 @@ def generateCVSet(n, atoms_prim, subelements, clusterspace):
     for i in range(n):
         conf = generateRandomStructure(atoms_prim, subelements)
         conf = Structure().from_atoms(conf)
-        cv = clusterspace.get_clustervector(conf)
+        cv = clusterspace.get_cluster_vector(conf)
         clustervectors.append(cv)
 
     return clustervectors
