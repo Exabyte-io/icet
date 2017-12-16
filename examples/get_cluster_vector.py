@@ -25,16 +25,16 @@ print(clusterspace)
 
 
 # Generate and print the cluster vector for a pure Si 2x2x2 supercell.
-# Start clustervector1
+# Start cluster_vector1
 supercell = bulk("Si").repeat(2)
-cv = clusterspace.get_clustervector(supercell)
+cv = clusterspace.get_cluster_vector(supercell)
 print(cv)
-# End clustervector1
+# End cluster_vector1
 
 # Generate and print the cluster vector for a mixed Si-Ge 2x2x2 supercell
-# Start clustervector2
+# Start cluster_vector2
 supercell_2 = bulk("Si").repeat(2)
 supercell_2[0].symbol = "Ge"
-cv_2 = clusterspace.get_clustervector(supercell_2)
+cv_2 = clusterspace.get_cluster_vector(supercell_2)
 print(cv_2)
-# End clustervector2
+# End cluster_vector2
