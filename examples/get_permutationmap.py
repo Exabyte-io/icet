@@ -1,11 +1,12 @@
 """
-This examples generate a permutation map for a structure
+This example generate a permutation map for a structure
 """
-
 # Start import
-from icetdev.permutation_map import permutation_matrix_from_atoms
-from ase.build import bulk
 import numpy as np
+
+from ase.build import bulk
+
+from icetdev.permutation_map import permutation_matrix_from_atoms
 # End import
 
 # Create a prototype Al structure in the form of a 1x1x1 unit cell.

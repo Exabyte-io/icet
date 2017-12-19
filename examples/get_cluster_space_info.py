@@ -1,12 +1,13 @@
 '''
-This examples demonstrates how to obtain basic information about a cluster
+This example demonstrates how to obtain basic information about a cluster
 space.
 '''
-
 # Start import
+from ase.build import bulk
+
 from icetdev import ClusterSpace
 from icetdev.cluster_space import get_singlet_info, view_singlets
-from ase.build import bulk
+
 # End import
 
 # Create a prototype structure, decide which additional elements to populate

@@ -1,15 +1,19 @@
 """
-This examples demonstrates how to checks the column correlation for a set of
+This example demonstrates how to checks the column correlation for a set of
 clustervectors and asserts that none of the columns are highly correlated
 """
 
 # Start import
+import random
+
+import numpy as np
+
+from ase.db import connect
+
 from icetdev.cluster_space import ClusterSpace
 from icetdev.structure import Structure
-import numpy as np
-import random
-from ase.db import connect
 # End import
+
 
 # Start generate_random_structure
 def generateRandomStructure(atoms_prim, subelements):
@@ -79,16 +83,18 @@ def assertNoCorrelation(cvs, tol=0.99):
                 " {}".format(i, j, corr)
 # End assert_no_correlation
 
+
 # Test the correlation between columns for a set of structures in a
 # pregenerated database.
 # Start test
+highest_order = 1
 db = connect("PdHVac-fcc.db")
 subelements = ["Pd", "H", "V"]
 for row in db.select("id<=10"):
     atoms_row = row.toatoms()
     atoms_id = row.id
     atoms_form = row.formula
-    cutoffs = [1.1] * 1
+    cutoffs = [1.1] * highest_order
     if atoms_row.get_pbc().all():
         print("Testing structure: {}(id={}) with cutoffs {}".format(atoms_form,
                                                                     atoms_id,

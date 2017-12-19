@@ -1,14 +1,16 @@
 '''
-This examples demonstrates how to count the number of clusters for a structure.
+This example demonstrates how to count the number of clusters for a structure.
 '''
-
 # Start import
-from icetdev.cluster_counts import ClusterCounts
-from icetdev.structure import Structure
-from icetdev.permutation_map import __get_primitive_structure
-from icetdev.orbit_list import create_orbit_list
-from ase.build import bulk
 import numpy as np
+
+from ase.build import bulk
+
+from icetdev.cluster_counts import ClusterCounts
+from icetdev.orbit_list import create_orbit_list
+from icetdev.permutation_map import __get_primitive_structure
+from icetdev.structure import Structure
+
 # End import
 
 # Create a titanium, single-layered, sheet and randomly populate some of the
@@ -18,8 +20,8 @@ atoms = bulk("Ti", "bcc", a=3.43).repeat([2, 2, 1])
 atoms.pbc = [True, True, False]
 
 atoms.set_chemical_symbols([['Ti', 'W'][n] for n in
-                           np.round(np.random.random((len(atoms),
-                                                      ))).astype(int)])
+                            np.round(np.random.random((len(atoms),
+                                                       ))).astype(int)])
 # End setup
 
 # Determine the orbitlist for the corresponding primitive structure for all

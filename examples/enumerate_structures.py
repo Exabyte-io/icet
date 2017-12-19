@@ -5,10 +5,12 @@ structure up to a certain size.
 '''
 
 # Start import
-from icetdev.enumeration import enumerate_structures
-from ase.build import bulk
 from ase import Atom
+from ase.build import bulk
 from ase.db import connect
+
+from icetdev.enumeration import enumerate_structures
+
 # End import
 
 # Generate all binary fcc structures with up to 6 atoms/cell

@@ -1,11 +1,12 @@
 '''
-This examples demonstrates how to obtain the list of neighbors for a structure.
+This example demonstrates how to obtain the list of neighbors for a structure.
 '''
-
 # Start import
-from icetdev.structure import Structure
-from icetdev.neighbor_list import get_neighbor_lists
 from ase.build import bulk
+from icetdev.neighbor_list import get_neighbor_lists
+
+from icetdev.structure import Structure
+
 # End import
 
 # Generate an iceT structure from a 2x2x2 Al fcc supercell.

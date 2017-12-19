@@ -1,12 +1,14 @@
 '''
-This examples demonstrates how to find the native clusters for a structure
+This example demonstrates how to find the native clusters for a structure
 '''
-
 # Start import
+import numpy as np
+
+from ase.build import bulk
+
 from icetdev.cluster_space import ClusterSpace
 from icetdev.structure import Structure
-from ase.build import bulk
-import numpy as np
+
 # End import
 
 # Create a prototype structure, decide which additional elements to populate

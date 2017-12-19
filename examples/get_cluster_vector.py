@@ -1,15 +1,16 @@
 '''
-This examples demonstrates how to construct cluster vectors.
+This example demonstrates how to construct cluster vectors.
 '''
-
 # Start import
-from icetdev.cluster_space import ClusterSpace
 from ase.build import bulk
+
+from icetdev.cluster_space import ClusterSpace
+
 # End import
 
 # Create a prototype structure, decide which additional elements to populate
-# it with (Si, Ge) and set the cutoffs for pairs (5.0 A), triplets (5.0 A)
-# and quadruplets (5.0 A).
+# it with (Si, Ge) and set the cutoffs for pairs (5.0 Å), triplets (5.0 Å)
+# and quadruplets (5.0 Å).
 # Start setup
 conf = bulk("Si")
 cutoffs = [5.0, 5.0, 5.0]
