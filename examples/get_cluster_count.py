@@ -41,6 +41,6 @@ cluster_counts.count_clusters(structure, prim_orbitlist)
 # Print all of the clusters that were found.
 # Start results
 print("number of atoms {0}".format(len(atoms)))
-print("Found {} clusters".format(cluster_counts.__len__()))
+print("Found {} clusters".format(len(cluster_counts)))
 cluster_counts.print()
 # End results
