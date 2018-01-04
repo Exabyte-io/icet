@@ -15,7 +15,7 @@ As a < type of user >, I want < some goal > [ so that < some reason > ].
 
 ## Sub-tasks
 
-***Note!, this section should be completed by a developer and not nessesarily the feature requester***
+***Note!, this section should be completed by a developer and not necessarily the feature requester***
 
 *(Describe the sub-tasks to be carried out, preferably in the form of an task list, in order to complete this task.)*
 * [ ] *(e.g. Unit tests)*
@@ -33,7 +33,7 @@ ______________________________________________________________
 *(Before the issue can be moved onto the board it should be discussed with or reviewed by at least one other team member. You can address one or more team members via the following slash (quick action) command):*
 `/cc @(username)`
 
-***Labelling***
+***Labeling***
 
 *(Please suggest labels for the issue, e.g., by using the following slash command):*
 `/label ~(label1) ~(label2)`

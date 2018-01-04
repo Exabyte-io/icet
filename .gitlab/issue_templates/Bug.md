@@ -25,7 +25,7 @@ ____________________________________________________________________
 *(Before the issue can be moved onto the board it should be discussed with or reviewed by at least one other team member. You can address one or more team members via the following slash (quick action) command):*
 `/cc @(username)`
 
-***Labelling***
+***Labeling***
 
 *(Please suggest labels for the issue, e.g., by using the following slash command):*
 `/label ~(label1) ~(label2)`

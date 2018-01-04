@@ -12,7 +12,7 @@
 
 ## Sub-tasks
 
-***Note!, this section should be completed by a developer and not nessesarily the feature requester***
+***Note!, this section should be completed by a developer and not necessarily the feature requester***
 
 *(Describe the sub-tasks to be carried out, preferably in the form of a list)*
 * [ ] *(task 1)*
@@ -29,7 +29,7 @@ ______________________________________________________________
 *(Before the issue can be moved onto the board it should be discussed with or reviewed by at least one other team member. You can address one or more team members via the following slash (quick action) command):*
 `/cc @(username)`
 
-***Labelling***
+***Labeling***
 
 *(Please suggest labels for the issue, e.g., by using the following slash command):*
 `/label ~(label1) ~(label2)`
