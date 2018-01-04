@@ -7,7 +7,8 @@ from icetdev import (ClusterSpace,
                      StructureContainer,
                      Optimizer,
                      ClusterExpansion)
-from icetdev.tools import enumerate_structures
+from icetdev.tools import (ConvexHull,
+                           enumerate_structures)
 
 # step 1: Set up the basic structure and a cluster space
 prim = bulk('Au')
@@ -73,10 +74,13 @@ for atoms in enumerate_structures(prim, range(1, 12), subelements):
     data.append([conc, emix])
 print('Predicted energies for {} structures'.format(len(data)))
 data = np.array(data).T
+# construct convex hull
+hull = ConvexHull(data[0], data[1])
 # plot the results
 fig, ax = plt.subplots()
 ax.set_xlabel(r'Ag concentration')
 ax.set_ylabel(r'Mixing energy (meV/atom)')
 ax.set_xlim([0, 1])
 ax.scatter(data[0], 1e3 * data[1], marker='x')
+ax.plot(hull.concentrations, 1e3 * hull.energies, '-o', color='green')
 plt.savefig('mixing-energy-predicted.png', bbox_inches='tight')

@@ -16,3 +16,4 @@ User interface
    cluster_expansion
    enumeration
    core
+   tools

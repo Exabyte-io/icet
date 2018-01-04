@@ -222,6 +222,10 @@ which requires three input arguments. This includes the :class:`ASE Atoms`
 object that represents the primitive structure and the list of
 elements, defined above, in addition to a list of sizes.
 
+Also, the thermodynamically relevant convex hull for the predicted
+structures can be calculated with the help of a :class:`ConvexHull
+<tools.convex_hull.ConvexHull>` object.
+
 .. literalinclude:: ../../../../tutorial/construct_cluster_expansion.py
    :start-after: # step 5
 
