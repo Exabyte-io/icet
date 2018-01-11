@@ -1,4 +1,4 @@
-from _icetdev import ClusterCounts
+from _icet import ClusterCounts
 from .local_orbit_list_generator import LocalOrbitListGenerator
 
 

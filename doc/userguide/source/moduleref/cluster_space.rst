@@ -5,15 +5,15 @@
 Cluster space
 =============
 
-.. module:: icetdev
+.. module:: icet
 			 
 .. autoclass:: ClusterSpace
    :members:
    :undoc-members:
    :inherited-members:
 
-.. module:: icetdev.core.cluster_space
+.. module:: icet.core.cluster_space
 			 
-.. automethod:: icetdev.core.cluster_space.get_singlet_info
+.. automethod:: icet.core.cluster_space.get_singlet_info
 
-.. automethod:: icetdev.core.cluster_space.view_singlets
+.. automethod:: icet.core.cluster_space.view_singlets

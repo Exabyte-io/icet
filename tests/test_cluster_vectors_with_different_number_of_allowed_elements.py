@@ -5,8 +5,8 @@ of components on different sites.
 
 import numpy as np
 from ase.db import connect
-from icetdev import Structure, ClusterSpace, get_singlet_info
-from icetdev.tools import get_primitive_structure
+from icet import Structure, ClusterSpace, get_singlet_info
+from icet.tools import get_primitive_structure
 
 
 def test_mi_int_list_and_dict(atoms, subelements, cutoffs, allowed_sites):

@@ -24,8 +24,8 @@ import unittest
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase import Atoms
-from icetdev import ClusterSpace, StructureContainer
-from icetdev.core.structure_container import FitStructure
+from icet import ClusterSpace, StructureContainer
+from icet.core.structure_container import FitStructure
 
 
 def strip_surrounding_spaces(input_string):

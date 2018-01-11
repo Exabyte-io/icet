@@ -11,10 +11,10 @@ The purpose of this example is to demonstrate how to build a neighbor list.
 Import modules
 --------------
 
-It is necessary to import the :class:`Structure <_icetdev.Structure>` class,
+It is necessary to import the :class:`Structure <_icet.Structure>` class,
 which is used to store information regarding a specific structure as well as
 for the :func:`get_neighbor_lists
-<icetdev.core.neighbor_list.get_neighbor_lists>` function. Additionally, the
+<icet.core.neighbor_list.get_neighbor_lists>` function. Additionally, the
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
 needed to generate the structures.
 
@@ -37,11 +37,11 @@ Obtain neighbor list
 
 A list of all neighbors within a cutoff distance of 1.5 Å is obtained by
 calling the :func:`get_neighbor_lists
-<icetdev.core.neighbor_list.get_neighbor_lists>` function and providing a
-:class:`Structure <_icetdev.Structure>` object, which was defined above, and a
+<icet.core.neighbor_list.get_neighbor_lists>` function and providing a
+:class:`Structure <_icet.Structure>` object, which was defined above, and a
 list of cutoffs as input arguments. One should note that the output from this
 functions is a list that contains one :class:`NeighborList
-<icetdev.core.neighbor_list.NeighborList>` object per cutoff.
+<icet.core.neighbor_list.NeighborList>` object per cutoff.
 
 .. literalinclude:: ../../../../examples/get_neighbor_list.py
    :start-after: # Construct a list
@@ -51,17 +51,17 @@ Print all neighbors
 -------------------
 
 All relevant information can be extracted from the :class:`NeighborList
-<icetdev.neighbor_list.NeighborList>` object, obtained earlier using the built-
+<icet.neighbor_list.NeighborList>` object, obtained earlier using the built-
 in methods for this class. Here, we will merely loop over the atoms in the
 structure and print the indices, offsets and distances for all the neighbors.
 
 The first step is to use :meth:`NeighborList.get_neighbors
-<icetdev.core.neighbor_list.NeighborList.get_distance>` to obtain the list of
+<icet.core.neighbor_list.NeighborList.get_distance>` to obtain the list of
 neighbors for the atom with the specified index. While the indices and offsets
 are attributes of the objects in the :class:`NeighborList
-<icetdev.core.neighbor_list.NeighborList>` the distances are not. For this
+<icet.core.neighbor_list.NeighborList>` the distances are not. For this
 reason, it is calculated using the :meth:`NeighborList.get_distance
-<icetdev.core.neighbor_list.NeighborList.get_distance>` method, which takes the
+<icet.core.neighbor_list.NeighborList.get_distance>` method, which takes the
 indices and offsets of the atom and the neighbor as input arguments.
 
 .. literalinclude:: ../../../../examples/get_neighbor_list.py

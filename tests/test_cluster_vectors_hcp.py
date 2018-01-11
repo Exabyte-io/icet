@@ -5,7 +5,7 @@ structures.
 
 import numpy as np
 from ase.build import bulk, make_supercell
-from icetdev import Structure, ClusterSpace, get_singlet_info
+from icet import Structure, ClusterSpace, get_singlet_info
 
 cutoffs = [8.0, 7.0]
 subelements = ['Re', 'Ti']

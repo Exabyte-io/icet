@@ -4,10 +4,10 @@ This example demonstrates how to count the number of clusters for a structure.
 
 # Start import
 from ase.build import bulk
-from icetdev import Structure
-from icetdev.tools import get_primitive_structure
-from icetdev.core.cluster_counts import ClusterCounts
-from icetdev.core.orbit_list import create_orbit_list
+from icet import Structure
+from icet.tools import get_primitive_structure
+from icet.core.cluster_counts import ClusterCounts
+from icet.core.orbit_list import create_orbit_list
 # End import
 
 # Create a titanium, single-layered, sheet and randomly populate some of the

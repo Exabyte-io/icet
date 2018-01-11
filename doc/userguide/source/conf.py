@@ -20,7 +20,7 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../../icetdev'))
+sys.path.insert(0, os.path.abspath('../../../icet'))
 sys.path.insert(0, os.path.abspath('../../../build/src'))
 sys.path.insert(0, os.path.abspath('../../../tutorial'))
 sys.path.insert(0, os.path.abspath('../../../examples'))

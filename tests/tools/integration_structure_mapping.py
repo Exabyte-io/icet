@@ -1,5 +1,5 @@
-from icetdev.tools import map_structure_to_reference
-from icetdev import ClusterSpace
+from icet.tools import map_structure_to_reference
+from icet import ClusterSpace
 from ase import Atom
 from ase.build import (bulk,
                        make_supercell)

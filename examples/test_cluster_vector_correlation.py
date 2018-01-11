@@ -7,7 +7,7 @@ clustervectors and asserts that none of the columns are highly correlated
 import random
 import numpy as np
 from ase.db import connect
-from icetdev import ClusterSpace, Structure
+from icet import ClusterSpace, Structure
 
 
 # Function for generating random structures

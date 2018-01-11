@@ -1,6 +1,6 @@
 import numpy as np
 from ase.db import connect
-import icetdev
+import icet
 
 _tolerance = 1e-9
 
@@ -16,7 +16,7 @@ for row in db.select():
     atoms_row = row.toatoms()
 
     ''' Convert ASE atoms to icet structures '''
-    structure = icetdev.Structure.from_atoms(atoms_row)
+    structure = icet.Structure.from_atoms(atoms_row)
 
     ''' Test that structures have the same length '''
     msg = 'Test of len failed for structure {}'.format(row.tag)

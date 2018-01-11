@@ -1,4 +1,4 @@
-from _icetdev import LatticeSite
+from _icet import LatticeSite
 
 
 def __latticeSite_repr(self):

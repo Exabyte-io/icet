@@ -5,7 +5,7 @@
 Cluster expansions
 ==================
 
-.. autoclass:: icetdev.ClusterExpansion
+.. autoclass:: icet.ClusterExpansion
    :members:
    :undoc-members:
    :inherited-members:

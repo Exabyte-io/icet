@@ -5,17 +5,17 @@
 Optimizers
 ==========
 
-.. autoclass:: icetdev.Optimizer
+.. autoclass:: icet.Optimizer
    :members:
    :undoc-members:
    :inherited-members:
 
-.. autoclass:: icetdev.EnsembleOptimizer
+.. autoclass:: icet.EnsembleOptimizer
    :members:
    :undoc-members:
    :inherited-members:
 
-.. autoclass:: icetdev.CrossValidationEstimator
+.. autoclass:: icet.CrossValidationEstimator
    :members:
    :undoc-members:
    :inherited-members:

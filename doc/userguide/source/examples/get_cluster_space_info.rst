@@ -13,10 +13,10 @@ Import modules
 --------------
 
 First, one needs to import the :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` class, which is used to store
+<icet.core.cluster_space.ClusterSpace>` class, which is used to store
 information regarding a given cluster space. In addition, one needs the methods
-:func:`get_singlet_info <icetdev.core.cluster_space.get_singlet_info>` and
-:func:`view_singlets <icetdev.core.cluster_space.view_singlets>` for extracting
+:func:`get_singlet_info <icet.core.cluster_space.get_singlet_info>` and
+:func:`view_singlets <icet.core.cluster_space.view_singlets>` for extracting
 specific details regarding the singlets. Moreover, the `ASE
 <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
 needed for constructing structures.
@@ -42,7 +42,7 @@ Create the cluster space
 ------------------------
 
 The cluster space is created by initiating a :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` object and providing the prototype
+<icet.core.cluster_space.ClusterSpace>` object and providing the prototype
 structure, cutoffs and list of elements defined previously as arguments. Next,
 the :meth:`print` method is used to print all relevant information regarding
 the cluster space in tabular format.
@@ -72,9 +72,9 @@ Information regarding singlets
 ------------------------------
 
 Additonal information regarding the singlets is extracted with help of the
-:func:`get_singlet_info <icetdev.core.cluster_space.get_singlet_info>` function.
+:func:`get_singlet_info <icet.core.cluster_space.get_singlet_info>` function.
 Afterwards, the corresponding clusters are printed by calling
-:func:`view_singlets <icetdev.core.cluster_space.view_singlets>`. One should note
+:func:`view_singlets <icet.core.cluster_space.view_singlets>`. One should note
 that both functions take the prototype :class:`ASE Atoms` object created
 earlier as input argument.
 

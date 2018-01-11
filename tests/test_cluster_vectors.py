@@ -6,8 +6,8 @@ its cluster vector computed
 import numpy as np
 import random
 from ase.db import connect
-from icetdev import Structure, ClusterSpace
-from icetdev.tools.geometry import add_vacuum_in_non_pbc
+from icet import Structure, ClusterSpace
+from icet.tools.geometry import add_vacuum_in_non_pbc
 
 
 def generate_mixed_structure(atoms_prim, subelements):

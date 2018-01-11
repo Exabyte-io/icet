@@ -3,7 +3,7 @@ Simple test for using ensemble optimizer and if correctly can identify outliers
 '''
 
 import numpy as np
-from icetdev.fitting import EnsembleOptimizer
+from icet.fitting import EnsembleOptimizer
 
 
 def find_outliers(data, threshold=7.0):

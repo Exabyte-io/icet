@@ -4,8 +4,8 @@ This example demonstrates how to obtain the list of neighbors for a structure.
 
 # Import modules
 from ase.build import bulk
-from icetdev import Structure
-from icetdev.core.neighbor_list import get_neighbor_lists
+from icet import Structure
+from icet.core.neighbor_list import get_neighbor_lists
 
 # Generate an icet structure from a 2x2x2 Al fcc supercell.
 atoms = bulk('Al', 'fcc', a=2).repeat(2)

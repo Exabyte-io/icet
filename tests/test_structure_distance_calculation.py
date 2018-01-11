@@ -1,7 +1,7 @@
 import numpy as np
 from ase.db import connect
 from ase.neighborlist import NeighborList as ASENeighborList
-import icetdev
+import icet
 
 '''
 Testing the calculation of distances with offsets
@@ -19,7 +19,7 @@ for row in db.select():
     print(' structure: {}'.format(row.tag))
 
     atoms_row = row.toatoms()
-    structure = icetdev.Structure.from_atoms(atoms_row)
+    structure = icet.Structure.from_atoms(atoms_row)
     nl = ASENeighborList(len(atoms_row)*[2.6], self_interaction=False,)
     nl.update(atoms_row)
     for index in range(len(atoms_row)):

@@ -22,11 +22,11 @@ the cluster_space.py file
 
 import unittest
 
-from icetdev import ClusterSpace
-from icetdev.core.cluster_space import (get_singlet_info,
+from icet import ClusterSpace
+from icet.core.cluster_space import (get_singlet_info,
                                         get_singlet_configuration)
-from icetdev.core.structure import Structure
-from icetdev.core.lattice_site import LatticeSite
+from icet.core.structure import Structure
+from icet.core.lattice_site import LatticeSite
 from collections import OrderedDict
 
 

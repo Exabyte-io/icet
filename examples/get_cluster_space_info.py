@@ -5,7 +5,7 @@ space.
 
 # Import modules
 from ase.build import bulk
-from icetdev import ClusterSpace, get_singlet_info, view_singlets
+from icet import ClusterSpace, get_singlet_info, view_singlets
 
 # Create a prototype structure, decide which additional elements to populate
 # it with (Re, Ti, W and Mo) and set the cutoffs for pairs (10.0 A),

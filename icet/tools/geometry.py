@@ -2,7 +2,7 @@ import numpy as np
 from ase import Atoms
 import spglib
 
-from icetdev.core.lattice_site import LatticeSite
+from icet.core.lattice_site import LatticeSite
 
 
 def get_scaled_positions(positions, cell, wrap=True, pbc=[True, True, True]):

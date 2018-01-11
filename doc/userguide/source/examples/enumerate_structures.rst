@@ -15,7 +15,7 @@ Import modules
 --------------
 
 The :func:`enumerate_structures
-<icetdev.tools.structure_enumeration.enumerate_structures>` function needs to
+<icet.tools.structure_enumeration.enumerate_structures>` function needs to
 be imported together with some additional functions from `ASE
 <https://wiki.fysik.dtu.dk/ase>`_.
 

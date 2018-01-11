@@ -12,8 +12,8 @@ Import modules
 --------------
 
 In the present case it is necessary to import two :program:`icet` classes,
-namely :class:`ClusterSpace <icetdev.core.cluster_space.ClusterSpace>` and
-:class:`Structure <_icetdev.Structure>`. The respective objects are used to
+namely :class:`ClusterSpace <icet.core.cluster_space.ClusterSpace>` and
+:class:`Structure <_icet.Structure>`. The respective objects are used to
 store information regarding a specific cluster space and structure.
 Additionally, the `ASE <https://wiki.fysik.dtu.dk/ase>`_ function
 :func:`ase.build.bulk` will be used to generate the structures.
@@ -38,7 +38,7 @@ Initiate the cluster space
 --------------------------
 
 The cluster space is created by initiating a :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` object and providing the prototype
+<icet.core.cluster_space.ClusterSpace>` object and providing the prototype
 structure, cutoffs and list of elements that were defined above as arguments.
 
 .. literalinclude:: ../../../../examples/get_native_clusters.py
@@ -50,7 +50,7 @@ Structure from Si/Ge supercell
 
 First, a :math:`2\times2\times1` supercell is built, after which the sites are
 randomly populated with Si and Ge atoms. Thereafter, an :class:`icet Structure
-<_icetdev.Structure>` object structure is created by providing an :class:`ASE
+<_icet.Structure>` object structure is created by providing an :class:`ASE
 Atoms` object as input to the :meth:`Structure.from_atoms` method.
 
 .. literalinclude:: ../../../../examples/get_native_clusters.py
@@ -62,7 +62,7 @@ Extract the native clusters
 
 The native clusters are extracted with help of the
 :meth:`ClusterSpace.get_native_clusters
-<icetdev.core.cluster_space.ClusterSpace.get_native_clusters>` method, with the
+<icet.core.cluster_space.ClusterSpace.get_native_clusters>` method, with the
 structure defined in the previous section as input argument. Afterwards the
 structure itself and the native clusters are printed in tabular format, in the
 latter case by using the :func:`print` method.

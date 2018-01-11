@@ -1,8 +1,8 @@
 import spglib as spg
 from ase.neighborlist import NeighborList as ASENeighborList
 from ase.db import connect
-from icetdev import Structure
-from _icetdev import NeighborList
+from icet import Structure
+from _icet import NeighborList
 
 '''
 Include some docstring here explaining the current test

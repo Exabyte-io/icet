@@ -1,6 +1,6 @@
 from ase.build import bulk
-from icetdev import Structure
-from icetdev.core.orbit_list import create_orbit_list
+from icet import Structure
+from icet.core.orbit_list import create_orbit_list
 
 '''
 This test will construct two orbit lists each from the same atom structure but

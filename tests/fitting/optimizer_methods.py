@@ -1,5 +1,5 @@
 import numpy as np
-from icetdev.fitting import Optimizer, available_fit_methods
+from icet.fitting import Optimizer, available_fit_methods
 
 np.random.seed(42)
 

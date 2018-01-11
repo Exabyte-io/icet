@@ -2,7 +2,7 @@ from ase import Atoms
 import numpy as np
 from collections import OrderedDict
 
-from _icetdev import ClusterSpace as _ClusterSpace
+from _icet import ClusterSpace as _ClusterSpace
 from .structure import Structure
 from .orbit_list import create_orbit_list
 from ..tools.geometry import add_vacuum_in_non_pbc

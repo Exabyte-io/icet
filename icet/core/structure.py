@@ -1,4 +1,4 @@
-from _icetdev import Structure
+from _icet import Structure
 
 
 @classmethod

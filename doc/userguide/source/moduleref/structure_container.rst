@@ -5,12 +5,12 @@
 Structures
 ==========
 
-.. autoclass:: icetdev.StructureContainer
+.. autoclass:: icet.StructureContainer
    :members:
    :undoc-members:
    :inherited-members:
 
-.. autoclass:: icetdev.Structure
+.. autoclass:: icet.Structure
    :members:
    :undoc-members:
    :inherited-members:

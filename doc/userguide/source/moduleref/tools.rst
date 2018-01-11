@@ -12,7 +12,7 @@ Tools
 Convex hull construction
 ------------------------
 
-.. automodule:: icetdev.tools.convex_hull
+.. automodule:: icet.tools.convex_hull
    :members:
    :undoc-members:
    :inherited-members:
@@ -23,7 +23,7 @@ Convex hull construction
 Mapping structures
 ------------------
 
-.. automodule:: icetdev.tools.structure_mapping
+.. automodule:: icet.tools.structure_mapping
    :members:
    :undoc-members:
    :inherited-members:
@@ -36,7 +36,7 @@ Mapping structures
 Structure enumeration
 ---------------------
 
-.. automodule:: icetdev.tools.structure_enumeration
+.. automodule:: icet.tools.structure_enumeration
    :members:
    :undoc-members:
    :inherited-members:

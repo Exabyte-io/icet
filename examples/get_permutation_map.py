@@ -5,7 +5,7 @@ This example generate a permutation map for a structure
 # Import modules
 import numpy as np
 from ase.build import bulk
-from icetdev.core.permutation_map import permutation_matrix_from_atoms
+from icet.core.permutation_map import permutation_matrix_from_atoms
 
 # Create a prototype Al structure
 atoms = bulk('Al', 'fcc', a=2.0)

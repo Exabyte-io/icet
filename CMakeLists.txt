@@ -1,6 +1,6 @@
 # Require a modern version of CMake.
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0 FATAL_ERROR)
-PROJECT(icetdev)
+PROJECT(icet)
 SET(CMAKE_BUILD_TYPE Release)
 
 # Enable C++11 standard.

@@ -1,5 +1,5 @@
 import numpy as np
-from icetdev.fitting import Optimizer
+from icet.fitting import Optimizer
 
 # setup Ax=y problem
 N, M = 5000, 50

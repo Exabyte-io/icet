@@ -3,7 +3,7 @@ import sys
 
 
 # This is the root logger of icet
-logger = logging.getLogger('icetdev')
+logger = logging.getLogger('icet')
 
 # Will process all levels of INFO or higher
 logger.setLevel(logging.INFO)

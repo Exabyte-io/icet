@@ -12,7 +12,7 @@ Import modules
 --------------
 
 First, one needs to import the class :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` class, which is used to store
+<icet.core.cluster_space.ClusterSpace>` class, which is used to store
 information regarding a given cluster space. Additionally, the `ASE
 <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
 needed to generate the structures.
@@ -37,7 +37,7 @@ Initiate the cluster space
 --------------------------
 
 The cluster space is created by initiating a :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` object and providing the prototype
+<icet.core.cluster_space.ClusterSpace>` object and providing the prototype
 structure, cutoffs and list elements defined previously as arguments. Next, the
 :meth:`print` method is used to print all relevant information regarding the
 cluster space in tabular format.
@@ -69,8 +69,8 @@ Cluster vectors for Si supercells
 After building a new structure in the form of a :math:`2\times2\times2`
 supercell, the cluster vectors are constructed using the
 :meth:`ClusterSpace.get_cluster_vector
-<icetdev.core.cluster_space.ClusterSpace.get_cluster_vector>` method for the
-instance of the :class:`ClusterSpace <icetdev.core.cluster_space.ClusterSpace>`
+<icet.core.cluster_space.ClusterSpace.get_cluster_vector>` method for the
+instance of the :class:`ClusterSpace <icet.core.cluster_space.ClusterSpace>`
 class that was initiated in the previous section. The cluster vectors are
 printed, as a sequence of tables, with help of the :meth:`print` method.
 

@@ -13,8 +13,8 @@ Import modules
 --------------
 
 In the present case it is necessary to import two :program:`icet` classes,
-namely :class:`ClusterSpace <icetdev.core.cluster_space.ClusterSpace>` and
-:class:`Structure <icetdev.core.structure.Structure>`. The corresponding
+namely :class:`ClusterSpace <icet.core.cluster_space.ClusterSpace>` and
+:class:`Structure <icet.core.structure.Structure>`. The corresponding
 objects are used to store information regarding a specific cluster space and
 structure, respectively. Additionally, the `ASE
 <https://wiki.fysik.dtu.dk/ase>`_ function
@@ -48,14 +48,14 @@ The second function, :func:`generate_cv_set`, generates cluster vectors for ``n`
 supercells, which have been constructed from the :class:`ASE Atoms` object,
 ``atoms_prim`` and randomly populated with the elements in the ``subelements``
 list, based on the :class:`ClusterSpace
-<icetdev.core.cluster_space.ClusterSpace>` object ``cluster_space``. Specifically,
+<icet.core.cluster_space.ClusterSpace>` object ``cluster_space``. Specifically,
 this is achieved by first calling the :func:`generate_random_structure` function,
 defined in the previous section, with the :class:`ASE Atoms` object,
 ``atoms_prim``, the ``subelements`` list and size of the supercell,
 ``repeat``, as input arguments. The resulting configuration is subsequently
-converted to a :class:`Structure <icetdev.core.structure.Structure>` object, using
+converted to a :class:`Structure <icet.core.structure.Structure>` object, using
 the :meth:`Structure.from_atoms` method. This structure is, thereafter,
-provided as an input argument to the :func:`get_cluster_vector <icetdev.core.cluster_space.ClusterSpace.get_cluster_vector>`
+provided as an input argument to the :func:`get_cluster_vector <icet.core.cluster_space.ClusterSpace.get_cluster_vector>`
 method to extract the cluster vectors.
 
 .. literalinclude:: ../../../../examples/test_cluster_vector_correlation.py
@@ -107,7 +107,7 @@ correlations for the first ten structures in the database ``PdHVac-fcc.db``,
 which should already have been created using the script
 ``enumerate_structures.py``. At each step of the loop, some basic information
 regarding the structure is first extracted and printed. Thereafter, a
-:class:`ClusterSpace <icetdev.core.cluster_space.ClusterSpace>` object,
+:class:`ClusterSpace <icet.core.cluster_space.ClusterSpace>` object,
 ``cluster_space``, is initiated using the :class:`ASE Atoms` object
 ``atoms_row`` as well as the ``cutoffs`` list and the ``subelements``
 list, specified in the previous section, as input arguments.

@@ -10,10 +10,10 @@ import random
 import numpy as np
 
 from ase.db import connect
-from icetdev import Structure
-from icetdev.core.neighbor_list import get_neighbor_lists
-from icetdev.core.cluster_counts import ClusterCounts
-from icetdev.core import orbit_list
+from icet import Structure
+from icet.core.neighbor_list import get_neighbor_lists
+from icet.core.cluster_counts import ClusterCounts
+from icet.core import orbit_list
 
 
 def get_equivalent_clustermap_key(key1, clustermap_keys, tol=1e-3):

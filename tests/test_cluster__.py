@@ -1,4 +1,4 @@
-import icetdev as it
+import icet as it
 import numpy as np
 
 # set up a test cluster

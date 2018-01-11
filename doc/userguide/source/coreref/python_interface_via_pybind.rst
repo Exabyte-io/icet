@@ -2,4 +2,4 @@
    single: Function reference; Python/C++ interface
    single: Class reference; Python/C++ interface
 
-.. automodule:: _icetdev
+.. automodule:: _icet

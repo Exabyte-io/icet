@@ -5,7 +5,7 @@ number of structure.
 
 from ase.build import bulk
 from ase import Atom
-from icetdev.tools import enumerate_structures
+from icet.tools import enumerate_structures
 
 
 def count_structures(atoms, sizes, species, correct_count, tag):

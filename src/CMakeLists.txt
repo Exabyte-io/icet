@@ -23,7 +23,7 @@ SET(SourceFiles
   Geometry.cpp
 )
 
-PYBIND11_ADD_MODULE(_icetdev ${SourceFiles})
-SET_TARGET_PROPERTIES(_icetdev PROPERTIES OUTPUT_NAME "_icetdev")
+PYBIND11_ADD_MODULE(_icet ${SourceFiles})
+SET_TARGET_PROPERTIES(_icet PROPERTIES OUTPUT_NAME "_icet")
 
 

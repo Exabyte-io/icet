@@ -4,7 +4,7 @@ with any structure in the test database and can predict a property.
 '''
 
 from ase.db import connect
-from icetdev import ClusterSpace, ClusterExpansion
+from icet import ClusterSpace, ClusterExpansion
 
 
 def test_clusterexpansion_model(atoms, cutoffs, subelements):

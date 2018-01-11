@@ -8,7 +8,7 @@ Additional Python components
 BaseOptimizer
 -------------
 
-.. automodule:: icetdev.fitting.base_optimizer
+.. automodule:: icet.fitting.base_optimizer
    :members:
    :undoc-members:
    :inherited-members:
@@ -16,7 +16,7 @@ BaseOptimizer
 Geometry
 --------
 
-.. automodule:: icetdev.tools.geometry
+.. automodule:: icet.tools.geometry
    :members:
    :undoc-members:
    :inherited-members:
@@ -24,14 +24,14 @@ Geometry
 LocalOrbitListGenerator
 -----------------------
 
-.. automodule:: icetdev.core.local_orbit_list_generator
+.. automodule:: icet.core.local_orbit_list_generator
    :members:
    :undoc-members:
 
 ManyBodyNeighborList
 --------------------
 
-.. automodule:: icetdev.core.many_body_neighbor_list
+.. automodule:: icet.core.many_body_neighbor_list
    :members:
    :undoc-members:
    :inherited-members:
@@ -39,7 +39,7 @@ ManyBodyNeighborList
 NeighborList
 ------------
 
-.. automodule:: icetdev.core.neighbor_list
+.. automodule:: icet.core.neighbor_list
    :members:
    :undoc-members:
    :inherited-members:
@@ -47,7 +47,7 @@ NeighborList
 Orbit
 -----
 
-.. automodule:: icetdev.core.orbit
+.. automodule:: icet.core.orbit
    :members:
    :undoc-members:
    :inherited-members:
@@ -55,7 +55,7 @@ Orbit
 OrbitList
 ---------
 
-.. automodule:: icetdev.core.orbit_list
+.. automodule:: icet.core.orbit_list
    :members:
    :undoc-members:
    :inherited-members:
@@ -63,7 +63,7 @@ OrbitList
 PermutationMap
 --------------
 
-.. automodule:: icetdev.core.permutation_map
+.. automodule:: icet.core.permutation_map
    :members:
    :undoc-members:
    :inherited-members:
@@ -71,7 +71,7 @@ PermutationMap
 Structure
 ---------
 
-.. automodule:: icetdev.core.structure
+.. automodule:: icet.core.structure
    :members:
    :undoc-members:
    :inherited-members:

@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 #include <pybind11/operators.h>
 
-PYBIND11_MODULE(_icetdev, m)
+PYBIND11_MODULE(_icet, m)
 {
 
     m.doc() = R"pbdoc(
@@ -30,7 +30,7 @@ PYBIND11_MODULE(_icetdev, m)
         .. toctree::
            :maxdepth: 2
 
-        .. currentmodule:: _icetdev
+        .. currentmodule:: _icet
 
         Cluster
         -------

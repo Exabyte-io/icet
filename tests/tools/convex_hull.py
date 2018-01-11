@@ -2,7 +2,7 @@
 
 import unittest
 
-from icetdev.tools import ConvexHull
+from icet.tools import ConvexHull
 import numpy as np
 
 

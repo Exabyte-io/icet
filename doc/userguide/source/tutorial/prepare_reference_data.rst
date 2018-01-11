@@ -20,7 +20,7 @@ and :func:`ase.build.bulk` are needed to initialize the database and the create
 the primitive structure, respectively, while :func:`ase.calculators.emt.EMT`
 and :func:`ase.optimize.BFGS` will be used relax and optimize structures. To
 construct the latter the :program:`icet` function
-:func:`enumerate_structures <icetdev.tools.structure_enumeration.enumerate_structures>`
+:func:`enumerate_structures <icet.tools.structure_enumeration.enumerate_structures>`
 will be employed.
 
 .. literalinclude:: ../../../../tutorial/prepare_reference_data.py
@@ -48,7 +48,7 @@ Enumeration and relaxation
 The second and final step is to generate, relax and then add the structures to
 the database. This is achieved by looping over the :class:`ASE Atoms` instances
 obtained by calling the :func:`enumerate_structures
-<icetdev.tools.structure_enumeration.enumerate_structures>` function with the
+<icet.tools.structure_enumeration.enumerate_structures>` function with the
 primitive structure and the list of elements specified earlier as well as the
 list ``sizes``, which specifies the permissible number of atoms per cell, as
 input arguments. Note that the original positions of all atoms are recorded.

@@ -1,5 +1,5 @@
 import numpy as np
-from icetdev.fitting import CrossValidationEstimator
+from icet.fitting import CrossValidationEstimator
 from sklearn.model_selection import KFold
 
 np.random.seed(42)

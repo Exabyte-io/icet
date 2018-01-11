@@ -4,7 +4,7 @@ been scaled and/or the atoms displaced onto an ideal (primitive) structure
 '''
 
 # Import modules
-from icetdev.tools import map_structure_to_reference
+from icet.tools import map_structure_to_reference
 from ase.build import bulk
 from ase import Atom
 # End import

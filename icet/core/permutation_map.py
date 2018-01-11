@@ -1,6 +1,6 @@
 import spglib
 
-from _icetdev import PermutationMap
+from _icet import PermutationMap
 from .neighbor_list import get_neighbor_lists, NeighborList
 from .structure import Structure
 from ..tools.geometry import (get_primitive_structure,

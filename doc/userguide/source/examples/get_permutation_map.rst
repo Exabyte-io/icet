@@ -13,7 +13,7 @@ Import modules
 
 To extract permutation maps, only a single :program:`icet` function is
 required, namely :func:`permutation_matrix_from_atoms
-<icetdev.core.permutation_map.permutation_matrix_from_atoms>`. Additionally, the
+<icet.core.permutation_map.permutation_matrix_from_atoms>`. Additionally, the
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
 needed to generate a structure.
 
@@ -35,13 +35,13 @@ Obtain a permutation map
 ------------------------
 
 Next, the :func:`permutation_matrix_from_atoms
-<icetdev.core.permutation_map.permutation_matrix_from_atoms>` function is called
+<icet.core.permutation_map.permutation_matrix_from_atoms>` function is called
 with the :class:`ASE Atoms` object that was defined above and a neighbor cutoff
 of 2.0 Å as arguments. The resulting output is a list that contains
 three elements, namely
-a :class:`PermutationMap <_icetdev.PermutationMap>`,
-a primitive :class:`Structure <_icetdev.Structure>` and
-a :class:`NeighborList <_icetdev.NeighborList>`.
+a :class:`PermutationMap <_icet.PermutationMap>`,
+a primitive :class:`Structure <_icet.Structure>` and
+a :class:`NeighborList <_icet.NeighborList>`.
 
 .. literalinclude:: ../../../../examples/get_permutation_map.py
    :start-after: # Generate a permutation map
@@ -49,7 +49,7 @@ a :class:`NeighborList <_icetdev.NeighborList>`.
 
 Since the verbosity was set to :math:`\geq 3`, the following extra information
 should be printed by :func:`permutation_matrix_from_atoms
-<icetdev.core.permutation_map.permutation_matrix_from_atoms>`::
+<icet.core.permutation_map.permutation_matrix_from_atoms>`::
 
   size of atoms_prim 1
   number of positions: 19
@@ -58,7 +58,7 @@ Extract permutated positions
 ----------------------------
 
 The permutated as well as the indexed and unique positions can be extracted
-from the :class:`PermutationMap <icetdev.core.permutation_map.PermutationMap>`
+from the :class:`PermutationMap <icet.core.permutation_map.PermutationMap>`
 object, generated earlier, using the methods
 :meth:`PermutationMap.get_permutated_positions` and
 :meth:`PermutationMap.get_indiced_positions`, respectively.

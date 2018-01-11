@@ -1,4 +1,4 @@
-from icetdev.core.lattice_site import LatticeSite
+from icet.core.lattice_site import LatticeSite
 
 '''
 Test that lattice site is hashable
