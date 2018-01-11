@@ -24,7 +24,7 @@ import unittest
 
 from icet import ClusterSpace
 from icet.core.cluster_space import (get_singlet_info,
-                                        get_singlet_configuration)
+                                     get_singlet_configuration)
 from icet.core.structure import Structure
 from icet.core.lattice_site import LatticeSite
 from collections import OrderedDict

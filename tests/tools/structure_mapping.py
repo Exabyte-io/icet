@@ -4,8 +4,8 @@ import unittest
 
 from icet.tools import map_structure_to_reference
 from icet.tools.structure_mapping import (_get_scaled_cell,
-                                             _get_transformation_matrix,
-                                             _rescale_structures)
+                                          _get_transformation_matrix,
+                                          _rescale_structures)
 import numpy as np
 
 
