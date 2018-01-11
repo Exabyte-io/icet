@@ -1,9 +1,9 @@
 import time
 from ase.build import bulk
 import ase.neighborlist as asenl
-from icetdev import Structure
-from icetdev.core.neighbor_list import NeighborList
-from icetdev.core.many_body_neighbor_list import ManyBodyNeighborList
+from icet import Structure
+from icet.core.neighbor_list import NeighborList
+from icet.core.many_body_neighbor_list import ManyBodyNeighborList
 from test_many_body_neighbor_list import TestManyBodyNeighborList
 
 

@@ -1,8 +1,8 @@
 import time
 from ase.build import bulk
 import ase.neighborlist as asenl
-from icetdev import Structure
-from icetdev.core.neighbor_list import NeighborList
+from icet import Structure
+from icet.core.neighbor_list import NeighborList
 
 
 def build_neighbor_list_cpp(structure, cutoff):
