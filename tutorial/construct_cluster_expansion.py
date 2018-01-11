@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 from ase.db import connect
 from ase.build import bulk
-from icetdev import (ClusterSpace,
+from icet import (ClusterSpace,
                      StructureContainer,
                      Optimizer,
                      ClusterExpansion)
-from icetdev.tools import (ConvexHull,
+from icet.tools import (ConvexHull,
                            enumerate_structures)
 
 # step 1: Set up the basic structure and a cluster space

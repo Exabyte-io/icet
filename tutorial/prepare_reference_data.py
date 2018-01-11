@@ -3,7 +3,7 @@ from ase.build import bulk
 from ase.db import connect
 from ase.calculators.emt import EMT
 from ase.optimize import BFGS
-from icetdev.tools import enumerate_structures
+from icet.tools import enumerate_structures
 
 # step 1: Prepare database and set up basic structure
 db = connect('structures.db')
