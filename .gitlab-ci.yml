@@ -28,7 +28,7 @@ tests:
     - coverage run tests/__init__.py
     - coverage report -m
     - coverage html -d coverage
-    - python3 benchmark/*.py
+    - for f in benchmark/*.py; do python3 "$f"; done
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   artifacts:
     expire_in: 14 days
