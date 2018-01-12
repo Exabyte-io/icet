@@ -62,7 +62,7 @@ ClusterCounts ClusterSpace::getNativeClusters(const Structure &structure) const
     size_t uniqueOffsets = localOrbitListGenerator.getUniqueOffsetsCount();
     ClusterCounts clusterCounts = ClusterCounts();
 
-    int tags=0;
+    int tags = 0;
     for (int i = 0; i < uniqueOffsets; i++)
     {
         const auto local_orbit_list = localOrbitListGenerator.generateLocalOrbitList(i);
@@ -163,7 +163,8 @@ std::vector<int> ClusterSpace::getAllowedOccupations(const Structure &structure,
 void ClusterSpace::setupClusterSpaceInfo()
 {
     _clusterSpaceInfo.clear();
-
+    std::vector<int> emptyVec = {0};
+    _clusterSpaceInfo.push_back(std::make_pair(-1,emptyVec));
     for (int i = 0; i < _primitive_orbit_list.size(); i++)
     {
         auto allowedOccupations = getAllowedOccupations(_primitive_structure, _primitive_orbit_list.getOrbit(i).getRepresentativeSites());
@@ -200,6 +201,6 @@ size_t ClusterSpace::getClusterSpaceSize()
     {
         setupClusterSpaceInfo();
     }
-
+    // Plus one for zerolet
     return _clusterSpaceInfo.size();
 }

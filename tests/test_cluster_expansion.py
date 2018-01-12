@@ -19,7 +19,7 @@ def test_clusterexpansion_model(atoms, cutoffs, subelements):
         list of elements that are allowed
     '''
     cs = ClusterSpace(atoms, cutoffs, subelements)
-    params_len = cs.get_cluster_space_size() + 1  # plus one for singlet
+    params_len = cs.get_cluster_space_size()
     params = list(range(params_len))
 
     ce = ClusterExpansion(cs, params)

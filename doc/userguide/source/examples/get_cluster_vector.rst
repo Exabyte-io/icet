@@ -51,15 +51,16 @@ Specifically, the final call should produce the following (partial) output::
   ------------------------- Cluster Space -------------------------
   subelements: Si Ge
   cutoffs: 5.0 5.0 5.0
-  number of orbits: 21
+  number of orbits: 22
   -----------------------------------------------------------------
   order |  radius  | multiplicity | index | orbit |    MC vector
   -----------------------------------------------------------------
-    1   |   0.0000 |        2     |    0  |    0  |    [0]
-    2   |   1.1756 |        4     |    1  |    1  |  [0, 0]
-    2   |   1.9198 |       12     |    2  |    2  |  [0, 0]
+    0   |   0.0000 |        1     |    0  |   -1  
+    1   |   0.0000 |        2     |    1  |    0  |    [0]
+    2   |   1.1756 |        4     |    2  |    1  |  [0, 0]
+    2   |   1.9198 |       12     |    3  |    2  |  [0, 0]
   ...
-    4   |   2.5525 |        8     |   20  |   20  | [0, 0, 0, 0]
+    4   |   2.5525 |        8     |   21  |   20  | [0, 0, 0, 0]
   -----------------------------------------------------------------
 
 
@@ -94,6 +95,10 @@ substituting one of the Si atoms in the supercell with Ge.
 In this case the output should be::
 
   [1.0, -0.875, 0.75, 0.75, 0.75, -0.625, -0.625, -0.625, -0.625, -0.625, -0.625, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+
+Notice that the first element is always 1.0. This is true for all 
+cluster vectors constructed in icet. This orbit is called a zerolet
+and it is useful when fitting a cluster expansion among other things.
 
 Source code
 -----------

@@ -211,7 +211,14 @@ class ClusterSpace(_ClusterSpace):
             information about the orbits that constitute the cluster space.
         '''
         data = []
-        index = 0
+        zerolet = OrderedDict([('index', 0),
+                               ('order', 0),
+                               ('size', 0),
+                               ('multiplicity', 1),
+                               ('orbit index', -1)])
+
+        data.append(zerolet)
+        index = 1
         while index < len(self):
             cluster_space_info = self.get_cluster_space_info(index)
             orbit_index = cluster_space_info[0]
@@ -320,7 +327,7 @@ def get_singlet_info(atoms, return_cluster_space=False):
 
     singlet_data = []
 
-    for i in range(len(cs)):
+    for i in range(1, len(cs)):
         cluster_space_info = cs.get_cluster_space_info(i)
         orbit_index = cluster_space_info[0]
         cluster = cs.get_orbit(orbit_index).get_representative_cluster()
