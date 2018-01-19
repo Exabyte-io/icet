@@ -145,7 +145,7 @@ class TestStructureContainer(unittest.TestCase):
 
         self.sc.add_structure(conf_4)
 
-        list_index = [x for x in range(len(atoms_list)+1)]
+        list_index = [x for x in range(len(atoms_list) + 1)]
         new_indices = self.sc.get_structure_indices()
         self.assertEqual(new_indices, list_index)
 
@@ -163,15 +163,15 @@ class TestStructureContainer(unittest.TestCase):
         '''
         retval = self.sc.__repr__()
         target = '''
---------------------- Structure Container ----------------------
+----------------------------- Structure Container -----------------------------
 Total number of structures: 3
-----------------------------------------------------------------
-index |           user_tag           | natoms | energy | volume
-----------------------------------------------------------------
-   0  | None                         |     8  | 0.013  | 136.836
-   1  | None                         |     8  | -0.007 | 136.836
-   2  | None                         |     8  | -0.026 | 136.836
-----------------------------------------------------------------
+-------------------------------------------------------------------------------
+index |       user_tag        | natoms | chemical formula |  energy  |  volume
+-------------------------------------------------------------------------------
+   0  | None                  |     8  | Ag8              |    0.013 |  136.836
+   1  | None                  |     8  | Ag7Au            |   -0.007 |  136.836
+   2  | None                  |     8  | Ag6Au2           |   -0.026 |  136.836
+-------------------------------------------------------------------------------
 '''
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
@@ -212,6 +212,7 @@ index |           user_tag           | natoms | energy | volume
 
 
 class TestFitStructure(unittest.TestCase):
+
     def setUp(self):
         '''
         Instantiate class before each test
