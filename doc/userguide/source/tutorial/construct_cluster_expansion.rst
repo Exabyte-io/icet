@@ -106,33 +106,33 @@ By calling the :func:`print` function with the :class:`StructureContainer
 <icet.core.structure_container.StructureContainer>` as input argument, one
 obtains the following result::
 
-  ---------------- Structure Container -----------------
-  Total number of structures: 137
-  ------------------------------------------------------
-  index |           user_tag           | natoms | energy
-  ------------------------------------------------------
-     0  | None                         |     1  | 0.000
-     1  | None                         |     1  | 0.000
-     2  | None                         |     2  | -0.010
-     3  | None                         |     2  | -0.011
-     4  | None                         |     3  | -0.008
-     5  | None                         |     3  | -0.008
-     6  | None                         |     3  | -0.009
-     7  | None                         |     3  | -0.011
-     8  | None                         |     3  | -0.011
-     9  | None                         |     3  | -0.010
-   ...
-   127  | None                         |     6  | -0.010
-   128  | None                         |     6  | -0.006
-   129  | None                         |     6  | -0.006
-   130  | None                         |     6  | -0.009
-   131  | None                         |     6  | -0.009
-   132  | None                         |     6  | -0.011
-   133  | None                         |     6  | -0.012
-   134  | None                         |     6  | -0.011
-   135  | None                         |     6  | -0.011
-   136  | None                         |     6  | -0.007
-  ------------------------------------------------------
+----------------------- Structure Container ------------------------
+Total number of structures: 137
+--------------------------------------------------------------------
+index |       user_tag        | natoms | chemical formula |  energy
+--------------------------------------------------------------------
+   0  | None                  |     1  | Ag               |    0.000
+   1  | None                  |     1  | Au               |    0.000
+   2  | None                  |     2  | AgAu             |   -0.010
+   3  | None                  |     2  | AgAu             |   -0.011
+   4  | None                  |     3  | Ag2Au            |   -0.008
+   5  | None                  |     3  | AgAu2            |   -0.008
+   6  | None                  |     3  | Ag2Au            |   -0.009
+   7  | None                  |     3  | AgAu2            |   -0.011
+   8  | None                  |     3  | Ag2Au            |   -0.011
+   9  | None                  |     3  | AgAu2            |   -0.010
+ ...
+ 127  | None                  |     6  | Ag2Au4           |   -0.010
+ 128  | None                  |     6  | AgAu5            |   -0.006
+ 129  | None                  |     6  | Ag5Au            |   -0.006
+ 130  | None                  |     6  | Ag4Au2           |   -0.009
+ 131  | None                  |     6  | Ag4Au2           |   -0.009
+ 132  | None                  |     6  | Ag3Au3           |   -0.011
+ 133  | None                  |     6  | Ag3Au3           |   -0.012
+ 134  | None                  |     6  | Ag2Au4           |   -0.011
+ 135  | None                  |     6  | Ag2Au4           |   -0.011
+ 136  | None                  |     6  | AgAu5            |   -0.007
+--------------------------------------------------------------------
 
 Training of parameters
 ----------------------
