@@ -8,7 +8,6 @@ class StructureContainer(object):
     def __init__(self, cluster_space,
                  list_of_atoms=None,
                  list_of_properties=None):
-
         '''
         Initializes a StructureContainer object
 
@@ -43,7 +42,7 @@ class StructureContainer(object):
                 msg = 'len(list_of_properties) not equal len(list_of_atoms)'
                 assert(len(list_of_properties) == len(list_of_atoms)), msg
             else:
-                list_of_properties = [None]*len(list_of_atoms)
+                list_of_properties = [None] * len(list_of_atoms)
 
             # transform list to tuple
             if isinstance(list_of_atoms[0], Atoms):
@@ -106,17 +105,21 @@ class StructureContainer(object):
             fields = OrderedDict([
                 ('index',     '{:4}'.format(index)),
                 ('user_tag',  '{:28}'.format(structure.user_tag)),
-                ('natoms',    '{:5}'.format(len(structure)))])
+                ('natoms',    '{:5}'.format(len(structure))),
+                ('chemical formula', structure._atoms.get_chemical_formula())])
             fields.update(sorted(structure.properties.items()))
             for key, value in fields.items():
                 if isinstance(value, float):
-                    fields[key] = '{:.3f}'.format(value)
+                    fields[key] = '{:8.3f}'.format(value)
             s = []
             for name, value in fields.items():
                 n = max(len(name), len(value))
                 if header:
                     s += ['{s:^{n}}'.format(s=name, n=n)]
                 else:
+                    if name == 'user_tag' or name == 'chemical formula':
+                        # We want them aligned to the left
+                        value = '{:{padding}}'.format(value, padding=n - 1)
                     s += ['{s:^{n}}'.format(s=value, n=n)]
             return ' | '.join(s)
 
@@ -205,7 +208,7 @@ class StructureContainer(object):
             except PropertyNotImplementedError:
                 pass
             else:
-                properties['energy'] = energy/len(atoms)
+                properties['energy'] = energy / len(atoms)
 
         assert properties, 'Calculator does not have energy as a property'
 
