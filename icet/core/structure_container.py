@@ -104,7 +104,7 @@ class StructureContainer(object):
             from collections import OrderedDict
             fields = OrderedDict([
                 ('index',     '{:4}'.format(index)),
-                ('user_tag',  '{:28}'.format(structure.user_tag)),
+                ('user_tag',  '{:21}'.format(structure.user_tag)),
                 ('natoms',    '{:5}'.format(len(structure))),
                 ('chemical formula', structure._atoms.get_chemical_formula())])
             fields.update(sorted(structure.properties.items()))
