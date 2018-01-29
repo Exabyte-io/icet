@@ -25,7 +25,7 @@ tests:
   script:
     - export PATH=${PATH}:${HOME}/.local/bin
     - export PYTHONPATH=$PWD:$PWD/build/src/:$PYTHONPATH
-    - coverage run tests/__init__.py
+    - coverage run tests/main.py
     - coverage report -m
     - coverage html -d coverage
     - for f in benchmark/*.py; do python3 "$f"; done

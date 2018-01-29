@@ -3,6 +3,7 @@ from icet.core.cluster_counts import ClusterCounts
 
 import unittest
 
+
 class TestNeighborList(unittest.TestCase):
     '''
     Container for test of the module functionality.

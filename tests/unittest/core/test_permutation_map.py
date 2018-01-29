@@ -3,6 +3,7 @@ from icet.core.permutation_map import permutation_matrix_from_atoms
 
 import unittest
 
+
 class TestPermutationMap(unittest.TestCase):
     '''
     Container for test of the module functionality.

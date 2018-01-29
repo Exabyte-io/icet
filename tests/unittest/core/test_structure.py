@@ -2,6 +2,7 @@ from icet import Structure
 
 import unittest
 
+
 class TestStructure(unittest.TestCase):
     '''
     Container for test of the module functionality.
