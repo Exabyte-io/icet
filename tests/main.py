@@ -3,6 +3,10 @@ import sys
 import unittest
 from icet.io.logging import set_config
 
+import generate_structures_for_testing
+
+generate_structures_for_testing
+
 
 class ScriptTestCase(unittest.TestCase):
     def __init__(self, methodname='testfile', filename=None):

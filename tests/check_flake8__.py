@@ -20,7 +20,7 @@ test_directories : list of str
 # General settings
 path = os.path.abspath(__file__)
 rootdir = os.path.abspath(os.path.dirname(path) + '/..')
-test_directories = ['icet', 'tests', 'unittest', 'doc', 'examples']
+test_directories = ['icet', 'tests', 'doc', 'examples']
 
 # Prepend directory names with <rootdir>
 directories = []

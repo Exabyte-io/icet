@@ -8,9 +8,9 @@ class TestOrbitList(unittest.TestCase):
     '''
 
     def setUp(self):
-        """
+        '''
         SetUp
-        """
+        '''
         pass
 
 if __name__ == '__main__':

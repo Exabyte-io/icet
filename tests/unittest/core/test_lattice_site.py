@@ -8,15 +8,15 @@ class TestLatticeSite(unittest.TestCase):
     '''
 
     def setUp(self):
-        """
+        '''
         SetUp
-        """
+        '''
         pass
 
     def test_hash(self):
-        """
+        '''
         Test that lattice site is hashable
-        """
+        '''
         index = 1
         unitcell_offset = [0., 0., 0.]
         lattice_site = LatticeSite(index, unitcell_offset)
