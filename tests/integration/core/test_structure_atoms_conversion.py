@@ -6,6 +6,8 @@ _tolerance = 1e-9
 
 '''
 Testing icet structure against ASE
+TODO:
+    Delete this after edit unittest/test_structure
 '''
 
 ''' Fetch structures from database '''

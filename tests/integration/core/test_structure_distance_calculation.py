@@ -5,6 +5,8 @@ import icet
 
 '''
 Testing the calculation of distances with offsets
+TODO:
+    Delete this after edit unittest/test_structure
 '''
 
 
