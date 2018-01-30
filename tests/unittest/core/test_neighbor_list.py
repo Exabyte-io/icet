@@ -1,7 +1,5 @@
-from icet import Structure
-from _icet import NeighborList
-
 import unittest
+
 
 class TestNeighborList(unittest.TestCase):
     '''
@@ -13,6 +11,7 @@ class TestNeighborList(unittest.TestCase):
         SetUp
         '''
         pass
+
 
 if __name__ == '__main__':
     unittest.main()

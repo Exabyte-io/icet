@@ -1,5 +1,3 @@
-from icet import Structure
-
 import unittest
 
 

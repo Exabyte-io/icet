@@ -1,6 +1,5 @@
-from icet.core import orbit_list
-
 import unittest
+
 
 class TestOrbitList(unittest.TestCase):
     '''
@@ -13,6 +12,6 @@ class TestOrbitList(unittest.TestCase):
         '''
         pass
 
+
 if __name__ == '__main__':
     unittest.main()
-    

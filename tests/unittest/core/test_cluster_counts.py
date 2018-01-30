@@ -1,6 +1,3 @@
-from icet import Structure
-from icet.core.cluster_counts import ClusterCounts
-
 import unittest
 
 
@@ -15,6 +12,6 @@ class TestNeighborList(unittest.TestCase):
         '''
         pass
 
+
 if __name__ == '__main__':
     unittest.main()
-    

@@ -1,6 +1,3 @@
-from icet import Structure
-from icet.core.permutation_map import permutation_matrix_from_atoms
-
 import unittest
 
 
@@ -15,6 +12,6 @@ class TestPermutationMap(unittest.TestCase):
         '''
         pass
 
+
 if __name__ == '__main__':
     unittest.main()
-    

@@ -2,6 +2,7 @@ from icet.core.lattice_site import LatticeSite
 
 import unittest
 
+
 class TestLatticeSite(unittest.TestCase):
     '''
     Container for test of the module functionality.
