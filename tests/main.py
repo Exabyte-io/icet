@@ -3,10 +3,6 @@ import sys
 import unittest
 from icet.io.logging import set_config
 
-import generate_structures_for_testing
-
-generate_structures_for_testing
-
 
 class ScriptTestCase(unittest.TestCase):
     def __init__(self, methodname='testfile', filename=None):
@@ -54,6 +50,8 @@ def find_script_tests(suite, script_dir):
 
 
 if __name__ == "__main__":
+
+    import generate_structures_for_testing
 
     set_config(level=40)
 
