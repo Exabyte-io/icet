@@ -1,4 +1,6 @@
 import numpy as np
+import ase.db
+from icet import ClusterSpace
 
 
 class ClusterExpansion(object):
@@ -56,3 +58,45 @@ class ClusterExpansion(object):
     def parameters(self):
         '''list of floats : effective cluster interactions (ECIs)'''
         return self._parameters
+
+    def write(self, filename):
+        """
+        Write Cluster expansion to file.
+
+        Parameters
+        ---------
+        filename : str with filename to saved
+        cluster space.
+        """
+
+        self.cluster_space.write(filename)
+        db = ase.db.connect(filename, type='db')
+        entry = db.get(id=1)
+        atoms = entry.toatoms()
+        cutoffs = entry.data.cutoffs
+        chemical_symbols = entry.data.chemical_symbols
+        Mi = entry.data.Mi
+        verbosity = entry.data.verbosity
+
+        db = ase.db.connect(filename, type='db', append=False)
+        db.write(atoms, data={'cutoffs': cutoffs,
+                              'chemical_symbols': chemical_symbols,
+                              "Mi": Mi,
+                              'verbosity': verbosity,
+                              'parameters': self.parameters})
+
+    @staticmethod
+    def read(filename):
+        """
+        Read cluster expansion from file.
+
+        Parameters
+        ---------
+        filename : str with filename to saved
+        cluster space.
+        """
+        cs = ClusterSpace.read(filename)
+        db = ase.db.connect(filename, type='db')
+        entry = db.get(id=1)
+        parameters = entry.data.parameters
+        return ClusterExpansion(cs, parameters)

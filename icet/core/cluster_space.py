@@ -8,6 +8,7 @@ from icet.tools.geometry import get_primitive_structure
 from ..tools.geometry import add_vacuum_in_non_pbc
 from .orbit_list import create_orbit_list
 from .structure import Structure
+import ase.db
 
 
 class ClusterSpace(_ClusterSpace):
@@ -42,14 +43,19 @@ class ClusterSpace(_ClusterSpace):
         # deal with different types of structure objects
         if isinstance(atoms, Atoms):
             self._structure = Structure.from_atoms(atoms)
+            self._input_atoms = atoms
         elif isinstance(atoms, Structure):
             self._structure = atoms
+            self._input_atoms = atoms.to_atoms()
         else:
             msg = 'Unknown structure format'
             msg += ' {} (ClusterSpace)'.format(type(atoms))
             raise Exception(msg)
-        self._cutoffs = cutoffs
 
+        self._cutoffs = cutoffs
+        self._chemical_symbols = chemical_symbols
+        self._mi = Mi
+        self._verbosity = verbosity
         # set up orbit list
         orbit_list = create_orbit_list(self._structure, self._cutoffs,
                                        verbosity=verbosity)
@@ -308,6 +314,45 @@ class ClusterSpace(_ClusterSpace):
     def cutoffs(self):
         ''' list : cutoffs used for initializing the cluster space '''
         return self._cutoffs
+
+    def write(self, filename,):
+        """
+        Save cluster space to a file.
+
+        Parameters
+        ---------
+        filename : str
+        filename for file
+        """
+        db = ase.db.connect(filename, append=False, type='db')
+        db.write(self._input_atoms,
+                 data={'cutoffs': self._cutoffs,
+                       'chemical_symbols': self._chemical_symbols,
+                       "Mi": self._mi,
+                       'verbosity': self._verbosity})
+
+    @staticmethod
+    def read(filename):
+        """
+        Read cluster space from filename.
+
+        Parameters
+        ---------
+        filename : str with filename to saved
+        cluster space.
+        """
+
+        db = ase.db.connect(filename, type='db')
+        entry = db.get(id=1)
+        # atoms = entry.toatoms()
+        # cutoffs = entry.data.cutoffs
+        # chemical_symbols = entry.data.chemical_symbols
+        # Mi = entry.data.Mi
+        # verbosity = entry.data.verbosity
+
+        return ClusterSpace(entry.toatoms(), entry.data.cutoffs,
+                            entry.data.chemical_symbols,
+                            entry.data.Mi, entry.data.verbosity)
 
 
 def get_singlet_info(atoms, return_cluster_space=False):
