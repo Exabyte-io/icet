@@ -8,7 +8,7 @@ from icet.tools.geometry import get_primitive_structure
 from ..tools.geometry import add_vacuum_in_non_pbc
 from .orbit_list import create_orbit_list
 from .structure import Structure
-import ase.db
+import ase.io
 
 
 class ClusterSpace(_ClusterSpace):
@@ -324,12 +324,13 @@ class ClusterSpace(_ClusterSpace):
         filename : str
         filename for file
         """
-        db = ase.db.connect(filename, append=False, type='db')
-        db.write(self._input_atoms,
-                 data={'cutoffs': self._cutoffs,
-                       'chemical_symbols': self._chemical_symbols,
-                       "Mi": self._mi,
-                       'verbosity': self._verbosity})
+        atoms = self._input_atoms.copy()
+        atoms.info = {'cutoffs': self._cutoffs,
+                      'chemical_symbols': self._chemical_symbols,
+                      "Mi": self._mi,
+                      'verbosity': self._verbosity}
+
+        ase.io.write(filename, atoms, format='traj')
 
     @staticmethod
     def read(filename):
@@ -342,17 +343,13 @@ class ClusterSpace(_ClusterSpace):
         cluster space.
         """
 
-        db = ase.db.connect(filename, type='db')
-        entry = db.get(id=1)
-        # atoms = entry.toatoms()
-        # cutoffs = entry.data.cutoffs
-        # chemical_symbols = entry.data.chemical_symbols
-        # Mi = entry.data.Mi
-        # verbosity = entry.data.verbosity
+        atoms = ase.io.read(filename, format='traj')
+        info = atoms.info
 
-        return ClusterSpace(entry.toatoms(), entry.data.cutoffs,
-                            entry.data.chemical_symbols,
-                            entry.data.Mi, entry.data.verbosity)
+        return ClusterSpace(atoms, info['cutoffs'],
+                            info['chemical_symbols'],
+                            info['Mi'],
+                            info['verbosity'])
 
 
 def get_singlet_info(atoms, return_cluster_space=False):

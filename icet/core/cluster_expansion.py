@@ -1,5 +1,5 @@
 import numpy as np
-import ase.db
+import ase.io
 from icet import ClusterSpace
 
 
@@ -70,20 +70,9 @@ class ClusterExpansion(object):
         """
 
         self.cluster_space.write(filename)
-        db = ase.db.connect(filename, type='db')
-        entry = db.get(id=1)
-        atoms = entry.toatoms()
-        cutoffs = entry.data.cutoffs
-        chemical_symbols = entry.data.chemical_symbols
-        Mi = entry.data.Mi
-        verbosity = entry.data.verbosity
-
-        db = ase.db.connect(filename, type='db', append=False)
-        db.write(atoms, data={'cutoffs': cutoffs,
-                              'chemical_symbols': chemical_symbols,
-                              "Mi": Mi,
-                              'verbosity': verbosity,
-                              'parameters': self.parameters})
+        atoms = ase.io.read(filename, format='traj')
+        atoms.info['parameters'] = self.parameters
+        ase.io.write(filename, atoms, format='traj')
 
     @staticmethod
     def read(filename):
@@ -96,7 +85,7 @@ class ClusterExpansion(object):
         cluster space.
         """
         cs = ClusterSpace.read(filename)
-        db = ase.db.connect(filename, type='db')
-        entry = db.get(id=1)
-        parameters = entry.data.parameters
+        atoms = ase.io.read(filename, format='traj')
+        parameters = atoms.info['parameters']
+
         return ClusterExpansion(cs, parameters)
