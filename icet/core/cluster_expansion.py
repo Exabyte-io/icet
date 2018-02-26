@@ -69,6 +69,8 @@ class ClusterExpansion(object):
         cluster space.
         """
 
+        self.cluster_space.write(filename)
+
         with open(filename, 'rb') as handle:
             data = pickle.load(handle)
 
