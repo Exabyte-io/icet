@@ -10,6 +10,8 @@ from .orbit_list import create_orbit_list
 from .structure import Structure
 import ase.io
 
+import pickle
+
 
 class ClusterSpace(_ClusterSpace):
     '''
@@ -315,7 +317,7 @@ class ClusterSpace(_ClusterSpace):
         ''' list : cutoffs used for initializing the cluster space '''
         return self._cutoffs
 
-    def write(self, filename,):
+    def write(self, filename):
         """
         Save cluster space to a file.
 
@@ -324,13 +326,20 @@ class ClusterSpace(_ClusterSpace):
         filename : str
         filename for file
         """
-        atoms = self._input_atoms.copy()
-        atoms.info = {'cutoffs': self._cutoffs,
+        # atoms = self._input_atoms.copy()
+        # atoms.info = {'cutoffs': self._cutoffs,
+        #               'chemical_symbols': self._chemical_symbols,
+        #               "Mi": self._mi,
+        #               'verbosity': self._verbosity}
+        parameters = {'atoms': self._input_atoms.copy(),
+                      'cutoffs': self._cutoffs,
                       'chemical_symbols': self._chemical_symbols,
                       "Mi": self._mi,
                       'verbosity': self._verbosity}
+        with open(filename, 'wb') as handle:
+            pickle.dump(parameters, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-        ase.io.write(filename, atoms, format='traj')
+        # ase.io.write(filename, atoms, format='traj')
 
     @staticmethod
     def read(filename):
@@ -343,13 +352,14 @@ class ClusterSpace(_ClusterSpace):
         cluster space.
         """
 
-        atoms = ase.io.read(filename, format='traj')
-        info = atoms.info
+        with open(filename, 'rb') as handle:
+            parameters = pickle.load(handle)
 
-        return ClusterSpace(atoms, info['cutoffs'],
-                            info['chemical_symbols'],
-                            info['Mi'],
-                            info['verbosity'])
+        return ClusterSpace(parameters['atoms'],
+                            parameters['cutoffs'],
+                            parameters['chemical_symbols'],
+                            parameters['Mi'],
+                            parameters['verbosity'])
 
 
 def get_singlet_info(atoms, return_cluster_space=False):
