@@ -5,10 +5,9 @@ from _icet import ClusterSpace as _ClusterSpace
 from ase import Atoms
 from icet.tools.geometry import get_primitive_structure
 
-from ..tools.geometry import add_vacuum_in_non_pbc
-from .orbit_list import create_orbit_list
-from .structure import Structure
-import ase.io
+from icet.tools.geometry import add_vacuum_in_non_pbc
+from icet.core.orbit_list import create_orbit_list
+from icet.core.structure import Structure
 
 import pickle
 

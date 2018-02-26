@@ -375,6 +375,21 @@ index | order |   size   | multiplicity | orbit index |  MC vector
         self._test_cluster_vectors_in_database(
             'tests/unittest/core/hcp_quaternary.db')
 
+    def test_read_write(self):
+        """
+        Test read/write functionality.
+        """
+        import tempfile
+        f = tempfile.NamedTemporaryFile()
+        self.cs.write(f.name)
+        f.seek(0)
+        cs_read = ClusterSpace.read(f.name)
+        self.assertEqual(self.cs._input_atoms, cs_read._input_atoms)
+        self.assertEqual(list(self.cs._cutoffs), list(cs_read._cutoffs))
+        self.assertEqual(self.cs._chemical_symbols, cs_read._chemical_symbols)
+        self.assertEqual(self.cs._mi, cs_read._mi)
+        self.assertEqual(self.cs._verbosity, cs_read._verbosity)
+
 
 class TestClusterSpaceSurface(unittest.TestCase):
     '''

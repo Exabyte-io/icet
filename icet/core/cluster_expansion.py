@@ -1,5 +1,5 @@
 import numpy as np
-import ase.io
+import pickle
 from icet import ClusterSpace
 
 
@@ -70,9 +70,13 @@ class ClusterExpansion(object):
         """
 
         self.cluster_space.write(filename)
-        atoms = ase.io.read(filename, format='traj')
-        atoms.info['parameters'] = self.parameters
-        ase.io.write(filename, atoms, format='traj')
+        with open(filename, 'rb') as handle:
+            data = pickle.load(handle)
+
+        data['parameters'] = self.parameters
+
+        with open(filename, "wb") as handle:
+            pickle.dump(data, handle)
 
     @staticmethod
     def read(filename):
@@ -85,7 +89,9 @@ class ClusterExpansion(object):
         cluster space.
         """
         cs = ClusterSpace.read(filename)
-        atoms = ase.io.read(filename, format='traj')
-        parameters = atoms.info['parameters']
+
+        with open(filename, 'rb') as handle:
+            data = pickle.load(handle)
+        parameters = data['parameters']
 
         return ClusterExpansion(cs, parameters)
