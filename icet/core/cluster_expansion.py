@@ -69,14 +69,13 @@ class ClusterExpansion(object):
         cluster space.
         """
 
-        self.cluster_space.write(filename)
         with open(filename, 'rb') as handle:
             data = pickle.load(handle)
 
         data['parameters'] = self.parameters
 
         with open(filename, "wb") as handle:
-            pickle.dump(data, handle)
+            pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
     def read(filename):
