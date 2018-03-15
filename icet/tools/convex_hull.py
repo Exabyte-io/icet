@@ -71,7 +71,7 @@ class ConvexHull(object):
             self.concentrations = np.array(ces[0])
             self.energies = np.array(ces[1])
             self.structures = np.array(ces[2])
-        else: 
+        else:
             self.concentrations = concentrations
             self.energies = energies
             self.structures = structures
