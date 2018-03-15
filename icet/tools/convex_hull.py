@@ -63,16 +63,18 @@ class ConvexHull(object):
         concentrations = np.array(concentrations)
         energies = np.array(energies)
 
+        structures = hull.vertices
         # If there is just one independent concentration, we'd better sort
         # according to it
         if self.dimensions == 1:
-            concentrations, energies = (np.array(t) for t in
-                                        zip(*sorted(zip(concentrations,
-                                                        energies))))
-
-        self.concentrations = concentrations
-        self.energies = energies
-        self.structures = hull.vertices
+            ces = list(zip(*sorted(zip(concentrations, energies, structures))))
+            self.concentrations = np.array(ces[0])
+            self.energies = np.array(ces[1])
+            self.structures = np.array(ces[2])
+        else: 
+            self.concentrations = concentrations
+            self.energies = energies
+            self.structures = structures
 
         # Remove points that are above "pure element plane"
         self._remove_points_above_tie_plane()
