@@ -512,7 +512,7 @@ class TestClusterSpaceTernary(unittest.TestCase):
         """
         orbit = cluster_space.get_orbit(orbit_index)
         local_Mi = cluster_space.get_allowed_occupations(
-            cluster_space.get_primitive_structure(),
+            cluster_space._get_primitive_structure(),
             orbit.representative_sites)
 
         mc_vectors = orbit.get_mc_vectors(local_Mi)
