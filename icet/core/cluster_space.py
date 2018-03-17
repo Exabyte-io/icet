@@ -233,7 +233,7 @@ class ClusterSpace(_ClusterSpace):
             mc_vector = cluster_space_info[1]
             orbit = self.get_orbit(orbit_index)
             local_Mi = self.get_allowed_occupations(
-                self.get_primitive_structure(), orbit.representative_sites)
+                self._get_primitive_structure(), orbit.representative_sites)
             mc_vectors = orbit.get_mc_vectors(local_Mi)
             mc_permutations = self.get_mc_vector_permutations(
                 mc_vectors, orbit_index)
@@ -313,6 +313,14 @@ class ClusterSpace(_ClusterSpace):
         space
         '''
         return self._structure
+
+    @property
+    def primitive_structure(self):
+        '''
+        ASE Atoms obejct : primitive structure on which the cluster space
+        is built
+        '''
+        return self._get_primitive_structure().to_atoms()
 
     @property
     def cutoffs(self):
@@ -434,7 +442,7 @@ def get_singlet_configuration(atoms, to_primitive=False):
 
     if to_primitive:
         singlet_configuration \
-            = cluster_space.get_primitive_structure().to_atoms()
+            = cluster_space._get_primitive_structure().to_atoms()
         for singlet in cluster_data:
             for site in singlet['sites']:
                 element = chemical_symbols[singlet['orbit index'] + 1]
