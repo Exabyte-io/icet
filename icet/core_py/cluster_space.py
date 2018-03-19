@@ -363,8 +363,7 @@ def get_singlet_configuration(atoms, to_primitive=False):
                                                    return_cluster_space=True)
 
     if to_primitive:
-        singlet_configuration \
-            = cluster_space.get_primitive_structure().to_atoms()
+        singlet_configuration = cluster_space.primitive_structure
         for singlet in cluster_data:
             for site in singlet['sites']:
                 element = chemical_symbols[singlet['orbit index'] + 1]

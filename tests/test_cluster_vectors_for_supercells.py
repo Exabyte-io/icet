@@ -14,7 +14,7 @@ subelements = ['Au', 'Pd']
 cutoffs = [0.0]
 cs = ClusterSpace(prim, cutoffs, subelements)
 
-atoms_prim = cs.get_primitive_structure().to_atoms()
+atoms_prim = cs.primitive_structure
 
 
 # Create a supercell using permutation matrix
