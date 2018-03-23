@@ -170,8 +170,8 @@ def map_structure_to_reference(input_structure,
         n1 = input_structure.get_chemical_symbols().count(element)
         n2 = ideal_supercell.get_chemical_symbols().count(element)
         assert n1 == n2, ('Number of atoms of type {} differs between'
-                          ' input structure({}) and ideal'
-                          ' supercell ({}).\n'.format(element, n1, n2))
+                          ' input structure ({}) and ideal'
+                          ' supercell ({}).'.format(element, n1, n2))
 
     if verbose:
         print('Maximum, average and standard deviation of atomic'
@@ -289,6 +289,7 @@ def _get_transformation_matrix(input_cell, reference_cell,
          'reference:\n {}\n'.format(reference_cell) +
          'input:\n {}\n'.format(input_cell) +
          'P:\n {}\n'.format(P) +
+         'det P = {}\n'.format(np.linalg.det(P)) +
          'P_round:\n {}\n'.format(np.around(P)) +
          'Deviation: {}\n'.format(np.linalg.norm(P - np.around(P)) / 9) +
          'If there are vacancies, you can try specifying `inert_species`.' +
