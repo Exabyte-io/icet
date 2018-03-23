@@ -52,7 +52,7 @@ def __repr_function(self):
     s += ['{}\n'.format(self.cell)]
     s += ['Element and positions:']
     for symbol, position in zip(self.chemical_symbols, self.positions):
-        s += [' {}  {}'.format(symbol, position)]
+        s += ['{}  [{:}  {:}  {:}]'.format(symbol, *position)]
     return '\n'.join(s)
 
 
