@@ -15,6 +15,13 @@ class Optimizer(BaseOptimizer):
     `training_set`/`test_set` If either `training_set` or `test_set` (or both)
     is specified the fractions will be ignored.
 
+    Warning
+    -------
+    Repeatedly setting up a Optimizer and training
+    *without* changing the seed for the random number generator will yield
+    identical or correlated results, to avoid this please specify a different
+    seed when setting up multiple Optimizer instances.
+
     Parameters
     ----------
     fit_data : tuple of NumPy (N, M) array and NumPy (N) array
@@ -55,7 +62,6 @@ class Optimizer(BaseOptimizer):
 
         super().__init__(fit_data, fit_method, seed)
 
-        self._seed = seed
         self._kwargs = kwargs
 
         # setup training and test sets

@@ -11,9 +11,16 @@ from .optimizer import Optimizer
 
 
 class EnsembleOptimizer(BaseOptimizer):
-    '''Ensemble optimizer that carries out a series of single optimization runs
+    """Ensemble optimizer that carries out a series of single optimization runs
     using the :class:`Optimizer` class and then provides access to various
     ensemble averaged quantities including e.g., errors and parameters.
+
+    Warning
+    -------
+    Repeatedly setting up a EnsembleOptimizer and training
+    *without* changing the seed for the random number generator will yield
+    identical or correlated results, to avoid this please specify a different
+    seed when setting up multiple EnsembleOptimizer instances.
 
     Parameters
     ----------
@@ -36,7 +43,7 @@ class EnsembleOptimizer(BaseOptimizer):
         if True sampling will be carried out with replacement
     seed : int
         seed for pseudo random number generator
-    '''
+    """
 
     def __init__(self, fit_data, fit_method='least-squares', ensemble_size=50,
                  training_size=1.0, bootstrap=True, seed=42, **kwargs):
@@ -58,21 +65,21 @@ class EnsembleOptimizer(BaseOptimizer):
         self._parameters_stddev = None
 
     def train(self):
-        '''
+        """
         Carry out ensemble training and construct the final model by averaging
         over all models in the ensemble.
-        '''
+        """
         self._run_ensemble()
         self._construct_final_model()
 
     def _run_ensemble(self):
-        ''' Construct an ensemble of models. '''
+        """ Construct an ensemble of models. """
 
-        np.random.seed(self.seed)
+        rs = np.random.RandomState(self.seed)
         optimizers = []
         for _ in range(self.ensemble_size):
             # construct training and test sets
-            training_set = np.random.choice(
+            training_set = rs.choice(
                 np.arange(self.number_of_target_values), self.training_size,
                 replace=self.bootstrap)
             test_set = np.setdiff1d(
@@ -95,22 +102,22 @@ class EnsembleOptimizer(BaseOptimizer):
             [opt.rmse_test for opt in optimizers])
 
     def _construct_final_model(self):
-        '''
+        """
         Construct final model by averaging over all models in the ensemble.
-        '''
+        """
         self._fit_results['parameters'] = np.mean(
             self.parameter_vectors, axis=0)
         self._parameters_stddev = np.std(self.parameter_vectors, axis=0)
 
     def get_errors(self):
-        ''' Get the errors for each fit and each target value.
+        """ Get the errors for each fit and each target value.
 
         Returns
         -------
         NumPy (N,M) array
             matrix of fit errors where `N` is the number of target values and
             `M` is the number of fits (i.e., the size of the ensemble)
-        '''
+        """
         error_matrix = np.zeros((self._Nrows, self.ensemble_size))
         for i, parameters in enumerate(self.parameter_vectors):
             error_matrix[:, i] = np.dot(self._A, parameters) - self._y
@@ -118,7 +125,7 @@ class EnsembleOptimizer(BaseOptimizer):
 
     @property
     def summary(self):
-        ''' dict : Comprehensive information about the optimizer '''
+        """ dict : Comprehensive information about the optimizer """
         info = super().summary
 
         # Add class specific data
@@ -148,59 +155,59 @@ class EnsembleOptimizer(BaseOptimizer):
 
     @property
     def parameters_stddev(self):
-        ''' NumPy array : standard deviation for each parameter '''
+        """ NumPy array : standard deviation for each parameter """
         return self._parameters_stddev
 
     @property
     def parameter_vectors(self):
-        ''' list : all parameter vectors in the ensemble '''
+        """ list : all parameter vectors in the ensemble """
         return self._parameters_set
 
     @property
     def ensemble_size(self):
-        ''' int : number of training rounds '''
+        """ int : number of training rounds """
         return self._ensemble_size
 
     @property
     def rmse_training(self):
-        '''
+        """
         float : ensemble average of root mean squared error over training sets
-        '''
+        """
         return np.mean(self.rmse_training_ensemble)
 
     @property
     def rmse_training_ensemble(self):
-        ''' list : root mean squared training errors obtained during for each
-                   fit in ensemble '''
+        """ list : root mean squared training errors obtained during for each
+                   fit in ensemble """
         return self._rmse_training_ensemble
 
     @property
     def rmse_test(self):
-        '''
+        """
         float : ensemble average of root mean squared error over test sets
-        '''
+        """
         return np.mean(self.rmse_test_ensemble)
 
     @property
     def rmse_test_ensemble(self):
-        ''' list : root mean squared test errors obtained during for each
-                   fit in ensemble '''
+        """ list : root mean squared test errors obtained during for each
+                   fit in ensemble """
         return self._rmse_test_ensemble
 
     @property
     def training_size(self):
-        ''' int : number of rows included in training sets. Note that this will
-        be different from the number of unique rows if boostrapping '''
+        """ int : number of rows included in training sets. Note that this will
+        be different from the number of unique rows if boostrapping """
         return self._training_size
 
     @property
     def training_fraction(self):
-        ''' float : fraction of input data used for training; this value can
+        """ float : fraction of input data used for training; this value can
                     differ slightly from the value set during initialization
-                    due to rounding '''
+                    due to rounding """
         return self.training_set_size / self._Nrows
 
     @property
     def bootstrap(self):
-        ''' boolean : True if sampling is carried out with replacement '''
+        """ boolean : True if sampling is carried out with replacement """
         return self._bootstrap
