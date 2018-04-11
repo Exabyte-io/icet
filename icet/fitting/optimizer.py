@@ -175,6 +175,18 @@ class Optimizer(BaseOptimizer):
         info = {**info, **self._kwargs}
         return info
 
+    def __repr__(self):
+        kwargs = dict()
+        kwargs['fit_method'] = self.fit_method
+        kwargs['traininig_size'] = self.training_size
+        kwargs['test_size'] = self.test_size
+        kwargs['training_set'] = self.training_set
+        kwargs['test_set'] = self.test_set
+        kwargs['seed'] = self.seed
+        kwargs = {**kwargs, **self._kwargs}
+        return 'Optimizer((A, y), {})'.format(
+            ', '.join('{}={}'.format(*kwarg) for kwarg in kwargs.items()))
+
     @property
     def rmse_training(self):
         ''' float : root mean squared error for training set '''

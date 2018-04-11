@@ -149,7 +149,8 @@ class BaseOptimizer:
         return '\n'.join(s)
 
     def __repr__(self):
-        return(str(self))
+        return 'BaseOptimizer((A, y), {}, {}'.format(
+            self.fit_method, self.seed)
 
     @property
     def fit_method(self):

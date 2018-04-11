@@ -149,6 +149,16 @@ class CrossValidationEstimator(BaseOptimizer):
         info = {**info, **self._fit_kwargs, **self._split_kwargs}
         return info
 
+    def __repr__(self):
+        kwargs = dict()
+        kwargs['fit_method'] = self.fit_method
+        kwargs['validation_method'] = self.validation_method
+        kwargs['number_of_splits'] = self.number_of_splits
+        kwargs['seed'] = self.seed
+        kwargs = {**kwargs, **self._fit_kwargs, **self._split_kwargs}
+        return 'CrossValidationEstimator((A, y), {})'.format(
+            ', '.join('{}={}'.format(*kwarg) for kwarg in kwargs.items()))
+
     @property
     def validation_method(self):
         ''' string : validation method name '''

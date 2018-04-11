@@ -135,6 +135,17 @@ class EnsembleOptimizer(BaseOptimizer):
         info = {**info, **self._kwargs}
         return info
 
+    def __repr__(self):
+        kwargs = dict()
+        kwargs['fit_method'] = self.fit_method
+        kwargs['ensemble_size'] = self.ensemble_size
+        kwargs['training_size'] = self.training_size
+        kwargs['bootstrap'] = self.bootstrap
+        kwargs['seed'] = self.seed
+        kwargs = {**kwargs, **self._kwargs}
+        return 'EnsembleOptimizer((A, y), {})'.format(
+            ', '.join('{}={}'.format(*kwarg) for kwarg in kwargs.items()))
+
     @property
     def parameters_stddev(self):
         ''' NumPy array : standard deviation for each parameter '''
