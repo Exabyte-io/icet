@@ -277,6 +277,8 @@ def get_symmetry_operations(atoms, tol=1e-3):
     '''
 
     symmetries = get_symmetry(atoms)
+    assert symmetries, ('spglib.get_symmetry() failed. Please make sure that'
+                        ' the atoms object is sensible.')
     rotations = symmetries['rotations']
     translations = symmetries['translations']
 
@@ -314,7 +316,14 @@ def get_symmetry_operations(atoms, tol=1e-3):
             # Find the basis element that the shifted basis correponds to
             found = False
             for basis_index, basis_element_comp in enumerate(basis):
-                if (abs(site_rot_trans - basis_element_comp) < tol).all():
+                distance = site_rot_trans - basis_element_comp
+
+                # Make sure that they do not differ with a basis vector
+                for dist_comp_i, dist_comp in enumerate(distance):
+                    if abs(abs(dist_comp) - 1) < tol:
+                        distance[dist_comp_i] = 0
+
+                if (abs(distance) < tol).all():
                     assert not found
                     basis_shifts[i, j] = basis_index
                     found = True
