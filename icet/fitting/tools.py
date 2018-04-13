@@ -1,4 +1,4 @@
-'''
+"""
 Collection of tools for managing and analysisng linear models
 
 Todo
@@ -6,7 +6,7 @@ Todo
 Rename this file
 Consider what functionality we actually want here
 
-'''
+"""
 
 import numpy as np
 from collections import namedtuple
@@ -16,7 +16,7 @@ ScatterData = namedtuple('ScatterData', ['target', 'predicted'])
 
 
 def compute_rmse(A, x, y_target):
-    '''
+    """
     Computes root mean squared error for a linear model.
 
     Computes error between `y_predicted` and `y_target`, where
@@ -33,7 +33,7 @@ def compute_rmse(A, x, y_target):
     -------
     float
         root mean squared error
-    '''
+    """
     assert A.shape[0] == y_target.shape[0]
     if A.shape[0] == 0:
         return np.nan
@@ -44,7 +44,7 @@ def compute_rmse(A, x, y_target):
 
 
 def compute_mae(A, x, y_target):
-    '''
+    """
     Computes mean absolute error for a linear model.
 
     Computes error between `y_predicted` and `y_target`, where
@@ -63,7 +63,7 @@ def compute_mae(A, x, y_target):
     -------
     float
         mean absolute error
-    '''
+    """
     assert A.shape[0] == y_target.shape[0]
     if A.shape[0] == 0:
         return np.nan
@@ -74,7 +74,7 @@ def compute_mae(A, x, y_target):
 
 
 def compute_correlation_matrix(A):
-    '''
+    """
     Computes correlation matrix for rows in input matrix.
 
     Naive implementation.
@@ -88,7 +88,7 @@ def compute_correlation_matrix(A):
     -------
     array
         correlation matrix
-    '''
+    """
     N = A.shape[0]
     C = np.zeros((N, N))
     for i in range(N):

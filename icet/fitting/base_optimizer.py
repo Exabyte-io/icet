@@ -1,6 +1,6 @@
-'''
+"""
 BaseOptimizer serves as base for all optimizers.
-'''
+"""
 
 import numpy as np
 from collections import OrderedDict
@@ -22,7 +22,7 @@ fit_methods = OrderedDict([
 
 
 class BaseOptimizer:
-    '''
+    """
     BaseOptimizer class.
 
     Serves as base class for all Optimizers solving `Ax = y`.
@@ -40,10 +40,10 @@ class BaseOptimizer:
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr"
     seed : int
         seed for pseudo random number generator
-    '''
+    """
 
     def __init__(self, fit_data, fit_method, seed):
-        '''
+        """
         Attributes
         ----------
         _A : NumPy (N, M) array
@@ -52,7 +52,7 @@ class BaseOptimizer:
             target values
         _optimizer_function : function
             optimizer function to be called when training
-        '''
+        """
 
         if fit_method not in fit_methods.keys():
             raise ValueError('Fit method not available')
@@ -69,7 +69,7 @@ class BaseOptimizer:
         self._fit_results = {'parameters': None}
 
     def compute_rmse(self, A, y):
-        '''
+        """
         Compute the root mean square error using the `A`, `y`, and the
         vector of fitted parameters `x` corresponding to `||Ax-y||_2`.
 
@@ -86,11 +86,11 @@ class BaseOptimizer:
         -------
         float
             root mean squared error
-        '''
+        """
         return compute_rmse(A, self.parameters, y)
 
     def predict(self, A):
-        '''
+        """
         Predict data given an input matrix `A`, i.e., `Ax`, where `x` is
         the vector of the fitted parameters.
 
@@ -105,11 +105,11 @@ class BaseOptimizer:
         -------
         NumPy (N) array
             vector of predicted values
-        '''
+        """
         return np.dot(A, self.parameters)
 
     def get_contributions(self, A):
-        '''
+        """
         Compute the average contribution to the predicted values from each
         element of the parameter vector.
 
@@ -124,12 +124,12 @@ class BaseOptimizer:
         -------
         NumPy (N, M) array
             average contribution for each row of `A` from each parameter
-        '''
+        """
         return np.mean(np.abs(np.multiply(A, self.parameters)), axis=0)
 
     @property
     def summary(self):
-        ''' dict : Comprehensive information about the optimizer '''
+        """ dict : Comprehensive information about the optimizer. """
         info = dict()
         info['fit_method'] = self.fit_method
         info['number_of_target_values'] = self.number_of_target_values
@@ -154,12 +154,12 @@ class BaseOptimizer:
 
     @property
     def fit_method(self):
-        ''' string : fit method '''
+        """ string : fit method. """
         return self._fit_method
 
     @property
     def parameters(self):
-        ''' NumPy array : copy of parameter vector '''
+        """ NumPy array : copy of parameter vector. """
         if self._fit_results['parameters'] is None:
             return None
         else:
@@ -167,15 +167,17 @@ class BaseOptimizer:
 
     @property
     def number_of_target_values(self):
-        ''' int : number of target values (=rows in `A` matrix) '''
+        """ int : number of target values (=rows in `A` matrix). """
         return self._Nrows
 
     @property
     def number_of_parameters(self):
-        ''' int : number of parameters (=columns in `A` matrix) '''
+        """ int : number of parameters (=columns in `A` matrix). """
         return self._Ncols
 
     @property
     def seed(self):
-        ''' int : seed used to initialize pseudo random number of generator '''
+        """
+        int : seed used to initialize pseudo random number of generator.
+        """
         return self._seed

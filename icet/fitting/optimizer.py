@@ -1,6 +1,6 @@
-'''
+"""
 Optimizer
-'''
+"""
 import numpy as np
 from sklearn.model_selection import train_test_split
 from .tools import ScatterData
@@ -8,7 +8,7 @@ from .base_optimizer import BaseOptimizer
 
 
 class Optimizer(BaseOptimizer):
-    '''
+    """
     Optimizer for single `Ax = y` fit.
 
     One has to specify either `training_size`/`test_size` or
@@ -54,7 +54,7 @@ class Optimizer(BaseOptimizer):
         target and predicted value for each row in the training set
     test_scatter_data : ScatterData object (namedtuple)
         target and predicted value for each row in the test set
-    '''
+    """
 
     def __init__(self, fit_data, fit_method='least-squares',
                  training_size=0.75, test_size=None,
@@ -75,7 +75,7 @@ class Optimizer(BaseOptimizer):
         self.test_scatter_data = None
 
     def train(self):
-        ''' Carry out training. '''
+        """ Carry out training. """
 
         # select training data
         A_train = self._A[self.training_set, :]
@@ -89,7 +89,7 @@ class Optimizer(BaseOptimizer):
         self.training_scatter_data = ScatterData(y_train,
                                                  self.predict(A_train))
 
-        # perform validation
+        # perform testing
         if self.test_set is not None:
             A_test = self._A[self.test_set, :]
             y_test = self._y[self.test_set]
@@ -102,13 +102,13 @@ class Optimizer(BaseOptimizer):
 
     def _setup_rows(self, training_size, test_size, training_set,
                     test_set):
-        '''
+        """
         Set up training and test rows depending on which arguments are
         specified.
 
         If `training_set` and `test_set` are `None` then `training_size` and
         `test_size` are used.
-        '''
+        """
 
         if training_set is None and test_set is None:
             # get rows from fractions
@@ -125,7 +125,7 @@ class Optimizer(BaseOptimizer):
         self._test_set = test_set
 
     def _get_rows_via_fractions(self, training_size, test_size):
-        ''' Gets row via fractions. '''
+        """ Gets row via fractions. """
 
         # Handle special cases
         if test_size is None and training_size is None:
@@ -151,7 +151,7 @@ class Optimizer(BaseOptimizer):
         return training_set, test_set
 
     def _get_rows_from_indices(self, training_set, test_set):
-        ''' Gets row via indices '''
+        """ Gets row via indices. """
         if training_set is None and test_set is None:
             raise ValueError('Both training and test set are None')
         elif test_set is None:
@@ -164,7 +164,7 @@ class Optimizer(BaseOptimizer):
 
     @property
     def summary(self):
-        ''' dict : Comprehensive information about the optimizer '''
+        """ dict : Comprehensive information about the optimizer. """
         info = super().summary
 
         # Add class specific data
@@ -195,44 +195,44 @@ class Optimizer(BaseOptimizer):
 
     @property
     def rmse_training(self):
-        ''' float : root mean squared error for training set '''
+        """ float : root mean squared error for training set. """
         return self._rmse_training
 
     @property
     def rmse_test(self):
-        ''' float : root mean squared error for test set '''
+        """ float : root mean squared error for test set. """
         return self._rmse_test
 
     @property
     def training_set(self):
-        ''' list : indices of the rows included in the training set '''
+        """ list : indices of the rows included in the training set. """
         return self._training_set
 
     @property
     def test_set(self):
-        ''' list : indices of the rows included in the test set '''
+        """ list : indices of the rows included in the test set. """
         return self._test_set
 
     @property
     def training_size(self):
-        ''' int : number of rows included in training set '''
+        """ int : number of rows included in training set. """
         return len(self.training_set)
 
     @property
     def training_fraction(self):
-        ''' float : fraction of rows included in training set '''
+        """ float : fraction of rows included in training set. """
         return self.training_size / self._Nrows
 
     @property
     def test_size(self):
-        ''' int : number of rows included in test set '''
+        """ int : number of rows included in test set. """
         if self.test_set is None:
             return 0
         return len(self.test_set)
 
     @property
     def test_fraction(self):
-        ''' float : fraction of rows included in test set '''
+        """ float : fraction of rows included in test set. """
         if self.test_set is None:
             return 0.0
         return self.test_size / self._Nrows

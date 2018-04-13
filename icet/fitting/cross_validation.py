@@ -88,13 +88,13 @@ class CrossValidationEstimator(BaseOptimizer):
         self._rmse_train_final = None
 
     def train(self):
-        """ Construct the final model using all input data available """
+        """ Construct the final model using all input data available. """
         self._fit_results = self._optimizer_function(self._A, self._y,
                                                      **self._fit_kwargs)
         self._rmse_train_final = self.compute_rmse(self._A, self._y)
 
     def validate(self):
-        """ Run validation """
+        """ Run validation. """
         train_target, train_predicted = [], []
         valid_target, valid_predicted = [], []
         rmse_train_splits, rmse_valid_splits = [], []
@@ -138,7 +138,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     @property
     def summary(self):
-        """ dict : Comprehensive information about the optimizer """
+        """ dict : Comprehensive information about the optimizer. """
         info = super().summary
 
         # Add class specific data
@@ -168,25 +168,25 @@ class CrossValidationEstimator(BaseOptimizer):
 
     @property
     def validation_method(self):
-        """ string : validation method name """
+        """ string : validation method name. """
         return self._validation_method
 
     @property
     def number_of_splits(self):
-        """ string : number of splits (folds) used for cross-validation """
+        """ string : number of splits (folds) used for cross-validation. """
         return self._number_of_splits
 
     @property
     def rmse_training_final(self):
         """
-        float : root mean squared error when using the full set of input data
+        float : root mean squared error when using the full set of input data.
         """
         return self._rmse_train_final
 
     @property
     def rmse_training(self):
         """ float : average root mean squared training error obtained during
-                    cross-validation """
+                    cross-validation. """
         if self._rmse_train_splits is None:
             return None
         return np.sqrt(np.mean(self._rmse_train_splits**2))
@@ -194,12 +194,12 @@ class CrossValidationEstimator(BaseOptimizer):
     @property
     def rmse_training_splits(self):
         """ list : root mean squared training errors obtained during
-                   cross-validation """
+                   cross-validation. """
         return self._rmse_train_splits
 
     @property
     def rmse_validation(self):
-        """ float : average root mean squared cross-validation error """
+        """ float : average root mean squared cross-validation error. """
         if self._rmse_valid_splits is None:
             return None
         return np.sqrt(np.mean(self._rmse_valid_splits**2))
@@ -207,5 +207,5 @@ class CrossValidationEstimator(BaseOptimizer):
     @property
     def rmse_validation_splits(self):
         """ list : root mean squared validation errors obtained during
-                   cross-validation """
+                   cross-validation. """
         return self._rmse_valid_splits

@@ -1,4 +1,4 @@
-'''
+"""
 scikit-learn is an excellent library for training linear models and provides a
 large number of useful tools.
 
@@ -13,7 +13,7 @@ possible to use scikit-learn directly.
 More information about the sklearn linear models can be found at
 http://scikit-learn.org/stable/modules/linear_model.html
 
-'''
+"""
 
 import numpy as np
 from ..io.logging import logger
@@ -33,7 +33,7 @@ except Exception:
 
 
 def fit_least_squares(X, y):
-    '''
+    """
     Return the least-squares solution `a` to the linear problem `Xa=y`.
 
     This function is a wrapper to the `linalg.lstsq` function in NumPy.
@@ -49,14 +49,14 @@ def fit_least_squares(X, y):
     ----------
     results : dict
         dict containing parameters
-    '''
+    """
     results = dict()
     results['parameters'] = np.linalg.lstsq(X, y, rcond=-1)[0]
     return results
 
 
 def fit_lasso(X, y, alpha=None, fit_intercept=False, **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     the LASSO method as implemented in scitkit-learn.
 
@@ -82,7 +82,7 @@ def fit_lasso(X, y, alpha=None, fit_intercept=False, **kwargs):
     ----------
     results : dict
         dictionary containing parameters
-    '''
+    """
     if alpha is None:
         return fit_lassoCV(X, y, fit_intercept=fit_intercept, **kwargs)
     else:
@@ -95,7 +95,7 @@ def fit_lasso(X, y, alpha=None, fit_intercept=False, **kwargs):
 
 def fit_lassoCV(X, y, alphas=None, fit_intercept=False, cv=10, n_jobs=-1,
                 **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     the LassoCV method as implemented in scitkit-learn.
 
@@ -120,7 +120,7 @@ def fit_lassoCV(X, y, alphas=None, fit_intercept=False, cv=10, n_jobs=-1,
         alpha_path (all tested alpha values),
         mse_path (mse for validation set for each alpha)
 
-    '''
+    """
 
     if alphas is None:
         alphas = np.logspace(-8, -0.3, 100)
@@ -137,7 +137,7 @@ def fit_lassoCV(X, y, alphas=None, fit_intercept=False, cv=10, n_jobs=-1,
 
 
 def fit_elasticnet(X, y, alpha=None, fit_intercept=False, **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     the ElasticNet method as implemented in scitkit-learn.
 
@@ -159,7 +159,7 @@ def fit_elasticnet(X, y, alpha=None, fit_intercept=False, **kwargs):
     ----------
     results : dict
         dictionary containing parameters
-    '''
+    """
     if alpha is None:
         return fit_elasticnetCV(X, y, fit_intercept=fit_intercept, **kwargs)
     else:
@@ -173,7 +173,7 @@ def fit_elasticnet(X, y, alpha=None, fit_intercept=False, **kwargs):
 
 def fit_elasticnetCV(X, y, alphas=None, l1_ratio=None, fit_intercept=False,
                      cv=10, n_jobs=-1, **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     the ElasticNetCV method as implemented in scitkit-learn.
 
@@ -202,7 +202,7 @@ def fit_elasticnetCV(X, y, alphas=None, l1_ratio=None, fit_intercept=False,
         l1_ratio_pathh (all tested l1_ratio values)
         mse_path (mse for validation set for each alpha and l1_ratio)
 
-    '''
+    """
 
     if alphas is None:
         alphas = np.logspace(-8, -0.3, 100)
@@ -225,7 +225,7 @@ def fit_elasticnetCV(X, y, alphas=None, l1_ratio=None, fit_intercept=False,
 
 
 def fit_bayesian_ridge(X, y, fit_intercept=False, **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     Bayesian ridge regression as implemented in scitkit-learn.
 
@@ -242,7 +242,7 @@ def fit_bayesian_ridge(X, y, fit_intercept=False, **kwargs):
     ----------
     results : dict
         dict containing parameters, covariance matrix
-    '''
+    """
     brr = BayesianRidge(fit_intercept=fit_intercept, **kwargs)
     brr.fit(X, y)
     results = dict()
@@ -252,7 +252,7 @@ def fit_bayesian_ridge(X, y, fit_intercept=False, **kwargs):
 
 
 def fit_ardr(X, y, threshold_lambda=1e6, fit_intercept=False, **kwargs):
-    '''
+    """
     Return the solution `a` to the linear problem `Xa=y` obtained by using
     the automatic relevance determination regression (ARDR) method as
     implemented in scitkit-learn.
@@ -272,7 +272,7 @@ def fit_ardr(X, y, threshold_lambda=1e6, fit_intercept=False, **kwargs):
     ----------
     results : dict
         dictionary containing parameters, covariance matrix
-    '''
+    """
     ardr = ARDRegression(threshold_lambda=threshold_lambda,
                          fit_intercept=fit_intercept, **kwargs)
     ardr.fit(X, y)

@@ -1,9 +1,9 @@
-'''
+"""
 Ensemble Optimizer
 
 https://en.wikipedia.org/wiki/Bootstrap_aggregating
 http://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingRegressor.html  # NOQA
-'''
+"""
 
 import numpy as np
 from .base_optimizer import BaseOptimizer
@@ -125,7 +125,7 @@ class EnsembleOptimizer(BaseOptimizer):
 
     @property
     def summary(self):
-        """ dict : Comprehensive information about the optimizer """
+        """ dict : Comprehensive information about the optimizer. """
         info = super().summary
 
         # Add class specific data
@@ -155,59 +155,59 @@ class EnsembleOptimizer(BaseOptimizer):
 
     @property
     def parameters_stddev(self):
-        """ NumPy array : standard deviation for each parameter """
+        """ NumPy array : standard deviation for each parameter. """
         return self._parameters_stddev
 
     @property
     def parameter_vectors(self):
-        """ list : all parameter vectors in the ensemble """
+        """ list : all parameter vectors in the ensemble. """
         return self._parameters_set
 
     @property
     def ensemble_size(self):
-        """ int : number of training rounds """
+        """ int : number of training rounds. """
         return self._ensemble_size
 
     @property
     def rmse_training(self):
         """
-        float : ensemble average of root mean squared error over training sets
+        float : ensemble average of root mean squared error over training sets.
         """
-        return np.mean(self.rmse_training_ensemble)
+        return np.sqrt(np.mean((self.rmse_training_ensemble)**2))
 
     @property
     def rmse_training_ensemble(self):
         """ list : root mean squared training errors obtained during for each
-                   fit in ensemble """
+                   fit in ensemble. """
         return self._rmse_training_ensemble
 
     @property
     def rmse_test(self):
         """
-        float : ensemble average of root mean squared error over test sets
+        float : ensemble average of root mean squared error over test sets.
         """
-        return np.mean(self.rmse_test_ensemble)
+        return np.sqrt(np.mean((self.rmse_test_ensemble)**2))
 
     @property
     def rmse_test_ensemble(self):
         """ list : root mean squared test errors obtained during for each
-                   fit in ensemble """
+                   fit in ensemble. """
         return self._rmse_test_ensemble
 
     @property
     def training_size(self):
         """ int : number of rows included in training sets. Note that this will
-        be different from the number of unique rows if boostrapping """
+        be different from the number of unique rows if boostrapping. """
         return self._training_size
 
     @property
     def training_fraction(self):
         """ float : fraction of input data used for training; this value can
                     differ slightly from the value set during initialization
-                    due to rounding """
+                    due to rounding. """
         return self.training_set_size / self._Nrows
 
     @property
     def bootstrap(self):
-        """ boolean : True if sampling is carried out with replacement """
+        """ boolean : True if sampling is carried out with replacement. """
         return self._bootstrap
