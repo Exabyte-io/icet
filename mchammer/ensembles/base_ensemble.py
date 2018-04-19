@@ -40,6 +40,7 @@ class BaseEnsemble(ABC):
                                              name, random_seed)
         else:
             raise NotImplementedError 
+
     @property
     def structure(self):
         """
