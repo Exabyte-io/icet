@@ -40,6 +40,11 @@ class DataContainer:
 
     data : Pandas data frame object
         Runtime data collected during the Monte Carlo simulation.
+
+    Todo
+    ----
+    BaseEnsemble pass atoms=None as default. That must be changed after
+    a more advanced implementation of the base classes has been done.
     """
 
     def __init__(self, atoms, ensemble_name: str, random_seed: int):

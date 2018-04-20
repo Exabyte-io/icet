@@ -34,12 +34,13 @@ class BaseEnsemble(ABC):
         else:
             self._random_seed = random_seed
         random.seed(a=self.random_seed)
-        
+
         if data_container is None:
-            self._data_container = DataContainer(self.calculator.atoms,
-                                             name, random_seed)
+            self._data_container = DataContainer(atoms=None,
+                                                 ensemble_name=name,
+                                                 random_seed=random_seed)
         else:
-            raise NotImplementedError 
+            raise NotImplementedError
 
     @property
     def structure(self):
