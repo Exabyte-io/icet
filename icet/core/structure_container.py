@@ -325,6 +325,26 @@ class StructureContainer(object):
 
         return s_list
 
+    def get_user_tags(self, structure_indices=None):
+        '''
+        Return a list of user tags for the structures in the structure
+        container
+
+        Parameters
+        ----------
+        structure_indices: list of integers
+            list of structure indices. By default (``None``) the
+            method will return all user tags listed in the container
+        '''
+        if structure_indices is None:
+            tag_list = [s.user_tag for s in self._structure_list]
+        else:
+            tag_list = []
+            for i in structure_indices:
+                tag_list.append(self._structure_list[i].user_tag)
+
+        return tag_list
+
     @property
     def cluster_space(self):
         '''
