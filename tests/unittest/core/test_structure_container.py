@@ -60,12 +60,14 @@ class TestStructureContainer(unittest.TestCase):
         self.cutoffs = [4.0] * 3
         self.atoms_prim = bulk('Ag', a=4.09)
         self.structure_list = []
+        self.user_tags = []
         for k in range(4):
             atoms = self.atoms_prim.repeat(2)
             symbols = [self.subelements[0]] * len(atoms)
             symbols[:k] = [self.subelements[1]] * k
             atoms.set_chemical_symbols(symbols)
             self.structure_list.append(atoms)
+            self.user_tags.append('Structure {}'.format(k))
 
         self.cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.subelements)
         self.properties_list = []
@@ -82,7 +84,9 @@ class TestStructureContainer(unittest.TestCase):
         '''
         Instantiate class before each test.
         '''
-        self.sc = StructureContainer(self.cs, self.structure_list,
+        self.sc = StructureContainer(self.cs,
+                                     list(zip(self.structure_list,
+                                              self.user_tags)),
                                      self.properties_list)
 
     def test_init(self):
@@ -183,10 +187,10 @@ Total number of structures: 4
 -------------------------------------------------------------------------------
 index |       user_tag        | natoms | chemical formula |  energy  |  volume
 -------------------------------------------------------------------------------
-   0  | None                  |     8  | Ag8              |    0.013 |  136.836
-   1  | None                  |     8  | Ag7Au            |   -0.007 |  136.836
-   2  | None                  |     8  | Ag6Au2           |   -0.026 |  136.836
-   3  | None                  |     8  | Ag5Au3           |   -0.038 |  136.836
+   0  | Structure 0           |     8  | Ag8              |    0.013 |  136.836
+   1  | Structure 1           |     8  | Ag7Au            |   -0.007 |  136.836
+   2  | Structure 2           |     8  | Ag6Au2           |   -0.026 |  136.836
+   3  | Structure 3           |     8  | Ag5Au3           |   -0.038 |  136.836
 ===============================================================================
 '''
         self.assertEqual(strip_surrounding_spaces(target),
@@ -204,9 +208,9 @@ Total number of structures: 4
 -------------------------------------------------------------------------------
 index |       user_tag        | natoms | chemical formula |  energy  |  volume
 -------------------------------------------------------------------------------
-   0  | None                  |     8  | Ag8              |    0.013 |  136.836
+   0  | Structure 0           |     8  | Ag8              |    0.013 |  136.836
  ...
-   3  | None                  |     8  | Ag5Au3           |   -0.038 |  136.836
+   3  | Structure 3           |     8  | Ag5Au3           |   -0.038 |  136.836
 ===============================================================================
 '''
         self.assertEqual(strip_surrounding_spaces(target),
@@ -252,6 +256,13 @@ index |       user_tag        | natoms | chemical formula |  energy  |  volume
         # passing a list of indexes
         s_list = self.sc.get_structures([0])
         self.assertTrue(isinstance(atoms, Atoms) for atoms in s_list)
+
+    def test_get_user_tags(self):
+        '''
+        Testing get_user_tags function
+        '''
+        target = ['Structure 0', 'Structure 1', 'Structure 2', 'Structure 3']
+        self.assertEqual(target, self.sc.get_user_tags())
 
     def test_cluster_space(self):
         '''
