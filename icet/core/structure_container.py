@@ -14,7 +14,7 @@ class StructureContainer(object):
     def __init__(self, cluster_space,
                  list_of_atoms=None,
                  list_of_properties=None):
-        '''
+        """
         Initializes a StructureContainer object
 
         This class serves as a container for structure objects, their fit
@@ -32,7 +32,7 @@ class StructureContainer(object):
 
         list_of_properties : list of dicts
             list of properties, which are provided in dicts
-        '''
+        """
 
         self._cluster_space = cluster_space
         self._structure_list = []
@@ -70,7 +70,7 @@ class StructureContainer(object):
         return self._structure_list[ind]
 
     def get_structure_indices(self, user_tag=None):
-        '''
+        """
         Get structure indices via user_tag
 
         Parameters
@@ -82,13 +82,13 @@ class StructureContainer(object):
         -------
         list of integers
             List of structure's indices
-        '''
+        """
         return [i for i, s in enumerate(self)
                 if user_tag is None or s.user_tag == user_tag]
 
     def _get_string_representation(self, print_threshold=None,
                                    print_minimum=10):
-        '''
+        """
         String representation of the structure container that provides an
         overview of the structures in the container.
 
@@ -104,7 +104,7 @@ class StructureContainer(object):
         -------
         multi-line string
             string representation of the structure container
-        '''
+        """
 
         def repr_structure(structure, index=-1, header=False):
             from collections import OrderedDict
@@ -158,11 +158,11 @@ class StructureContainer(object):
         return '\n'.join(s)
 
     def __repr__(self):
-        ''' String representation. '''
+        """ String representation. """
         return self._get_string_representation(print_threshold=50)
 
     def print_overview(self, print_threshold=None, print_minimum=10):
-        '''
+        """
         Print a list of structures in the structure container.
 
         Parameters
@@ -172,13 +172,13 @@ class StructureContainer(object):
         print_minimum : int
             number of lines printed from the top and the bottom of the orbit
             list if `print_threshold` is exceeded
-        '''
+        """
         print(self._get_string_representation(print_threshold=print_threshold,
                                               print_minimum=print_minimum))
 
     def add_structure(self, atoms, user_tag=None,
                       properties=None):
-        '''
+        """
         Add a structure to the structure list.
 
         Parameters
@@ -192,7 +192,7 @@ class StructureContainer(object):
             object are required to have an attached ASE calculator object
             with a calculated potential energy
 
-        '''
+        """
         assert isinstance(atoms, Atoms), 'atoms has not ASE Atoms format'
 
         if user_tag is not None:
@@ -224,7 +224,7 @@ class StructureContainer(object):
         self._structure_list.append(structure)
 
     def get_fit_data(self, structure_indices=None, key='energy'):
-        '''
+        """
         Return fit data for all structures. The cluster vectors and
         target properties for all structures are stacked into NumPy arrays.
 
@@ -241,7 +241,7 @@ class StructureContainer(object):
         -------
         NumPy array, NumPy array
             cluster vectors and target properties for desired structures
-        '''
+        """
         if structure_indices is None:
             cv_list = [s.cluster_vector
                        for s in self._structure_list]
@@ -260,7 +260,7 @@ class StructureContainer(object):
         return np.array(cv_list), np.array(prop_list)
 
     def add_properties(self, structure_indices=None, properties=None):
-        '''
+        """
         This method allows you to add properties and/or modify
         the values of existing properties
 
@@ -272,7 +272,7 @@ class StructureContainer(object):
 
         properties: list of dict
             list of properties
-        '''
+        """
         if structure_indices is None:
             msg = 'len of properties does not equal len of fit structures'
             assert len(properties) == len(self), msg
@@ -283,7 +283,7 @@ class StructureContainer(object):
                 self._structure_list[i].set_properties(prop)
 
     def get_properties(self, structure_indices=None, key='energy'):
-        '''
+        """
         Return a list with the value of properties with key='key'
         for a desired set of structures
 
@@ -295,7 +295,7 @@ class StructureContainer(object):
 
         key : string
             key of properties dictionary. Default to 'energy'
-        '''
+        """
         if structure_indices is None:
             prop_list = [s.properties[key]
                          for s in self._structure_list]
@@ -307,7 +307,7 @@ class StructureContainer(object):
         return prop_list
 
     def get_structures(self, structure_indices=None):
-        '''
+        """
         Return a list of structures in the form of ASE Atoms
 
         Parameters
@@ -315,7 +315,7 @@ class StructureContainer(object):
         structure_indices: list of integers
             list of structure indices. By default (``None``) the
             method will return all structures listed in the container
-        '''
+        """
         if structure_indices is None:
             s_list = [s.atoms for s in self._structure_list]
         else:
@@ -326,7 +326,7 @@ class StructureContainer(object):
         return s_list
 
     def get_user_tags(self, structure_indices=None):
-        '''
+        """
         Return a list of user tags for the structures in the structure
         container
 
@@ -335,7 +335,7 @@ class StructureContainer(object):
         structure_indices: list of integers
             list of structure indices. By default (``None``) the
             method will return all user tags listed in the container
-        '''
+        """
         if structure_indices is None:
             tag_list = [s.user_tag for s in self._structure_list]
         else:
@@ -347,9 +347,9 @@ class StructureContainer(object):
 
     @property
     def cluster_space(self):
-        '''
+        """
         Returns the icet ClusterSpace object.
-        '''
+        """
         return self._cluster_space
 
     @property
@@ -409,7 +409,7 @@ class StructureContainer(object):
 
 
 class FitStructure:
-    '''
+    """
     This class holds a supercell along with its properties and cluster
     vector.
 
@@ -424,7 +424,7 @@ class FitStructure:
     properties : dictionary
         the properties dictionary
 
-    '''
+    """
 
     def __init__(self, atoms, user_tag, cv=None, properties=None):
         self._atoms = atoms
@@ -435,26 +435,26 @@ class FitStructure:
 
     @property
     def cluster_vector(self):
-        '''NumPy array : the cluster vector'''
+        """NumPy array : the cluster vector"""
         return self._cluster_vector
 
     @property
     def atoms(self):
-        '''ASE Atoms object : supercell structure'''
+        """ASE Atoms object : supercell structure"""
         return self._atoms
 
     @property
     def user_tag(self):
-        '''string : structure label'''
+        """string : structure label"""
         return str(self._user_tag)
 
     @property
     def properties(self):
-        '''dict : properties'''
+        """dict : properties"""
         return self._properties
 
     def set_cluster_vector(self, cv):
-        '''
+        """
         Set the cluster vectors of the structure.
 
         ***Expert function: Use with caution***
@@ -463,14 +463,14 @@ class FitStructure:
         ----------
         cv : NumPy array
             cluster vector
-        '''
+        """
         if cv is not None:
             self._cluster_vector = cv
         else:
             self._cluster_vector = None
 
     def set_properties(self, properties):
-        '''
+        """
         Set the properties to structure.
 
         Parameters
@@ -478,7 +478,7 @@ class FitStructure:
         properties : dict
             the properties dictionary
 
-        '''
+        """
         if properties is not None:
             self._properties.update(properties)
 
