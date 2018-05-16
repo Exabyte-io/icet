@@ -97,9 +97,9 @@ class TestLatticeSite(unittest.TestCase):
         '''
         Test the string representation of LatticeSite
         '''
-        target = '0 : [0. 0. 0.]'
+        target = '0 : [ 0.  0.  0.]'
         retval = str(self.lattice_sites[0])
-        self.assertEqual(target, retval)
+        self.assertEqual(target.replace(' ', ''), retval.replace(' ', ''))
 
     def test_hash(self):
         '''
