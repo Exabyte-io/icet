@@ -117,6 +117,8 @@ class StructureContainer(object):
             for key, value in fields.items():
                 if isinstance(value, float):
                     fields[key] = '{:8.3f}'.format(value)
+                if isinstance(value, int):
+                    fields[key] = '{:8}'.format(value)
             s = []
             for name, value in fields.items():
                 n = max(len(name), len(value))
