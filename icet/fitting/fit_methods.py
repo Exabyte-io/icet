@@ -63,7 +63,7 @@ def fit(X, y, fit_method, standardize=True, **kwargs):
         raise ValueError('\n'.join(msg))
 
     if standardize:
-        ss = StandardScaler(copy=True, with_mean=False, with_std=True)
+        ss = StandardScaler(copy=False, with_mean=False, with_std=True)
         ss.fit_transform(X)  # change in place
         results = fit_methods[fit_method](X, y, **kwargs)
         ss.inverse_transform(X)  # change in place
