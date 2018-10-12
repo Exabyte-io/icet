@@ -371,7 +371,7 @@ def get_singlet_info(atoms: Atoms, return_cluster_space: bool=False):
     assert isinstance(atoms, Atoms), \
         'input configuration must be an ASE Atoms object'
 
-    # create dummy elements and cutoffs
+    # create dummy species and cutoffs
     chemical_symbols = ['H', 'He']
     cutoffs = [0.0]
 
@@ -403,7 +403,7 @@ def get_singlet_info(atoms: Atoms, return_cluster_space: bool=False):
 
 def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
     """
-    Returns the atomic configuration decorated with a different element for
+    Returns the atomic configuration decorated with a different species for
     each Wyckoff site. This is useful for visualization and analysis.
 
     Parameters
@@ -417,7 +417,7 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
     Returns
     -------
     ASE Atoms object
-        structure with singlets highlighted by different elements
+        structure with singlets highlighted by different species
     """
     from ase.data import chemical_symbols
     assert isinstance(atoms, Atoms), \
@@ -429,9 +429,9 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
         singlet_configuration = cluster_space.primitive_structure
         for singlet in cluster_data:
             for site in singlet['sites']:
-                element = chemical_symbols[singlet['orbit_index'] + 1]
+                species = chemical_symbols[singlet['orbit_index'] + 1]
                 atom_index = site[0].index
-                singlet_configuration[atom_index].symbol = element
+                singlet_configuration[atom_index].symbol = species
     else:
         singlet_configuration = atoms.copy()
         singlet_configuration = add_vacuum_in_non_pbc(singlet_configuration)
@@ -440,12 +440,12 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
                 singlet_configuration)
         for singlet in cluster_data:
             for site in singlet['sites']:
-                element = chemical_symbols[singlet['orbit_index'] + 1]
+                species = chemical_symbols[singlet['orbit_index'] + 1]
                 sites = orbit_list_supercell.get_orbit(
                     singlet['orbit_index']).get_equivalent_sites()
                 for lattice_site in sites:
                     k = lattice_site[0].index
-                    singlet_configuration[k].symbol = element
+                    singlet_configuration[k].symbol = species
 
     return singlet_configuration
 

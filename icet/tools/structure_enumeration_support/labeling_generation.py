@@ -4,22 +4,22 @@ from collections import OrderedDict
 
 class LabelingGenerator():
     """
-    Object used to generate all possible permutations of elements on a given
+    Object used to generate all possible permutations of species on a given
     set of sites. If concentration restrictions are not specified, the
     generation will be a simple itertools.product loop.
 
     If concentrations are specified, the approach is a bit more elaborate.
     Take as an example a system with three sites, where Pd and Au are allowed
-    on two and H and V on the other. `iter_elements` will then look something
+    on two and H and V on the other. `iter_species` will then look something
     like this: `[(0, 1), (0, 1), (2, 3), (2, 3)]`. The algorithm proceeds as
     follows:
 
-    (1) Identify all unique elements of `iter_elements`, hereafter called
+    (1) Identify all unique species of `iter_species`, hereafter called
     `site_groups`. In this example they will be `(0, 1)` and `(2, 3)`. These
-    unqiue elements are saved in `site_groups`.
+    unqiue species are saved in `site_groups`.
 
     (2) For each unique `site_group` and a given cell size, construct all
-    (combinations of the elements in the site group. If the cell size is 2,
+    (combinations of the species in the site group. If the cell size is 2,
     i.e. a supercell twice as big as the primitive cell, the possible
     (combinations for the `(0, 1)`-`site_group` will be `(0, 0, 0, 0)`, `(0,
     0, 0, 1)`, `(0, 0, 1, 1)` and `(1, 1, 1, 1)`. Order does not matter and
@@ -45,34 +45,34 @@ class LabelingGenerator():
 
     Parameters
     ----------
-    iter_elements : list of tuples of ints
-        Specifies the allowed elements on each site
+    iter_species : list of tuples of ints
+        allowed species on each site
     concentrations : dict
-        Keys are elements (integers), values specify concentration ranges.
+        keys represent species (integers), values specify concentration ranges
     tol : float
-        Tolerance parameter used when comparing concentrations
+        tolerance parameter used when comparing concentrations
 
     Attribtues
     ----------
     site_groups : OrderedDict
-        The keys are unique iter_elements, the values are SiteGroup objects
-        corresponding to that iter_element
+        keys are unique iter_species, the values are SiteGroup objects
+        corresponding to that iter_species
     """
 
-    def __init__(self, iter_elements, concentrations, tol=1e-5):
-        self.iter_elements = iter_elements
+    def __init__(self, iter_species, concentrations, tol=1e-5):
+        self.iter_species = iter_species
         self.concentrations = concentrations
         self.tol = tol
 
         if self.concentrations:
             self.site_groups = OrderedDict()
             count = 0
-            for iter_element_key in iter_elements:
-                if iter_element_key in self.site_groups.keys():
-                    self.site_groups[iter_element_key].multiplicity += 1
+            for iter_species_key in iter_species:
+                if iter_species_key in self.site_groups.keys():
+                    self.site_groups[iter_species_key].multiplicity += 1
                 else:
-                    self.site_groups[iter_element_key] = SiteGroup(
-                        iter_element_key, count)
+                    self.site_groups[iter_species_key] = SiteGroup(
+                        iter_species_key, count)
                     count += 1
 
     def yield_labelings(self, ncells):
@@ -98,7 +98,7 @@ class LabelingGenerator():
                 for labeling in self.yield_permutations(product, 0):
                     yield self.sort_labeling(labeling, ncells)
         else:
-            for labeling in itertools.product(*self.iter_elements * ncells):
+            for labeling in itertools.product(*self.iter_species * ncells):
                 yield labeling
 
     def yield_products(self, ncells):
@@ -110,60 +110,59 @@ class LabelingGenerator():
         Returns
         -------
         tuple of tuples of ints
-            All unique combinations (products) of unordered iter element
+            all unique combinations (products) of unordered iter_species
             combinations,
         """
-        natoms = len(self.iter_elements) * ncells
+        natoms = len(self.iter_species) * ncells
         combinations = [sg.combinations for sg in self.site_groups.values()]
         for product in itertools.product(*combinations):
-            counts = {element: 0 for element in self.concentrations.keys()}
-            for element_group in product:
-                for element in self.concentrations.keys():
-                    counts[element] += element_group.count(element)
-            for element, conc_range in self.concentrations.items():
-                if counts[element] / natoms > conc_range[0] - self.tol and \
-                   counts[element] / natoms < conc_range[1] + self.tol:
+            counts = {species: 0 for species in self.concentrations.keys()}
+            for species_group in product:
+                for species in self.concentrations.keys():
+                    counts[species] += species_group.count(species)
+            for species, conc_range in self.concentrations.items():
+                if counts[species] / natoms > conc_range[0] - self.tol and \
+                   counts[species] / natoms < conc_range[1] + self.tol:
                     yield product
 
-    def yield_unique_permutations(self, unique_elements, permutation,
+    def yield_unique_permutations(self, unique_species, permutation,
                                   position):
         """
-        Recursively generate all _unique_ permutations of a set of elements
-        with given multiplicites. The algorithm is inspired by the one given
+        Recursively generate all _unique_ permutations of a set of species
+        with given multiplicities. The algorithm is inspired by the one given
         at https://stackoverflow.com/a/6285203/6729551
 
         Parameters
         ----------
-        unique_elements : dict
-            The keys are elements, the values the multiplicity for that
-            element.
+        unique_species : dict
+            keys represent species,values the corresponding multiplicity
         permutation : list of ints
-            Permutation in process, should have length equal to the sum of all
-            multiplicites.
+            permutation in process; should have length equal to the sum of all
+            multiplicities
         position : int
-            Position currently processed. Should be the index of the last
-            element of `permutation` upon initialization.
+            position currently processed; should be the index of the last
+            species of `permutation` upon initialization
 
         Yields
         ------
         tuple with ints
-            Permutation where each element occur according to the multiplicity
-            specified in `unique_elements`
+            permutation where each species occurs according to the multiplicity
+            specified in `unique_species`
         """
         if position < 0:
             # Finish recursion
             yield tuple(permutation)
         else:
-            for element, occurrences in unique_elements.items():
+            for species, occurrences in unique_species.items():
                 # Add if the multiplicity allows
                 if occurrences > 0:
-                    permutation[position] = element
-                    unique_elements[element] -= 1
-                    for perm in self.yield_unique_permutations(unique_elements,
+                    permutation[position] = species
+                    unique_species[species] -= 1
+                    for perm in self.yield_unique_permutations(unique_species,
                                                                permutation,
                                                                position - 1):
                         yield perm
-                    unique_elements[element] += 1
+                    unique_species[species] += 1
 
     def yield_permutations(self, product, position):
         """
@@ -173,20 +172,20 @@ class LabelingGenerator():
         Parameters
         ----------
         product : tuple of tuples of ints
-            Elements allowed for each site group
+            species allowed for each site group
         position : int
-            Keeps track of the position where recursion occurs. Set to 0 upon
-            initilization.
+            keeps track of the position where recursion occurs; set to 0 upon
+            initialization.
 
         Yields
         ------
         list of tuples of ints
-            Unique combinations of unqiue permutations, ordered by site group
+            unique combinations of unique permutations, ordered by site group
         """
-        unique_elements = {element: product[position].count(element)
-                           for element in set(product[position])}
+        unique_species = {species: product[position].count(species)
+                           for species in set(product[position])}
         natoms = len(product[position])
-        for permutation in self.yield_unique_permutations(unique_elements,
+        for permutation in self.yield_unique_permutations(unique_species,
                                                           [0] * natoms,
                                                           natoms - 1):
             if position == len(product) - 1:
@@ -200,12 +199,12 @@ class LabelingGenerator():
         """
         The elements in labeling are now given in site groups. We want just
         one labeling, ordered by site group, but one primitive cell at a time.
-        So if iter_elements given upon init was  `[(0, 1), (2), (0, 1)]` and
-        ncells = 2, the current labeling has two tuples, the first
-        corrresponding to the `(0, 1)` site group, with 8 elements in total,
-        and the second corresponding to the `(2)` site group and with 2
-        elements in total. Now, we reorder it so that the elements are ordered
-        according to `[(0, 1), (2), (0, 1), (0, 1), (2), (0, 1)]`
+        So if iter_species given upon initialization was
+        `[(0, 1), (2), (0, 1)]` and `ncells=2`, the current labeling has two
+        tuples, the first corresponding to the `(0, 1)` site group, with 8
+        elements in total, and the second corresponding to the `(2)` site group
+        and with 2 elements in total. Now, we reorder it so that the elements
+        are ordered according to `[(0, 1), (2), (0, 1), (0, 1), (2), (0, 1)]`.
 
         Parameters
         ----------
@@ -219,16 +218,16 @@ class LabelingGenerator():
         tuple of ints
             Labeling properly sorted, ready to be given to the enumeration code
         """
-        sorted_labeling = [0] * len(self.iter_elements * ncells)
+        sorted_labeling = [0] * len(self.iter_species * ncells)
         count = 0
         for _ in range(ncells):
-            for iter_element in self.iter_elements:
+            for iter_species in self.iter_species:
 
-                # Find the site group corresponding to the iter element
-                site_group = self.site_groups[iter_element]
+                # Find the site group corresponding to the iter species
+                site_group = self.site_groups[iter_species]
 
                 # Find the right element by checking (1) where the
-                # proper site_group is in the unosrted labeling and
+                # proper site_group is in the unsorted labeling and
                 # (2) which element is next in turn
                 sorted_labeling[count] = labeling[
                     site_group.position][site_group.next_to_add]
@@ -244,31 +243,31 @@ class LabelingGenerator():
 
 class SiteGroup():
     """
-    Keeps track of a group of sites that have the same allowed elements.
-    I.e. a site group could correspond to all sites on which element 0 and
-    1 are allowed, and the number of such sites is stored in the
-    `multiplicity`.
+    Keeps track of a group of sites that have the same allowed species.
+    That is a site group could correspond to all sites on which species 0 and
+    1 are allowed, and the number of such sites is stored in the `multiplicity`
+    attribute..
 
     Parameters
     ----------
-    iter_element : tuple of ints
-        The allowed elements on these sites
+    iter_species : tuple of ints
+        allowed species on these sites
     position : int
-        Helps to keep track of when the first group occured; the first
+        helps to keep track of when the first group occurred; the first
         site group encountered will have position = 0, the next 1 etc.
 
     Attributes
     ----------
     multiplicity : int
-        Multiplicity if the group, i.e., how many sites that have this
-        iter_element
+        multiplicity if the group, i.e., how many sites that have this
+        iter_species
     next_to_add : int
-        Helper attribute that keeps track of which site in this group is the
+        helper attribute that keeps track of which site in this group is the
         next to be added when the elements of a labeling are to be sorted
     """
 
-    def __init__(self, iter_element, position):
-        self.iter_element = iter_element
+    def __init__(self, iter_species, position):
+        self.iter_species = iter_species
         self.position = position
         self.multiplicity = 1
         self.next_to_add = 0  # Will keep count when reordering elements
@@ -286,6 +285,6 @@ class SiteGroup():
         self.combinations = []
         natoms = self.multiplicity * ncells
         for combination in \
-                itertools.combinations_with_replacement(self.iter_element,
+                itertools.combinations_with_replacement(self.iter_species,
                                                         natoms):
             self.combinations.append(combination)

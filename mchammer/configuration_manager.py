@@ -201,7 +201,7 @@ class ConfigurationManager(object):
         sites
             indices of sites of the configuration to change
         species
-            new occupations (species) by atomic number
+            new occupations by atomic number
         """
 
         # Update _sites_by_sublattice

@@ -7,14 +7,14 @@ from icet.tools import ConvexHull, enumerate_structures
 
 # step 1: Predict energies for enumerated structures
 ce = ClusterExpansion.read('mixing_energy.ce')
-subelements = ce.cluster_space.chemical_symbols
+species = ce.cluster_space.chemical_symbols
 data = {'concentration': [], 'mixing_energy': []}
 structures = []
 for atoms in enumerate_structures(
         atoms=ce.cluster_space.primitive_structure,
         sizes=range(1, 13),
         species=ce.cluster_space.chemical_symbols):
-    conc = atoms.get_chemical_symbols().count(subelements[1]) / len(atoms)
+    conc = atoms.get_chemical_symbols().count(species[1]) / len(atoms)
     data['concentration'].append(conc)
     data['mixing_energy'].append(ce.predict(atoms))
     structures.append(atoms)

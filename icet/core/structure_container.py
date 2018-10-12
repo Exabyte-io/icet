@@ -23,8 +23,8 @@ class StructureContainer:
         cluster space used for evaluating the cluster vectors
 
     list_of_atoms : list, tuple or list of tuples
-        list of atoms. If list contains tuples, second element of the tuple
-        will be used as a tag of the structure
+        list of atoms; if the list contains tuples, the second element of the
+        tuple will be used as a tag of the structure
 
     list_of_properties : list of dicts
         list of properties, which are provided in dicts
@@ -233,7 +233,7 @@ class StructureContainer:
 
         structure = FitStructure(atoms_copy, user_tag)
         structure.set_properties(properties)
-        structure.set_cluster_vector(cv)
+        structure._set_cluster_vector(cv)
         self._structure_list.append(structure)
 
     def get_fit_data(self, structure_indices: List[int]=None,
@@ -464,7 +464,7 @@ class FitStructure:
         self._atoms = atoms
         self._user_tag = user_tag
         self._properties = {}
-        self.set_cluster_vector(cv)
+        self._set_cluster_vector(cv)
         self.set_properties(properties)
 
     @property
@@ -493,22 +493,18 @@ class FitStructure:
             return super().__getattribute__(key)
         return self.properties[key]
 
-    def set_cluster_vector(self, cv: np.ndarray):
-        """
-        Sets the cluster vectors of the structure.
-
-        ***Expert function: Use with caution***
-        """
+    def _set_cluster_vector(self, cv: np.ndarray):
+        """ Sets the cluster vectors of the structure. """
         if cv is not None:
             self._cluster_vector = cv
         else:
             self._cluster_vector = None
 
     def set_properties(self, properties: Dict[str, float]):
-        """Sets the properties to structure."""
+        """ Sets properties associated with the structure. """
         if properties is not None:
             self._properties.update(properties)
 
     def __len__(self) -> int:
-        """Number of elements in structure."""
+        """ Number of sites in the structure. """
         return len(self._atoms)

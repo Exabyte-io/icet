@@ -35,15 +35,15 @@ calculator = ClusterExpansionCalculator(atoms=atoms,
                                         cluster_expansion=ce_mix_energies)
 ensemble = \
     SemiGrandCanonicalEnsemble(calculator=calculator, atoms=atoms,
-                               random_seed=42, temperature=100.0,
-                               chemical_potentials={'Ag': 0, 'Pd': -1.5},
+                               random_seed=42, temperature=900.0,
+                               chemical_potentials={'Ag': 0, 'Pd': 0},
                                ensemble_data_write_interval=10)
 
 # step 5: Attach observer and run
 observer = ClusterExpansionObserver(cluster_expansion=ce_latt_param,
                                     interval=10)
 ensemble.attach_observer(observer=observer, tag='lattice_parameter')
-ensemble.run(100)
+ensemble.run(number_of_trial_steps=1000)
 
 # step 6: Print data
 print(ensemble.data_container.data)

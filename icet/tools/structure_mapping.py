@@ -47,7 +47,7 @@ def map_structure_to_reference(input_structure: Atoms,
         *Note 1*: By default (``None``) the method will fail if there
         are *any* unassigned sites in the reference structure.
 
-        *Note 2*: ``vacancy_type`` must be a valid element type as
+        *Note 2*: ``vacancy_type`` must be a valid species as
         enforced by the :class:`ase.Atoms` class.
     inert_species
         List of chemical symbols (e.g., ``['Au', 'Pd']``) that are never
@@ -172,12 +172,12 @@ def map_structure_to_reference(input_structure: Atoms,
             ('Site {} has been assigned more than once.'.format(k))
 
     # Check that the chemical composition of input and ideal supercell matches
-    for element in set(input_structure.get_chemical_symbols()):
-        n1 = input_structure.get_chemical_symbols().count(element)
-        n2 = ideal_supercell.get_chemical_symbols().count(element)
+    for symbol in set(input_structure.get_chemical_symbols()):
+        n1 = input_structure.get_chemical_symbols().count(symbol)
+        n2 = ideal_supercell.get_chemical_symbols().count(symbol)
         assert n1 == n2, ('Number of atoms of type {} differs between'
                           ' input structure ({}) and ideal'
-                          ' supercell ({}).'.format(element, n1, n2))
+                          ' supercell ({}).'.format(symbol, n1, n2))
 
     if logger.isEnabledFor(logging.DEBUG):
         logger.debug('Maximum, average and standard deviation of atomic'

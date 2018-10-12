@@ -17,7 +17,7 @@ class ClusterSpace(object):
     Mi : list / dictionary / int
         * if a list is provided, it must contain as many elements as there
           are sites and each element represents the number of allowed
-          components on the respective site
+          species on the respective site
         * if a dictionary is provided the key represent the site index and
           the value the number of allowed components
         * if a single `int` is provided each site the number of allowed
@@ -98,7 +98,7 @@ class ClusterSpace(object):
 
     @property
     def chemical_symbols(self):
-        """ list of sub elements considered in the cluster space """
+        """ list of species considered in the cluster space """
         return self._chemical_symbols
 
     @property

@@ -23,8 +23,8 @@ class ClusterCounts(_ClusterCounts):
     cluster_counts : OrderedDict
         keys are representative clusters (icet Cluster objects) for all
         distinct orbits in the orbit list, values are dicts where keys are
-        the elements in a cluster, and values the number of counts of such
-        clusters, e.g. {('Au', 'Ag'): 3, ('Au', 'Au'): 5}
+        the chemical symbols of the species in a cluster, and values the number
+        of counts of such clusters, e.g. {('Au', 'Ag'): 3, ('Au', 'Au'): 5}.
     """
 
     def __init__(self, orbit_list: OrbitList, atoms: Atoms):
@@ -77,14 +77,14 @@ class ClusterCounts(_ClusterCounts):
             cluster = cluster_data[2]
             sorted_cluster_counts[cluster] = {}
             for m in range(*cluster_data[3]):
-                elements, count = self.get_cluster_counts_info(m)
-                sorted_cluster_counts[cluster][tuple(elements)] = count
+                species, count = self.get_cluster_counts_info(m)
+                sorted_cluster_counts[cluster][tuple(species)] = count
         return sorted_cluster_counts
 
     def __str__(self):
         """
         String representation of cluster counts that provides an overview
-        of the clusters (cluster, elements and count).
+        of the clusters (cluster, species, and count).
         """
         tuplets = {1: 'Singlet', 2: 'Pair', 3: 'Triplet', 4: 'Quadruplet'}
         width = 60
@@ -105,9 +105,9 @@ class ClusterCounts(_ClusterCounts):
                                              cluster.distances,
                                              cluster.radius)]
 
-            # Print the actual counts together with the elements they refer to
-            for elements, count in counts.items():
-                t = ['{:3} '.format(el) for el in elements]
+            # Print the actual counts together with the species they refer to
+            for species, count in counts.items():
+                t = ['{:3} '.format(el) for el in species]
                 s += ['{} {}'.format(''.join(t), count)]
         s += [''.center(width, '=')]
         return '\n'.join(s)

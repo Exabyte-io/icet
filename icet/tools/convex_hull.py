@@ -97,7 +97,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
             self.energies = energies
             self.structures = structures
 
-        # Remove points that are above "pure element plane"
+        # Remove points that are above "pure components plane"
         self._remove_points_above_tie_plane()
 
     def _remove_points_above_tie_plane(self, tol: float=1e-6):
@@ -113,7 +113,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
         # Identify the "complex concentration hull", i.e. the extremal
         # concentrations. In the simplest case, these should simply be the
-        # pure elements.
+        # pure components.
         if self.dimensions == 1:
             # Then the ConvexHullScipy function doesn't work, so we just pick
             # the indices of the lowest and highest concentrations.
@@ -126,7 +126,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
             vertices = concentration_hull.vertices
 
         # Remove all points of the convex energy hull that have an energy that
-        # is higher than what would be gotten with pure elements at the same
+        # is higher than what would be gotten with pure components at the same
         # concentration. These points are mathematically on the convex hull,
         # but in the physically uninteresting upper part, i.e. they maximize
         # rather than minimize energy.
@@ -146,7 +146,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
             for plane in itertools.combinations(vertices,
                                                 min(len(vertices),
                                                     self.dimensions + 1)):
-                # Calculate energy that would be gotten with pure elements
+                # Calculate energy that would be gotten with pure components
                 # with ascribed concentration.
                 energy_pure = griddata(self.concentrations[np.array(plane)],
                                        self.energies[np.array(plane)],

@@ -22,7 +22,7 @@ for temperature in [900, 600, 300]:
     mc = SemiGrandCanonicalEnsemble(
         calculator=calculator,
         atoms=atoms,
-        ensemble_data_write_interval=10,
+        ensemble_data_write_interval=len(atoms),
         temperature=temperature,
         chemical_potentials={chemical_symbols[0]: 0,
                              chemical_symbols[1]: 0})
