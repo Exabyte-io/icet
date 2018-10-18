@@ -183,7 +183,7 @@ class LabelingGenerator():
             unique combinations of unique permutations, ordered by site group
         """
         unique_species = {species: product[position].count(species)
-                           for species in set(product[position])}
+                          for species in set(product[position])}
         natoms = len(product[position])
         for permutation in self.yield_unique_permutations(unique_species,
                                                           [0] * natoms,

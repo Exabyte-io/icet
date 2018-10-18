@@ -32,7 +32,7 @@ def print_timing_ratios(atoms, iters, sizes, cutoffs):
 
     print('# $1 size, $2 iters, $3 atom size, $4 ce calc init time (s)'
           ', $5 t_local, $6 t_total, $7 t_total/t_local')
-    cs = ClusterSpace(atoms, cutoffs, species=['Al', 'Ga'])
+    cs = ClusterSpace(atoms, cutoffs, chemical_symbols=['Al', 'Ga'])
     parameters = np.array([1.2 for _ in range(len(cs))])
     ce = ClusterExpansion(cs, parameters)
     for size in sizes:
