@@ -31,12 +31,12 @@ class TestLabelingGenerator(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestLabelingGenerator, self).__init__(*args, **kwargs)
-        self.iter_elements = [(0, 1), (2,), (2,), (2,), (0, 1), (0, 2)]
+        self.iter_species = [(0, 1), (2,), (2,), (2,), (0, 1), (0, 2)]
         self.concentrations = {0: (0, 0.15), 2: (0, 0.3)}
 
     def setUp(self):
         """Instantiate class before each test."""
-        self.lg = LabelingGenerator(self.iter_elements,
+        self.lg = LabelingGenerator(self.iter_species,
                                     self.concentrations)
 
     def test_init(self):
@@ -44,17 +44,17 @@ class TestLabelingGenerator(unittest.TestCase):
         Testing that the setup
         (initialization) of tested class work.
         """
-        lg = LabelingGenerator(self.iter_elements,
+        lg = LabelingGenerator(self.iter_species,
                                self.concentrations)
         self.assertIsInstance(lg, LabelingGenerator)
 
         # Check that site groups were initialized properly
         self.assertEqual(len(lg.site_groups), 3)
         self.assertEqual(lg.site_groups[(0, 1)].multiplicity, 2)
-        self.assertEqual(lg.site_groups[(0, 1)].iter_element, (0, 1))
+        self.assertEqual(lg.site_groups[(0, 1)].iter_species, (0, 1))
 
         # Should be able to init also with concentrations=None
-        lg = LabelingGenerator(self.iter_elements, None)
+        lg = LabelingGenerator(self.iter_species, None)
         self.assertIsInstance(lg, LabelingGenerator)
 
     def test_yield_products(self):
@@ -133,13 +133,13 @@ class TestSiteGroup(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestSiteGroup, self).__init__(*args, **kwargs)
-        self.iter_element = (0, 1, 3)
+        self.iter_species = (0, 1, 3)
         self.position = 3
         self.multiplicity = 7
 
     def setUp(self):
         """Instantiate class before each test."""
-        self.sg = SiteGroup(self.iter_element,
+        self.sg = SiteGroup(self.iter_species,
                             self.position)
 
     def test_init(self):
@@ -147,10 +147,10 @@ class TestSiteGroup(unittest.TestCase):
         Testing that the setup
         (initialization) of tested class work
         """
-        sg = SiteGroup(self.iter_element,
+        sg = SiteGroup(self.iter_species,
                        self.position)
         self.assertIsInstance(sg, SiteGroup)
-        self.assertEqual(sg.iter_element, self.iter_element)
+        self.assertEqual(sg.iter_species, self.iter_species)
         self.assertEqual(sg.position, self.position)
 
     def test_compute_all_combinations(self):

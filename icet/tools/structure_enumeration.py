@@ -394,7 +394,7 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
 
     # Construct descriptor of where species are allowed to be
     if isinstance(species[0], str):
-        iter_elements = [tuple(range(len(species)))] * nsites
+        iter_species = [tuple(range(len(species)))] * nsites
         elements = species
     elif len(species) == nsites:
         assert isinstance(species[0][0], str)
@@ -403,14 +403,14 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
             for element in site:
                 if element not in elements:
                     elements.append(element)
-        iter_elements = []
+        iter_species = []
         for site in species:
-            iter_elements.append(tuple(elements.index(i) for i in site))
+            iter_species.append(tuple(elements.index(i) for i in site))
     else:
         raise Exception('species needs to be a list of strings '
                         'or a list of list of strings.')
 
-    # Adapt concentration restrictions to iter_elements
+    # Adapt concentration restrictions to iter_species
     if concentration_restrictions:
         concentrations = {}
         for key, concentration_range in concentration_restrictions.items():
@@ -425,7 +425,7 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
         concentrations = None
 
     # Construct labeling generator
-    labeling_generator = LabelingGenerator(iter_elements, concentrations)
+    labeling_generator = LabelingGenerator(iter_species, concentrations)
 
     # Niggli reduce by default if all directions have
     # periodic boundary conditions
