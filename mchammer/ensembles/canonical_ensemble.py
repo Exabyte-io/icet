@@ -98,7 +98,8 @@ class CanonicalEnsemble(BaseEnsemble):
             self.update_occupations(sites, species)
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
-        """Evaluates Metropolis acceptance criterion.
+        """
+        Evaluates Metropolis acceptance criterion.
 
         Parameters
         ----------
@@ -114,9 +115,9 @@ class CanonicalEnsemble(BaseEnsemble):
                 self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
-        """Returns the data associated with the ensemble. For the SGC
-        ensemble this specifically includes the temperature and the
-        species counts.
+        """
+        Returns the data associated with the ensemble. For the SGC ensemble
+        this specifically includes the temperature and the species counts.
         """
         data = super()._get_ensemble_data()
         data['temperature'] = self.temperature

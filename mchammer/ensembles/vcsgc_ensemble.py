@@ -176,9 +176,11 @@ class VCSGCEnsemble(BaseEnsemble):
 
     @property
     def phis(self) -> Dict[int, float]:
-        """phis :math:`\\phi_i`, one for each
+        """
+        phis :math:`\\phi_i`, one for each
         element but their sum must be :math:`-2.0`
-        (referred to as :math:`\bar{\phi}` in [SadErh12]_)"""
+        (referred to as :math:`\bar{\phi}` in [SadErh12]_)
+        """
         return self._phis
 
     @phis.setter
@@ -201,16 +203,9 @@ class VCSGCEnsemble(BaseEnsemble):
 
     def _get_ensemble_data(self) -> Dict:
         """
-        Returns a dict with the default data of
-        the ensemble.
-
-        Here temperature and species counts
-        are added to the default data.
-
-        Returns
-        -------
-        dict : ensemble data key pairs
-
+        Returns a dict with the default data of the ensemble. This includes
+        temperature, :math:`kappa`, :math:`phi` for every element, atom counts
+        and free energy derivative.
         """
         data = super()._get_ensemble_data()
 
