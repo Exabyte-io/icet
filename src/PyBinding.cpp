@@ -81,9 +81,15 @@ PYBIND11_MODULE(_icet, m)
            :members:
            :undoc-members:
 
+        OrbitList
+        ---------
+        .. autoclass:: OrbitList
+           :members:
+           :undoc-members:
+
         PermutationMatrix
-        -----------------
-        .. autoclass:: PermutationMatrix
+        --------------
+        .. autoclass:: PermutationMap
            :members:
            :undoc-members:
 

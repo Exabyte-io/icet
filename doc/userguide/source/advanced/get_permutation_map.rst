@@ -17,7 +17,7 @@ required, namely :func:`permutation_matrix_from_atoms
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
 needed to generate a structure.
 
-.. literalinclude:: ../../../../examples/get_permutation_map.py
+.. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Import modules
    :end-before: # Create a prototype
 
@@ -27,7 +27,7 @@ Generate prototype Al unit cell
 The next step is to build a prototype :class:`ASE Atoms` object, here an
 aluminum fcc unit cell.
 
-.. literalinclude:: ../../../../examples/get_permutation_map.py
+.. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Create a prototype
    :end-before: # Generate a permutation
 
@@ -43,7 +43,7 @@ a :class:`PermutationMap <_icet.PermutationMap>`,
 a primitive :class:`Structure <_icet.Structure>` and
 a :class:`NeighborList <_icet.NeighborList>`.
 
-.. literalinclude:: ../../../../examples/get_permutation_map.py
+.. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Generate a permutation map
    :end-before: # Extract the permuted,
 
@@ -63,7 +63,7 @@ object, generated earlier, using the methods
 :meth:`PermutationMap.get_permuted_positions` and
 :meth:`PermutationMap.get_indiced_positions`, respectively.
 
-.. literalinclude:: ../../../../examples/get_permutation_map.py
+.. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Extract the permuted,
    :end-before: # Print the permuted,
 
@@ -73,7 +73,7 @@ Print the positions
 Finally the permuted as well as the indexed and unique positions, obtained in
 the previous section, are printed using the following snippet:
 
-.. literalinclude:: ../../../../examples/get_permutation_map.py
+.. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Print the permuted,
 
 These lines should give the following (partial) output::
@@ -104,4 +104,4 @@ Source code
        The complete source code is available in
        ``examples/get_permutation_matrix.py``
 
-    .. literalinclude:: ../../../../examples/get_permutation_map.py
+    .. literalinclude:: ../../../../examples/get_permutation_matrix.py

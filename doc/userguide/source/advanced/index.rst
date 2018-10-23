@@ -17,5 +17,5 @@ showcase different features and modes of usage.
    get_cluster_vector.rst
    map_structure_to_reference.rst
    get_neighbor_list.rst
-   get_permutation_map.rst
+   get_permutation_matrix.rst
    test_cluster_vector_correlation.rst

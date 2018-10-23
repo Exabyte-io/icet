@@ -16,5 +16,5 @@ C++ classes and functions
   orbit
   orbit_list
   periodic_table
-  permutation_map
+  permutation_matrix
   structure
