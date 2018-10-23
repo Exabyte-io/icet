@@ -28,13 +28,28 @@ class CanonicalEnsemble(BaseEnsemble):
     Since the concentrations or, equivalently, the number of atoms of each
     species, is held fixed in the canonical ensemble, a trial step must
     conserve the concentrations. This is accomplished by randomly picking two
-    unlike atoms and swapping their identities. The swap is accepted with the
+    unlike atoms and swapping their identities. The swap is accepted with
     probability
 
     .. math::
 
-        P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i
-        ) / k_B T ] \},
+        P = \min \{ 1, \, \exp [ - \\Delta E / k_B T  ] \},
+
+    where :math:`\\Delta E` is the change in potential energy caused by the
+    swap.
+
+    The canonical ensemble provides an ideal framework for studying the
+    properties of a system at a specific concentrations. Properties such as
+    potential energy and chemical ordering at a specific temperature can
+    conveniently be studied by simulating at that temperature. The canonical
+    ensemble is also a convenient tool for "optimizing" a system, i.e.,
+    finding its lowest energy chemical ordering. In practice, this is usually
+    achieved by simulated annealing, i.e. the system is equilibrated at a high
+    temperature, after which the temperature is continuously lowered until the
+    acceptance probability is almost zero. In a well-behaved system, the
+    chemical ordering at that point corresponds to a low-energy structure,
+    possibly the global minimum at that particular concentration.
+
 
     Attributes
     -----------
@@ -93,7 +108,7 @@ class CanonicalEnsemble(BaseEnsemble):
         if potential_diff < 0:
             return True
         else:
-            return np.exp(-potential_diff/(
+            return np.exp(-potential_diff / (
                 self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
 
