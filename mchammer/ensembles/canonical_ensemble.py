@@ -19,7 +19,8 @@ class CanonicalEnsemble(BaseEnsemble):
     (:math:`T`), number of atoms of each species (:math:`N_i`), and volume
     (:math:`V`).
 
-    The probability density of the canonical ensemble is the well-known Boltzmann factor,
+    The probability density of the canonical ensemble is the well-known
+    Boltzmann factor,
 
     .. math::
 
