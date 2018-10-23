@@ -1,0 +1,87 @@
+# dot -Tsvg workflow.dot -o workflow.svg
+
+digraph g {
+
+  graph [ fontname = "helvetica",
+          fontsize = 12.0,
+          rankdir = "TB",
+          bgcolor = "transparent" ];
+
+  edge [ fontname = "helvetica",
+         fontsize = 12.0,
+         penwidth = 1.5 ]
+
+  node [ fontname = "helvetica",
+         fontsize = 12.0,
+         fontcolor=white,
+         shape="ellipse",
+         color=cornflowerblue,
+         style=filled];
+
+  Prototype [ color=darkgoldenrod2,
+              label="prototype structure",
+              shape=box];
+  Cutoffs [ color=darkgoldenrod2,
+            label="cutoff radii for\neach order",
+            shape=box];
+  Elements [ color=darkgoldenrod2,
+            label="active species",
+            shape=box];
+  Structures [ color=darkgoldenrod2,
+               label="input structures\nwith reference data",
+	       shape=box];
+
+  ClusterSpace [ href="../moduleref_icet/cluster_space.html#icet.ClusterSpace",
+                 target="_top" ];
+
+  StructureContainer [ href="../moduleref_icet/structure_container.html#icet.StructureContainer",
+                       target="_top" ];
+  Optimizer [ label="Optimizer",
+              href="../moduleref_icet/optimizers.html",
+              target="_top"];
+  ClusterExpansion [ href="../moduleref_icet/cluster_expansion.html#icet.ClusterExpansion",
+                           target="_top" ];
+  ClusterExpansionCalculator [ href="../moduleref_mchammer/calculators.html#mchammer.calculators.ClusterExpansionCalculator",
+                   target="_top" ];
+
+  Supercell [ color=darkgoldenrod2,
+              label="supercell structure",
+              shape=box];
+
+  structures [ color=darkgoldenrod2,
+               label="arbitrary structures",
+               shape=box];
+
+  predict [ shape=rectangle,
+            color=darkgreen,
+            fontcolor=white,
+            label="Predict property",
+	    href="../moduleref_icet/cluster_expansion.html#icet.ClusterExpansion.predict",
+	    target="_top"];
+
+  MC [ shape=rectangle,
+       color=darkgreen,
+       fontcolor=white,
+       label="Monte Carlo simulations\nvia mchammer",
+       href="../moduleref_mchammer/index.html",
+       target="_top"];
+
+  Prototype -> ClusterSpace;
+  Elements -> ClusterSpace;
+  Cutoffs -> ClusterSpace;
+
+  ClusterSpace -> StructureContainer;
+  Structures -> StructureContainer;
+
+  StructureContainer -> Optimizer [label="fit matrix and\nvector of target values"];
+
+  ClusterSpace -> ClusterExpansion;
+  Optimizer -> ClusterExpansion [label=parameters];
+
+  structures -> predict;
+  ClusterExpansion -> predict;
+
+  Supercell -> ClusterExpansionCalculator;
+  ClusterExpansion -> ClusterExpansionCalculator;
+  ClusterExpansionCalculator -> MC;
+}

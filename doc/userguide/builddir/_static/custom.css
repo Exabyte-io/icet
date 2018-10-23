@@ -1,0 +1,14 @@
+.toggle .header {
+    display: block;
+    clear: both;
+    padding-top: -10px;
+    padding-bottom: 20px;
+}
+
+.toggle .header:after {
+    content: " ▼";
+}
+
+.toggle .header.open:after {
+    content: " ▲";
+}

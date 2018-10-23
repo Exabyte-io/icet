@@ -1,0 +1,1035 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Ensembles &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Observers" href="observers.html" />
+    <link rel="prev" title="Calculators" href="calculators.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_icet/index.html"><strong class="program">icet</strong></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html"><strong class="program">mchammer</strong></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calculators.html">Calculators</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Ensembles</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#canonicalensemble">CanonicalEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#semigrandcanonicalensemble">SemiGrandCanonicalEnsemble</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#vcsgcensemble">VCSGCEnsemble</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="observers.html">Observers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data_container.html">Data container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_manager.html">Configuration manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=../genindex.html>index</a>
+| <a href=../py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-mchammer.ensembles"><span id="index-0"></span></span><div class="section" id="ensembles">
+<span id="id1"></span><h1>Ensembles<a class="headerlink" href="#ensembles" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="canonicalensemble">
+<span id="index-1"></span><h2>CanonicalEnsemble<a class="headerlink" href="#canonicalensemble" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mchammer.ensembles.CanonicalEnsemble">
+<em class="property">class </em><code class="descclassname">mchammer.ensembles.</code><code class="descname">CanonicalEnsemble</code><span class="sig-paren">(</span><em>atoms=None</em>, <em>calculator=None</em>, <em>name='Canonical ensemble'</em>, <em>data_container=None</em>, <em>random_seed=None</em>, <em>data_container_write_period=inf</em>, <em>ensemble_data_write_interval=None</em>, <em>trajectory_write_interval=None</em>, <em>boltzmann_constant=8.617330337217213e-05</em>, <em>*</em>, <em>temperature</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Canonical Ensemble.</p>
+<p>Instances of this class allow one to simulate systems in the
+canonical ensemble (<span class="math">\(N_iVT\)</span>), i.e. at constant temperature
+(<span class="math">\(T\)</span>), number of species (<span class="math">\(N_i\)</span>), and volume
+(<span class="math">\(V\)</span>).</p>
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – temperature <span class="math">\(T\)</span> in appropriate units [commonly Kelvin]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.boltzmann_constant">
+<code class="descname">boltzmann_constant</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.boltzmann_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – Boltzmann constant <span class="math">\(k_B\)</span> in appropriate
+units, i.e. units that are consistent
+with the underlying cluster expansion
+and the temperature units [default: eV/K]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.acceptance_ratio">
+<code class="descname">acceptance_ratio</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.acceptance_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>acceptance ratio</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.atoms">
+<code class="descname">atoms</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>current configuration (copy)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.CanonicalEnsemble.attach_observer">
+<code class="descname">attach_observer</code><span class="sig-paren">(</span><em>observer</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.attach_observer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches an observer to the ensemble.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>observer</strong> (<code class="xref py py-class docutils literal"><span class="pre">BaseObserver</span></code>) – observer instance to attach</li>
+<li><strong>tag</strong> – name used in data container</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.calculator">
+<code class="descname">calculator</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.calculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculator attached to the ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">BaseCalculator</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.data_container">
+<code class="descname">data_container</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>data container associated with ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">DataContainer</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.CanonicalEnsemble.get_random_sublattice_index">
+<code class="descname">get_random_sublattice_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.get_random_sublattice_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random sublattice index based on the weights of the
+sublattice.</p>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<ul class="last simple">
+<li>fix this method</li>
+<li>add unit test</li>
+</ul>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.name">
+<code class="descname">name</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>ensemble name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.observer_interval">
+<code class="descname">observer_interval</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.observer_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum number of steps to run Monte Carlo simulation without
+interruption for observation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.observers">
+<code class="descname">observers</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.observers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.random_seed">
+<code class="descname">random_seed</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.random_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>seed used to initialize random number generator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.CanonicalEnsemble.reset_data_container">
+<code class="descname">reset_data_container</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.reset_data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the data container and the trial step counter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.CanonicalEnsemble.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>number_of_trial_steps</em>, <em>reset_step=False</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples the ensemble for the given number of trial steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>number_of_trial_steps</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of MC trial steps to run in total</li>
+<li><strong>reset_step</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">bool</span></code></a>) – if True the MC trial step counter and the data container will
+be reset to zero and empty, respectively.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.CanonicalEnsemble.step">
+<code class="descname">step</code><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>current Monte Carlo trial step</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.CanonicalEnsemble.update_occupations">
+<code class="descname">update_occupations</code><span class="sig-paren">(</span><em>sites</em>, <em>species</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.CanonicalEnsemble.update_occupations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the occupation vector of the configuration being sampled.
+This will change the state of the configuration in both the
+calculator and the configuration manager.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sites</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – indices of sites of the configuration to change</li>
+<li><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – new occupations (species) by atomic number</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3.6/library/exceptions.html#ValueError" title="(in Python v3.6)"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></a> – if input lists are not of the same length</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<span class="target" id="sgc"></span></div>
+<div class="section" id="semigrandcanonicalensemble">
+<span id="index-3"></span><h2>SemiGrandCanonicalEnsemble<a class="headerlink" href="#semigrandcanonicalensemble" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble">
+<em class="property">class </em><code class="descclassname">mchammer.ensembles.</code><code class="descname">SemiGrandCanonicalEnsemble</code><span class="sig-paren">(</span><em>atoms=None</em>, <em>calculator=None</em>, <em>name='Semi-grand canonical ensemble'</em>, <em>data_container=None</em>, <em>random_seed=None</em>, <em>data_container_write_period=inf</em>, <em>ensemble_data_write_interval=None</em>, <em>trajectory_write_interval=None</em>, <em>boltzmann_constant=8.617330337217213e-05</em>, <em>*</em>, <em>temperature</em>, <em>chemical_potentials</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Semi-grand canonical (SGC) ensemble.</p>
+<p>Instances of this class allow one to simulate systems in the SGC
+ensemble (<span class="math">\(N\Delta\mu_i VT\)</span>), i.e. at constant temperature
+(<span class="math">\(T\)</span>), total number of sites (<span class="math">\(N=\sum_i N_i\)</span>),
+relative chemical potentials (<span class="math">\(\Delta\mu_i=\mu_i - \mu_1\)</span>,
+where <span class="math">\(i\)</span> denotes the species), and volume (<span class="math">\(V\)</span>).</p>
+<p>The probability density of the SGC ensemble for a
+<span class="math">\(m\)</span>-component system is</p>
+<div class="math">
+\[\rho_{\text{SGC}} = \exp\Big[ - \big( E
++ \sum_{i&gt;1}^m \Delta\mu_i N_i \big) / k_B T \Big]\]</div>
+<p>with the <em>relative</em> chemical potentials <span class="math">\(\Delta\mu_i =
+\mu_i - \mu_1\)</span> and species counts <span class="math">\(N_i\)</span>.</p>
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – temperature <span class="math">\(T\)</span> in appropriate units [commonly Kelvin]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.boltzmann_constant">
+<code class="descname">boltzmann_constant</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.boltzmann_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – Boltzmann constant <span class="math">\(k_B\)</span> in appropriate
+units, i.e. units that are consistent
+with the underlying cluster expansion
+and the temperature units [default: eV/K]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.acceptance_ratio">
+<code class="descname">acceptance_ratio</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.acceptance_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>acceptance ratio</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.atoms">
+<code class="descname">atoms</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>current configuration (copy)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.attach_observer">
+<code class="descname">attach_observer</code><span class="sig-paren">(</span><em>observer</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.attach_observer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches an observer to the ensemble.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>observer</strong> (<code class="xref py py-class docutils literal"><span class="pre">BaseObserver</span></code>) – observer instance to attach</li>
+<li><strong>tag</strong> – name used in data container</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.calculator">
+<code class="descname">calculator</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.calculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculator attached to the ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">BaseCalculator</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.chemical_potentials">
+<code class="descname">chemical_potentials</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.chemical_potentials" title="Permalink to this definition">¶</a></dt>
+<dd><p>chemical potentials <span class="math">\(\mu_i\)</span></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.Dict" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.data_container">
+<code class="descname">data_container</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>data container associated with ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">DataContainer</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.get_random_sublattice_index">
+<code class="descname">get_random_sublattice_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.get_random_sublattice_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random sublattice index based on the weights of the
+sublattice.</p>
+<div class="admonition-todo admonition" id="index-4">
+<p class="first admonition-title">Todo</p>
+<ul class="last simple">
+<li>fix this method</li>
+<li>add unit test</li>
+</ul>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.name">
+<code class="descname">name</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>ensemble name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.observer_interval">
+<code class="descname">observer_interval</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.observer_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum number of steps to run Monte Carlo simulation without
+interruption for observation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.observers">
+<code class="descname">observers</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.observers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.random_seed">
+<code class="descname">random_seed</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.random_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>seed used to initialize random number generator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.reset_data_container">
+<code class="descname">reset_data_container</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.reset_data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the data container and the trial step counter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>number_of_trial_steps</em>, <em>reset_step=False</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples the ensemble for the given number of trial steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>number_of_trial_steps</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of MC trial steps to run in total</li>
+<li><strong>reset_step</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">bool</span></code></a>) – if True the MC trial step counter and the data container will
+be reset to zero and empty, respectively.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.step">
+<code class="descname">step</code><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>current Monte Carlo trial step</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.SemiGrandCanonicalEnsemble.update_occupations">
+<code class="descname">update_occupations</code><span class="sig-paren">(</span><em>sites</em>, <em>species</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.SemiGrandCanonicalEnsemble.update_occupations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the occupation vector of the configuration being sampled.
+This will change the state of the configuration in both the
+calculator and the configuration manager.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sites</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – indices of sites of the configuration to change</li>
+<li><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – new occupations (species) by atomic number</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3.6/library/exceptions.html#ValueError" title="(in Python v3.6)"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></a> – if input lists are not of the same length</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="vcsgcensemble">
+<h2>VCSGCEnsemble<a class="headerlink" href="#vcsgcensemble" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mchammer.ensembles.VCSGCEnsemble">
+<em class="property">class </em><code class="descclassname">mchammer.ensembles.</code><code class="descname">VCSGCEnsemble</code><span class="sig-paren">(</span><em>atoms=None</em>, <em>calculator=None</em>, <em>name='Variance-constrained semi-grand canonical ensemble'</em>, <em>data_container=None</em>, <em>random_seed=None</em>, <em>data_container_write_period=inf</em>, <em>ensemble_data_write_interval=None</em>, <em>trajectory_write_interval=None</em>, <em>boltzmann_constant=8.617330337217213e-05</em>, <em>*</em>, <em>temperature</em>, <em>phis</em>, <em>kappa</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble" title="Permalink to this definition">¶</a></dt>
+<dd><p>Variance-constrained semi-grand canonical (VCSGC) ensemble.</p>
+<p>Instances of this class allow one to simulate systems in the VCSGC
+ensemble (<span class="math">\(N\phi\kappa VT\)</span>), i.e. at constant temperature
+(<span class="math">\(T\)</span>), total number of sites (<span class="math">\(N=\sum_i N_i\)</span>),
+and two additional parameters <span class="math">\(\phi\)</span> and <span class="math">\(\kappa\)</span>, which
+constrain the concentration and variance of the concentration,
+respectively. The derivative of the canonical free energy can be
+expressed in observables of the ensemble,</p>
+<div class="math">
+\[\frac{1}{N} \frac{\partial F}{\partial c} = - \phi - 2 N \kappa
+\langle c \rangle.\]</div>
+<p>Unlike the SGC ensemble, the VCSGC ensemble allows for sampling across
+multi-phase regions, meaning that the free energy can be recovered by
+direct integration even when such regions are present.</p>
+<p>The VCSGC ensemble currently supports systems with no more than two
+different species.</p>
+<p>When using this ensemble, please cite
+Sadigh, B. and Erhart, P., Phys. Rev. B <strong>86</strong>, 134204 (2012)
+<a class="reference internal" href="../bibliography.html#saderh12" id="id2">[SadErh12]</a>.</p>
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – temperature <span class="math">\(T\)</span> in appropriate units [commonly Kelvin]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.boltzmann_constant">
+<code class="descname">boltzmann_constant</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.boltzmann_constant" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – Boltzmann constant <span class="math">\(k_B\)</span> in appropriate
+units, i.e. units that are consistent
+with the underlying cluster expansion
+and the temperature units [default: eV/K]</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.kappa">
+<code class="descname">kappa</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.kappa" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – parameter that constrains the fluctuations of the concentration
+(referred to as <span class="math">\(ar{\kappa}\)</span> in <a class="reference internal" href="../bibliography.html#saderh12" id="id3">[SadErh12]</a>)</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.acceptance_ratio">
+<code class="descname">acceptance_ratio</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.acceptance_ratio" title="Permalink to this definition">¶</a></dt>
+<dd><p>acceptance ratio</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.atoms">
+<code class="descname">atoms</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.atoms" title="Permalink to this definition">¶</a></dt>
+<dd><p>current configuration (copy)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.VCSGCEnsemble.attach_observer">
+<code class="descname">attach_observer</code><span class="sig-paren">(</span><em>observer</em>, <em>tag=None</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.attach_observer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Attaches an observer to the ensemble.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>observer</strong> (<code class="xref py py-class docutils literal"><span class="pre">BaseObserver</span></code>) – observer instance to attach</li>
+<li><strong>tag</strong> – name used in data container</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.calculator">
+<code class="descname">calculator</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.calculator" title="Permalink to this definition">¶</a></dt>
+<dd><p>calculator attached to the ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">BaseCalculator</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.data_container">
+<code class="descname">data_container</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>data container associated with ensemble</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">DataContainer</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.VCSGCEnsemble.get_random_sublattice_index">
+<code class="descname">get_random_sublattice_index</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.get_random_sublattice_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a random sublattice index based on the weights of the
+sublattice.</p>
+<div class="admonition-todo admonition" id="index-5">
+<p class="first admonition-title">Todo</p>
+<ul class="last simple">
+<li>fix this method</li>
+<li>add unit test</li>
+</ul>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.name">
+<code class="descname">name</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>ensemble name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.observer_interval">
+<code class="descname">observer_interval</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.observer_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum number of steps to run Monte Carlo simulation without
+interruption for observation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.observers">
+<code class="descname">observers</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.observers" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.phis">
+<code class="descname">phis</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.phis" title="Permalink to this definition">¶</a></dt>
+<dd><p>phis <span class="math">\(\phi_i\)</span>, one for each
+element but their sum must be <span class="math">\(-2.0\)</span>
+(referred to as <span class="math">\(ar{\phi}\)</span> in <a class="reference internal" href="../bibliography.html#saderh12" id="id4">[SadErh12]</a>)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.Dict" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>, <a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.random_seed">
+<code class="descname">random_seed</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.random_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>seed used to initialize random number generator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.VCSGCEnsemble.reset_data_container">
+<code class="descname">reset_data_container</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.reset_data_container" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the data container and the trial step counter.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.VCSGCEnsemble.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>number_of_trial_steps</em>, <em>reset_step=False</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Samples the ensemble for the given number of trial steps.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>number_of_trial_steps</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of MC trial steps to run in total</li>
+<li><strong>reset_step</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">bool</span></code></a>) – if True the MC trial step counter and the data container will
+be reset to zero and empty, respectively.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.ensembles.VCSGCEnsemble.step">
+<code class="descname">step</code><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.step" title="Permalink to this definition">¶</a></dt>
+<dd><p>current Monte Carlo trial step</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.ensembles.VCSGCEnsemble.update_occupations">
+<code class="descname">update_occupations</code><span class="sig-paren">(</span><em>sites</em>, <em>species</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.ensembles.VCSGCEnsemble.update_occupations" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the occupation vector of the configuration being sampled.
+This will change the state of the configuration in both the
+calculator and the configuration manager.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sites</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – indices of sites of the configuration to change</li>
+<li><strong>species</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – new occupations (species) by atomic number</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference external" href="https://docs.python.org/3.6/library/exceptions.html#ValueError" title="(in Python v3.6)"><code class="xref py py-exc docutils literal"><span class="pre">ValueError</span></code></a> – if input lists are not of the same length</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="observers.html" class="btn btn-neutral float-right" title="Observers" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="calculators.html" class="btn btn-neutral" title="Calculators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

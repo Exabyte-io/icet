@@ -1,0 +1,441 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Structure enumeration &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cluster counts" href="get_cluster_count.html" />
+    <link rel="prev" title="Advanced topics" href="index.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Advanced topics</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Structure enumeration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#import-modules">Import modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-binary-au-pd-structures">Generate binary Au/Pd structures</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-binary-au-pd-structures-in-the-dilute-limit">Generate binary Au/Pd structures in the dilute limit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-pdh-structures-with-vacancies">Generate PdH structures with vacancies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-surface-slabs-with-adsorbates">Generate surface slabs with adsorbates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="get_cluster_count.html">Cluster counts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_cluster_space_info.html">Cluster space information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_cluster_vector.html">Cluster vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="map_structure_to_reference.html">Mapping structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_neighbor_list.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_cluster_vector_correlation.html">Cluster vector correlations</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_icet/index.html"><strong class="program">icet</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_mchammer/index.html"><strong class="program">mchammer</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=../genindex.html>index</a>
+| <a href=../py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="structure-enumeration">
+<span id="index-0"></span><h1>Structure enumeration<a class="headerlink" href="#structure-enumeration" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of this example is to demonstrate how to enumerate structures. In
+the present context, this structural enumeration means the generation of all
+inequivalent structures derived from a primitive structure up to a certain
+size.</p>
+<div class="section" id="import-modules">
+<h2>Import modules<a class="headerlink" href="#import-modules" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="../moduleref_icet/tools.html#icet.tools.structure_enumeration.enumerate_structures" title="icet.tools.structure_enumeration.enumerate_structures"><code class="xref py py-func docutils literal"><span class="pre">enumerate_structures</span></code></a> function needs to
+be imported together with some additional functions from <a class="reference external" href="https://wiki.fysik.dtu.dk/ase">ASE</a>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span><span class="p">,</span> <span class="n">fcc111</span><span class="p">,</span> <span class="n">add_adsorbate</span>
+<span class="kn">from</span> <span class="nn">ase.db</span> <span class="kn">import</span> <span class="n">connect</span>
+<span class="kn">from</span> <span class="nn">icet.tools</span> <span class="kn">import</span> <span class="n">enumerate_structures</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-binary-au-pd-structures">
+<h2>Generate binary Au/Pd structures<a class="headerlink" href="#generate-binary-au-pd-structures" title="Permalink to this headline">¶</a></h2>
+<p>Before being able to perform the structural enumeration, it is first necessary
+to generate a primitive structure. In this case, an Au fcc <code class="xref py py-class docutils literal"><span class="pre">ASE</span> <span class="pre">Atoms</span></code>
+object is created using the <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/ase/build/build.html#ase.build.bulk" title="(in ASE v)"><code class="xref py py-func docutils literal"><span class="pre">ase.build.bulk()</span></code></a> function. Then a database
+<code class="docutils literal"><span class="pre">AuPd-fcc.db</span></code> is initialized, in which the enumerated structures will be
+stored. All possible binary Au/Pd structures with up to 6 atoms per unit cell
+are subsequently generated and stored in this database.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Au&#39;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;AuPd-fcc.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;Pd&#39;</span><span class="p">,</span> <span class="s1">&#39;Au&#39;</span><span class="p">]):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-binary-au-pd-structures-in-the-dilute-limit">
+<h2>Generate binary Au/Pd structures in the dilute limit<a class="headerlink" href="#generate-binary-au-pd-structures-in-the-dilute-limit" title="Permalink to this headline">¶</a></h2>
+<p>The number of distinct structures grows extremely quickly with the size of the
+supercell. It is thus not possible to enumerate too large cell sizes. When the
+number of structures grows, a larger and larger proportion of the structures
+will have equal amounts of the constituent elements (e.g., most structures
+will have concentrations close to 50 % in binary systems). Structures in the
+dilute limit may thus be underrepresented. To overcome this problem, it is
+possible to enumerate structures in a specified concentration regime by
+providing a dict in which the range of allowed concentrations is specified for
+one or more of the elements in the system. Concentration is here always
+defined as the number of atoms of the specified element divided by the total
+number of atoms in the structure, without respect to site restrictions. Please
+note that for very large systems, concentration restricted enumeration may
+still be prohibitively time or memory consuming even if the number of
+structures in the specified concentration regime is small.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">conc_rest</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Au&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)}</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;Pd&#39;</span><span class="p">,</span> <span class="s1">&#39;Au&#39;</span><span class="p">],</span>
+                                      <span class="n">concentration_restrictions</span><span class="o">=</span><span class="n">conc_rest</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-pdh-structures-with-vacancies">
+<h2>Generate PdH structures with vacancies<a class="headerlink" href="#generate-pdh-structures-with-vacancies" title="Permalink to this headline">¶</a></h2>
+<p>The steps above are now repeated to enumerate all palladium hydride structures
+based on up to four primitive cells, which contain up to 4 Pd atoms and between
+0 and 4 H atoms. Vacancies, represented by vanadium, are included, which
+results in a ternary system. The structures thus obtained are stored in a
+database named <code class="docutils literal"><span class="pre">PdHVac-fcc.db</span></code>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="mf">4.0</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Au&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+<span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atom</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">species</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;Pd&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">]]</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;PdHVac-fcc.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">species</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-surface-slabs-with-adsorbates">
+<h2>Generate surface slabs with adsorbates<a class="headerlink" href="#generate-surface-slabs-with-adsorbates" title="Permalink to this headline">¶</a></h2>
+<p>Lower dimensional systems can also be enumerated. Here, this is demonstrated
+with a copper surface with oxygen atoms adsorbed in hollow sites on a {111}
+surface. The key to trigger a two- or one-dimensional enumeration is to make
+sure that the periodic boundary conditions of the input structure reflect the
+desired behavior. For the surface system, this means that the the boundary
+conditions are <em>not</em> periodic in the direction of the normal to the surface.
+This is the default behavior with ASE:s surface building functions, but is in
+the below example enforced for clarity.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">atoms</span> <span class="o">=</span> <span class="n">fcc111</span><span class="p">(</span><span class="s1">&#39;Cu&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">vacuum</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">atoms</span><span class="o">.</span><span class="n">pbc</span> <span class="o">=</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">]</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">)</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;hcp&#39;</span><span class="p">)</span>
+<span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s1">&#39;Cu&#39;</span><span class="p">:</span>
+        <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;Cu&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">])</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;Cu-O-adsorbates.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">species</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<div class="toggle docutils container">
+<div class="header docutils container">
+The complete source code is available in
+<code class="docutils literal"><span class="pre">examples/enumerate_structures.py</span></code></div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This example demonstrates how to enumerate structures, i.e. how to</span>
+<span class="sd">generate all inequivalent structures derived from a primitive</span>
+<span class="sd">structure up to a certain size.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Import modules</span>
+<span class="kn">from</span> <span class="nn">ase</span> <span class="kn">import</span> <span class="n">Atom</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span><span class="p">,</span> <span class="n">fcc111</span><span class="p">,</span> <span class="n">add_adsorbate</span>
+<span class="kn">from</span> <span class="nn">ase.db</span> <span class="kn">import</span> <span class="n">connect</span>
+<span class="kn">from</span> <span class="nn">icet.tools</span> <span class="kn">import</span> <span class="n">enumerate_structures</span>
+
+<span class="c1"># Generate all binary fcc structures with up to 6 atoms/cell</span>
+<span class="c1"># and save them in a database</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Au&#39;</span><span class="p">)</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;AuPd-fcc.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;Pd&#39;</span><span class="p">,</span> <span class="s1">&#39;Au&#39;</span><span class="p">]):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+<span class="c1"># Generate fcc structures in the dilute limit</span>
+<span class="n">conc_rest</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Au&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">)}</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span> <span class="p">[</span><span class="s1">&#39;Pd&#39;</span><span class="p">,</span> <span class="s1">&#39;Au&#39;</span><span class="p">],</span>
+                                      <span class="n">concentration_restrictions</span><span class="o">=</span><span class="n">conc_rest</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+<span class="c1"># Enumerate all palladium hydride structures with up to 4 primitive</span>
+<span class="c1"># cells (= up to 4 Pd atoms and between 0 and 4 H atoms). We want to</span>
+<span class="c1"># specify that one site should always be Pd while the other can be</span>
+<span class="c1"># either a hydrogen or a vacancy (vanadium will serve as our &quot;vacancy&quot;)</span>
+<span class="n">a</span> <span class="o">=</span> <span class="mf">4.0</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Au&#39;</span><span class="p">,</span> <span class="n">a</span><span class="o">=</span><span class="n">a</span><span class="p">)</span>
+<span class="n">atoms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Atom</span><span class="p">(</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">a</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)))</span>
+<span class="n">species</span> <span class="o">=</span> <span class="p">[[</span><span class="s1">&#39;Pd&#39;</span><span class="p">],</span> <span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="s1">&#39;V&#39;</span><span class="p">]]</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;PdHVac-fcc.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">species</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+
+<span class="c1"># Enumerate a copper surface with oxygen adsorbates (or vacancies) in</span>
+<span class="c1"># fcc and hcp hollow sites.</span>
+<span class="n">atoms</span> <span class="o">=</span> <span class="n">fcc111</span><span class="p">(</span><span class="s1">&#39;Cu&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">vacuum</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+<span class="n">atoms</span><span class="o">.</span><span class="n">pbc</span> <span class="o">=</span> <span class="p">[</span><span class="bp">True</span><span class="p">,</span> <span class="bp">True</span><span class="p">,</span> <span class="bp">False</span><span class="p">]</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;fcc&#39;</span><span class="p">)</span>
+<span class="n">add_adsorbate</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">,</span> <span class="s1">&#39;hcp&#39;</span><span class="p">)</span>
+<span class="n">species</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">atom</span> <span class="ow">in</span> <span class="n">atoms</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">atom</span><span class="o">.</span><span class="n">symbol</span> <span class="o">==</span> <span class="s1">&#39;Cu&#39;</span><span class="p">:</span>
+        <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;Cu&#39;</span><span class="p">])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">species</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="s1">&#39;O&#39;</span><span class="p">,</span> <span class="s1">&#39;H&#39;</span><span class="p">])</span>
+<span class="n">db</span> <span class="o">=</span> <span class="n">connect</span><span class="p">(</span><span class="s1">&#39;Cu-O-adsorbates.db&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">structure</span> <span class="ow">in</span> <span class="n">enumerate_structures</span><span class="p">(</span><span class="n">atoms</span><span class="p">,</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="n">species</span><span class="p">):</span>
+    <span class="n">db</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">structure</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="get_cluster_count.html" class="btn btn-neutral float-right" title="Cluster counts" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Advanced topics" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

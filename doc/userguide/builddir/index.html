@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>icet — A Pythonic approach to cluster expansions &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Overview" href="overview.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="#" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="moduleref_icet/index.html"><strong class="program">icet</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="moduleref_mchammer/index.html"><strong class="program">mchammer</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="#">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=genindex.html>index</a>
+| <a href=py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <p>
+<a href="https://gitlab.com/materials-modeling/icet/commits/master"><img alt="pipeline status" src="https://gitlab.com/materials-modeling/icet/badges/master/pipeline.svg" /></a>
+<a href="https://icet.materialsmodeling.org/coverage"><img alt="coverage report" src="https://gitlab.com/materials-modeling/icet/badges/master/coverage.svg" /></a>
+</p><div class="section" id="icet-a-pythonic-approach-to-cluster-expansions">
+<h1><strong class="program">icet</strong> — A Pythonic approach to cluster expansions<a class="headerlink" href="#icet-a-pythonic-approach-to-cluster-expansions" title="Permalink to this headline">¶</a></h1>
+<p><strong class="program">icet</strong> is a Python environment for the construction and sampling of
+alloy cluster expansions. It features a Python interface that enables seamless
+integration with other Python libraries including for example
+<a class="reference external" href="https://www.scipy.org/">SciPy</a> or
+<a class="reference external" href="http://scikit-learn.org/">scikit-learn</a>.
+Yet, all computationally demanding parts are written in C++ providing
+performance while maintaining portability.</p>
+<p><strong class="program">icet</strong> requires Python3 and invokes functionality from
+several external libraries including the <a class="reference external" href="https://wiki.fysik.dtu.dk/ase">atomic simulation
+environment</a> and <a class="reference external" href="https://atztogo.github.io/spglib/">spglib</a>.</p>
+<p><strong class="program">icet</strong> and its development are hosted on <a class="reference external" href="https://gitlab.com/materials-modeling/icet">gitlab</a>. Bugs and feature
+requests are ideally submitted via the <a class="reference external" href="https://gitlab.com/materials-modeling/icet/issues">gitlab issue tracker</a>. The development
+team can also be reached by email via <a class="reference external" href="mailto:icet&#37;&#52;&#48;materialsmodeling&#46;org">icet<span>&#64;</span>materialsmodeling<span>&#46;</span>org</a>.</p>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Main</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="background.html">Background</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="background.html#index-1">Cluster expansions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="background.html#ce-construction">CE construction</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="workflow.html">Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="workflow.html#key-concepts">Key concepts</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#setup">Setup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#requirements">Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basic/index.html">Basic tutorial</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic/index.html#building-a-cluster-expansion">Building a cluster expansion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="basic/index.html#sampling-a-cluster-expansion">Sampling a cluster expansion</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/index.html">Advanced topics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced/enumerate_structures.html">Structure enumeration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/get_cluster_count.html">Cluster counts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/get_cluster_space_info.html">Cluster space information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/get_cluster_vector.html">Cluster vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/map_structure_to_reference.html">Mapping structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/get_neighbor_list.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/get_permutation_map.html">Permutation map</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced/test_cluster_vector_correlation.html">Cluster vector correlations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="moduleref_icet/index.html"><strong class="program">icet</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_icet/cluster_space.html">Cluster space</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_icet/structure_container.html">Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_icet/optimizers.html">Optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_icet/cluster_expansion.html">Cluster expansions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_icet/tools.html">Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="moduleref_mchammer/index.html"><strong class="program">mchammer</strong></a><ul>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_mchammer/calculators.html">Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_mchammer/ensembles.html">Ensembles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_mchammer/observers.html">Observers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_mchammer/data_container.html">Data container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="moduleref_mchammer/configuration_manager.html">Configuration manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="coreref/index.html">Core components</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="coreref/python_interface_via_pybind.html">Python interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coreref/additional_python_components.html">Additional Python components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="coreref/cpp_classes.html">C++ classes and functions</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="glossary.html#general">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glossary.html#optimization-and-machine-learning">Optimization and machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glossary.html#crystal-symmetry-and-clusters">Crystal symmetry and clusters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="glossary.html#cluster-expansions">Cluster expansions</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="genindex.html">Index</a></li>
+</ul>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="overview.html" class="btn btn-neutral float-right" title="Overview" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

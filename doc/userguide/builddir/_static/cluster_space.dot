@@ -1,0 +1,56 @@
+# dot -Tsvg cluster_space.dot -o cluster_space.svg
+
+digraph g {
+
+  graph [ fontname = "helvetica",
+          fontsize = 12.0,
+          rankdir = "TB",
+          bgcolor = "transparent" ];
+
+  edge [ fontname = "helvetica",
+         fontsize = 12.0,
+         penwidth = 1.5 ]
+
+  node [ fontname = "helvetica",
+         fontsize = 12.0,
+         fontcolor=white,
+         shape="ellipse",
+         color=cornflowerblue,
+         style=filled];
+
+  Prototype [ color=darkgoldenrod2,
+              label="prototype structure",
+              shape=box];
+  Cutoffs [ color=darkgoldenrod2,
+            label="cutoff radii for\neach order",
+            shape=box];
+
+  Symmetries [ href="https://atztogo.github.io/spglib/",
+               label="crystal symmetries\nfrom spglib"];
+  NeighborList [ href="../coreref/neighbor_list.html#icet.NeighborList",
+                 target="_top" ];
+  PermutationMap [ href="../coreref/permutation_map.html#icet.PermutationMap",
+                  target="_top" ];
+  ManyBodyNeighborList [ href="../coreref/many_body_neighbor_list.html#icet.ManyBodyNeighborList",
+                         target="_top" ];
+  OrbitList [ href="../coreref/orbit_list.html#icet.ManyBodyNeighborList",
+              target="_top" ];
+  ClusterSpace [ href="../coreref/cluster_space.html#icet.ClusterSpace",
+                 target="_top" ];
+
+  Prototype -> NeighborList;
+  Cutoffs -> NeighborList;
+
+  Prototype -> Symmetries;
+
+  Symmetries -> PermutationMap;
+  NeighborList -> PermutationMap [label="unique\npositions"];
+
+  NeighborList -> ManyBodyNeighborList;
+
+  PermutationMap -> OrbitList;
+  ManyBodyNeighborList -> OrbitList;
+
+  OrbitList -> ClusterSpace;
+  Cutoffs -> ClusterSpace;
+}

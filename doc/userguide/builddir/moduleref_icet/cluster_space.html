@@ -1,0 +1,531 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cluster space &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Structures" href="structure_container.html" />
+    <link rel="prev" title="icet" href="index.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html"><strong class="program">icet</strong></a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cluster space</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-icet.core.cluster_space">Supplementary functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="structure_container.html">Structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers.html">Optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cluster_expansion.html">Cluster expansions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_mchammer/index.html"><strong class="program">mchammer</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=../genindex.html>index</a>
+| <a href=../py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-icet">
+<span id="cluster-space"></span><span id="index-0"></span><h1>Cluster space<a class="headerlink" href="#module-icet" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="icet.ClusterSpace">
+<em class="property">class </em><code class="descclassname">icet.</code><code class="descname">ClusterSpace</code><span class="sig-paren">(</span><em>atoms</em>, <em>cutoffs</em>, <em>chemical_symbols</em>, <em>Mi=None</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class provides functionality for generating and maintaining cluster
+spaces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>atoms</strong> (<em>ASE Atoms object / icet Structure object</em><em> (</em><em>bi-optional</em><em>)</em>) – atomic configuration</li>
+<li><strong>cutoffs</strong> (<em>list of floats</em>) – cutoff radii per order that define the cluster space</li>
+<li><strong>chemical_symbols</strong> (<em>list of strings</em>) – list of chemical symbols, each of which must map to an element of
+the periodic table</li>
+<li><strong>Mi</strong> (<em>list / dictionary / int</em>) – <ul>
+<li>if a list is provided, it must contain as many elements as there
+are sites and each element represents the number of allowed
+components on the respective site</li>
+<li>if a dictionary is provided the key represent the site index and
+the value the number of allowed components</li>
+<li>if a single <cite>int</cite> is provided each site the number of allowed
+components will be set to <cite>Mi</cite> for sites in the structure</li>
+</ul>
+</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="icet.ClusterSpace.chemical_symbols">
+<code class="descname">chemical_symbols</code><a class="headerlink" href="#icet.ClusterSpace.chemical_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Chemical species considered</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="icet.ClusterSpace.cutoffs">
+<code class="descname">cutoffs</code><a class="headerlink" href="#icet.ClusterSpace.cutoffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cutoffs for the different n-body clusters. Each cutoff radii
+(in Angstroms) defines the largest inter-atomic distance in each
+cluster</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.List" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">List</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a>]</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_chemical_symbols">
+<code class="descname">get_chemical_symbols</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_chemical_symbols" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns list of species associated with cluster space as chemical symbols.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_cluster_space_info">
+<code class="descname">get_cluster_space_info</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_cluster_space_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_cluster_space_size">
+<code class="descname">get_cluster_space_size</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_cluster_space_size" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_cluster_vector">
+<code class="descname">get_cluster_vector</code><span class="sig-paren">(</span><em>atoms</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_cluster_vector" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the cluster vector for a structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atoms</strong> (<code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code>) – atomic configuration</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">the cluster vector</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_cutoffs">
+<code class="descname">get_cutoffs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_cutoffs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_multi_component_vector_permutations">
+<code class="descname">get_multi_component_vector_permutations</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_multi_component_vector_permutations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_number_of_allowed_species_by_site">
+<code class="descname">get_number_of_allowed_species_by_site</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_number_of_allowed_species_by_site" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_number_of_orbits_by_order">
+<code class="descname">get_number_of_orbits_by_order</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_number_of_orbits_by_order" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the number of orbits by order.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the key represents the order, the value represents the number of
+orbits</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dictionary (ordered)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.get_orbit">
+<code class="descname">get_orbit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.get_orbit" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="icet.ClusterSpace.orbit_data">
+<code class="descname">orbit_data</code><a class="headerlink" href="#icet.ClusterSpace.orbit_data" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list of dicts</em> – list of orbits ith information regarding
+order, radius, multiplicity etc</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="icet.ClusterSpace.orbit_list">
+<code class="descname">orbit_list</code><a class="headerlink" href="#icet.ClusterSpace.orbit_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>Orbit list that defines the cluster in the cluster space</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="icet.ClusterSpace.primitive_structure">
+<code class="descname">primitive_structure</code><a class="headerlink" href="#icet.ClusterSpace.primitive_structure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Primitive structure on which the cluster space is based</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.print_overview">
+<code class="descname">print_overview</code><span class="sig-paren">(</span><em>print_threshold=None</em>, <em>print_minimum=10</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.print_overview" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print an overview of the cluster space in terms of the orbits (order,
+radius, multiplicity etc).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>print_threshold</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/typing.html#typing.Optional" title="(in Python v3.6)"><code class="xref py py-data docutils literal"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>]) – if the number of orbits exceeds this number print dots</li>
+<li><strong>print_minimum</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">int</span></code></a>) – number of lines printed from the top and the bottom of the orbit
+list if <cite>print_threshold</cite> is exceeded</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="icet.ClusterSpace.read">
+<em class="property">static </em><code class="descname">read</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads cluster space from filename.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – name of file from which to read cluster space</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="icet.ClusterSpace.species_map">
+<code class="descname">species_map</code><a class="headerlink" href="#icet.ClusterSpace.species_map" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="icet.ClusterSpace.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>filename</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.ClusterSpace.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves cluster space to a file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>filename</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">str</span></code></a>) – name of file to which to write</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="module-icet.core.cluster_space">
+<span id="supplementary-functions"></span><h2>Supplementary functions<a class="headerlink" href="#module-icet.core.cluster_space" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="icet.core.cluster_space.get_singlet_info">
+<code class="descclassname">cluster_space.</code><code class="descname">get_singlet_info</code><span class="sig-paren">(</span><em>return_cluster_space=False</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.core.cluster_space.get_singlet_info" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieves information concerning the singlets in the input structure.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>atoms</strong> (<code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code>) – atomic configuration</li>
+<li><strong>return_cluster_space</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">bool</span></code></a>) – if True return the cluster space created during the process</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><em>list of dicts</em> – each dictionary in the list represents one orbit</li>
+<li><em>ClusterSpace object (optional)</em> – cluster space created during the process</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="icet.core.cluster_space.view_singlets">
+<code class="descclassname">cluster_space.</code><code class="descname">view_singlets</code><span class="sig-paren">(</span><em>to_primitive=False</em><span class="sig-paren">)</span><a class="headerlink" href="#icet.core.cluster_space.view_singlets" title="Permalink to this definition">¶</a></dt>
+<dd><p>Visualize singlets in a structure using the ASE graphical user interface.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>atoms</strong> (<code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code>) – atomic configuration</li>
+<li><strong>to_primitive</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#bool" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">bool</span></code></a>) – if True the input structure will be reduced to its primitive unit cell
+before processing</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="structure_container.html" class="btn btn-neutral float-right" title="Structures" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="icet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

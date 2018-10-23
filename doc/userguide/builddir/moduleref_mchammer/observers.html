@@ -1,0 +1,343 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Observers &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data container" href="data_container.html" />
+    <link rel="prev" title="Ensembles" href="ensembles.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/index.html">Advanced topics</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_icet/index.html"><strong class="program">icet</strong></a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html"><strong class="program">mchammer</strong></a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="calculators.html">Calculators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ensembles.html">Ensembles</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Observers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#clusterexpansionobserver">ClusterExpansionObserver</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="data_container.html">Data container</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configuration_manager.html">Configuration manager</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=../genindex.html>index</a>
+| <a href=../py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-mchammer.observers"><span id="index-0"></span></span><div class="section" id="observers">
+<h1>Observers<a class="headerlink" href="#observers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="clusterexpansionobserver">
+<span id="index-1"></span><h2>ClusterExpansionObserver<a class="headerlink" href="#clusterexpansionobserver" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="mchammer.observers.ClusterExpansionObserver">
+<em class="property">class </em><code class="descclassname">mchammer.observers.</code><code class="descname">ClusterExpansionObserver</code><span class="sig-paren">(</span><em>cluster_expansion</em>, <em>interval=None</em>, <em>tag='ClusterExpansionObserver'</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.observers.ClusterExpansionObserver" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class represents a cluster expansion (CE) observer.</p>
+<p>A CE observer allows to compute a property described by a CE along the
+trajectory sampled by a Monte Carlo (MC) simulation. In general this CE
+differs from the CE that is used to generate the trajectory. For example in
+a canonical MC simulation the latter would usually represent an energy
+(total or mixing energy) whereas the former CE(s) could map lattice
+constant or band gap.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>cluster_expansion</strong> (<a class="reference internal" href="../moduleref_icet/cluster_expansion.html#icet.ClusterExpansion" title="icet.ClusterExpansion"><code class="xref py py-class docutils literal"><span class="pre">icet.ClusterExpansion</span></code></a> cluster expansion model) – to be used for observation</li>
+<li><strong>tag</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/stdtypes.html#str" title="(in Python v3.6)"><em>str</em></a>) – human readable observer name (default: <cite>ClusterExpansionObserver</cite>)</li>
+<li><strong>interval</strong> (<a class="reference external" href="https://docs.python.org/3.6/library/functions.html#int" title="(in Python v3.6)"><em>int</em></a>) – observation interval during the Monte Carlo simulation</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="mchammer.observers.ClusterExpansionObserver.tag">
+<code class="descname">tag</code><a class="headerlink" href="#mchammer.observers.ClusterExpansionObserver.tag" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>str</em> – name of observer</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.observers.ClusterExpansionObserver.interval">
+<code class="descname">interval</code><a class="headerlink" href="#mchammer.observers.ClusterExpansionObserver.interval" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – observation interval</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="mchammer.observers.ClusterExpansionObserver.get_observable">
+<code class="descname">get_observable</code><span class="sig-paren">(</span><em>atoms</em><span class="sig-paren">)</span><a class="headerlink" href="#mchammer.observers.ClusterExpansionObserver.get_observable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the value of the property from a cluster expansion model
+for a given atomic configuration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>atoms</strong> (<code class="xref py py-class docutils literal"><span class="pre">Atoms</span></code>) – input atomic structure.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#float" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">float</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="mchammer.observers.ClusterExpansionObserver.return_type">
+<code class="descname">return_type</code><a class="headerlink" href="#mchammer.observers.ClusterExpansionObserver.return_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Data type of the observed data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference external" href="https://docs.python.org/3.6/library/functions.html#type" title="(in Python v3.6)"><code class="xref py py-class docutils literal"><span class="pre">type</span></code></a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="data_container.html" class="btn btn-neutral float-right" title="Data container" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="ensembles.html" class="btn btn-neutral" title="Ensembles" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>

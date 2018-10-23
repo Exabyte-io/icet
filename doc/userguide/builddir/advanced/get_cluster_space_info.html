@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cluster space information &mdash; icet  documentation</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/logo.ico"/>
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/table_styling.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cluster vectors" href="get_cluster_vector.html" />
+    <link rel="prev" title="Cluster counts" href="get_cluster_count.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@MagicMaterials" />
+    <meta name="twitter:image" content="https://icet.materialsmodeling.org/_static/logo-small.png" />
+    <meta property="og:title" content="icet" />
+    <meta property="og:description" content="A Pythonic approach to cluster expansions." />
+    <meta property="og:image" content="https://icet.materialsmodeling.org/_static/logo-2x1.png" />
+
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> icet
+          
+
+          
+            
+            <img src="../_static/logo.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Main</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../overview.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow.html">Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../basic/index.html">Basic tutorial</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Advanced topics</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="enumerate_structures.html">Structure enumeration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_cluster_count.html">Cluster counts</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cluster space information</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#import-modules">Import modules</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#generate-prototype-re-structure">Generate prototype Re structure</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#create-the-cluster-space">Create the cluster space</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#information-regarding-singlets">Information regarding singlets</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#source-code">Source code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="get_cluster_vector.html">Cluster vectors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="map_structure_to_reference.html">Mapping structures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="get_neighbor_list.html">Neighbor list</a></li>
+<li class="toctree-l2"><a class="reference internal" href="test_cluster_vector_correlation.html">Cluster vector correlations</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">Function reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_icet/index.html"><strong class="program">icet</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../moduleref_mchammer/index.html"><strong class="program">mchammer</strong></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../coreref/index.html">Core components</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Backmatter</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">icet</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          <div style="text-align: right;">
+<a href="https://gitlab.com/materials-modeling/icet" target="_blank">gitlab/icet</a>
+| <a href="https://materialsmodeling.org/software" target="_blank">materialsmodeling.org/software</a>
+| <a href=../genindex.html>index</a>
+| <a href=../py-modindex.html>modules</a>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cluster-space-information">
+<span id="index-0"></span><h1>Cluster space information<a class="headerlink" href="#cluster-space-information" title="Permalink to this headline">¶</a></h1>
+<p>The purpose of this example is to demonstrate how to obtain basic information
+about a cluster space.</p>
+<div class="section" id="import-modules">
+<h2>Import modules<a class="headerlink" href="#import-modules" title="Permalink to this headline">¶</a></h2>
+<p>First, one needs to import the <code class="xref py py-class docutils literal"><span class="pre">ClusterSpace</span></code> class, which is used to store
+information regarding a given cluster space. In addition, one needs the methods
+<a class="reference internal" href="../moduleref_icet/cluster_space.html#icet.core.cluster_space.get_singlet_info" title="icet.core.cluster_space.get_singlet_info"><code class="xref py py-func docutils literal"><span class="pre">get_singlet_info</span></code></a> and
+<a class="reference internal" href="../moduleref_icet/cluster_space.html#icet.core.cluster_space.view_singlets" title="icet.core.cluster_space.view_singlets"><code class="xref py py-func docutils literal"><span class="pre">view_singlets</span></code></a> for extracting
+specific details regarding the singlets. Moreover, the <a class="reference external" href="https://wiki.fysik.dtu.dk/ase">ASE</a> function <a class="reference external" href="https://wiki.fysik.dtu.dk/ase/ase/build/build.html#ase.build.bulk" title="(in ASE v)"><code class="xref py py-func docutils literal"><span class="pre">ase.build.bulk()</span></code></a> will be
+needed for constructing structures.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+<span class="kn">from</span> <span class="nn">icet</span> <span class="kn">import</span> <span class="n">ClusterSpace</span><span class="p">,</span> <span class="n">get_singlet_info</span><span class="p">,</span> <span class="n">view_singlets</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="generate-prototype-re-structure">
+<h2>Generate prototype Re structure<a class="headerlink" href="#generate-prototype-re-structure" title="Permalink to this headline">¶</a></h2>
+<p>The next step is to build a prototype structure, here a bulk unit cell of
+rhenium. It is furthermore decided that the cluster space will be created
+through substitution of the Re atoms with several other elements. Also, the
+cutoffs for pairs, triplets and quadruplets are set to 10 Å, 7 Å, and 5 Å,
+respectively.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">prototype</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Re&#39;</span><span class="p">)</span>
+<span class="n">subelements</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Re&#39;</span><span class="p">,</span> <span class="s1">&#39;Ti&#39;</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">,</span> <span class="s1">&#39;Mo&#39;</span><span class="p">]</span>
+<span class="n">cutoffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]</span>
+
+</pre></div>
+</div>
+</div>
+<div class="section" id="create-the-cluster-space">
+<h2>Create the cluster space<a class="headerlink" href="#create-the-cluster-space" title="Permalink to this headline">¶</a></h2>
+<p>The cluster space is created by initiating a <code class="xref py py-class docutils literal"><span class="pre">ClusterSpace</span></code> object and providing the prototype
+structure, cutoffs and list of elements defined previously as arguments. Next,
+the <code class="xref py py-meth docutils literal"><span class="pre">print()</span></code> method is used to print all relevant information regarding
+the cluster space in tabular format.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">cluster_space</span> <span class="o">=</span> <span class="n">ClusterSpace</span><span class="p">(</span><span class="n">prototype</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">subelements</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">cluster_space</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>The final call should produce the following (partial) output:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="o">-------------------------</span> <span class="n">Cluster</span> <span class="n">Space</span> <span class="o">-------------------------</span>
+ <span class="n">subelements</span><span class="p">:</span> <span class="n">Ti</span> <span class="n">Mo</span> <span class="n">W</span> <span class="n">Re</span>
+ <span class="n">cutoffs</span><span class="p">:</span> <span class="mf">10.0</span> <span class="mf">7.0</span> <span class="mf">5.0</span>
+ <span class="n">number</span> <span class="n">of</span> <span class="n">orbits</span><span class="p">:</span> <span class="mi">3768</span>
+<span class="o">-----------------------------------------------------------------</span>
+<span class="n">order</span> <span class="o">|</span>  <span class="n">radius</span>  <span class="o">|</span> <span class="n">multiplicity</span> <span class="o">|</span> <span class="n">index</span> <span class="o">|</span> <span class="n">orbit</span> <span class="o">|</span>    <span class="n">MC</span> <span class="n">vector</span>
+<span class="o">-----------------------------------------------------------------</span>
+  <span class="mi">1</span>   <span class="o">|</span>   <span class="mf">0.0000</span> <span class="o">|</span>        <span class="mi">2</span>     <span class="o">|</span>    <span class="mi">0</span>  <span class="o">|</span>    <span class="mi">0</span>  <span class="o">|</span>    <span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="mi">1</span>   <span class="o">|</span>   <span class="mf">0.0000</span> <span class="o">|</span>        <span class="mi">2</span>     <span class="o">|</span>    <span class="mi">1</span>  <span class="o">|</span>    <span class="mi">0</span>  <span class="o">|</span>    <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+  <span class="mi">1</span>   <span class="o">|</span>   <span class="mf">0.0000</span> <span class="o">|</span>        <span class="mi">2</span>     <span class="o">|</span>    <span class="mi">2</span>  <span class="o">|</span>    <span class="mi">0</span>  <span class="o">|</span>    <span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+  <span class="mi">2</span>   <span class="o">|</span>   <span class="mf">1.3699</span> <span class="o">|</span>        <span class="mi">6</span>     <span class="o">|</span>    <span class="mi">3</span>  <span class="o">|</span>    <span class="mi">1</span>  <span class="o">|</span>  <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="o">...</span>
+  <span class="mi">4</span>   <span class="o">|</span>   <span class="mf">2.7094</span> <span class="o">|</span>       <span class="mi">12</span>     <span class="o">|</span> <span class="mi">3767</span>  <span class="o">|</span>  <span class="mi">135</span>  <span class="o">|</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+<span class="o">-----------------------------------------------------------------</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="information-regarding-singlets">
+<h2>Information regarding singlets<a class="headerlink" href="#information-regarding-singlets" title="Permalink to this headline">¶</a></h2>
+<p>Additonal information regarding the singlets is extracted with help of the
+<a class="reference internal" href="../moduleref_icet/cluster_space.html#icet.core.cluster_space.get_singlet_info" title="icet.core.cluster_space.get_singlet_info"><code class="xref py py-func docutils literal"><span class="pre">get_singlet_info</span></code></a> function.
+Afterwards, the corresponding clusters are printed by calling
+<a class="reference internal" href="../moduleref_icet/cluster_space.html#icet.core.cluster_space.view_singlets" title="icet.core.cluster_space.view_singlets"><code class="xref py py-func docutils literal"><span class="pre">view_singlets</span></code></a>. One should note
+that both functions take the prototype <code class="xref py py-class docutils literal"><span class="pre">ASE</span> <span class="pre">Atoms</span></code> object created
+earlier as input argument.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Singlets:&#39;</span><span class="p">)</span>
+<span class="n">cluster_data</span> <span class="o">=</span> <span class="n">get_singlet_info</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">singlet</span> <span class="ow">in</span> <span class="n">cluster_data</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">singlet</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39; {:22} : {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">singlet</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+<span class="n">view_singlets</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These lines ought to yield the following result:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">Singlets</span><span class="p">:</span>
+ <span class="n">orbit_index</span>            <span class="p">:</span> <span class="mi">0</span>
+ <span class="n">sites</span>                  <span class="p">:</span> <span class="p">[[</span><span class="mi">0</span> <span class="p">:</span> <span class="p">[</span> <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span><span class="p">]],</span> <span class="p">[</span><span class="mi">1</span> <span class="p">:</span> <span class="p">[</span> <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span><span class="p">]]]</span>
+ <span class="n">multiplicity</span>           <span class="p">:</span> <span class="mi">2</span>
+ <span class="n">representative_site</span>    <span class="p">:</span> <span class="p">[</span><span class="mi">0</span> <span class="p">:</span> <span class="p">[</span> <span class="mf">0.</span>  <span class="mf">0.</span>  <span class="mf">0.</span><span class="p">]]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="source-code">
+<h2>Source code<a class="headerlink" href="#source-code" title="Permalink to this headline">¶</a></h2>
+<div class="toggle docutils container">
+<div class="header docutils container">
+The complete source code is available in
+<code class="docutils literal"><span class="pre">examples/get_cluster_space_info.py</span></code></div>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">This example demonstrates how to obtain basic information about a cluster</span>
+<span class="sd">space.</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># Import modules</span>
+<span class="kn">from</span> <span class="nn">ase.build</span> <span class="kn">import</span> <span class="n">bulk</span>
+<span class="kn">from</span> <span class="nn">icet</span> <span class="kn">import</span> <span class="n">ClusterSpace</span><span class="p">,</span> <span class="n">get_singlet_info</span><span class="p">,</span> <span class="n">view_singlets</span>
+
+<span class="c1"># Create a prototype structure, decide which additional elements to populate</span>
+<span class="c1"># it with (Re, Ti, W and Mo) and set the cutoffs for pairs (10.0 A),</span>
+<span class="c1"># triplets (7.0 A) and quadruplets (5.0 A).</span>
+<span class="n">prototype</span> <span class="o">=</span> <span class="n">bulk</span><span class="p">(</span><span class="s1">&#39;Re&#39;</span><span class="p">)</span>
+<span class="n">subelements</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Re&#39;</span><span class="p">,</span> <span class="s1">&#39;Ti&#39;</span><span class="p">,</span> <span class="s1">&#39;W&#39;</span><span class="p">,</span> <span class="s1">&#39;Mo&#39;</span><span class="p">]</span>
+<span class="n">cutoffs</span> <span class="o">=</span> <span class="p">[</span><span class="mf">10.0</span><span class="p">,</span> <span class="mf">7.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">]</span>
+
+<span class="c1"># Generate and print the cluster space.</span>
+<span class="n">cluster_space</span> <span class="o">=</span> <span class="n">ClusterSpace</span><span class="p">(</span><span class="n">prototype</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">subelements</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">cluster_space</span><span class="p">)</span>
+
+<span class="c1"># Extract and print additional information regarding the singlets.</span>
+<span class="k">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">Singlets:&#39;</span><span class="p">)</span>
+<span class="n">cluster_data</span> <span class="o">=</span> <span class="n">get_singlet_info</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">singlet</span> <span class="ow">in</span> <span class="n">cluster_data</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">singlet</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39; {:22} : {}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">singlet</span><span class="p">[</span><span class="n">key</span><span class="p">]))</span>
+<span class="n">view_singlets</span><span class="p">(</span><span class="n">prototype</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="get_cluster_vector.html" class="btn btn-neutral float-right" title="Cluster vectors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="get_cluster_count.html" class="btn btn-neutral" title="Cluster counts" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+    <div class="rst-versions" data-toggle="rst-versions" role="note" aria-label="versions">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      <span class="fa fa-book">Related software</span>
+      <span class="fa fa-caret-down"></span>
+    </span>
+    <div class="rst-other-versions">
+      <dl>
+        
+          <dd><a href="https://atomicrex.org/">atomicrex<br>
+            <div style="text-indent:1em; font-size:small; color:gray">interatomic potential construction</div>
+          </a></dd>
+        
+          <dd><a href="https://dynasor.materialsmodeling.org/">dynasor<br>
+            <div style="text-indent:1em; font-size:small; color:gray">dynamical structure factors from MD</div>
+          </a></dd>
+        
+          <dd><a href="https://hiphive.materialsmodeling.org/">hiphive<br>
+            <div style="text-indent:1em; font-size:small; color:gray">anharmonic force constant potentials</div>
+          </a></dd>
+        
+          <dd><a href="https://icet.materialsmodeling.org/">icet<br>
+            <div style="text-indent:1em; font-size:small; color:gray">cluster expansions</div>
+          </a></dd>
+        
+          <dd><a href="https://libvdwxc.org/">libvdwxc<br>
+            <div style="text-indent:1em; font-size:small; color:gray">library for van-der-Waals functionals</div>
+          </a></dd>
+        
+          <dd><a href="https://storq.materialsmodeling.org/">storq<br>
+            <div style="text-indent:1em; font-size:small; color:gray">high-throughput submission system</div>
+          </a></dd>
+        
+          <dd><a href="https://vcsgc-lammps.materialsmodeling.org/">vcsgc-lammps<br>
+            <div style="text-indent:1em; font-size:small; color:gray">Monte Carlo simulations with lammps</div>
+          </a></dd>
+        
+      </dl>
+    </div>
+  </div>
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+ <script type="text/javascript">
+    $(document).ready(function() {
+        $(".toggle > *").hide();
+        $(".toggle .header").show();
+        $(".toggle .header").click(function() {
+            $(this).parent().children().not(".header").toggle(400);
+            $(this).parent().children(".header").toggleClass("open");
+        })
+    });
+</script>
+
+
+</body>
+</html>
