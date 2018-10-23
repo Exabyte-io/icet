@@ -41,8 +41,8 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
 
     .. math::
         
-        P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i ) ]
-        \},
+        P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i ) /
+        k_B T ] \},
 
     where :math:`\\Delta E` is the change in potential energy caused by the
     swap.
@@ -64,13 +64,13 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     integrating :math:`\\Delta \\mu` over that concentration range. In
     practice this requires that the average recorded concentration
     :math:`\\langle c \\rangle` varies continuously with :math:`\\Delta \\mu`.
-    This is not the case for materials with multiphase regions, because in
-    such regions :math:`\\Delta \\mu` maps to multiple concentrations. In a
-    Monte Carlo simulation, this is typically manifested by discontinuous
-    jumps in concentration. Such jumps mark the phase boundaries of a
-    multiphase region and can thus be used to construct the phase diagram. To
-    recover the free energy, however, such systems require sampling in another
-    ensemble, such as the
+    This is not the case for materials with multiphase regions (such as
+    miscibility gaps), because in such regions :math:`\\Delta \\mu` maps to
+    multiple concentrations. In a Monte Carlo simulation, this is typically
+    manifested by discontinuous jumps in concentration. Such jumps mark the
+    phase boundaries of a multiphase region and can thus be used to construct
+    the phase diagram. To recover the free energy, however, such systems
+    require sampling in another ensemble, such as the
     :class:`VCSGCEnsemble<mchammer.ensembles.VCSGCEnsemble>`.
 
 
