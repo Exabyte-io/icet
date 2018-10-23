@@ -57,11 +57,11 @@ class VCSGCEnsemble(BaseEnsemble):
     Note that for a sufficiently large value of :math:`\kappa`, the
     probability density :math:`\\rho_{\\text{VCSGC}}` is sharply peaked around
     :math:`c_1=-\phi_1 / 2`. In practice, this means that we can gradually
-    change :math:`\phi_1` from (using some margins) :math:`-2.1` to :math:`0.1` and
-    take the system continuously from :math:`c_1 = 0` to :math:`1`. The
-    parameter :math:`\kappa` constrains the fluctuations (or the variance), of
-    the concentration at each value of :math:`\phi_1`, with higher values of
-    :math:`\kappa` meaning less fluctuations. Unlike the
+    change :math:`\phi_1` from (using some margins) :math:`-2.1` to
+    :math:`0.1` and take the system continuously from :math:`c_1 = 0` to
+    :math:`1`. The parameter :math:`\kappa` constrains the fluctuations (or
+    the variance), of the concentration at each value of :math:`\phi_1`, with
+    higher values of :math:`\kappa` meaning less fluctuations. Unlike the
     :class:`SemiGrandCanonicalEnsemble
     <mchammer.ensembles.SemiGrandCanonicalEnsemble>`, one value of
     :math:`\phi_1` maps to one and only one concentration also in multiphase

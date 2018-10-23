@@ -40,7 +40,7 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     randomly picking an atom and changing its identity with probability
 
     .. math::
-        
+
         P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i ) /
         k_B T ] \},
 
