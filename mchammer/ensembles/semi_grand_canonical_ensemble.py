@@ -32,18 +32,29 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         \\rho_{\\text{SGC}} = \exp\\Big[ - \\big( E
         + \sum_{i>1}^m \Delta\mu_i N_i \\big) / k_B T \\Big]
 
-    with the *relative* chemical potentials :math:`\Delta\mu_i =
-    \mu_i - \mu_1` and species counts :math:`N_i`. There exists a simple
-    relation between the differences in chemical potential and the
-    the canonical free energy :math:`F`. With two elements only, this
-    relationship can be written
+    with the *relative* chemical potentials :math:`\Delta\mu_i = \mu_i -
+    \mu_1` and species counts :math:`N_i`. Unlike the
+    :class:`CanonicalEnsemble<mchammer.ensembles.CanonicalEnsemble>`, the
+    number of the respecive species (or, equivalently, the concentrations) are
+    allowed to vary in the SGC ensemble. A trial step thus consists of
+    randomly picking an atom and changing its identity with a probability
+
+    .. math::
+        P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i ) ] \},
+
+    where :math:`\\Delta E` is the change in potential energy caused by the
+    swap.
+
+    There exists a simple relation between the differences in chemical
+    potential and the the canonical free energy :math:`F`. In a binary system,
+    this relationship reads
 
     .. math::
         \\Delta \mu = - \\frac{1}{N}
         \\frac{\\partial F}{\\partial c}
         ( N, V, T, \\langle c \\rangle).
 
-    Here :math:`c=N_i/N` and :math:`\\langle c \\rangle` denotes the average
+    Here :math:`c=N_i/N`, and :math:`\\langle c \\rangle` denotes the average
     concentration observed in the simulation. By recording :math:`\\langle c
     \\rangle` while gradually changing :math:`\\Delta \\mu`, one can thus in
     principle calculate the difference in canonical free energy between the
