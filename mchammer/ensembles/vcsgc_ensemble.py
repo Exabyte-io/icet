@@ -95,7 +95,7 @@ class VCSGCEnsemble(BaseEnsemble):
         and the temperature units [default: eV/K]
     kappa : float
         parameter that constrains the fluctuations of the concentration
-        (referred to as :math:`\bar{\kappa}` in [SadErh12]_)
+        (referred to as :math:`\\bar{\kappa}` in [SadErh12]_)
     """
 
     def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
@@ -179,7 +179,7 @@ class VCSGCEnsemble(BaseEnsemble):
         """
         phis :math:`\\phi_i`, one for each
         element but their sum must be :math:`-2.0`
-        (referred to as :math:`\bar{\phi}` in [SadErh12]_)
+        (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
         """
         return self._phis
 
