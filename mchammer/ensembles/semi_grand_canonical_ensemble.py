@@ -33,7 +33,32 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         + \sum_{i>1}^m \Delta\mu_i N_i \\big) / k_B T \\Big]
 
     with the *relative* chemical potentials :math:`\Delta\mu_i =
-    \mu_i - \mu_1` and species counts :math:`N_i`.
+    \mu_i - \mu_1` and species counts :math:`N_i`. There exists a simple
+    relation between the differences in chemical potential and the
+    the canonical free energy :math:`F`. With two elements only, this
+    relationship can be written
+
+    .. math::
+        \\Delta \mu = - \\frac{1}{N}
+        \\frac{\\partial F}{\\partial c}
+        ( N, V, T, \\langle c \\rangle).
+
+    Here :math:`c=N_i/N` and :math:`\\langle c \\rangle` denotes the average
+    concentration observed in the simulation. By recording :math:`\\langle c
+    \\rangle` while gradually changing :math:`\\Delta \\mu`, one can thus in
+    principle calculate the difference in canonical free energy between the
+    pure phases (:math:`c=0` or :math:`1`) and any concentration by
+    integrating :math:`\\Delta \\mu` over that concentration range. In
+    practice this requires that the average recorded concentration
+    :math:`\\langle c \\rangle` varies continuously with :math:`\\Delta \\mu`.
+    This is not the case for materials with multiphase regions, because in
+    such regions :math:`\\Delta \\mu` maps to multiple concentrations. In a
+    Monte Carlo simulation, this is typically manifested by discontinuous
+    jumps in concentration. Such jumps mark the phase boundaries of a
+    multiphase region and can thus be used to construct the phase diagram. To
+    recover the free energy, however, such systems require sampling in another
+    ensemble, such as the
+    :class:`VCSGCEnsemble<mchammer.ensembles.VCSGCEnsemble>`.
 
     Attributes
     -----------
