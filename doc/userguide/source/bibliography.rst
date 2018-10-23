@@ -41,6 +41,12 @@ Bibliography
    | Phys. Rev. B **88**, 155105 (2013)
    | `doi: 10.1103/PhysRevB.88.155105 <http://dx.doi.org/10.1103/PhysRevB.88.155105>`_
 
+.. [SadErh12]
+   | B. Sadigh, and P. Erhart
+   | *Calculation of excess free energies of precipitates via direct thermodynamic integration across phase boundaries*
+   | Phys. Rev. B **86**, 134204 (2012)
+   | `doi: 10.1103/PhysRevB.86.134204 <http://dx.doi.org/10.1103/PhysRevB.86.134204>`_
+   
 .. [SanDucGra84]
    | J. M. Sanchez, F. Ducastelle, and D. Gratias
    | *Generalized cluster description of multicomponent systems*

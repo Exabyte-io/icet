@@ -34,3 +34,11 @@ SemiGrandCanonicalEnsemble
    :members:
    :undoc-members:
    :inherited-members:
+
+VCSGCEnsemble
+--------------------------
+
+.. autoclass:: VCSGCEnsemble
+   :members:
+   :undoc-members:
+   :inherited-members:
