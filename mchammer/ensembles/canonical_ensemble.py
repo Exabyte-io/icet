@@ -16,8 +16,25 @@ class CanonicalEnsemble(BaseEnsemble):
 
     Instances of this class allow one to simulate systems in the
     canonical ensemble (:math:`N_iVT`), i.e. at constant temperature
-    (:math:`T`), number of species (:math:`N_i`), and volume
+    (:math:`T`), number of atoms of each species (:math:`N_i`), and volume
     (:math:`V`).
+
+    The probability density of the canonical ensemble is the well-known Boltzmann factor,
+
+    .. math::
+
+        \\rho_{\\text{C}} = \exp [ - E / k_B T ].
+
+    Since the concentrations or, equivalently, the number of atoms of each
+    species, is held fixed in the canonical ensemble, a trial step must
+    conserve the concentrations. This is accomplished by randomly picking two
+    unlike atoms and swapping their identities. The swap is accepted with the
+    probability
+
+    .. math::
+
+        P = \min \{ 1, \, \exp [ - ( \\Delta E + \\Delta \\mu \\Delta N_i
+        ) / k_B T ] \},
 
     Attributes
     -----------
