@@ -48,7 +48,7 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     swap.
 
     There exists a simple relation between the differences in chemical
-    potential and the the canonical free energy :math:`F`. In a binary system,
+    potential and the canonical free energy :math:`F`. In a binary system,
     this relationship reads
 
     .. math::
