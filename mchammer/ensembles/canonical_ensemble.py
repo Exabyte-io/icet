@@ -12,7 +12,7 @@ from ..calculators.base_calculator import BaseCalculator
 
 
 class CanonicalEnsemble(BaseEnsemble):
-    """Canonical Ensemble.
+    """Canonical ensemble.
 
     Instances of this class allow one to simulate systems in the
     canonical ensemble (:math:`N_iVT`), i.e. at constant temperature
@@ -26,8 +26,8 @@ class CanonicalEnsemble(BaseEnsemble):
 
         \\rho_{\\text{C}} = \exp [ - E / k_B T ].
 
-    Since the concentrations or, equivalently, the number of atoms of each
-    species, is held fixed in the canonical ensemble, a trial step must
+    Since the concentrations or equivalently the number of atoms of each
+    species is held fixed in the canonical ensemble, a trial step must
     conserve the concentrations. This is accomplished by randomly picking two
     unlike atoms and swapping their identities. The swap is accepted with
     probability
@@ -40,16 +40,17 @@ class CanonicalEnsemble(BaseEnsemble):
     swap.
 
     The canonical ensemble provides an ideal framework for studying the
-    properties of a system at a specific concentrations. Properties such as
-    potential energy and chemical ordering at a specific temperature can
-    conveniently be studied by simulating at that temperature. The canonical
-    ensemble is also a convenient tool for "optimizing" a system, i.e.,
-    finding its lowest energy chemical ordering. In practice, this is usually
-    achieved by simulated annealing, i.e. the system is equilibrated at a high
-    temperature, after which the temperature is continuously lowered until the
-    acceptance probability is almost zero. In a well-behaved system, the
-    chemical ordering at that point corresponds to a low-energy structure,
-    possibly the global minimum at that particular concentration.
+    properties of a system at a specific concentration. Properties such as
+    potential energy or phenomena such as chemical ordering at a specific
+    temperature can conveniently be studied by simulating at that temperature.
+    The canonical ensemble is also a convenient tool for "optimizing" a
+    system, i.e., finding its lowest energy chemical ordering. In practice,
+    this is usually achieved by simulated annealing, i.e. the system is
+    equilibrated at a high temperature, after which the temperature is
+    continuously lowered until the acceptance probability is almost zero. In a
+    well-behaved system, the chemical ordering at that point corresponds to a
+    low-energy structure, possibly the global minimum at that particular
+    concentration.
 
 
     Attributes

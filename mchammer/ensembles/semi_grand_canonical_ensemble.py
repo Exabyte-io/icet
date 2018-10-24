@@ -56,22 +56,22 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         \\frac{\\partial F}{\\partial c}
         ( N, V, T, \\langle c \\rangle).
 
-    Here :math:`c=N_i/N`, and :math:`\\langle c \\rangle` denotes the average
-    concentration observed in the simulation. By recording :math:`\\langle c
-    \\rangle` while gradually changing :math:`\\Delta \\mu`, one can thus in
-    principle calculate the difference in canonical free energy between the
-    pure phases (:math:`c=0` or :math:`1`) and any concentration by
-    integrating :math:`\\Delta \\mu` over that concentration range. In
-    practice this requires that the average recorded concentration
-    :math:`\\langle c \\rangle` varies continuously with :math:`\\Delta \\mu`.
-    This is not the case for materials with multiphase regions (such as
-    miscibility gaps), because in such regions :math:`\\Delta \\mu` maps to
-    multiple concentrations. In a Monte Carlo simulation, this is typically
-    manifested by discontinuous jumps in concentration. Such jumps mark the
-    phase boundaries of a multiphase region and can thus be used to construct
-    the phase diagram. To recover the free energy, however, such systems
-    require sampling in another ensemble, such as the
-    :class:`VCSGCEnsemble<mchammer.ensembles.VCSGCEnsemble>`.
+    Here :math:`c` denotes concentration (:math:`c=N_i/N`) and :math:`\\langle
+    c \\rangle` the average concentration observed in the simulation. By
+    recording :math:`\\langle c \\rangle` while gradually changing
+    :math:`\\Delta \\mu`, one can thus in principle calculate the difference
+    in canonical free energy between the pure phases (:math:`c=0` or
+    :math:`1`) and any concentration by integrating :math:`\\Delta \\mu` over
+    that concentration range. In practice this requires that the average
+    recorded concentration :math:`\\langle c \\rangle` varies continuously
+    with :math:`\\Delta \\mu`. This is not the case for materials with
+    multiphase regions (such as miscibility gaps), because in such regions
+    :math:`\\Delta \\mu` maps to multiple concentrations. In a Monte Carlo
+    simulation, this is typically manifested by discontinuous jumps in
+    concentration. Such jumps mark the phase boundaries of a multiphase region
+    and can thus be used to construct the phase diagram. To recover the free
+    energy, however, such systems require sampling in other ensembles, such as
+    the :class:`VCSGCEnsemble<mchammer.ensembles.VCSGCEnsemble>`.
 
 
     Attributes
