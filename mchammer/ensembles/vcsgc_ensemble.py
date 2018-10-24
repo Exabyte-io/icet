@@ -24,12 +24,12 @@ class VCSGCEnsemble(BaseEnsemble):
     average and variance of the concentration, respectively. The VCSGC
     ensemble is currently only implemented for binary systems.
 
-    The probability density of the VCSGC ensemble for a :math:`2`-component
-    system can be written
+    The probability for a particular state in the VCSGC ensemble for a
+    :math:`2`-component system can be written
 
     .. math::
 
-        \\rho_{\\text{VCSGC}} = \exp\\Big[ - \\big( E
+        \\rho_{\\text{VCSGC}} \\propto \exp\\Big[ - \\big( E
         + \\frac{1}{2} \\kappa N ( c_1 + \phi_1 / 2 )^2
         \\big) / k_B T \\Big],
 
@@ -43,7 +43,7 @@ class VCSGCEnsemble(BaseEnsemble):
     i.e., it does not matter if we use :math:`\phi_1` and :math:`c_1` or
     :math:`\phi_2` and :math:`c_2`.
 
-    Just like the :class:`SemiGrandCanonicalEnsemble
+    Just like the :class:`semi-grand canonical ensemble
     <mchammer.ensembles.SemiGrandCanonicalEnsemble>`, the VCSGC ensemble
     allows concentrations to change. A trial step consists of changing the
     identity of a randomly chosen atom and accepting the change with
@@ -62,7 +62,7 @@ class VCSGCEnsemble(BaseEnsemble):
     :math:`1`. The parameter :math:`\kappa` constrains the fluctuations (or
     the variance) of the concentration at each value of :math:`\phi_1`, with
     higher values of :math:`\kappa` meaning less fluctuations. Unlike the
-    :class:`SemiGrandCanonicalEnsemble
+    :class:`semi-grand canonical ensemble
     <mchammer.ensembles.SemiGrandCanonicalEnsemble>`, one value of
     :math:`\phi_1` maps to one and only one concentration also in multiphase
     regions. Since the derivative of the canonical free energy can be
@@ -76,9 +76,9 @@ class VCSGCEnsemble(BaseEnsemble):
     this ensemble allows for thermodynamic integration across multiphase
     regions. This means that we can construct phase diagrams by directly
     comparing the free energies of the different phases. This often makes the
-    VCSGC ensemble more convenient than the :class:`SemiGrandCanonicalEnsemble
-    <mchammer.ensembles.SemiGrandCanonicalEnsemble>` when simulating materials
-    with multiphase regions, such as alloys with miscibility gaps.
+    VCSGC ensemble more convenient than the :class:`semi-grand canonical
+    ensemble <mchammer.ensembles.SemiGrandCanonicalEnsemble>` when simulating
+    materials with multiphase regions, such as alloys with miscibility gaps.
 
     When using the VCSGC ensemble, please cite
     Sadigh, B. and Erhart, P., Phys. Rev. B **86**, 134204 (2012)

@@ -19,12 +19,12 @@ class CanonicalEnsemble(BaseEnsemble):
     (:math:`T`), number of atoms of each species (:math:`N_i`), and volume
     (:math:`V`).
 
-    The probability density of the canonical ensemble is the well-known
-    Boltzmann factor,
+    The probability for a partiocular state in the canonical ensemble is
+    proportional to the well-known Boltzmann factor,
 
     .. math::
 
-        \\rho_{\\text{C}} = \exp [ - E / k_B T ].
+        \\rho_{\\text{C}} \\propto \exp [ - E / k_B T ].
 
     Since the concentrations or equivalently the number of atoms of each
     species is held fixed in the canonical ensemble, a trial step must

@@ -24,17 +24,17 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     relative chemical potentials (:math:`\Delta\mu_i=\mu_i - \mu_1`,
     where :math:`i` denotes the species), and volume (:math:`V`).
 
-    The probability density of the SGC ensemble for a
-    :math:`m`-component system is
+    The probability for a particular state in the SGC ensemble for a
+    :math:`m`-component system can be written
 
     .. math::
 
-        \\rho_{\\text{SGC}} = \exp\\Big[ - \\big( E
+        \\rho_{\\text{SGC}} \\propto \exp\\Big[ - \\big( E
         + \sum_{i>1}^m \Delta\mu_i N_i \\big) / k_B T \\Big]
 
     with the *relative* chemical potentials :math:`\Delta\mu_i = \mu_i -
     \mu_1` and species counts :math:`N_i`. Unlike the
-    :class:`CanonicalEnsemble<mchammer.ensembles.CanonicalEnsemble>`, the
+    :class:`canonical ensemble<mchammer.ensembles.CanonicalEnsemble>`, the
     number of the respecive species (or, equivalently, the concentrations) are
     allowed to vary in the SGC ensemble. A trial step thus consists of
     randomly picking an atom and changing its identity with probability
@@ -71,7 +71,8 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     concentration. Such jumps mark the phase boundaries of a multiphase region
     and can thus be used to construct the phase diagram. To recover the free
     energy, however, such systems require sampling in other ensembles, such as
-    the :class:`VCSGCEnsemble<mchammer.ensembles.VCSGCEnsemble>`.
+    the :class:`variance-constrained semi-grand canonical
+    ensemble<mchammer.ensembles.VCSGCEnsemble>`.
 
 
     Attributes
