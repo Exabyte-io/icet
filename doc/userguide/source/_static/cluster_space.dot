@@ -29,7 +29,7 @@ digraph g {
                label="crystal symmetries\nfrom spglib"];
   NeighborList [ href="../coreref/neighbor_list.html#icet.NeighborList",
                  target="_top" ];
-  PermutationMap [ href="../coreref/permutation_map.html#icet.PermutationMap",
+  PermutationMatrix [ href="../coreref/permutation_matrix.html#icet.PermutationMatrix",
                   target="_top" ];
   ManyBodyNeighborList [ href="../coreref/many_body_neighbor_list.html#icet.ManyBodyNeighborList",
                          target="_top" ];
@@ -43,12 +43,12 @@ digraph g {
 
   Prototype -> Symmetries;
 
-  Symmetries -> PermutationMap;
-  NeighborList -> PermutationMap [label="unique\npositions"];
+  Symmetries -> PermutationMatrix;
+  NeighborList -> PermutationMatrix [label="unique\npositions"];
 
   NeighborList -> ManyBodyNeighborList;
 
-  PermutationMap -> OrbitList;
+  PermutationMatrix -> OrbitList;
   ManyBodyNeighborList -> OrbitList;
 
   OrbitList -> ClusterSpace;

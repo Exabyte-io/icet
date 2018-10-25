@@ -2,7 +2,7 @@
 #include "NeighborList.hpp"
 #include "ManyBodyNeighborList.hpp"
 #include "Cluster.hpp"
-#include "PermutationMap.hpp"
+#include "PermutationMatrix.hpp"
 #include "LatticeSite.hpp"
 #include "ClusterCounts.hpp"
 #include "LocalOrbitListGenerator.hpp"
@@ -490,13 +490,13 @@ PYBIND11_MODULE(_icet, m)
         .def(py::self == py::self);
     ;
 
-    // @todo document PermutationMap in pybindings
-    py::class_<PermutationMap>(m, "PermutationMatrix")
+    // @todo document PermutationMatrix in pybindings
+    py::class_<::PermutationMatrix>(m, "PermutationMatrix")
         .def(py::init<const std::vector<Vector3d> &,
                       const std::vector<Matrix3d> &>())
-        .def("build", &PermutationMap::build)
-        .def("get_permuted_positions", &PermutationMap::getPermutedPositions)
-        .def("get_indexed_positions", &PermutationMap::getIndexedPermutedPositions)
+        .def("build", &::PermutationMatrix::build)
+        .def("get_permuted_positions", &::PermutationMatrix::getPermutedPositions)
+        .def("get_indexed_positions", &::PermutationMatrix::getIndexedPermutedPositions)
 
         ;
 

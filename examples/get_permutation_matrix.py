@@ -1,5 +1,5 @@
 '''
-This example generate a permutation map for a structure
+This example generate a permutation matrix for a structure
 '''
 
 # Import modules
@@ -10,14 +10,14 @@ from icet.core.permutation_matrix import permutation_matrix_from_atoms
 # Create a prototype Al structure
 atoms = bulk('Al', 'fcc', a=2.0)
 
-# Generate a permutation map (matrix) for all neighbors inside the cutoff
+# Generate a permutation matrix for all neighbors inside the cutoff
 neighbor_cutoff = 2.0
-permutation_map, prim_structure, neighbor_list = \
+permutation_matrix, prim_structure, neighbor_list = \
     permutation_matrix_from_atoms(atoms, neighbor_cutoff)
 
 # Extract the permuted, indexed and unique positions.
-perm_pos = permutation_map.get_permuted_positions()
-ind_pos, unique_pos = permutation_map.get_indexed_positions()
+perm_pos = permutation_matrix.get_permuted_positions()
+ind_pos, unique_pos = permutation_matrix.get_indexed_positions()
 
 # Print the permuted, indexed and unique positions.
 print('Permutated fractional coordinates')

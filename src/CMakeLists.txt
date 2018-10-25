@@ -13,7 +13,7 @@ SET(SourceFiles
   NeighborList.cpp
   ManyBodyNeighborList.cpp
   Cluster.cpp
-  PermutationMap.cpp
+  PermutationMatrix.cpp
   ClusterCounts.cpp
   Orbit.cpp
   OrbitList.cpp

@@ -1,4 +1,4 @@
-#include "PermutationMap.hpp"
+#include "PermutationMatrix.hpp"
 
 /**
 Will create all the permuted positions from
@@ -13,7 +13,7 @@ these positions and the current rotational/translational symmetries.
 
 */
 
-void PermutationMap::build(const Eigen::Matrix<double, Dynamic, 3, RowMajor> &fractionalPositions)
+void PermutationMatrix::build(const Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> &fractionalPositions)
 {
     _permutedPositions.clear();
     _permutedPositions.resize(fractionalPositions.rows());
@@ -21,7 +21,7 @@ void PermutationMap::build(const Eigen::Matrix<double, Dynamic, 3, RowMajor> &fr
     {
         for (size_t i = 0; i < _translations.size(); i++) //column
         {
-            Vector3d permutedPos = _translations[i].transpose() + fractionalPositions.row(j) * _rotations[i].transpose(); // transpose frac pos?
+            Eigen::Vector3d permutedPos = _translations[i].transpose() + fractionalPositions.row(j) * _rotations[i].transpose(); // transpose frac pos?
             roundVector3d(permutedPos);
             _permutedPositions[j].push_back(permutedPos);
         }
