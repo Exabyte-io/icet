@@ -112,6 +112,5 @@ class OrbitList(_OrbitList):
             structure
         """
         prim_structure = self.get_primitive_structure()
-        print(allowed_species)
         prim_structure.set_number_of_allowed_species(allowed_species)
         self._remove_inactive_orbits(prim_structure)

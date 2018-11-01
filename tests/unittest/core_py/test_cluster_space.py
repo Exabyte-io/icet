@@ -87,9 +87,7 @@ unittest.TestCase.assertAlmostEqualList = _assertAlmostEqualList
 
 
 class TestClusterSpace(unittest.TestCase):
-    """
-    Container for tests of the class functionality
-    """
+    """Container for tests of the class functionality."""
 
     def __init__(self, *args, **kwargs):
         from ase.build import bulk
@@ -105,88 +103,71 @@ class TestClusterSpace(unittest.TestCase):
             atoms.set_chemical_symbols(symbols)
             self.structure_list.append(atoms)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """
-        Instantiate class before each test.
-        """
+        """Instantiates class before each test."""
         self.cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.subelements)
 
     def test_init(self):
-        """
-        Just testing that the setup
-        (initialization) of tested class work
-        """
+        """Tests that initialization of tested class works."""
         # initialize from ASE Atoms
         cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.subelements)
         self.assertIsInstance(cs, ClusterSpace)
 
     def test_len(self):
-        """ Tests len functionality. """
+        """Tests len functionality."""
         pass
 
     def test_orbit_data(self):
-        """ Tests orbit_data property. """
+        """Tests orbit_data property."""
         pass
 
     def test_repr(self):
-        """
-        Testing repr functionality
-        """
+        """Tests repr functionality."""
         pass
 
     def test_get_string_representation(self):
-        """
-        Testing _get_string_representation functionality
-        """
+        """Tests _get_string_representation functionality."""
         pass
 
     def test_print_overview(self):
-        """
-        Testing print_overview functionality
-        """
+        """Tests print_overview functionality."""
         pass
 
     def test_get_number_of_orbits_by_order(self):
-        """
-        Testing get_number_of_orbits_by_order functionality
-        """
+        """Tests get_number_of_orbits_by_order functionality."""
         pass
 
     def test_get_cluster_vector(self):
-        """
-        Testing get_cluster_vector functionality
-        """
+        """Tests get_cluster_vector functionality."""
         pass
 
     def test_get_singlet_info(self):
-        """
-        Testing get_singlet_info functionality
-        """
+        """Tests get_singlet_info functionality."""
         pass
 
     def test_get_singlet_configuration(self):
-        """
-        Testing get_singlet_configuration functionality
-        """
+        """Tests get_singlet_configuration functionality."""
         pass
 
     def test_get_Mi_from_dict(self):
-        """
-        Testing get_Mi_from_dict functionality
-        """
+        """Tests get_Mi_from_dict functionality."""
         pass
 
     def test_cutoffs(self):
-        """ Testing cutoffs property """
+        """Tests cutoffs property."""
         self.assertEqual(self.cs.cutoffs, self.cutoffs)
 
     def test_structure(self):
-        """ Testing structure property """
+        """Tests structure property."""
         self.assertEqual(len(self.cs.structure),
                          len(self.atoms_prim))
 
     def test_chemical_symbols(self):
-        """ Testing chemical symbols property """
+        """Tests chemical symbols property."""
         self.assertEqual(self.cs.chemical_symbols, self.subelements)
 
 
@@ -210,6 +191,10 @@ class TestClusterSpaceSurface(unittest.TestCase):
             atoms.set_chemical_symbols(symbols)
             self.structure_list.append(atoms)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
         """
         Instantiate class before each test.
@@ -218,34 +203,20 @@ class TestClusterSpaceSurface(unittest.TestCase):
 
     def test_get_cluster_vector(self):
         """
-        Testing get_cluster_vector functionality
+        Tests get_cluster_vector functionality
         """
         pass
 
     def test_get_number_of_orbits_by_order(self):
-        """
-        Testing get_number_of_orbits_by_order functionality
-        """
+        """Tests get_number_of_orbits_by_order functionality."""
         pass
         # retval = self.cs.get_number_of_orbits_by_order()
         # target = OrderedDict([(0, 1), (1, 3), (2, 5), (3, 10), (4, 4)])
         # self.assertEqual(target, retval)
 
     def test_get_Mi_from_dict(self):
-        """
-        Testing _get_Mi_from_dict functionality
-        """
+        """Tests _get_Mi_from_dict functionality."""
         pass
-
-
-# def suite():
-#     test_classes_to_run = [TestClusterSpace, TestClusterSpaceSurface]
-#     suites_list = []
-#     for test_class in test_classes_to_run:
-#         suite = unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
-#         suites_list.append(suite)
-#     test_suite = unittest.TestSuite(suites_list)
-#     return test_suite
 
 
 if __name__ == '__main__':

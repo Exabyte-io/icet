@@ -26,6 +26,9 @@ class TestEnsemble(unittest.TestCase):
         self.ce = ClusterExpansion(self.cs, parameters)
         self.temperature = 100.0
 
+    def shortDescription(self):
+        return None
+
     def setUp(self):
         """Setup before each test."""
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
@@ -38,14 +41,14 @@ class TestEnsemble(unittest.TestCase):
             temperature=self.temperature)
 
     def test_temperature_attribute(self):
-        """Test temperature attribute."""
+        """Tests temperature attribute."""
 
         self.assertEqual(self.ensemble.temperature, self.temperature)
         self.ensemble.temperature = 300
         self.assertEqual(self.ensemble.temperature, 300)
 
     def test_do_trial_step(self):
-        """Test the do trial step."""
+        """Tests the do trial step."""
 
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
@@ -54,7 +57,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble.total_trials, 10)
 
     def test_acceptance_condition(self):
-        """ Test the acceptance condition method."""
+        """Tests the acceptance condition method."""
 
         self.assertTrue(self.ensemble._acceptance_condition(-10.0))
 
@@ -62,7 +65,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble._acceptance_condition(10.0)
 
     def test_property_boltzmann(self):
-        """ Test init with explicit Boltzmann constant."""
+        """Tests init with explicit Boltzmann constant."""
         from ase.units import kB
         ens = CanonicalEnsemble(
             calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
@@ -75,7 +78,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertAlmostEqual(1.0, ens.boltzmann_constant)
 
     def test__get_ensemble_data(self):
-        """Test the get ensemble data method."""
+        """Tests the get ensemble data method."""
         data = self.ensemble._get_ensemble_data()
 
         self.assertIn('potential', data.keys())
@@ -84,9 +87,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(data['temperature'], 100.0)
 
     def test_write_interval_and_period(self):
-        """
-        Test interval and period for writing data from ensemble.
-        """
+        """Tests interval and period for writing data from ensemble."""
         self.assertEqual(self.ensemble.data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)

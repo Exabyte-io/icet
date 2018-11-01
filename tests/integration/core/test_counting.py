@@ -1,10 +1,10 @@
-'''
+"""
 This is not a well written test.
 
 Todo
 ----
 * replace with proper unit test(s)
-'''
+"""
 
 import random
 import numpy as np
@@ -34,7 +34,7 @@ def get_equivalent_clustermap_key(key1, clustermap_keys, tol=1e-3):
     raise Exception('Did not find a matching key')
 
 
-def test_no_symmetry_local_orbit_list_counting(atoms_primitive, atoms_tag,
+def test_no_symmetry_local_orbit_list_counting(atoms_prim, atoms_tag,
                                                cutoffs, repeat):
     """
     This function creates a primitive orbit list (no symmetry) and an orbit
@@ -43,7 +43,7 @@ def test_no_symmetry_local_orbit_list_counting(atoms_primitive, atoms_tag,
 
     Parameters
     ----------
-    atoms_primitive : ASE atoms object
+    atoms_prim : ASE atoms object
         structure to test
     atoms_tag : string
         description of ASE atom object
@@ -57,8 +57,8 @@ def test_no_symmetry_local_orbit_list_counting(atoms_primitive, atoms_tag,
     ----
     Please fix the description; it is barely comprehensible.
     """
-    atoms = atoms_primitive.copy()
-    atoms_repeat = atoms_primitive.copy().repeat(repeat)
+    atoms = atoms_prim.copy()
+    atoms_repeat = atoms_prim.copy().repeat(repeat)
     for atom in atoms_repeat:
         if random.random() < 0.5:
             atom.symbol = 'H'
@@ -85,20 +85,19 @@ def test_no_symmetry_local_orbit_list_counting(atoms_primitive, atoms_tag,
     cluster_map_local = cluster_count_local.get_cluster_counts()
     cluster_map_supercell = cluster_count_supercell.get_cluster_counts()
 
-    msg = 'Testing total count of clusters using no symmetry'
-    msg += ' local orbit list failed for structure {}'.format(atoms_tag)
+    base = 'Cluster counts for local and non-local orbit list '
+
+    msg = base + 'return different number of clusters for {}'.format(atoms_tag)
     assert len(cluster_map_local) == len(cluster_map_supercell), msg
 
-    msg = 'Testing keys of cluster count using no symmetry local orbit list'
-    msg += ' failed for structure {}'.format(atoms_tag)
+    msg = base + 'return different cluster keys for {}'.format(atoms_tag)
     assert cluster_map_local.keys() == cluster_map_supercell.keys(), msg
 
-    for key1, keyt in zip(sorted(cluster_map_local.keys()),
+    for key1, key2 in zip(sorted(cluster_map_local.keys()),
                           sorted(cluster_map_supercell.keys())):
         key2 = get_equivalent_clustermap_key(key1,
                                              cluster_map_supercell.keys())
-        msg = 'Testing cluster count using no symmetry local orbit list failed'
-        msg += ' for {} when counts {} != {}'.format(
+        msg = base + 'for {} count {} != {} respectively'.format(
             atoms_tag, cluster_map_local[key1], cluster_map_supercell[key2])
         assert cluster_map_local[key1] == cluster_map_supercell[key2], msg
 
@@ -120,7 +119,7 @@ def get_total_count(cluster_count_dict, cluster):
     return count
 
 
-def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag,
+def test_no_symmetry_vs_symmetry_count(atoms_prim, atoms_tag,
                                        cutoffs, repeat):
     """
     This function creates a no-symmetry local orbit list from the neighbor list
@@ -128,7 +127,7 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag,
     from symmetry orbit list created from the primitive structure and the
     cutoff.
 
-    atoms_primitive : ASE atoms object
+    atoms_prim : ASE atoms object
         structure to test
     atoms_tag : string
         description of ASE atom object
@@ -150,8 +149,8 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag,
     ----
     Using `random` in a test is a terrible idea.
     """
-    atoms = atoms_primitive.copy()
-    atoms_repeat = atoms_primitive.copy().repeat(repeat)
+    atoms = atoms_prim.copy()
+    atoms_repeat = atoms_prim.copy().repeat(repeat)
     for atom in atoms_repeat:
         if random.random() < 0.3:
             atom.symbol = 'H'
@@ -214,7 +213,6 @@ def test_no_symmetry_vs_symmetry_count(atoms_primitive, atoms_tag,
                     cluster_map_symmetry[key2][element_key]), msg
 
 
-print('')
 db = connect('structures_for_testing.db')
 for row in db.select():
     atoms_row = row.toatoms()
@@ -230,7 +228,6 @@ for row in db.select():
     if 'BaZrO3-perovskite' in atoms_tag or 'distorted' in atoms_tag:
         continue
     if atoms_row.get_pbc().all():
-        print(' structure: {}'.format(row.tag))
         atoms_row.wrap()
         test_no_symmetry_local_orbit_list_counting(
             atoms_row, atoms_tag, cutoffs, N)

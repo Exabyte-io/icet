@@ -4,18 +4,10 @@ from ase.db import connect
 from icet import Structure
 from _icet import NeighborList
 
-'''
-Include some docstring here explaining the current test
-
-Raises
-------
-AssertionError: if
-
-Todo
-----
-complete docstring
-'''
-
+"""
+This script compares the neighbor list computed for atoms in a database using
+both icet.NeighborList and ase.neighborlist modules.
+"""
 
 db = connect('structures_for_testing.db')
 

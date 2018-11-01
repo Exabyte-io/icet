@@ -1,3 +1,7 @@
+"""
+This script checks the cluster vectors calculated for equivalent structures.
+"""
+
 from icet import ClusterSpace
 from ase.build import bulk
 from ase.db import connect
@@ -7,8 +11,8 @@ import inspect
 
 prim = bulk('Au', a=4.0, crystalstructure='hcp')
 cutoffs = [7.0, 7.0, 7.0]
-subelements = ['Au', 'Pd']
-cs = ClusterSpace(prim, cutoffs, subelements)
+chemical_symbols = ['Au', 'Pd']
+cs = ClusterSpace(prim, cutoffs, chemical_symbols)
 
 filename = inspect.getframeinfo(inspect.currentframe()).filename
 path = os.path.dirname(os.path.abspath(filename))

@@ -25,10 +25,12 @@ class TestManyBodyNeighborList(unittest.TestCase):
         self.atoms = bulk("Al").repeat(2)
         self.cutoffs = [5, 5]
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """
-        Setup before each test.
-        """
+        """Set up before each test."""
         self.mbnl = ManyBodyNeighborList(self.atoms, self.cutoffs)
         self.mbnl_cpp = ManyBodyNeighborList_cpp()
         self.neighbor_lists = []
@@ -45,9 +47,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
             self.neighbor_lists_cpp.append(nl)
 
     def test_build(self):
-        """
-        Test that a simple build works
-        """
+        """Tests that a simple build works."""
         for index in range(len(self.atoms)):
             mbnl_py = self.mbnl.build(index, bothways=False)
             mbnl_cpp = self.mbnl_cpp.build(
@@ -103,9 +103,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
                 self.assertEqual(lat_site_cpp[1], lat_site[1])
 
     def test_get_intersection(self):
-        """
-        Test intersection functionality.
-        """
+        """Tests intersection functionality."""
         lattice_sites = []
         lattice_sites.append(LatticeSite(0, [0, 0, 0]))
         lattice_sites.append(LatticeSite(0, [1, 0, 0]))
@@ -123,10 +121,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
             0, [0, 0, 0]), LatticeSite(0, [1, 0, 0])])
 
     def test_translate_all_neighbor(self):
-        """
-        Tests translating a list of lattice sites with an
-        offset
-        """
+        """Tests translating a list of lattice sites with an offset."""
         lattice_sites = []
         lattice_sites.append(LatticeSite(0, [0, 0, 0]))
         lattice_sites.append(LatticeSite(0, [1, 0, 0]))
@@ -144,9 +139,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
         self.assertEqual(mbnl_offsets, lattice_sites_offset)
 
     def test_neighbor_from_smaller(self):
-        """
-        Test filter neighbor from smaller in mbnl.
-        """
+        """Tests filter neighbor from smaller in mbnl."""
         lattice_sites = []
         lattice_sites.append(LatticeSite(0, [0, 0, 0]))
         lattice_sites.append(LatticeSite(0, [1, 0, 0]))
@@ -167,9 +160,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
         self.assertEqual(len(filtered_sites), 4)
 
     def test_get_neighbor_from_nl(self):
-        """
-        Test getting lattice sites from ASE nl
-        """
+        """Tests getting lattice sites from ASE neighbor-list."""
         ase_nl = self.neighbor_lists[0]
         index = 0
         sites_from_nl = self.mbnl.get_neighbor_from_nl(ase_nl, index)
@@ -177,9 +168,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
                          len(ase_nl.get_neighbors(index)[0]))
 
     def test_add_singlet(self):
-        """
-        Test adding a singlet
-        """
+        """Tests adding a singlet."""
         mbn_indices = []
         index = 13
         target = [tuple(([LatticeSite(index, [0., 0., 0.])], []))]
@@ -187,9 +176,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
         self.assertEqual(mbn_indices, target)
 
     def test_add_pairs(self):
-        """
-        Test adding pairs.
-        """
+        """Tests adding pairs."""
         mbn_indices = []
         index = 0
         target = []
@@ -203,7 +190,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
 
     def test_unzip(self):
         """
-        Test the unzip functionality.
+        Tests the unzip functionality.
 
         sites are in the format:
         list( list(lattice_sites), list_of_lattice_sites)
@@ -254,7 +241,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
         target = [[ls]]
         self.assertEqual(len(unzipped_sites), 1)
         self.assertListEqual(target, unzipped_sites)
-        # Test unzipping entire mbnl
+        # Tests unzipping entire mbnl
         for index in range(len(self.atoms)):
             mbnl_py = self.mbnl.build(index, bothways=False)
             for compressed_sites in mbnl_py:

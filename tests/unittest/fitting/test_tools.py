@@ -5,17 +5,17 @@ from icet.fitting.tools import compute_correlation_matrix
 
 
 class TestFittingTools(unittest.TestCase):
-    """
-    Unittest class for tools module.
-    """
+    """Unittest class for tools module."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def test_compute_correlation_matrix(self):
-        """
-        Test compute_correlation_matrix
-        """
+        """Tests compute_correlation_matrix."""
 
         v0 = np.array([1, 1, 1])
         v1 = np.array([1, 1, -2])

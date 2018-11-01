@@ -25,6 +25,10 @@ class TestCEObserver(unittest.TestCase):
         self.ce = ClusterExpansion(cs, params)
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
         """Set up observer before each test."""
         self.observer = ClusterExpansionObserver(
@@ -38,15 +42,15 @@ class TestCEObserver(unittest.TestCase):
                         str(context.exception))
 
     def test_property_tag(self):
-        """Test property tag."""
+        """Tests property tag."""
         self.assertEqual(self.observer.tag, 'ce_band_gap')
 
     def test_property_interval(self):
-        """Test property interval."""
+        """Tests property interval."""
         self.assertEqual(self.observer.interval, 10)
 
     def test_get_observable(self):
-        """Test observable is returned accordingly."""
+        """Tests observable is returned accordingly."""
         self.assertEqual(self.observer.get_observable(
             atoms=self.atoms), 283.0)
 

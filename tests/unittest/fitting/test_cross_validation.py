@@ -6,9 +6,7 @@ from icet.fitting.cross_validation import validation_methods
 
 
 class TestCrossValidationEstimator(unittest.TestCase):
-    """
-    Unittest class for CrossValidationEstimator.
-    """
+    """Unittest class for CrossValidationEstimator."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -24,19 +22,19 @@ class TestCrossValidationEstimator(unittest.TestCase):
         self.noise = np.random.normal(0, 0.1, (self.n_rows, ))
         self.y = np.dot(self.A, self.x) + self.noise
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def test_init(self):
-        """
-        Test initializing CrossValidationEstimator.
-        """
+        """Tests initializing CrossValidationEstimator."""
 
         # assert valid cv-method
         with self.assertRaises(ValueError):
             CrossValidationEstimator((self.A, self.y), validation_method='asd')
 
     def test_set_kwargs(self):
-        """
-        Test set_kwargs
-        """
+        """Tests set_kwargs."""
         kwargs = dict(value1=1.0, value2=2.0, value3='3')
 
         # test with k-fold
@@ -47,9 +45,7 @@ class TestCrossValidationEstimator(unittest.TestCase):
             self.assertDictEqual(cve._fit_kwargs, kwargs)
 
     def test_train(self):
-        """
-        Test train
-        """
+        """Tests train."""
         cve = CrossValidationEstimator((self.A, self.y))
         self.assertIsNone(cve.parameters)
         self.assertIsNone(cve._rmse_train_final)
@@ -58,9 +54,7 @@ class TestCrossValidationEstimator(unittest.TestCase):
         self.assertIsNotNone(cve._rmse_train_final)
 
     def test_validate(self):
-        """
-        Test validate
-        """
+        """Tests validate."""
         n_splits = 7
         for validation_method in validation_methods:
             cve = CrossValidationEstimator(
@@ -78,9 +72,7 @@ class TestCrossValidationEstimator(unittest.TestCase):
             self.assertIsNotNone(cve.validation_scatter_data)
 
     def test_summary_property(self):
-        """
-        Test summary property
-        """
+        """Tests summary property."""
 
         # without having trained
         cve = CrossValidationEstimator((self.A, self.y))
@@ -94,16 +86,12 @@ class TestCrossValidationEstimator(unittest.TestCase):
         self.assertIn('rmse_validation', cve.summary.keys())
 
     def test_repr(self):
-        """
-        Test repr dunder
-        """
+        """Tests repr dunder."""
         cve = CrossValidationEstimator((self.A, self.y))
         self.assertIsInstance(repr(cve), str)
 
     def test_rmse_properties(self):
-        """
-        Test the rmse properties
-        """
+        """Tests the rmse properties."""
 
         # without having run anything
         cve = CrossValidationEstimator((self.A, self.y))

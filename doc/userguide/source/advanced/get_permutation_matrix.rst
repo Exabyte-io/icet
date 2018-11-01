@@ -1,17 +1,17 @@
 .. _example_get_permutation_matrix:
 .. highlight:: python
 .. index::
-   single: Examples; Permutation map
+   single: Examples; Permutation matrix
 
-Permutation map
-===============
+Permutation matrix
+==================
 
-The purpose of this example is to demonstrate how to extract a permutation map.
+The purpose of this example is to demonstrate how to extract a permutation matrix.
 
 Import modules
 --------------
 
-To extract permutation maps, only a single :program:`icet` function is
+To extract permutation matrices, only a single :program:`icet` function is
 required, namely :func:`permutation_matrix_from_atoms
 <icet.core.permutation_matrix.permutation_matrix_from_atoms>`. Additionally, the
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`ase.build.bulk` will be
@@ -31,20 +31,20 @@ aluminum fcc unit cell.
    :start-after: # Create a prototype
    :end-before: # Generate a permutation
 
-Obtain a permutation map
-------------------------
+Obtain a permutation matrix
+---------------------------
 
 Next, the :func:`permutation_matrix_from_atoms
 <icet.core.permutation_matrix.permutation_matrix_from_atoms>` function is called
 with the :class:`ASE Atoms` object that was defined above and a neighbor cutoff
 of 2.0 Å as arguments. The resulting output is a list that contains
 three elements, namely
-a :class:`PermutationMap <_icet.PermutationMap>`,
+a :class:`PermutationMatrix <_icet.PermutationMatrix>`,
 a primitive :class:`Structure <_icet.Structure>` and
 a :class:`NeighborList <_icet.NeighborList>`.
 
 .. literalinclude:: ../../../../examples/get_permutation_matrix.py
-   :start-after: # Generate a permutation map
+   :start-after: # Generate a permutation matrix
    :end-before: # Extract the permuted,
 
 Since the verbosity was set to :math:`\geq 3`, the following extra information
@@ -57,11 +57,12 @@ should be printed by :func:`permutation_matrix_from_atoms
 Extract permuted positions
 ----------------------------
 
-The permuted as well as the indexed and unique positions can be extracted
-from the :class:`PermutationMap <icet.core.permutation_matrix.PermutationMap>`
-object, generated earlier, using the methods
-:meth:`PermutationMap.get_permuted_positions` and
-:meth:`PermutationMap.get_indiced_positions`, respectively.
+The permuted as well as the indexed and unique positions can be extracted from
+the :class:`PermutationMatrix <_icet.PermutationMatrix>` object, generated
+earlier, using the methods :meth:`get_permuted_positions
+<_icet.PermutationMatrix.get_permuted_positions>` and
+:meth:`get_indexed_positions <_icet.PermutationMatrix.get_indexed_positions>`,
+respectively.
 
 .. literalinclude:: ../../../../examples/get_permutation_matrix.py
    :start-after: # Extract the permuted,

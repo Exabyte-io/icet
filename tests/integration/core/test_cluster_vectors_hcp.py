@@ -3,28 +3,25 @@ This script checks the computation of cluster vectors for three HCP-based
 structures.
 """
 
+import sys
 import numpy as np
+from io import StringIO
 from ase.build import bulk, make_supercell
-from icet import ClusterSpace, get_singlet_info
+from icet import ClusterSpace
 
 cutoffs = [8.0, 7.0]
-subelements = ['Re', 'Ti']
-
-print('')
+chemical_symbols = ['Re', 'Ti']
 prototype = bulk('Re')
-cs = ClusterSpace(prototype, cutoffs, subelements)
+cs = ClusterSpace(prototype, cutoffs, chemical_symbols)
+
 # testing info functionality
-try:
-    print(cs)
-except:  # NOQA
-    assert False, '__repr__ function fails for ClusterSpace'
-try:
-    print(get_singlet_info(prototype))
-except:  # NOQA
-    assert False, 'get_singlet_info function fails for ClusterSpace'
+with StringIO() as capturedOutput:
+    sys.stdout = capturedOutput
+    cs.print_overview()
+    sys.stdout = sys.__stdout__
+    assert 'Cluster Space' in capturedOutput.getvalue()
 
 # structure #1
-print(' structure #1')
 cv = cs.get_cluster_vector(prototype.copy())
 cv_target = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
                       1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
@@ -39,7 +36,6 @@ cv_target = np.array([1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
 assert np.all(np.abs(cv_target - cv) < 1e-6)
 
 # structure #2
-print(' structure #2')
 conf = make_supercell(prototype, [[2, 0, 1],
                                   [0, 1, 0],
                                   [0, 1, 2]])
@@ -81,7 +77,6 @@ cv_target = np.array([1.,  0.5,  0.333333333,
 assert np.all(np.abs(cv_target - cv) < 1e-6)
 
 # structure #3
-print(' structure #3')
 conf = make_supercell(prototype, [[1,  0, 1],
                                   [0,  1, 1],
                                   [0, -1, 3]])

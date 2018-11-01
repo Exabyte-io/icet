@@ -1,7 +1,7 @@
-'''
+"""
 This scripts checks the computation of cluster vectors with a variable number
 of components on different sites.
-'''
+"""
 
 import numpy as np
 from ase.db import connect
@@ -9,10 +9,10 @@ from icet import ClusterSpace, get_singlet_info
 from icet.tools import get_primitive_structure
 
 
-def test_mi_int_list_and_dict(atoms, subelements, cutoffs, allowed_sites):
-    '''
+def test_mi_int_list_and_dict(atoms, chemical_symbols, cutoffs, allowed_sites):
+    """
     Test that int Mi, list Mi and dict Mi produces the same cluster vectors.
-    '''
+    """
 
     prim_size = len(get_primitive_structure(atoms))
 
@@ -24,9 +24,12 @@ def test_mi_int_list_and_dict(atoms, subelements, cutoffs, allowed_sites):
     for singlet in singlet_data:
         Mi_dict[singlet['orbit_index']] = allowed_sites
 
-    cluster_space_int = ClusterSpace(atoms, cutoffs, subelements,  Mi=Mi_int)
-    cluster_space_list = ClusterSpace(atoms, cutoffs, subelements, Mi=Mi_list)
-    cluster_space_dict = ClusterSpace(atoms, cutoffs, subelements, Mi=Mi_dict)
+    cluster_space_int = \
+        ClusterSpace(atoms, cutoffs, chemical_symbols,  Mi=Mi_int)
+    cluster_space_list = \
+        ClusterSpace(atoms, cutoffs, chemical_symbols, Mi=Mi_list)
+    cluster_space_dict = \
+        ClusterSpace(atoms, cutoffs, chemical_symbols, Mi=Mi_dict)
     atoms_prim = cluster_space_int.primitive_structure
 
     # create and populate a supercell and get cluster vector
@@ -36,7 +39,7 @@ def test_mi_int_list_and_dict(atoms, subelements, cutoffs, allowed_sites):
             repeat[i] = 3
     conf = atoms_prim.repeat(repeat)
     for at in conf:
-        at.symbol = np.random.choice(subelements)
+        at.symbol = np.random.choice(chemical_symbols)
 
     cv_int = cluster_space_int.get_cluster_vector(conf)
     cv_list = cluster_space_list.get_cluster_vector(conf)
@@ -49,11 +52,9 @@ def test_mi_int_list_and_dict(atoms, subelements, cutoffs, allowed_sites):
     assert (np.array(cv_int) == np.array(cv_dict)).all, msg
 
 
-print('')
 db = connect('structures_for_testing.db')
-subelements = ['H', 'He', 'Pb']
+chemical_symbols = ['H', 'He', 'Pb']
 for row in db.select():
-    print(' structure: {}'.format(row.tag))
     atoms_row = row.toatoms()
     atoms_tag = row.tag
     cutoffs = [1.4] * 3
@@ -61,5 +62,5 @@ for row in db.select():
         continue
     atoms_row.set_chemical_symbols(len(atoms_row) * [atoms_row[0].symbol])
     for allowed_sites in range(2, 4):
-        test_mi_int_list_and_dict(atoms_row, subelements,
+        test_mi_int_list_and_dict(atoms_row, chemical_symbols,
                                   cutoffs, allowed_sites)

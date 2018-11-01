@@ -6,7 +6,8 @@ from icet.tools.geometry import (
     get_fractional_positions_from_ase_neighbor_list,
     find_lattice_site_by_position,
     get_primitive_structure,
-    fractional_to_cartesian)
+    fractional_to_cartesian,
+    ase_atoms_to_spglib_cell)
 
 from icet.io.logging import logger
 logger = logger.getChild('permutation_matrix')
@@ -66,7 +67,8 @@ class PermutationMatrix(object):
         self.primitive_structure = atoms
 
         # Get symmetry information and load into a permutation map object
-        symmetry = spglib.get_symmetry(self.primitive_structure)
+        atoms_as_tuple = ase_atoms_to_spglib_cell(self.primitive_structure)
+        symmetry = spglib.get_symmetry(atoms_as_tuple)
         self.translations = symmetry['translations']
         self.rotations = symmetry['rotations']
         self._build()

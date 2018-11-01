@@ -51,7 +51,9 @@ def find_script_tests(suite, script_dir):
 
 if __name__ == "__main__":
 
-    import generate_structures_for_testing  # noqa
+    from generate_structures_for_testing import create_database
+
+    create_database()
 
     set_log_config(level='ERROR')
 

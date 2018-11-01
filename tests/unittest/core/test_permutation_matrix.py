@@ -18,7 +18,7 @@ from icet.tools.geometry import (
 
 
 class TestPermutationMatrix(unittest.TestCase):
-    """ Container for test of the module functionality. """
+    """Container for test of the module functionality."""
 
     def __init__(self, *args, **kwargs):
         super(TestPermutationMatrix, self).__init__(*args, **kwargs)
@@ -33,8 +33,12 @@ class TestPermutationMatrix(unittest.TestCase):
         self.frac_positions = get_fractional_positions_from_neighbor_list(
             prim_structure, neighbor_list)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """ SetUp """
+        """Setup before each test."""
         symmetry = spglib.get_symmetry(self.atoms_prim)
         self.translations = symmetry['translations']
         self.rotations = symmetry['rotations']
@@ -44,12 +48,12 @@ class TestPermutationMatrix(unittest.TestCase):
         self.pm.build(self.frac_positions)
 
     def test_init(self):
-        """ Test initializer """
+        """Test initializer."""
         self.assertIsInstance(self.pm, PermutationMatrix)
 
     def test_dimension_permutation_matrix(self):
         """
-        Test dimensions of permutation matrix. Number of rows should
+        Tests dimensions of permutation matrix. Number of rows should
         be equal to the number of symmetry operations while number of columns
         must correpond to the total number of fractional positions.
         """
@@ -60,7 +64,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_get_permuted_positions(self):
         """
-        Test that first row and first column of permutation matrix match
+        Tests that first row and first column of permutation matrix match
         the target lists.
         """
         pm_frac = self.pm.get_permuted_positions()
@@ -141,7 +145,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_get_indexed_positions(self):
         """
-        Test that first set of indices along with unique positions in indexed
+        Tests that first set of indices along with unique positions in indexed
         positions reproduce correctly the positions retuned in the first row
         of permutation matrix.
         """
@@ -156,7 +160,7 @@ class TestPermutationMatrix(unittest.TestCase):
             self.assertEqual(pos.tolist(), ind_pos.tolist())
 
     def test_permutation_matrix_from_atoms(self):
-        """ Test permutation matrix from atoms functionality. """
+        """Tests permutation matrix from atoms functionality."""
         pm, _, _ = \
             permutation_matrix_from_atoms(self.atoms, self.cutoff)
 
@@ -181,7 +185,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_fractional_to_cartesian(self):
         """
-        Test fractional coordinates are converted into cartesians coordinates.
+        Tests fractional coordinates are converted into cartesians coordinates.
         """
         target = [[0.0, 0.0, 0.0],
                   [-1.5, -0.87, -2.45],
@@ -216,14 +220,11 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_lattice_site_permutation_matrix(self):
         """
-        Test lattice sites in permutation matrix by asserting the distances
+        Tests lattice sites in permutation matrix by asserting the distances
         between r_ik and r_jk sites in the same column.
-
-        Todo
-        ----
-        Some part of the implementation cannot be covered as test failed
-        for non-pbc structures.
         """
+        # TODO: Some part of the implementation cannot be covered as test fails
+        # for non-pbc structures.
         atoms = bulk('Al').repeat(2)
         cutoff = 4.2
         pm, prim_structure, _ = \
@@ -247,7 +248,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_prune_permutation_matrix(self):
         """
-        Test that first column of pruned permutation matrix
+        Tests that first column of pruned permutation matrix
         containes unique elements.
         """
         pm, prim_structure, _ = \

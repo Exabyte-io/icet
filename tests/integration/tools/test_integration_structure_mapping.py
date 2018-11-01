@@ -11,7 +11,6 @@ reference = bulk('Y', a=a, crystalstructure='fcc')
 reference.append(Atom('O', (1 * a / 4., 1 * a / 4., 1 * a / 4.)))
 reference.append(Atom('O', (3 * a / 4., 3 * a / 4., 3 * a / 4.)))
 cs = ClusterSpace(reference, [5.0, 3], ['Y', 'Al', 'O', 'V'])
-print(cs)
 
 # Construct test structure
 P = [[4, 1, -3], [1, 3, 1], [-1, 1, 3]]

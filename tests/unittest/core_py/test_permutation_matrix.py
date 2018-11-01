@@ -12,9 +12,7 @@ import numpy as np
 
 
 class TestPermutationMatrix(unittest.TestCase):
-    '''
-    Test the python implementation of permutation matrix
-    '''
+    """Tests the python implementation of permutation matrix."""
 
     def __init__(self, *args, **kwargs):
         super(TestPermutationMatrix, self).__init__(*args, **kwargs)
@@ -22,10 +20,12 @@ class TestPermutationMatrix(unittest.TestCase):
         self.atoms = bulk("Al").repeat(2)
         self.cutoff = 5.0
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """
-        Setup.
-        """
+        """Set up class before each test case"""
         self.pm = PermutationMatrix(self.atoms, self.cutoff)
         self.pm_cpp, self.prim_structure_cpp, _ = \
             permutation_matrix_from_atoms(
@@ -36,12 +36,9 @@ class TestPermutationMatrix(unittest.TestCase):
                                                 prune=True)
 
     def test_init(self):
-        """
-        Test the initializer.
-        """
-
+        """Tests the initializer."""
         pm = PermutationMatrix(self.atoms, self.cutoff)
-        # Test pm with find_prim = False
+        # Tests pm with find_prim = False
         pm_prim_false = PermutationMatrix(self.atoms, self.cutoff,
                                           find_prim=False)
         pm_cpp, _, _ = permutation_matrix_from_atoms(
@@ -51,16 +48,13 @@ class TestPermutationMatrix(unittest.TestCase):
         self.assertIsInstance(pm_cpp, PermutationMatrix_cpp)
 
     def test_equal_first_column(self):
-        """
-        Test that the first column are the same for both matrices
-        """
-
+        """Tests that the first column are the same for both matrices."""
         matrix_py = self.pm.pm_lattice_sites
         matrix_cpp = sorted(self.pm_lattice_sites_cpp)
         col1_py = [row[0] for row in matrix_py]
         col1_cpp = [row[0] for row in matrix_cpp]
 
-        # Test length of column 1
+        # Tests length of column 1
         self.assertEqual(len(col1_py), 43)
 
         # check that there are no duplicates
@@ -73,9 +67,7 @@ class TestPermutationMatrix(unittest.TestCase):
         self.assertListEqual((col1_py), (col1_cpp))
 
     def test_equal_rows(self):
-        """
-        Test row lengths
-        """
+        """Tests row lengths"""
         matrix_py = self.pm.pm_lattice_sites
         matrix_cpp = sorted(self.pm_lattice_sites_cpp)
 
@@ -88,7 +80,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_all_matrix_elements_equal(self):
         """
-        Test that all elements of both Lattice site permutation
+        Tests that all elements of both Lattice site permutation
         matrices are identical.
         """
         pm_cpp = sorted(self.pm_lattice_sites_cpp)
@@ -99,7 +91,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_equal_dist_for_same_row(self):
         """
-        Test that distance between site_ij and site_ik
+        Tests that distance between site_ij and site_ik
         are the same for all j,k.
 
         This is only done for the python version
@@ -123,7 +115,7 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def test_primitive_structure(self):
         """
-        Test primitive structure property by comparing to
+        Tests primitive structure property by comparing to
         the other versions primitive structure.
         """
         for position_py, position_cpp in zip(
@@ -136,9 +128,7 @@ class TestPermutationMatrix(unittest.TestCase):
                          self.prim_structure_cpp.cell.all())
 
     def test_property_column1(self):
-        """
-        Test the column1 property of permutation matrix.
-        """
+        """Tests the column1 property of permutation matrix."""
 
         matrix = self.pm.pm_lattice_sites
         for col1, row in zip(self.pm.column1, matrix):

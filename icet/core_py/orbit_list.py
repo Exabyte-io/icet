@@ -254,7 +254,7 @@ class OrbitList(object):
 
     def __len__(self):
         """
-        Lenght of an orbit list is number of orbits in orbit list.
+        Length of an orbit list is number of orbits in orbit list.
         """
         return len(self._orbits)
 
@@ -295,9 +295,10 @@ class OrbitList(object):
                                "in orbit list")
 
     def __str__(self):
-        nice_str = ''
+        """String representation."""
+        nice_str = ""
         for i, orbit in enumerate(self.orbits):
-            nice_str += "orbit {} - Multiplicity {} '\n'".format(i, len(orbit))
+            nice_str += "Orbit {} - Multiplicity {}\n".format(i, len(orbit))
         return nice_str
 
     def is_rows_taken(self, rows):

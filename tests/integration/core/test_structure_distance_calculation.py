@@ -9,17 +9,13 @@ TODO:
     Delete this after edit unittest/test_structure
 '''
 
-
 ''' Tolerance for comparing distances '''
 DISTTOL = 1e-8
 
 ''' Fetch structures from database '''
 db = connect('structures_for_testing.db')
 
-print('')
 for row in db.select():
-    print(' structure: {}'.format(row.tag))
-
     atoms_row = row.toatoms()
     structure = icet.Structure.from_atoms(atoms_row)
     nl = ASENeighborList(len(atoms_row)*[2.6], self_interaction=False,)

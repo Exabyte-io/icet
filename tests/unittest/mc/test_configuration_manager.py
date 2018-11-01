@@ -17,16 +17,21 @@ class TestConfigurationManager(unittest.TestCase):
         self.strict_constraints = self.constraints
         self.sublattices = [list(range(len(self.atoms)))]
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
         self.cm = ConfigurationManager(
             self.atoms, self.strict_constraints, self.sublattices,
             self.constraints)
 
     def test_type(self):
-        """Test cm type."""
+        """Tests cm type."""
         self.assertIsInstance(self.cm, ConfigurationManager)
 
     def test_init_alternative_constructors(self):
+        """Tests alternative initialization."""
         cm = ConfigurationManager(
             self.atoms, self.strict_constraints, self.sublattices, None)
         self.assertTrue(cm.occupation_constraints == self.strict_constraints)
@@ -38,7 +43,7 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertTrue(cm.occupation_constraints == constraints)
 
     def test_check_occupation_constraint(self):
-        """Test the check occupation constraint method."""
+        """Tests the check occupation constraint method."""
 
         # Check that equal constraint is allowed
         constraint = [[1, 2], [1, 2], [1], [2]]
@@ -64,24 +69,24 @@ class TestConfigurationManager(unittest.TestCase):
                         ' must be equal length' in str(context.exception))
 
     def test_property_atoms(self):
-        """Test atoms property."""
+        """Tests atoms property."""
         self.assertEqual(self.atoms, self.cm.atoms)
 
     def test_property_occupations(self):
         """
-        Test that the occupation property returns expected result
+        Tests that the occupation property returns expected result
         and that it cannot be modified.
         """
 
         self.assertListEqual(list(self.cm.occupations),
                              list(self.atoms.numbers))
 
-        # Test that the property can not be set.
+        # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
             self.cm.occupations = []
         self.assertTrue("can't set attribute" in str(context.exception))
 
-        # Test that the property can't be set by modifying the
+        # Tests that the property can't be set by modifying the
         # returned occupations
         occupations = self.cm.occupations
         occupations[0] = occupations[0] + 1
@@ -89,19 +94,19 @@ class TestConfigurationManager(unittest.TestCase):
 
     def test_property_occupation_constraints(self):
         """
-        Test that the occupation_constraints property returns expected result
+        Tests that the occupation_constraints property returns expected result
         and that it cannot be modified.
         """
 
         self.assertListEqual(list(self.cm.occupation_constraints),
                              list(self.constraints))
 
-        # Test that the property can not be set.
+        # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
             self.cm.occupation_constraints = []
         self.assertTrue("can't set attribute" in str(context.exception))
 
-        # Test that the property can't be set by modifying the
+        # Tests that the property can't be set by modifying the
         # returned occupations
         occupation_constraints = self.cm.occupation_constraints
         occupation_constraints[0][0] = occupation_constraints[0][0] + 1
@@ -110,26 +115,26 @@ class TestConfigurationManager(unittest.TestCase):
 
     def test_property_sublattices(self):
         """
-        Test that the occupation_constraints property returns expected result
+        Tests that the occupation_constraints property returns expected result
         and that it cannot be modified.
         """
 
         self.assertListEqual(list(self.cm.sublattices),
                              list(self.sublattices))
 
-        # Test that the property can not be set.
+        # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
             self.cm.sublattices = []
         self.assertTrue("can't set attribute" in str(context.exception))
 
-        # Test that the property can't be set by modifying the
+        # Tests that the property can't be set by modifying the
         # returned occupations
         sublattices = self.cm.sublattices
         sublattices[0][0] = sublattices[0][0] + 1
         self.assertNotEqual(list(sublattices), list(self.cm.sublattices))
 
     def test_get_swapped_state(self):
-        """Test the getting swap indices method."""
+        """Tests the getting swap indices method."""
 
         for _ in range(1000):
             indices, elements = self.cm.get_swapped_state(0)
@@ -162,14 +167,14 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertTrue("Sublattice 1 is empty" in str(context.exception))
 
     def test_get_flip_index(self):
-        """Test the getting flip indices method."""
+        """Tests the getting flip indices method."""
 
         for _ in range(1000):
             index, element = self.cm.get_flip_state(0)
             self.assertNotEqual(self.cm.occupations[index], element)
 
     def test_update_occupations(self):
-        """Test the update occupation method."""
+        """Tests the update occupation method."""
 
         indices = [0, 2, 3, 5, 7, 8]
         elements = [13, 13, 47, 47, 13, 47]
@@ -189,13 +194,12 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertTrue('Invalid new species' in str(context.exception))
 
     def test_sites_by_species(self):
-        """Test the element occupation dict."""
+        """Tests the element occupation dict."""
 
         # Initially consistent
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
-        # Test that changing occupations manually is wrong
-
+        # Tests that changing occupations manually is wrong
         element = self.cm._occupations[0]
         self.cm._occupations[0] = 200
         self.assertFalse(self._is_sites_by_species_dict_correct(self.cm))
@@ -224,14 +228,14 @@ class TestConfigurationManager(unittest.TestCase):
 
     def _is_sites_by_species_dict_correct(self, configuration_manager):
         """
-        Check that the internal Element -> site dict is consistent
+        Checks that the internal Element -> site dict is consistent
         with the occupation list.
 
-        parameters
+        Parameters
         ----------
         configuration_manager : ConfigurationManager
 
-        return : bool
+        Return : bool
         True if the dict is correct
         False if the dict is inconsistent with self.occupations
         """

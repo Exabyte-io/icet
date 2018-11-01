@@ -5,9 +5,7 @@ from icet.fitting import Optimizer
 
 
 class TestOptimizer(unittest.TestCase):
-    """
-    Unittest class for Optimizer.
-    """
+    """Unittest class for Optimizer."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -22,10 +20,12 @@ class TestOptimizer(unittest.TestCase):
         self.noise = np.random.normal(0, 0.1, (self.n_rows, ))
         self.y = np.dot(self.A, self.x) + self.noise
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def test_get_rows_via_sizes(self):
-        """
-        Test _get_rows_via_sizes functionality.
-        """
+        """Tests _get_rows_via_sizes functionality."""
 
         opt = Optimizer((self.A, self.y))
 
@@ -70,9 +70,7 @@ class TestOptimizer(unittest.TestCase):
             opt._get_rows_via_sizes(train_size, test_size)
 
     def test_get_rows_from_indices(self):
-        """
-        Test _get_rows_from_indices
-        """
+        """Tests _get_rows_from_indices."""
         opt = Optimizer((self.A, self.y))
         all_rows = np.arange(self.n_rows)
 
@@ -106,7 +104,7 @@ class TestOptimizer(unittest.TestCase):
 
     def test_setup_rows(self):
         """
-        Test _setup_rows
+        Tests _setup_rows
 
         Simply test that function raise when no training data available
         """
@@ -128,9 +126,7 @@ class TestOptimizer(unittest.TestCase):
             opt._setup_rows(None, None, train_set, test_set)
 
     def test_train(self):
-        """
-        Test train
-        """
+        """Tests train."""
 
         # with test set
         train_size = 0.75
@@ -159,9 +155,7 @@ class TestOptimizer(unittest.TestCase):
         self.assertIsNone(opt.test_scatter_data)
 
     def test_summary_property(self):
-        """
-        Test summary property
-        """
+        """Tests summary property."""
 
         # without having trained
         opt = Optimizer((self.A, self.y))
@@ -174,16 +168,12 @@ class TestOptimizer(unittest.TestCase):
         self.assertIn('rmse_test', opt.summary.keys())
 
     def test_repr(self):
-        """
-        Test repr dunder
-        """
+        """Tests repr dunder."""
         opt = Optimizer((self.A, self.y))
         self.assertIsInstance(repr(opt), str)
 
     def test_size_properties(self):
-        """
-        Test the properties in regards to training/test sets and sizes.
-        """
+        """Tests the properties in regards to training/test sets and sizes."""
 
         # test without test_set
         train_set = np.arange(0, self.n_rows)

@@ -25,10 +25,12 @@ class TestLatticeSite(unittest.TestCase):
         for element in itertools.product(*cartesian_product_lists):
             self.unitcell_offsets.append(list(element))
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """
-        Setup.
-        """
+        """Setup."""
         self.lattice_sites = []
         self.lattice_sites_cpp = []
         for index, unitcell_offset in zip(self.indices, self.unitcell_offsets):
@@ -38,16 +40,12 @@ class TestLatticeSite(unittest.TestCase):
             self.lattice_sites_cpp.append(lattice_site_cpp)
 
     def test_index_property(self):
-        """
-        Test index property.
-        """
+        """Tests index property."""
         self.assertIsInstance(self.lattice_sites[0].index, int)
         self.assertEqual(self.lattice_sites[0].index, 0)
 
     def test_offset_property(self):
-        """
-        Test unitcell_offset property.
-        """
+        """Tests unitcell_offset property."""
         self.assertIsInstance(
             self.lattice_sites[0].unitcell_offset,
             type(self.lattice_sites_cpp[0].unitcell_offset))
@@ -58,18 +56,14 @@ class TestLatticeSite(unittest.TestCase):
             list(self.lattice_sites[0].unitcell_offset), [0., 0., 0.])
 
     def test_str(self):
-        """
-        Test printing a LatticeSite.
-        """
+        """Tests printing a LatticeSite."""
         self.assertEqual(self.lattice_sites[0].__str__(
         ), self.lattice_sites_cpp[0].__str__())
         self.assertEqual(self.lattice_sites[-1].__str__(
         ), self.lattice_sites_cpp[-1].__str__())
 
     def test_sorting(self):
-        """
-        Test sorting the lattice sites.
-        """
+        """Tests sorting the lattice sites."""
         self.lattice_sites.sort()
         self.assertEqual(self.lattice_sites[0].index, 0.)
         self.assertEqual(
@@ -81,17 +75,13 @@ class TestLatticeSite(unittest.TestCase):
             list(self.lattice_sites[0].unitcell_offset), [1., 1., 1.])
 
     def test_lt(self):
-        """
-        Test less than operator.
-        """
+        """Tests less than operator."""
         self.assertLess(self.lattice_sites[0], self.lattice_sites[1])
         self.assertLess(self.lattice_sites[0], self.lattice_sites_cpp[1])
         self.assertLess(self.lattice_sites_cpp[0], self.lattice_sites[1])
 
     def test_eq(self):
-        """
-        Test eq operator.
-        """
+        """Tests eq operator."""
         index = 152453453
         unitcell_offset = [-234234., 32423423., 235567567.]
 
@@ -114,9 +104,7 @@ class TestLatticeSite(unittest.TestCase):
         self.assertNotEqual(self.lattice_sites_cpp[1], self.lattice_sites[0])
 
     def test_hash(self):
-        """
-        Test hash function.
-        """
+        """Tests hash function."""
         index = 152453453
         unitcell_offset = [-234234., 32423423., 235567567.]
 
@@ -127,18 +115,14 @@ class TestLatticeSite(unittest.TestCase):
                          lattice_site_other.__hash__())
 
     def test_add_property(self):
-        """
-        Tests changing the property.
-        """
+        """Tests changing the property."""
         lattice_site = LatticeSite(0, [0, 0, 0])
         lattice_site2 = LatticeSite(0, [-1, -1, 3])
         lattice_site2.unitcell_offset += [1, 1, -3]
         self.assertEqual(lattice_site, lattice_site2)
 
     def test_sub_property(self):
-        """
-        Tests changing the property.
-        """
+        """Tests changing the property."""
         lattice_site = LatticeSite_cpp(0, [0, 0, 0])
         lattice_site2 = LatticeSite_cpp(0, [1, 1, -3])
         lattice_site2.unitcell_offset -= [1, 1, -3]
@@ -150,9 +134,7 @@ class TestLatticeSite(unittest.TestCase):
         self.assertEqual(lattice_site, lattice_site2)
 
     def test_cmp_mbnl_lattice_site_list(self):
-        """
-        Test the comparer of list of lattice site.
-        """
+        """Tests the comparer of list of lattice site."""
         indices = range(10)
         offsets = [[x, y, z]
                    for x, y, z in zip(range(10), range(10), range(10))]
@@ -173,9 +155,7 @@ class TestLatticeSite(unittest.TestCase):
         self.assertFalse(cmp_mbnl_lattice_site_list(sites, sites))
 
     def test_cmp_lattice_site_list(self):
-        """
-        Test the comparer of list of lattice site.
-        """
+        """Tests the comparer of list of lattice site."""
         indices = range(10)
         offsets = [[x, y, z]
                    for x, y, z in zip(range(10), range(10), range(10))]

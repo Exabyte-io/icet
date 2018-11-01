@@ -24,12 +24,11 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.napoleon',
     'sphinx.ext.todo',
+    'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_sitemap',
     ]
 
-# To be put back upon public code release
-#     'sphinx.ext.viewcode',
 # html_show_sourcelink = False
 
 graphviz_output_format = 'svg'

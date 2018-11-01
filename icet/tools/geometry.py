@@ -1,7 +1,7 @@
-from typing import Tuple, List, Sequence, TypeVar
 import numpy as np
-from ase import Atoms
 import spglib
+from ase import Atoms
+from typing import Tuple, List, Sequence, TypeVar
 
 from ase.neighborlist import NeighborList as ase_NeighborList
 from icet.core.neighbor_list import NeighborList
@@ -84,7 +84,7 @@ def get_primitive_structure(atoms: Atoms, no_idealize: bool=True) -> Atoms:
     atoms
         input atomic structure
     no_idealize
-        If True, disable to idealize length and angles
+        If True lengths and angles are not idealized
 
     Returns
     -------

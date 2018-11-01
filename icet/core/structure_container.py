@@ -14,8 +14,8 @@ logger = logger.getChild('structure_container')
 
 class StructureContainer:
     """
-    This class serves as a container for structure objects, their fit
-    properties and their cluster vectors.
+    This class serves as a container for structure objects as well as their fit
+    properties and cluster vectors.
 
     Parameters
     ----------

@@ -34,16 +34,17 @@ class TestLabelingGenerator(unittest.TestCase):
         self.iter_species = [(0, 1), (2,), (2,), (2,), (0, 1), (0, 2)]
         self.concentrations = {0: (0, 0.15), 2: (0, 0.3)}
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """Instantiate class before each test."""
+        """Instantiates class before each test."""
         self.lg = LabelingGenerator(self.iter_species,
                                     self.concentrations)
 
     def test_init(self):
-        """
-        Testing that the setup
-        (initialization) of tested class work.
-        """
+        """Tests that initialization of tested class works."""
         lg = LabelingGenerator(self.iter_species,
                                self.concentrations)
         self.assertIsInstance(lg, LabelingGenerator)
@@ -58,7 +59,7 @@ class TestLabelingGenerator(unittest.TestCase):
         self.assertIsInstance(lg, LabelingGenerator)
 
     def test_yield_products(self):
-        """Testing that yield_products works."""
+        """Tests that yield_products works."""
 
         for site_group in self.lg.site_groups.values():
             site_group.compute_all_combinations(2)
@@ -74,7 +75,7 @@ class TestLabelingGenerator(unittest.TestCase):
             self.assertEqual(product, target_product)
 
     def test_yield_permutations(self):
-        """Testing that yield_permutations works."""
+        """Tests that yield_permutations works."""
         target_permutations = [((1, 1, 1, 0), (2, 2, 2, 2, 2, 2), (2, 0)),
                                ((1, 1, 1, 0), (2, 2, 2, 2, 2, 2), (0, 2)),
                                ((1, 1, 0, 1), (2, 2, 2, 2, 2, 2), (2, 0)),
@@ -95,14 +96,14 @@ class TestLabelingGenerator(unittest.TestCase):
             self.assertEqual(per, target_per)
 
     def test_sort_labeling(self):
-        """Testing that sort_labeling works."""
+        """Tests that sort_labeling works."""
         labeling = [(0, 1, 1, 1), (2, 2, 2, 2, 2, 2), (0, 2)]
         target_sorted_labeling = (0, 2, 2, 2, 1, 0, 1, 2, 2, 2, 1, 2)
         sorted_labeling = self.lg.sort_labeling(labeling, 2)
         self.assertEqual(target_sorted_labeling, sorted_labeling)
 
     def test_yield_labeling(self):
-        """Testing that yield_labeling works."""
+        """Tests that yield_labeling works."""
         target_labeling = (1, 2, 2, 2, 1, 2)
         for labeling in self.lg.yield_labelings(1):
             # there should be only one of these
@@ -137,16 +138,17 @@ class TestSiteGroup(unittest.TestCase):
         self.position = 3
         self.multiplicity = 7
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """Instantiate class before each test."""
+        """Instantiates class before each test."""
         self.sg = SiteGroup(self.iter_species,
                             self.position)
 
     def test_init(self):
-        """
-        Testing that the setup
-        (initialization) of tested class work
-        """
+        """Tests that initialization of tested class works."""
         sg = SiteGroup(self.iter_species,
                        self.position)
         self.assertIsInstance(sg, SiteGroup)
@@ -154,7 +156,7 @@ class TestSiteGroup(unittest.TestCase):
         self.assertEqual(sg.position, self.position)
 
     def test_compute_all_combinations(self):
-        """Testing that compute_all_combinations works."""
+        """Tests that compute_all_combinations works."""
         target_combinations = [(0, 0, 0), (0, 0, 1), (0, 0, 3),
                                (0, 1, 1), (0, 1, 3), (0, 3, 3),
                                (1, 1, 1), (1, 1, 3), (1, 3, 3),

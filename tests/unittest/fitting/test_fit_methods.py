@@ -5,9 +5,7 @@ from icet.fitting import fit, available_fit_methods
 
 
 class TestOptimizer(unittest.TestCase):
-    """
-    Unittest class for fit_methods module.
-    """
+    """Unittest class for fit_methods module."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,18 +19,18 @@ class TestOptimizer(unittest.TestCase):
         noise = np.random.normal(0.0, 0.2, N)
         self.y = np.dot(self.A, self.x) + noise
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def test_all_available_fit_methods(self):
-        """
-        Test all available fit_methods
-        """
+        """Tests all available fit_methods."""
         for fit_method in available_fit_methods:
             res = fit(self.A, self.y, fit_method=fit_method)
             self.assertLess(np.linalg.norm(self.x - res['parameters']), 0.2)
 
     def test_other_fit_methods(self):
-        """
-        Test fit methods which are not run via available_fit_methods
-        """
+        """Tests fit methods which are not run via available_fit_methods."""
 
         # lasso with alpha
         res = fit(self.A, self.y, fit_method='lasso', alpha=1e-5)

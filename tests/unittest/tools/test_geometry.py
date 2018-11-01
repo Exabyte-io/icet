@@ -16,17 +16,17 @@ from icet.tools.geometry import ase_atoms_to_spglib_cell
 
 
 class TestGeometry(unittest.TestCase):
-    '''
-    Container for tests to the geometry module.
-    '''
+    """Container for tests to the geometry module."""
 
     def __init__(self, *args, **kwargs):
         super(TestGeometry, self).__init__(*args, **kwargs)
 
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
     def setUp(self):
-        """
-        Setup some basic stuff which can be useful in the tests.
-        """
+        """Setup some basic stuff which can be useful in the tests."""
         cutoff = 3.0
         self.atoms = bulk("Al")
         self.neighborlist = NeighborList(
@@ -35,9 +35,7 @@ class TestGeometry(unittest.TestCase):
         self.neighborlist.update(self.atoms)
 
     def test_get_frac_pos_from_ase_neighborlist(self):
-        """
-        Test the get fractional position from ase neighborlist.
-        """
+        """Tests the get fractional position from ase neighborlist."""
 
         # This system is simple so all neighbors are integer
         #  fractional positions
@@ -148,9 +146,7 @@ class TestGeometry(unittest.TestCase):
             self.assertEqual(site, found_site)
 
     def test_fractional_to_cartesian(self):
-        """
-        Test the geometry function fractional_to_cartesian
-        """
+        """Tests the geometry function fractional_to_cartesian."""
         # Use the get frac positions from
         #  neighborlist to have something to work with
 
@@ -180,9 +176,7 @@ class TestGeometry(unittest.TestCase):
             self.assertEqual(target, list(pos))
 
     def test_get_permutation(self):
-        """
-        Test the get_permutation function.
-        """
+        """Tests the get_permutation function."""
         value = ['a', 'b', 'c']
         target = ['a', 'b', 'c']
         permutation = [0, 1, 2]
@@ -212,7 +206,7 @@ class TestGeometry(unittest.TestCase):
 
     def test_ase_atoms_to_spglib_cell(self):
         """
-        Test that function returns the right tuple from the provided ASE
+        Tests that function returns the right tuple from the provided ASE
         Atoms object.
         """
         atoms = bulk('Al').repeat(3)
