@@ -41,7 +41,8 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     .. math::
 
         P = \min \\Big\{ 1, \, \exp \\big[ - \\big( \\Delta E
-        + \\sum_i \\Delta \\mu_i \\Delta N_i \\big) \\big / k_B T \\big] \\Big\},
+        + \\sum_i \\Delta \\mu_i \\Delta N_i \\big) \\big / k_B T \\big]
+        \\Big\},
 
     where :math:`\\Delta E` is the change in potential energy caused by the
     swap.
