@@ -82,8 +82,8 @@ class VCSGCEnsemble(BaseEnsemble):
     Sadigh, B. and Erhart, P., Phys. Rev. B **86**, 134204 (2012)
     [SadErh12]_.
 
-    Attributes
-    -----------
+    Parameters
+    ----------
     temperature : float
         temperature :math:`T` in appropriate units [commonly Kelvin]
     boltzmann_constant : float
@@ -91,9 +91,58 @@ class VCSGCEnsemble(BaseEnsemble):
         units, i.e. units that are consistent
         with the underlying cluster expansion
         and the temperature units [default: eV/K]
+    phis : Dict[str, float]
+        average constraint parameters :math:`\\phi_i`; the key denotes the
+        species; there must be one entry for each species but their sum must be
+        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
     kappa : float
-        parameter that constrains the fluctuations of the concentration
+        parameter that constrains the variance of the concentration
         (referred to as :math:`\\bar{\kappa}` in [SadErh12]_)
+    calculator : :class:`BaseCalculator`
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
+    atoms : :class:`ase:Atoms`
+        atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector
+    name : str
+        human-readable ensemble name [default: `BaseEnsemble`]
+    data_container : str
+        name of file the data container associated with the ensemble
+        will be written to; if the file exists it will be read, the
+        data container will be appended, and the file will be
+        updated/overwritten
+    ensemble_data_write_interval : int
+        interval at which data is written to the data container; this
+        includes for example the current value of the calculator
+        (i.e. usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species
+    data_container_write_period : float
+        period in units of seconds at which the data container is
+        written to file; writing periodically to file provides both
+        a way to examine the progress of the simulation and to back up
+        the data [default: np.inf]
+    trajectory_write_interval : int
+        interval at which the current occupation vector of the atomic
+        configuration is written to the data container.
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
+
+    Attributes
+    ----------
+    temperature : float
+        temperature :math:`T` (see parameters section above)
+    boltzmann_constant : float
+        Boltzmann constant :math:`k_B` (see parameters section above)
+    kappa : float
+        variance constraint parameter (see parameters section above)
+    accepted_trials : int
+        number of accepted trial steps
+    total_trials : int
+        number of total trial steps
+    data_container_write_period : int
+        period in units of seconds at which the data container is
+        written to file
     """
 
     def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
@@ -175,9 +224,8 @@ class VCSGCEnsemble(BaseEnsemble):
     @property
     def phis(self) -> Dict[int, float]:
         """
-        phis :math:`\\phi_i`, one for each
-        element but their sum must be :math:`-2.0`
-        (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
+        phis :math:`\\phi_i`, one for each species but their sum must be
+        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
         """
         return self._phis
 
@@ -202,7 +250,7 @@ class VCSGCEnsemble(BaseEnsemble):
     def _get_ensemble_data(self) -> Dict:
         """
         Returns a dict with the default data of the ensemble. This includes
-        temperature, :math:`kappa`, :math:`phi` for every element, atom counts
+        temperature, :math:`kappa`, :math:`phi` for every species, atom counts
         and free energy derivative.
         """
         data = super()._get_ensemble_data()
