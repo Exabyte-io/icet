@@ -83,7 +83,7 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         with the underlying cluster expansion
         and the temperature units [default: eV/K]
     chemical_potentials : Dict[str, float]
-        chemical potential for each species :math:`\\Delta \\mu_i`; the key
+        chemical potential for each species :math:`\\mu_i`; the key
         denotes the species, the value specifies the chemical potential in
         units that are consistent with the underlying cluster expansion
     calculator : :class:`BaseCalculator`
