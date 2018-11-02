@@ -9,7 +9,7 @@ from collections import OrderedDict
 
 class ClusterCounts(_ClusterCounts):
     """
-    Provides an interface to inspect cluster counts.
+    Provides an interface for inspecting cluster counts.
 
     Parameters
     ----------
@@ -22,18 +22,17 @@ class ClusterCounts(_ClusterCounts):
     ----------
     cluster_counts : OrderedDict
         keys are representative clusters (icet Cluster objects) for all
-        distinct orbits in the orbit list, values are dicts where keys are
-        the chemical symbols of the species in a cluster, and values the number
-        of counts of such clusters, e.g. {('Au', 'Ag'): 3, ('Au', 'Au'): 5}.
+        distinct orbits in the orbit list, values are dicts where the key is
+        the chemical symbols of the species in a cluster, and the value is
+        the number of counts of such clusters, e.g.,
+        {('Au', 'Ag'): 3, ('Au', 'Au'): 5}.
     """
 
     def __init__(self, orbit_list: OrbitList, atoms: Atoms):
         self._orbit_list = orbit_list
         self._structure = Structure.from_atoms(atoms)
-
         # call (base) C++ constructor
         _ClusterCounts.__init__(self)
-
         self.cluster_counts = self._count_clusters()
 
     def _count_clusters(self, keep_order_intact=False, permute_sites=True):
@@ -77,14 +76,14 @@ class ClusterCounts(_ClusterCounts):
             cluster = cluster_data[2]
             sorted_cluster_counts[cluster] = {}
             for m in range(*cluster_data[3]):
-                species, count = self.get_cluster_counts_info(m)
-                sorted_cluster_counts[cluster][tuple(species)] = count
+                chemical_symbols, count = self.get_cluster_counts_info(m)
+                sorted_cluster_counts[cluster][tuple(chemical_symbols)] = count
         return sorted_cluster_counts
 
     def __str__(self):
         """
         String representation of cluster counts that provides an overview
-        of the clusters (cluster, species, and count).
+        of the clusters (cluster, chemical symbol, and count).
         """
         tuplets = {1: 'Singlet', 2: 'Pair', 3: 'Triplet', 4: 'Quadruplet'}
         width = 60
@@ -106,8 +105,8 @@ class ClusterCounts(_ClusterCounts):
                                              cluster.radius)]
 
             # Print the actual counts together with the species they refer to
-            for species, count in counts.items():
-                t = ['{:3} '.format(el) for el in species]
+            for chemical_symbols, count in counts.items():
+                t = ['{:3} '.format(el) for el in chemical_symbols]
                 s += ['{} {}'.format(''.join(t), count)]
         s += [''.center(width, '=')]
         return '\n'.join(s)

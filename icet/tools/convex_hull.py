@@ -97,7 +97,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
             self.energies = energies
             self.structures = structures
 
-        # Remove points that are above "pure components plane"
+        # Remove points that are above the "pure components plane"
         self._remove_points_above_tie_plane()
 
     def _remove_points_above_tie_plane(self, tol: float=1e-6):

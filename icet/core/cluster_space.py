@@ -417,7 +417,7 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
     Returns
     -------
     ASE Atoms object
-        structure with singlets highlighted by different species
+        structure with singlets highlighted by different chemical species
     """
     from ase.data import chemical_symbols
     assert isinstance(atoms, Atoms), \
@@ -429,9 +429,9 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
         singlet_configuration = cluster_space.primitive_structure
         for singlet in cluster_data:
             for site in singlet['sites']:
-                species = chemical_symbols[singlet['orbit_index'] + 1]
+                symbol = chemical_symbols[singlet['orbit_index'] + 1]
                 atom_index = site[0].index
-                singlet_configuration[atom_index].symbol = species
+                singlet_configuration[atom_index].symbol = symbol
     else:
         singlet_configuration = atoms.copy()
         singlet_configuration = add_vacuum_in_non_pbc(singlet_configuration)
@@ -440,12 +440,12 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
                 singlet_configuration)
         for singlet in cluster_data:
             for site in singlet['sites']:
-                species = chemical_symbols[singlet['orbit_index'] + 1]
+                symbol = chemical_symbols[singlet['orbit_index'] + 1]
                 sites = orbit_list_supercell.get_orbit(
                     singlet['orbit_index']).get_equivalent_sites()
                 for lattice_site in sites:
                     k = lattice_site[0].index
-                    singlet_configuration[k].symbol = species
+                    singlet_configuration[k].symbol = symbol
 
     return singlet_configuration
 

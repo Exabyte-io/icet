@@ -196,7 +196,7 @@ def _yield_unique_labelings(labelings: List[int], snf: SmithNormalForm,
 
 def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
                        new_cell: np.ndarray,
-                       basis: np.ndarray, species: List[str],
+                       basis: np.ndarray, chemical_symbols: List[str],
                        pbc: List[bool]) -> Atoms:
     """
     Returns structure object corresponding to the given labeling using
@@ -214,7 +214,7 @@ def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
         new cell shape
     basis
         scaled coordinates to all sites in the primitive cell
-    species
+    chemical_symbols
         list of elements, e.g. ``['Au', 'Ag']``
     pbc
         periodic boundary conditions of the primitive structure
@@ -236,7 +236,7 @@ def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
                                      (j + offset10) * cell[1] +
                                      (k + offset20 + offset21) * cell[2] +
                                      np.dot(cell.T, basis_vector))
-                    symbols.append(species[labeling[count]])
+                    symbols.append(chemical_symbols[labeling[count]])
                     count += 1
     atoms = Atoms(symbols, positions, cell=new_cell, pbc=(True, True, True))
     atoms.wrap()
@@ -321,14 +321,14 @@ def get_symmetry_operations(atoms: Atoms,
     return symmetries
 
 
-def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
+def enumerate_structures(atoms: Atoms, sizes: List[int],
+                         chemical_symbols: list,
                          concentration_restrictions: dict=None,
                          niggli_reduce: bool=None) -> Atoms:
-    """
-    Yields a sequence of enumerated structures. The function generates
+    """Yields a sequence of enumerated structures. The function generates
     *all* inequivalent structures that are permissible given a certain
-    lattice. Using the ``species`` and ``concentration_restrictions``
-    keyword arguments it is possible to specify which species are to
+    lattice. Using the ``chemical_symbols`` and ``concentration_restrictions``
+    keyword arguments it is possible to specify which chemical_symbols are to
     be included on which site and in which concentration range.
 
     The function is sensitive to the boundary conditions of the input
@@ -346,15 +346,16 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
         generated
     sizes
         number of sites (included in the enumeration)
-    species
-        species with which to decorate the structure, e.g., ``['Au',
+    chemical_symbols
+        chemical species with which to decorate the structure, e.g., ``['Au',
         'Ag']``; see below for more examples
     concentration_restrictions
         allowed concentration range for one or more element in
-        species, e.g., ``{'Au': (0, 0.2)}`` will only enumerate structures
-        in which the Au content is between 0 and 20 %; here, concentration is
-        always defined as the number of atoms of the specified kind divided by
-        the number of *all* atoms.
+        `chemical_symbols`, e.g., ``{'Au': (0, 0.2)}`` will only
+        enumerate structures in which the Au content is between 0 and
+        20 %; here, concentration is always defined as the number of
+        atoms of the specified kind divided by the number of *all*
+        atoms.
     niggli_reduction
         if True perform a Niggli reduction with spglib for each structure;
         the default is ``True`` if ``atoms`` is periodic in all directions,
@@ -370,13 +371,13 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
         from ase.build import bulk
         prim = bulk('Ag')
         enumerate_structures(atoms=prim, sizes=range(1, 7),
-                             species=['Ag', 'Au'])
+                             chemical_symbols=['Ag', 'Au'])
 
     To limit the concentration range to 10 to 40% Au the code should
     be modified as follows::
 
         enumerate_structures(atoms=prim, sizes=range(1, 7),
-                             species=['Ag', 'Au'],
+                             chemical_symbols=['Ag', 'Au'],
                              concentration_restrictions={'Au': (0.1, 0.4)})
 
     Often one would like to consider mixing on only one
@@ -385,7 +386,7 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
 
         prim = bulk('GaAs', crystalstructure='zincblende', a=5.65)
         enumerate_structures(atoms=prim, sizes=range(1, 9),
-                             species=[['Ga', 'Al'], ['As']])
+                             chemical_symbols=[['Ga', 'Al'], ['As']])
 
     """
 
@@ -393,24 +394,25 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
     basis = atoms.get_scaled_positions()
 
     # Construct descriptor of where species are allowed to be
-    if isinstance(species[0], str):
-        iter_species = [tuple(range(len(species)))] * nsites
-        elements = species
-    elif len(species) == nsites:
-        assert isinstance(species[0][0], str)
+    if isinstance(chemical_symbols[0], str):
+        iter_chemical_symbols = [tuple(range(len(chemical_symbols)))] * nsites
+        elements = chemical_symbols
+    elif len(chemical_symbols) == nsites:
+        assert isinstance(chemical_symbols[0][0], str)
         elements = []
-        for site in species:
+        for site in chemical_symbols:
             for element in site:
                 if element not in elements:
                     elements.append(element)
-        iter_species = []
-        for site in species:
-            iter_species.append(tuple(elements.index(i) for i in site))
+        iter_chemical_symbols = []
+        for site in chemical_symbols:
+            iter_chemical_symbols.append(tuple(elements.index(i)
+                                               for i in site))
     else:
-        raise Exception('species needs to be a list of strings '
+        raise Exception('chemical_symbols needs to be a list of strings '
                         'or a list of list of strings.')
 
-    # Adapt concentration restrictions to iter_species
+    # Adapt concentration restrictions to iter_chemical_symbols
     if concentration_restrictions:
         concentrations = {}
         for key, concentration_range in concentration_restrictions.items():
@@ -419,13 +421,14 @@ def enumerate_structures(atoms: Atoms, sizes: List[int], species: list,
                  ' needs to be specified as (c_low, c_high)')
             if key not in elements:
                 raise ValueError('{} found in concentration_restrictions but'
-                                 ' not in species'.format(key))
+                                 ' not in chemical_symbols'.format(key))
             concentrations[elements.index(key)] = concentration_range
     else:
         concentrations = None
 
     # Construct labeling generator
-    labeling_generator = LabelingGenerator(iter_species, concentrations)
+    labeling_generator = LabelingGenerator(iter_chemical_symbols,
+                                           concentrations)
 
     # Niggli reduce by default if all directions have
     # periodic boundary conditions

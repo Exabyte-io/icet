@@ -51,11 +51,11 @@ if __name__ == '__main__':
     iters = 2
     atoms = bulk('Al')
     cutoffs = [10, 6, 5]
-    species = ['Al', 'Ga']
+    chemical_symbols = ['Al', 'Ga']
     sizes = [4, 6, 8]
     print_timing_ratios(atoms, iters, sizes, cutoffs)
 
-    cs = ClusterSpace(atoms, cutoffs, species)
+    cs = ClusterSpace(atoms, cutoffs, chemical_symbols)
     atoms = atoms.repeat(5)
     parameters = np.array([1.2 for _ in range(len(cs))])
     ce = ClusterExpansion(cs, parameters)
