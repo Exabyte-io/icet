@@ -392,9 +392,9 @@ class TestFitStructure(unittest.TestCase):
         prop_value = self.fit_structure.properties['total_energy']
         self.assertEqual(prop_value, add_prop['total_energy'])
 
-    def test_set_cluster_vector(self):
+    def test__set_cluster_vector(self):
         """Tests set_cluster_vector functionality."""
-        self.fit_structure.set_cluster_vector(None)
+        self.fit_structure._set_cluster_vector(None)
         cv = self.fit_structure.cluster_vector
         self.assertTrue(cv is None)
 
