@@ -9,8 +9,8 @@ class LabelingGenerator():
     generation will be a simple itertools.product loop.
 
     If concentrations are specified, the approach is a bit more elaborate.
-    Take as an example a system with three sites, where Pd and Au are allowed
-    on two and H and V on the other. `iter_species` will then look something
+    Take as an example a system with four sites, where Pd and Au are allowed
+    on two and H and V on the others. `iter_species` will then look something
     like this: `[(0, 1), (0, 1), (2, 3), (2, 3)]`. The algorithm proceeds as
     follows:
 
