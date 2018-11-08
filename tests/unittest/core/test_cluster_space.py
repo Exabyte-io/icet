@@ -127,6 +127,16 @@ class TestClusterSpace(unittest.TestCase):
         cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.chemical_symbols)
         self.assertIsInstance(cs, ClusterSpace)
         self.assertEqual(len(cs), len(self.cs))
+        # check Mi as int
+        cs = ClusterSpace(self.atoms_prim, self.cutoffs,
+                          self.chemical_symbols, Mi=2)
+        self.assertIsInstance(cs, ClusterSpace)
+        self.assertEqual(len(cs), len(self.cs))
+        # check Mi as dict
+        cs = ClusterSpace(self.atoms_prim, self.cutoffs,
+                          self.chemical_symbols, Mi={0: 2})
+        self.assertIsInstance(cs, ClusterSpace)
+        self.assertEqual(len(cs), len(self.cs))
 
     def test_len(self):
         """Tests length functionality."""
@@ -167,7 +177,7 @@ class TestClusterSpace(unittest.TestCase):
         retval = self.cs.__repr__()
         target = """
 =============================== Cluster Space ================================
- chemical species: ['Ag', 'Au']
+ chemical species: Ag Au
  cutoffs: 4.0000 4.0000 4.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
@@ -190,7 +200,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
                                                     print_minimum=1)
         target = """
 =============================== Cluster Space ================================
- chemical species: ['Ag', 'Au']
+ chemical species: Ag Au
  cutoffs: 4.0000 4.0000 4.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
@@ -261,6 +271,17 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         self.assertIsInstance(retval, Atoms)
         self.assertEqual(len(retval), len(self.atoms_prim))
 
+    def test_get_Mi_from_dict(self):
+        """Tests get_Mi_from_dict functionality."""
+        d = {0: len(self.chemical_symbols)}
+        Mi = ClusterSpace._get_Mi_from_dict(d, self.atoms_prim)
+        self.assertEqual(Mi, [2])
+        # check that function fails if dictionary is incomplete
+        del d[0]
+        with self.assertRaises(Exception) as context:
+            Mi = ClusterSpace._get_Mi_from_dict(d, self.atoms_prim)
+        self.assertTrue('missing from dictionary' in str(context.exception))
+
     def test_cutoffs(self):
         """Tests cutoffs property."""
         self.assertEqual(self.cs.cutoffs, self.cutoffs)
@@ -326,10 +347,11 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         self.assertEqual(self.cs._atoms, cs_read._atoms)
         self.assertEqual(list(self.cs._cutoffs), list(cs_read._cutoffs))
         self.assertEqual(self.cs._chemical_symbols, cs_read._chemical_symbols)
+        self.assertEqual(self.cs._mi, cs_read._mi)
 
     def test_chemical_symbols(self):
         """Tests chemical_symbols property."""
-        target = [['Ag', 'Au']]
+        target = ['Ag', 'Au']
         self.assertEqual(self.cs.chemical_symbols, target)
 
 
@@ -397,6 +419,20 @@ class TestClusterSpaceSurface(unittest.TestCase):
         retval = self.cs.get_number_of_orbits_by_order()
         target = OrderedDict([(0, 1), (1, 3), (2, 5), (3, 10), (4, 4)])
         self.assertEqual(target, retval)
+
+    def test_get_Mi_from_dict(self):
+        """Tests _get_Mi_from_dict functionality."""
+        d = {}
+        for k in range(len(self.atoms_prim)):
+            d[k] = len(self.chemical_symbols)
+        d[1] = 1
+        Mi = ClusterSpace._get_Mi_from_dict(d, self.atoms_prim)
+        self.assertEqual(Mi, [2, 1, 2])
+        # check that function fails if dictionary is incomplete
+        del d[0]
+        with self.assertRaises(Exception) as context:
+            Mi = ClusterSpace._get_Mi_from_dict(d, self.atoms_prim)
+        self.assertTrue('missing from dictionary' in str(context.exception))
 
 
 class TestClusterSpaceTernary(unittest.TestCase):
@@ -503,75 +539,6 @@ class TestClusterSpaceTernary(unittest.TestCase):
         permutation_retval = self.cs.get_multi_component_vector_permutations(
             mc_vector_target, orbit_index)
         self.assertEqual(permutations_target, permutation_retval)
-
-
-class TestClusterSpaceMultiSublattice(unittest.TestCase):
-    """Container for test of the class functionality."""
-
-    def __init__(self, *args, **kwargs):
-        super(TestClusterSpaceMultiSublattice, self).__init__(*args, **kwargs)
-        self.chemical_symbols = [['Ag', 'Au'],
-                                 ['H', 'V']]
-        self.cutoffs = [5] * 2
-        self.atoms_prim = bulk(
-            'Ag', a=4.09, crystalstructure='bcc', cubic=True).repeat([1, 1, 1])
-
-    def shortDescription(self):
-        """Silences unittest from printing the docstrings in test cases."""
-        return None
-
-    def setUp(self):
-        """Setup before each test."""
-        self.cs = ClusterSpace(self.atoms_prim, self.cutoffs,
-                               self.chemical_symbols)
-        self.cluster_space_binary = ClusterSpace(
-            self.atoms_prim, self.cutoffs, ['Ag', 'Au'])
-
-    def test_init(self):
-        """Tests that initialization of tested class work."""
-        # initialize from ASE Atoms
-        cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.chemical_symbols)
-        self.assertIsInstance(cs, ClusterSpace)
-        self.assertEqual(len(cs), len(self.cs))
-
-    def test_correct_number_of_singlets(self):
-        """Tests that we get two singlets."""
-        singlet_count = 0
-        for orbit in self.cs.orbit_list.orbits:
-            if orbit.order == 1:
-                singlet_count += 1
-        self.assertEqual(singlet_count, 2)
-
-    def test_correct_number_of_pairs(self):
-        """Tests that we get correct number of pairs."""
-        pair_counts = OrderedDict()
-        pair_counts_binary = OrderedDict()
-        for orbit in self.cs.orbit_list.orbits:
-            if orbit.order == 2:
-                radius = np.round(orbit.representative_cluster.radius, 3)
-                if radius in pair_counts.keys():
-                    pair_counts[radius] += 1
-                else:
-                    pair_counts[radius] = 1
-
-        for orbit in self.cluster_space_binary.orbit_list.orbits:
-            if orbit.order == 2:
-                radius = np.round(orbit.representative_cluster.radius, 3)
-                if radius in pair_counts_binary.keys():
-                    pair_counts_binary[radius] += 1
-                else:
-                    pair_counts_binary[radius] = 1
-
-        self.assertEqual(len(pair_counts.keys()),
-                         len(pair_counts_binary.keys()))
-
-        # origin to center atom only one since these are only
-        # sublattice 1 -> sublattice 2 interactions
-        self.assertEqual(pair_counts_binary[1.771], pair_counts[1.771])
-
-        # Twice as many pairs in 100 direction since they can be both
-        # sublattice-1 -> sublatice 1 and sublattice 2  -> sublattice 2
-        self.assertEqual(pair_counts_binary[2.045]*2, pair_counts[2.045])
 
 
 if __name__ == '__main__':

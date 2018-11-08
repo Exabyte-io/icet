@@ -3,16 +3,14 @@ import random
 from abc import ABC, abstractmethod
 from math import gcd
 from time import time
-from typing import Dict, List
-
+from typing import List, Dict
 import numpy as np
 
 from ase import Atoms
-from ase.data import chemical_symbols
 
+from ..data_container import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from ..configuration_manager import ConfigurationManager
-from ..data_container import DataContainer
 from ..observers.base_observer import BaseObserver
 
 
@@ -82,23 +80,8 @@ class BaseEnsemble(ABC):
         # calculator and configuration
         self._calculator = calculator
         self._name = name
-        strict_constraints_symbol = self.calculator.occupation_constraints
-        symbols = list({tuple(sym)
-                        for sym in strict_constraints_symbol if len(sym) > 1})
-        sublattices = [[] for _ in symbols]
-        for i, constraint in enumerate(strict_constraints_symbol):
-            for j, sym in enumerate(symbols):
-                if len(sym) < 2:
-                    continue
-                if sorted(constraint) == sorted(sym):
-                    sublattices[j].append(i)
-        self._sublattices = sublattices
-        strict_constraints = []
-        for symbols in strict_constraints_symbol:
-            numbers = []
-            for symbol in symbols:
-                numbers.append(chemical_symbols.index(symbol))
-            strict_constraints.append(numbers)
+        strict_constraints = self.calculator.occupation_constraints
+        sublattices = [[i for i in range(len(self.calculator.atoms))]]
         self.configuration = ConfigurationManager(
             atoms, strict_constraints, sublattices)
 
@@ -432,12 +415,7 @@ class BaseEnsemble(ABC):
         * fix this method
         * add unit test
         """
-        total_active_sites = sum([len(sub) for sub in self._sublattices])
-        probability_distribution = [
-            len(sub)/total_active_sites for sub in self._sublattices]
-        pick = np.random.choice(
-            range(0, len(self._sublattices)), p=probability_distribution)
-        return pick
+        return 0
 
     def _restart_ensemble(self):
         """Restarts ensemble using the last state saved in DataContainer file.

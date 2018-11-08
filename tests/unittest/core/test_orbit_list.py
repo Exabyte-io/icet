@@ -123,11 +123,10 @@ class TestOrbitList(unittest.TestCase):
     def test_remove_all_orbits(self):
         """Tests removing all orbits"""
 
-        chemical_symbols = [
-            ['Al']*len(self.orbit_list.get_primitive_structure())]
+        mi = [1]*len(self.orbit_list.get_primitive_structure())
         len_before = len(self.orbit_list)
         self.assertNotEqual(len_before, 0)
-        self.orbit_list.remove_inactive_orbits(chemical_symbols)
+        self.orbit_list.remove_inactive_orbits(mi)
         len_after = len(self.orbit_list)
         self.assertEqual(len_after, 0)
 
@@ -324,6 +323,26 @@ class TestOrbitList(unittest.TestCase):
             with self.subTest(atoms_tag=row.tag):
                 self._test_allowed_permutations(atoms)
                 self._test_equivalent_sites(atoms)
+
+    def test_orbit_list_non_pbc(self):
+        """
+        Tests that singlets in orbit list retrieves the right number of unique
+        sites of the structure with different periodic boundary conditions.
+        """
+        # TODO: Returned results are incorrect for simple-cubic structures.
+        atoms = bulk('Al', 'sc', a=4.0).repeat(4)
+        # [True, True, False]
+        atoms.set_pbc([True, True, False])
+        orbit_list = OrbitList(atoms, [0.])
+        self.assertEqual(len(orbit_list), 4)
+        # [True, False, False]
+        atoms.set_pbc([True, False, False])
+        orbit_list = OrbitList(atoms, [0.])
+        self.assertEqual(len(orbit_list), 7)
+        # [False]
+        atoms.set_pbc([False, False, False])
+        orbit_list = OrbitList(atoms, [0.])
+        self.assertEqual(len(orbit_list), 20)
 
     def test_orbit_list_fcc(self):
         """

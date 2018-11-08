@@ -4,39 +4,30 @@
 
 /**
 @details This constructor initializes a ClusterSpace object.
-@param chemicalSymbols vector of allowed chemical symbol for each site
+@param numberOfAllowedSpecies number of allowed components for each site of the primitive structure
+@param chemicalSymbols chemical symbol for each site
 @param orbitList list of orbits for the primitive structure
 */
-ClusterSpace::ClusterSpace(std::vector<std::vector<std::string>> &chemicalSymbols,
-                           const OrbitList &orbitList)
+ClusterSpace::ClusterSpace(std::vector<int> numberOfAllowedSpecies,
+                           std::vector<std::string> chemicalSymbols,
+                           const OrbitList orbitList)
 {
+    _numberOfAllowedSpeciesPerSite = numberOfAllowedSpecies;
     _orbitList = orbitList;
     _primitiveStructure = orbitList.getPrimitiveStructure();
-    _chemicalSymbols = chemicalSymbols;
-
-    _numberOfAllowedSpeciesPerSite.resize(chemicalSymbols.size());
-    for (int i = 0; i < _numberOfAllowedSpeciesPerSite.size(); i++)
-    {
-        _numberOfAllowedSpeciesPerSite[i] = chemicalSymbols[i].size();
-    }
     _primitiveStructure.setNumberOfAllowedSpecies(_numberOfAllowedSpeciesPerSite);
 
     // Set up a map between chemical species and the internal species enumeration scheme.
-    for (int i = 0; i < _primitiveStructure.size(); i++)
+    for (const auto el : chemicalSymbols)
     {
-        std::unordered_map<int, int> speciesMap;
-        std::vector<int> species;
-        for (const auto el : chemicalSymbols[i])
-        {
-            species.push_back(PeriodicTable::strInt[el]);
-        }
-        sort(species.begin(), species.end());
-        for (size_t i = 0; i < species.size(); i++)
-        {
-            speciesMap[species[i]] = i;
-        }
-        _speciesMaps.push_back(speciesMap);
+        _species.push_back(PeriodicTable::strInt[el]);
     }
+    sort(_species.begin(), _species.end());
+    for (size_t i = 0; i < _species.size(); i++)
+    {
+        _speciesMap[_species[i]] = i;
+    }
+
     precomputeMultiComponentVectors();
 }
 
@@ -115,12 +106,6 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
         {
             continue;
         }
-        auto representativeSites = _orbitList._orbitList[i].getRepresentativeSites();
-        std::vector<int> representativeSitesIndices;
-        for(const auto site : representativeSites)
-        {
-            representativeSitesIndices.push_back(site.index());
-        }
 
         // First we obtain the multi-component vectors for this orbit, i.e. a vector
         // of vectors of int (where the int represents a cluster function index).
@@ -146,9 +131,7 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
                 {
                     auto permutedMultiComponentVector = icet::getPermutedVector(multiComponentVector, perm);
                     auto permutedNumberOfAllowedSpeciesBySite = icet::getPermutedVector(numberOfAllowedSpeciesBySite, perm);
-                    auto permutedRepresentativeIndices = icet::getPermutedVector(representativeSitesIndices, perm);
-
-                    clusterVectorElement += evaluateClusterProduct(permutedMultiComponentVector, permutedNumberOfAllowedSpeciesBySite, speciesCountPair.first, permutedRepresentativeIndices) * speciesCountPair.second;
+                    clusterVectorElement += evaluateClusterProduct(permutedMultiComponentVector, permutedNumberOfAllowedSpeciesBySite, speciesCountPair.first) * speciesCountPair.second;
                     multiplicity += speciesCountPair.second;
                 }
             }
@@ -253,18 +236,17 @@ double ClusterSpace::evaluateClusterFunction(const int numberOfAllowedSpecies, c
 @param multiComponentVector multi-component vector, each element of the vector gives the index of a cluster function
 @param numberOfAllowedSpecies number of species allowed on the sites in this cluster (all sites involved are assumed to have the same number of allowed species)
 @param species species that occupy (decorate) the cluster identified by atomic number
-@param indices representative lattice indices of the cluster being computed
 
 @returns the cluster product
 **/
-double ClusterSpace::evaluateClusterProduct(const std::vector<int> &multiComponentVector, const std::vector<int> &numberOfAllowedSpecies, const std::vector<int> &species, const std::vector<int> &indices) const
+double ClusterSpace::evaluateClusterProduct(const std::vector<int> &multiComponentVector, const std::vector<int> &numberOfAllowedSpecies, const std::vector<int> &species) const
 {
     double clusterProduct = 1;
 
     for (int i = 0; i < species.size(); i++)
     {
 
-        clusterProduct *= evaluateClusterFunction(numberOfAllowedSpecies[i], multiComponentVector[i], _speciesMaps[indices[i]].at(species[i]));
+        clusterProduct *= evaluateClusterFunction(numberOfAllowedSpecies[i], multiComponentVector[i], _speciesMap.at(species[i]));
     }
     return clusterProduct;
 }

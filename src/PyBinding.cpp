@@ -854,14 +854,14 @@ PYBIND11_MODULE(_icet, m)
     /// @todo Check which of the following members must actually be exposed.
     /// @todo Turn getters into properties if possible. (Some might require massaging in cluster_space.py.)
     py::class_<ClusterSpace>(m, "ClusterSpace", py::dynamic_attr())
-        .def(py::init<std::vector<std::vector<std::string>> &, const OrbitList>())
+        .def(py::init<std::vector<int>, std::vector<std::string>, const OrbitList &>())
         .def("get_cluster_vector", [](const ClusterSpace &ClusterSpace, const Structure &structure) {
             auto cv = ClusterSpace.getClusterVector(structure);
             return py::array(cv.size(), cv.data());
         })
         .def("_get_orbit_list", &ClusterSpace::getOrbitList)
         .def("get_orbit", &ClusterSpace::getOrbit)
-        .def_property_readonly("species_maps", &ClusterSpace::getSpeciesMaps)
+        .def_property_readonly("species_map", &ClusterSpace::getSpeciesMap)
         .def("get_cluster_space_info", &ClusterSpace::getClusterSpaceInfo)
         .def("get_cluster_space_size", &ClusterSpace::getClusterSpaceSize)
         .def("get_chemical_symbols", &ClusterSpace::getChemicalSymbols, "Returns list of species associated with cluster space as chemical symbols.")

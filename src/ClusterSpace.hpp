@@ -19,7 +19,7 @@ class ClusterSpace
   public:
     /// Constructor.
     ClusterSpace(){};
-    ClusterSpace(std::vector<std::vector<std::string>> &, const OrbitList &);
+    ClusterSpace(std::vector<int>, std::vector<std::string>, const OrbitList);
 
     /// Returns the cluster vector corresponding to the input structure.
     std::vector<double> getClusterVector(const Structure &) const;
@@ -52,9 +52,12 @@ class ClusterSpace
     std::vector<int> getNumberOfAllowedSpeciesBySite(const Structure &, const std::vector<LatticeSite> &) const;
 
     /// Returns a list of species associated with cluster space as chemical symbols.
-    std::vector<std::vector<std::string>> getChemicalSymbols() const
+    std::vector<std::string> getChemicalSymbols() const
     {
-      return _chemicalSymbols;
+        std::vector<std::string> species;
+        for (const auto &s : _species)
+            species.push_back(PeriodicTable::intStr[s]);
+        return species;
     }
 
     /// Returns the cluster space size, i.e. the length of a cluster vector.
@@ -63,15 +66,15 @@ class ClusterSpace
         return _clusterSpaceInfo.size();
     }
 
-    /// Returns the mapping between atomic numbers and the internal species enumeration scheme for each site.
-    std::vector<std::unordered_map<int, int>> getSpeciesMaps() const { return _speciesMaps; }
+    /// Returns the mapping between atomic numbers and the internal species enumeration scheme.
+    std::unordered_map<int, int> getSpeciesMap() const { return _speciesMap; }
 
     ///Primitive orbit list based on the structure and the global cutoffs
     OrbitList _orbitList;
 
     /// Returns the cluster product.
     /// @todo Can we find a more telling name?
-    double evaluateClusterProduct(const std::vector<int> &, const std::vector<int> &, const std::vector<int> &, const std::vector<int>&) const;
+    double evaluateClusterProduct(const std::vector<int> &, const std::vector<int> &, const std::vector<int> &) const;
 
     /// Primitive (prototype) structure.
     Structure _primitiveStructure;
@@ -107,11 +110,8 @@ class ClusterSpace
     /// Species considered in this cluster space identified by atomic number.
     std::vector<int> _species;
 
-    /// Map between atomic numbers and the internal species enumeration scheme for each site in the primitive structure.
-    std::vector<std::unordered_map<int, int>> _speciesMaps;
-
-    /// The allowed chemical symbols on each site in the primitive structure.
-    std::vector<std::vector<std::string>> _chemicalSymbols;
+    /// Map between atomic numbers and the internal species enumeration scheme.
+    std::unordered_map<int, int> _speciesMap;
 
 };
 

@@ -210,13 +210,6 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
         {
             continue;
         }
-        auto representativeSites = _clusterSpace._orbitList._orbitList[i].getRepresentativeSites();
-        std::vector<int> representativeSitesIndices;
-        for(const auto site : representativeSites)
-        {
-            representativeSitesIndices.push_back(site.index());
-        }
-
 
         const auto &mcVectors = _clusterSpace._multiComponentVectors[i];
         const auto &elementPermutations = _clusterSpace._sitePermutations[i];
@@ -245,10 +238,8 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
                     /// Permute the mc vector and the allowed occupations
                     const auto &permutedMCVector = icet::getPermutedVector(mcVectors[currentMCVectorIndex], perm);
                     const auto &permutedAllowedOccupations = icet::getPermutedVector(allowedOccupations, perm);
-                    const auto &permutedRepresentativeIndices = icet::getPermutedVector(representativeSitesIndices, perm);
 
-
-                    clusterVectorElement += _clusterSpace.evaluateClusterProduct(permutedMCVector, permutedAllowedOccupations, elementsCountPair.first, permutedRepresentativeIndices) * elementsCountPair.second;
+                    clusterVectorElement += _clusterSpace.evaluateClusterProduct(permutedMCVector, permutedAllowedOccupations, elementsCountPair.first) * elementsCountPair.second;
                 }
             }
 

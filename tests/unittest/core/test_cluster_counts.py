@@ -35,13 +35,12 @@ class TestClusterCounts(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestClusterCounts, self).__init__(*args, **kwargs)
         self.atoms = bulk('Ni', 'hcp', a=2.0).repeat([2, 1, 1])
-        self.atoms_prim = bulk('Ni', 'hcp', a=2.0)
         self.atoms.set_chemical_symbols('NiFeNi2')
         self.structure = Structure.from_atoms(self.atoms)
         self.cutoffs = [2.2]
         self.neighbor_lists = get_neighbor_lists(
             atoms=self.atoms, cutoffs=self.cutoffs)
-        self.orbit_list = OrbitList(self.atoms_prim, self.cutoffs)
+        self.orbit_list = OrbitList(self.atoms, self.cutoffs)
         self.orbit_list.sort()
 
     def shortDescription(self):

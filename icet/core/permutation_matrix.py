@@ -35,6 +35,12 @@ def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
     """
 
     atoms = atoms.copy()
+    # set each element to the same since we only care about geometry when
+    # taking primitive
+    if len(atoms) > 0:
+        atoms.set_chemical_symbols(len(atoms) * [atoms[0].symbol])
+    else:
+        raise Exception('Length of atoms is {}'.format(len(atoms)))
 
     atoms_prim = atoms
     if find_prim:
@@ -60,6 +66,7 @@ def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
     # get fractional positions for neighbor_list
     frac_positions = get_fractional_positions_from_neighbor_list(
         prim_structure, neighbor_list)
+    # frac_positions.sort()
 
     logger.debug('Number of fractional positions:'
                  ' {}'.format(len(frac_positions)))

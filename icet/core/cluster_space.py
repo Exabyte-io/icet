@@ -8,8 +8,7 @@ from _icet import ClusterSpace as _ClusterSpace
 from ase import Atoms
 from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
-from icet.tools.geometry import (add_vacuum_in_non_pbc,
-                                 get_decorated_primitive_structure)
+from icet.tools.geometry import add_vacuum_in_non_pbc
 
 
 class ClusterSpace(_ClusterSpace):
@@ -19,85 +18,99 @@ class ClusterSpace(_ClusterSpace):
 
     Parameters
     ----------
-    atoms : ase.Atoms or icet.Structure
+    atoms : ASE Atoms object / icet Structure object (bi-optional)
         atomic configuration
-    cutoffs : list(float)
+    cutoffs : list of floats
         cutoff radii per order that define the cluster space
-    chemical_symbols : list(str) or list(list(str))
-        list of chemical symbols, each of which must map to an element
-        of the periodic table
-        * if a list of chemical symbols is provided, all sites on the
-          lattice will have the same allowed occupations as the input
-          list
-        * if a list of list of chemical symbols is provided then the outer
-          list must be the same length as the atoms object and
-          chemical_symbols[i] will correspond to the allowed species on
-          lattice site 'i'
+    chemical_symbols : list of strings
+        list of chemical symbols, each of which must map to an element of
+        the periodic table
+    Mi : list / dictionary / int
+        * if a list is provided, it must contain as many elements as there
+          are sites and each element represents the number of allowed
+          components on the respective site
+        * if a dictionary is provided the key represent the site index and
+          the value the number of allowed components
+        * if a single `int` is provided each site the number of allowed
+          components will be set to `Mi` for sites in the structure
     """
 
     def __init__(self, atoms: Union[Atoms, Structure], cutoffs: List[float],
-                 chemical_symbols: Union[List[str], List[List[str]]]) -> None:
+                 chemical_symbols: List[str],
+                 Mi: Union[list, dict, int]=None) -> None:
 
         assert isinstance(atoms, Atoms), \
             'input configuration must be an ASE Atoms object'
 
-        self._atoms = atoms.copy()
+        self._atoms = atoms
         self._cutoffs = cutoffs
-        self._chemical_symbols = chemical_symbols.copy()
-        self._input_chemical_symbols = chemical_symbols.copy()
-
-        # handle occupations
-        if all(isinstance(i, str) for i in self._chemical_symbols):
-            self._chemical_symbols = [self._chemical_symbols]*len(self._atoms)
-
-        elif not all(isinstance(i, list) for i in self._chemical_symbols):
-            raise TypeError("chemical_symbols must be"
-                            " List[str] or List[List[str]],"
-                            " not {}".format(type(self._chemical_symbols)))
-
-        decorated_primitive, primitive_chemical_symbols = \
-            get_decorated_primitive_structure(
-                self._atoms, self._chemical_symbols)
-
-        self._primitive_chemical_symbols = primitive_chemical_symbols
-
-        assert len(decorated_primitive) == len(primitive_chemical_symbols)
+        self._chemical_symbols = chemical_symbols
+        self._mi = Mi
 
         # set up orbit list
-        self._orbit_list = OrbitList(decorated_primitive, self._cutoffs)
-        self._orbit_list.remove_inactive_orbits(primitive_chemical_symbols)
+        self._orbit_list = OrbitList(self._atoms, self._cutoffs)
+
+        # handle occupations
+        if Mi is None:
+            Mi = len(chemical_symbols)
+        if isinstance(Mi, dict):
+            Mi = self._get_Mi_from_dict(
+                Mi, self._orbit_list.get_primitive_structure())
+        if not isinstance(Mi, list):
+            if isinstance(Mi, int):
+                Mi = [Mi] * len(self._orbit_list.get_primitive_structure())
+            else:
+                raise Exception('Mi has wrong type (ClusterSpace)')
+        assert len(Mi) == len(self._orbit_list.get_primitive_structure()), \
+            'len(Mi) does not equal the number of sites' \
+            ' in the primitive structure'
+
+        self._orbit_list.remove_inactive_orbits(Mi)
 
         # call (base) C++ constructor
-        _ClusterSpace.__init__(
-            self, primitive_chemical_symbols, self._orbit_list)
+        _ClusterSpace.__init__(self, Mi, chemical_symbols, self._orbit_list)
 
-    def _get_chemical_symbol_representation(self):
-        """Returns a str version of the chemical symbols that is
-        easier on the eyes.
+    @staticmethod
+    def _get_Mi_from_dict(Mi: dict, atoms: Union[Atoms, Structure]):
         """
-        nice_str = ''
-        if len(self.chemical_symbols) > 4:
-            last_symbol = self.chemical_symbols[0]
-            count = 1
-            for i in range(1, len(self.chemical_symbols)):
-                if self.chemical_symbols[i] == last_symbol:
-                    count += 1
-                    if i == len(self.chemical_symbols)-1:
-                        if count == 1:
-                            nice_str += '{} '.format(last_symbol)
-                        else:
-                            nice_str += '{}*{} '.format(count, last_symbol)
-                else:
-                    if count == 1:
-                        nice_str += '{} '.format(last_symbol)
-                    else:
-                        nice_str += '{}*{} '.format(count, last_symbol)
-                    count = 1
-                    last_symbol = self.chemical_symbols[i]
+        Mi maps the orbit index to the number of allowed components. This
+        function maps a dictionary onto the list format that is used
+        internatlly for representing Mi.
+
+        Parameters
+        ----------
+        Mi
+            each site in the structure should be represented by one entry in
+            this dictionary, where the key is the site index and the value is
+            the number of components that are allowed on the repsective site
+        atoms
+            atomic configuration
+
+        Returns
+        -------
+        list
+            number of species that are allowed on each site
+
+        Todo
+        ----
+        * rename function
+        * remove bi-optionality between icet Structure and ASE Atoms input
+        """
+        assert isinstance(atoms, (Atoms, Structure)), \
+            'input configuration must be an ASE Atoms/icet Structure object'
+        if isinstance(atoms, Atoms):
+            cluster_data = get_singlet_info(atoms)
         else:
-            for s in self.chemical_symbols:
-                nice_str += '{} '.format(s)
-        return nice_str
+            cluster_data = get_singlet_info(atoms.to_atoms())
+        Mi_ret = [-1] * len(atoms)
+        for singlet in cluster_data:
+            for site in singlet['sites']:
+                if singlet['orbit_index'] not in Mi:
+                    raise Exception('Mi for site {} missing from dictionary'
+                                    ''.format(singlet['orbit_index']))
+                Mi_ret[site[0].index] = Mi[singlet['orbit_index']]
+
+        return Mi_ret
 
     def _get_string_representation(self, print_threshold: int=None,
                                    print_minimum: int=10) -> str:
@@ -143,7 +156,7 @@ class ClusterSpace(_ClusterSpace):
         s = []  # type: List
         s += ['{s:=^{n}}'.format(s=' Cluster Space ', n=width)]
         s += [' chemical species: {}'
-              .format(self._get_chemical_symbol_representation())]
+              .format(' '.join(self.get_chemical_symbols()))]
         s += [' cutoffs: {}'.format(' '.join(['{:.4f}'.format(co)
                                               for co in self._cutoffs]))]
         s += [' total number of orbits: {}'.format(len(self))]
@@ -222,7 +235,7 @@ class ClusterSpace(_ClusterSpace):
             mc_permutations_multiplicity = len(mc_permutations[mc_index])
             cluster = self.get_orbit(orbit_index).get_representative_cluster()
             multiplicity = len(self.get_orbit(
-                orbit_index).get_equivalent_sites())
+                               orbit_index).get_equivalent_sites())
             record = OrderedDict([('index', index),
                                   ('order', cluster.order),
                                   ('radius', cluster.radius),
@@ -278,11 +291,11 @@ class ClusterSpace(_ClusterSpace):
         return self._get_primitive_structure().to_atoms()
 
     @property
-    def chemical_symbols(self) -> List[List[str]]:
+    def chemical_symbols(self) -> List[str]:
         """
         Chemical species considered
         """
-        return self._primitive_chemical_symbols.copy()
+        return self._chemical_symbols.copy()
 
     @property
     def cutoffs(self) -> List[float]:
@@ -310,7 +323,8 @@ class ClusterSpace(_ClusterSpace):
 
         parameters = {'atoms': self._atoms.copy(),
                       'cutoffs': self._cutoffs,
-                      'chemical_symbols': self._input_chemical_symbols}
+                      'chemical_symbols': self._chemical_symbols,
+                      'Mi': self._mi}
         with open(filename, 'wb') as handle:
             pickle.dump(parameters, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
@@ -332,7 +346,8 @@ class ClusterSpace(_ClusterSpace):
 
         return ClusterSpace(parameters['atoms'],
                             parameters['cutoffs'],
-                            parameters['chemical_symbols'])
+                            parameters['chemical_symbols'],
+                            parameters['Mi'])
 
 
 def get_singlet_info(atoms: Atoms, return_cluster_space: bool=False):
@@ -420,7 +435,7 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
     else:
         singlet_configuration = atoms.copy()
         singlet_configuration = add_vacuum_in_non_pbc(singlet_configuration)
-        orbit_list_supercell\
+        orbit_list_supercell \
             = cluster_space._orbit_list.get_supercell_orbit_list(
                 singlet_configuration)
         for singlet in cluster_data:

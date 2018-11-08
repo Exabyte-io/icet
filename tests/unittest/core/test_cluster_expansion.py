@@ -85,6 +85,7 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
         self.assertEqual(self.cs._chemical_symbols,
                          ce_read.cluster_space._chemical_symbols)
+        self.assertEqual(self.cs._mi, ce_read.cluster_space._mi)
 
         # check parameters
         self.assertEqual(ce_read.parameters, self.parameters)
@@ -95,7 +96,7 @@ class TestClusterExpansion(unittest.TestCase):
         retval = self.ce.__repr__()
         target = """
 =================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+ chemical species: Pd Au
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
@@ -109,7 +110,6 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
    4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |         4
 ==========================================================================================
 """  # noqa
-
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
 
@@ -120,7 +120,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
                                                     print_minimum=1)
         target = """
 =================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+ chemical species: Pd Au
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
