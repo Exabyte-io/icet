@@ -29,9 +29,9 @@ class TestClusterExpansion(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestClusterExpansion, self).__init__(*args, **kwargs)
         self.atoms = bulk('Au')
-        cutoffs = [3.0] * 3
+        self.cutoffs = [3.0] * 3
         chemical_symbols = ['Au', 'Pd']
-        self.cs = ClusterSpace(self.atoms, cutoffs, chemical_symbols)
+        self.cs = ClusterSpace(self.atoms, self.cutoffs, chemical_symbols)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -57,6 +57,18 @@ class TestClusterExpansion(unittest.TestCase):
         """Tests predict function."""
         predicted_val = self.ce.predict(self.atoms)
         self.assertEqual(predicted_val, 10.0)
+
+    def test_property_orders(self):
+        """Tests orders property."""
+        self.assertEqual(self.ce.orders, list(range(len(self.cutoffs)+2)))
+
+    def test_property_eci_dataframe(self):
+        """Tests eci_dataframe property."""
+        df = self.ce.eci_dataframe
+        self.assertIn('radius', df.columns)
+        self.assertIn('order', df.columns)
+        self.assertIn('eci', df.columns)
+        self.assertEequal(len(df), len(self.parameters))
 
     def test_property_clusterspace(self):
         """Tests cluster space property."""

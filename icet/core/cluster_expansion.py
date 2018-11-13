@@ -1,3 +1,4 @@
+import pandas as pd
 import numpy as np
 import pickle
 import re
@@ -63,6 +64,18 @@ class ClusterExpansion:
         cluster_vector = self.cluster_space.get_cluster_vector(structure)
         prop = np.dot(cluster_vector, self.parameters)
         return prop
+
+    @property
+    def parameters_dataframe(self) -> pd.DataFrame:
+        """ pandas dataframe containing orbit data and ECIs """
+        rows = self.cluster_space.orbit_data
+        for row, eci in zip(rows, self.parameters):
+            row['eci'] = eci
+        return pd.DataFrame(rows)
+
+    @property
+    def orders(self) -> List:
+        return list(range(len(self.cluster_space.cutoffs)+2))
 
     @property
     def cluster_space(self) -> ClusterSpace:
