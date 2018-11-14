@@ -8,16 +8,6 @@ from numpy import array, count_nonzero
 
 # step 1: Collect ECIs in dictionary
 ce = ClusterExpansion.read('mixing_energy.ce')
-ecis = OrderedDict()
-for order in range(len(ce.cluster_space.cutoffs)+2):
-    for orbit in ce.cluster_space.orbit_data:
-        if orbit['order'] != order:
-            continue
-        if order not in ecis:
-            ecis[order] = {'radius': [], 'parameters': []}
-        ecis[order]['radius'].append(orbit['radius'])
-        ecis[order]['parameters'].append(ce.parameters[orbit['index']])
-
 df_ecis = ce.parameters_as_dataframe
 
 # step 2: Plot ECIs
@@ -37,10 +27,10 @@ for k, order in enumerate(ce.orders):
     if order == 4:
         ax.set_xlim((1.5, 3.9))
         ax.text(0.05, 0.55, 'zerolet: {:.1f} meV'
-                .format(1e3*df_order.eci.iloc[0]),
+                .format(1e3*df_ecis.eci.iloc[0]),
                 transform=ax.transAxes)
         ax.text(0.05, 0.45, 'singlet: {:.1f} meV'
-                .format(1e3*ecis[1]['parameters'][0]),
+                .format(1e3*df_ecis.eci.iloc[1]),
                 transform=ax.transAxes)
     ax.plot([0, 5], [0, 0], color='black')
     ax.bar(df_order.radius, 1e3*df_order.eci, width=0.05)
