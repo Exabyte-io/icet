@@ -2,9 +2,8 @@
 # This scripts runs in about 2 seconds on an i7-6700K CPU.
 
 import matplotlib.pyplot as plt
-from collections import OrderedDict
 from icet import ClusterExpansion
-from numpy import array, count_nonzero
+import numpy as np
 
 # step 1: Collect ECIs in dictionary
 ce = ClusterExpansion.read('mixing_energy.ce')
@@ -41,6 +40,6 @@ for k, order in enumerate(ce.orders):
     ax.text(0.05, 0.81, '#parameters: {}'.format(len(df_order)),
             transform=ax.transAxes,)
     ax.text(0.05, 0.71, '#non-zero params: {}'
-            .format(count_nonzero(df_order.eci)),
+            .format(np.count_nonzero(df_order.eci)),
             transform=ax.transAxes,)
 plt.savefig('ecis.png', bbox_inches='tight')
