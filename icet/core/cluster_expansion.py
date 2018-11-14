@@ -66,7 +66,7 @@ class ClusterExpansion:
         return prop
 
     @property
-    def parameters_dataframe(self) -> pd.DataFrame:
+    def parameters_as_dataframe(self) -> pd.DataFrame:
         """ pandas dataframe containing orbit data and ECIs """
         rows = self.cluster_space.orbit_data
         for row, eci in zip(rows, self.parameters):

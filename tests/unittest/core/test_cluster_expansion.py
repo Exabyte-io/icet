@@ -62,9 +62,9 @@ class TestClusterExpansion(unittest.TestCase):
         """Tests orders property."""
         self.assertEqual(self.ce.orders, list(range(len(self.cutoffs)+2)))
 
-    def test_property_parameters_dataframe(self):
-        """Tests eci_dataframe property."""
-        df = self.ce.parameters_dataframe
+    def test_property_parameters_as_dataframe(self):
+        """Tests parameters_as_dataframe property."""
+        df = self.ce.parameters_as_dataframe
         self.assertIn('radius', df.columns)
         self.assertIn('order', df.columns)
         self.assertIn('eci', df.columns)
