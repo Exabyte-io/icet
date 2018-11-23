@@ -7,7 +7,7 @@ import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers, chemical_symbols
 from ase.units import kB
-from typing import Dict
+from typing import Dict, Union
 
 from .. import DataContainer
 from .base_ensemble import BaseEnsemble
@@ -83,26 +83,12 @@ class VCSGCEnsemble(BaseEnsemble):
 
     Parameters
     ----------
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    phis : Dict[str, float]
-        average constraint parameters :math:`\\phi_i`; the key denotes the
-        species; there must be one entry for each species but their sum must be
-        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
-    kappa : float
-        parameter that constrains the variance of the concentration
-        (referred to as :math:`\\bar{\kappa}` in [SadErh12]_)
-    calculator : :class:`BaseCalculator`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
     atoms : :class:`ase:Atoms`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
+    calculator : :class:`BaseCalculator`
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
     name : str
         human-readable ensemble name [default: `BaseEnsemble`]
     data_container : str
@@ -110,6 +96,9 @@ class VCSGCEnsemble(BaseEnsemble):
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     ensemble_data_write_interval : int
         interval at which data is written to the data container; this
         includes for example the current value of the calculator
@@ -123,37 +112,32 @@ class VCSGCEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-
-    Attributes
-    ----------
-    temperature : float
-        temperature :math:`T` (see parameters section above)
     boltzmann_constant : float
-        Boltzmann constant :math:`k_B` (see parameters section above)
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
+    temperature : float
+        temperature :math:`T` in appropriate units [commonly Kelvin]
+    phis : Dict[str, float]
+        average constraint parameters :math:`\\phi_i`; the key denotes the
+        species; there must be one entry for each species but their sum must be
+        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
     kappa : float
-        variance constraint parameter (see parameters section above)
-    accepted_trials : int
-        number of accepted trial steps
-    total_trials : int
-        number of total trial steps
-    data_container_write_period : int
-        period in units of seconds at which the data container is
-        written to file
+        parameter that constrains the variance of the concentration
+        (referred to as :math:`\\bar{\kappa}` in [SadErh12]_)
     """
 
-    def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
+    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
                  name: str='Variance-constrained semi-grand' +
                            ' canonical ensemble',
                  data_container: DataContainer=None, random_seed: int=None,
                  data_container_write_period: float=np.inf,
                  ensemble_data_write_interval: int=None,
                  trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, *, temperature: float,
-                 phis: Dict[str, float],
-                 kappa: float):
+                 boltzmann_constant: float=kB, temperature: float=None,
+                 phis: Dict[str, float]=None,
+                 kappa: float=None):
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,
@@ -163,12 +147,19 @@ class VCSGCEnsemble(BaseEnsemble):
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        self.temperature = temperature
-        self.boltzmann_constant = boltzmann_constant
+        if temperature is None:
+            raise TypeError('Missing required keyword argument: temperature')
+        self._temperature = temperature
 
-        self._phis = None
-        self.phis = phis
-        self.kappa = kappa
+        self._boltzmann_constant = boltzmann_constant
+
+        if phis is None:
+            raise TypeError('Missing required keyword argument: phis')
+        self._set_phis(phis)
+
+        if kappa is None:
+            raise TypeError('Missing required keyword argument: kappa')
+        self._kappa = kappa
 
         if len(self.configuration._allowed_species) > 2:
             raise NotImplementedError('VCSGCEnsemble does not yet support '
@@ -177,7 +168,7 @@ class VCSGCEnsemble(BaseEnsemble):
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self.total_trials += 1
+        self._total_trials += 1
 
         # choose flip
         sublattice_index = self.get_random_sublattice_index()
@@ -201,7 +192,7 @@ class VCSGCEnsemble(BaseEnsemble):
         potential_diff += self._get_property_change([index], [new_species])
 
         if self._acceptance_condition(potential_diff):
-            self.accepted_trials += 1
+            self._accepted_trials += 1
             self.update_occupations([index], [new_species])
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
@@ -222,6 +213,16 @@ class VCSGCEnsemble(BaseEnsemble):
                 self._next_random_number()
 
     @property
+    def temperature(self) -> float:
+        """ temperature :math:`T` (see parameters section above) """
+        return self._temperature
+
+    @property
+    def boltzmann_constant(self) -> float:
+        """ Boltzmann constant :math:`k_B` (see parameters section above) """
+        return self._boltzmann_constant
+
+    @property
     def phis(self) -> Dict[int, float]:
         """
         phis :math:`\\phi_i`, one for each species but their sum must be
@@ -229,12 +230,19 @@ class VCSGCEnsemble(BaseEnsemble):
         """
         return self._phis
 
-    @phis.setter
-    def phis(self, phis):
+    @property
+    def kappa(self) -> float:
+        """
+        kappa :math:`\\bar{\kappa}` constrain parameter (see parameters section above)
+        """
+        return self._kappa
+
+    def _set_phis(self, phis: Dict[Union[int, str], float]):
+        """ Sets values of phis."""
         if not isinstance(phis, dict):
-            raise TypeError('phis must be dict, not {}'.format(type(phis)))
+            raise TypeError('phis has the wrong type: {}'.format(type(phis)))
         if abs(sum(phis.values()) + 2) > 1e-6:
-            raise ValueError('The sum of all phis must equal -2')
+            raise ValueError('The sum of all phis must equal to -2')
 
         self._phis = {}
 

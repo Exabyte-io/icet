@@ -33,7 +33,7 @@ class TestEnsemble(unittest.TestCase):
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
 
         self.ensemble = SemiGrandCanonicalEnsemble(
-            calculator=self.calculator, atoms=self.atoms,
+            self.atoms, self.calculator,
             name='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
@@ -42,43 +42,58 @@ class TestEnsemble(unittest.TestCase):
             chemical_potentials=self.chemical_potentials,
             boltzmann_constant=1e-5)
 
+    def test_init(self):
+        """ Tests exceptions are raised during initialization. """
+        with self.assertRaises(TypeError) as context:
+            SemiGrandCanonicalEnsemble(self.atoms, self.calculator)
+        self.assertTrue('Missing required keyword argument: temperature' in
+                        str(context.exception))
+
+        with self.assertRaises(TypeError) as context:
+            SemiGrandCanonicalEnsemble(self.atoms, self.calculator,
+                                       temperature=self.temperature)
+        self.assertTrue('Missing required keyword argument:'
+                        ' chemical_potentials' in str(context.exception))
+
+    def test_property_boltzmann(self):
+        """Tests explicit Boltzmann constant."""
+        self.assertAlmostEqual(1e-5, self.ensemble.boltzmann_constant)
+
+    def test_property_temperature(self):
+        """Tests property temperature."""
+        self.assertEqual(self.ensemble.temperature, self.temperature)
+
     def test_property_chemical_potentials(self):
         """Tests property chemical_potentials."""
         retval = self.ensemble.chemical_potentials
         target = {13: 5, 31: 0}
         self.assertEqual(retval, target)
 
-        self.ensemble.chemical_potentials = {'Al': 4, 'Ga': 1}
+        self.ensemble._set_chemical_potentials({'Al': 4, 'Ga': 1})
         retval = self.ensemble.chemical_potentials
         target = {13: 4, 31: 1}
         self.assertEqual(retval, target)
 
-        self.ensemble.chemical_potentials = {13: 10, 31: -1}
+        self.ensemble._set_chemical_potentials({13: 10, 31: -1})
         retval = self.ensemble.chemical_potentials
         target = {13: 10, 31: -1}
         self.assertEqual(retval, target)
 
-        self.ensemble.chemical_potentials = {13: 16}
+        self.ensemble._set_chemical_potentials({13: 16})
         retval = self.ensemble.chemical_potentials
         target = {13: 16, 31: -1}
         self.assertEqual(retval, target)
 
         # test exceptions
         with self.assertRaises(TypeError) as context:
-            self.ensemble.chemical_potentials = 'xyz'
+            self.ensemble._set_chemical_potentials('xyz')
         self.assertTrue('chemical_potentials has the wrong type'
                         in str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            self.ensemble.chemical_potentials = {'Ni': 3}
+            self.ensemble._set_chemical_potentials({'Ni': 3})
         self.assertTrue('Unknown species'
                         in str(context.exception))
-
-    def test_temperature_attribute(self):
-        """Tests temperature attribute."""
-        self.assertEqual(self.ensemble.temperature, self.temperature)
-        self.ensemble.temperature = 300
-        self.assertEqual(self.ensemble.temperature, 300)
 
     def test_do_trial_step(self):
         """Tests the do trial step."""
@@ -113,7 +128,7 @@ class TestEnsemble(unittest.TestCase):
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
 
-    def test__get_ensemble_data(self):
+    def test_get_ensemble_data(self):
         """Tests the get ensemble data method."""
         data = self.ensemble._get_ensemble_data()
 

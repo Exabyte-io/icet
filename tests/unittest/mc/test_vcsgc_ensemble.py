@@ -37,7 +37,7 @@ class TestEnsemble(unittest.TestCase):
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
 
         self.ensemble = VCSGCEnsemble(
-            calculator=self.calculator, atoms=self.atoms,
+            self.atoms, self.calculator,
             name='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
@@ -47,43 +47,69 @@ class TestEnsemble(unittest.TestCase):
             kappa=self.kappa,
             boltzmann_constant=1e-5)
 
+    def test_init(self):
+        """ Tests exceptions are raised during initialization. """
+        with self.assertRaises(TypeError) as context:
+            VCSGCEnsemble(self.atoms, self.calculator)
+        self.assertTrue('Missing required keyword argument: temperature' in
+                        str(context.exception))
+
+        with self.assertRaises(TypeError) as context:
+            VCSGCEnsemble(self.atoms, self.calculator,
+                          temperature=self.temperature)
+        self.assertTrue('Missing required keyword argument: phis'
+                        in str(context.exception))
+
+        with self.assertRaises(TypeError) as context:
+            VCSGCEnsemble(self.atoms, self.calculator,
+                          temperature=self.temperature,
+                          phis=self.phis)
+        self.assertTrue('Missing required keyword argument: kappa'
+                        in str(context.exception))
+
     def test_property_phis(self):
-        """Test property phis."""
+        """Tests phis property."""
         retval = self.ensemble.phis
         target = {13: -1.3, 31: -0.7}
         self.assertEqual(retval, target)
 
-        self.ensemble.phis = {'Al': -1.2, 'Ga': -0.8}
+        self.ensemble._set_phis({'Al': -1.2, 'Ga': -0.8})
         retval = self.ensemble.phis
         target = {13: -1.2, 31: -0.8}
         self.assertEqual(retval, target)
 
-        self.ensemble.phis = {13: -2.2, 31: 0.2}
+        self.ensemble._set_phis({13: -2.2, 31: 0.2})
         retval = self.ensemble.phis
         target = {13: -2.2, 31: 0.2}
         self.assertEqual(retval, target)
 
         # test exceptions
         with self.assertRaises(ValueError) as context:
-            self.ensemble.phis = {13: -2.0}
+            self.ensemble._set_phis({13: -2.0})
         self.assertTrue('phis were not set' in str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            self.ensemble.phis = 'xyz'
-        self.assertTrue('phis must be dict' in str(context.exception))
+            self.ensemble._set_phis('xyz')
+        self.assertTrue('phis has the wrong type' in str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            self.ensemble.phis = {13: -1.2, 31: -0.7}
+            self.ensemble._set_phis({13: -1.2, 31: -0.7})
         self.assertTrue('The sum of all phis must' in str(context.exception))
 
-    def test_temperature_attribute(self):
-        """Test temperature attribute."""
+    def test_property_boltzmann(self):
+        """Tests explicit Boltzmann constant."""
+        self.assertAlmostEqual(1e-5, self.ensemble.boltzmann_constant)
+
+    def test_property_temperature(self):
+        """Tests temperature property."""
         self.assertEqual(self.ensemble.temperature, self.temperature)
-        self.ensemble.temperature = 300
-        self.assertEqual(self.ensemble.temperature, 300)
+
+    def test_property_kappa(self):
+        """Tests kappa property."""
+        self.assertEqual(self.ensemble.kappa, self.kappa)
 
     def test_do_trial_step(self):
-        """Test the do trial step."""
+        """Tests the do trial step."""
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
@@ -91,7 +117,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble.total_trials, 10)
 
     def test_acceptance_condition(self):
-        """ Test the acceptance condition method."""
+        """Tests the acceptance condition method."""
 
         self.assertTrue(self.ensemble._acceptance_condition(-10.0))
 
@@ -99,11 +125,11 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble._acceptance_condition(10.0)
 
     def test_init_with_integer_phis(self):
-        """ Test init with integer chemical potentials."""
+        """Tests init with integer chemical potentials."""
 
         phis = {13: -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
+            self.atoms, self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)
@@ -112,14 +138,14 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         phis = {'Al': -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
+            self.atoms, self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)
         ensemble._do_trial_step()
 
     def test_get_ensemble_data(self):
-        """Test the get ensemble data method."""
+        """Tests the get ensemble data method."""
         data = self.ensemble._get_ensemble_data()
 
         self.assertIn('potential', data.keys())
@@ -139,7 +165,7 @@ class TestEnsemble(unittest.TestCase):
 
     def test_write_interval_and_period(self):
         """
-        Test interval and period for writing data from ensemble.
+        Tests interval and period for writing data from ensemble.
         """
         self.assertEqual(self.ensemble.data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)

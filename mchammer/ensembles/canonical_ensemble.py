@@ -52,19 +52,12 @@ class CanonicalEnsemble(BaseEnsemble):
 
     Parameters
     ----------
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    calculator : :class:`BaseCalculator`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
     atoms : :class:`ase:Atoms`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
+    calculator : :class:`BaseCalculator`
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
     name : str
         human-readable ensemble name [default: `BaseEnsemble`]
     data_container : str
@@ -72,6 +65,9 @@ class CanonicalEnsemble(BaseEnsemble):
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     ensemble_data_write_interval : int
         interval at which data is written to the data container; this
         includes for example the current value of the calculator
@@ -85,32 +81,22 @@ class CanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-
-    Attributes
-    ----------
-    temperature : float
-        temperature :math:`T` (see parameters section above)
     boltzmann_constant : float
-        Boltzmann constant :math:`k_B` (see parameters section above)
-    accepted_trials : int
-        number of accepted trial steps
-    total_trials : int
-        number of total trial steps
-    data_container_write_period : int
-        period in units of seconds at which the data container is
-        written to file
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
+    temperature : float
+        temperature :math:`T` in appropriate units [commonly Kelvin]
     """
 
-    def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
+    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
                  name: str='Canonical ensemble',
                  data_container: DataContainer=None, random_seed: int=None,
                  data_container_write_period: float=np.inf,
                  ensemble_data_write_interval: int=None,
                  trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, *, temperature: float):
+                 boltzmann_constant: float=kB, temperature: float=None):
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,
@@ -119,13 +105,25 @@ class CanonicalEnsemble(BaseEnsemble):
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
+        
+        if temperature is None:
+            raise TypeError('Missing required keyword argument: temperature')
+        self._temperature = temperature
+        self._boltzmann_constant = boltzmann_constant
 
-        self.temperature = temperature
-        self.boltzmann_constant = boltzmann_constant
+    @property
+    def temperature(self) -> float:
+        """ temperature :math:`T` (see parameters section above) """
+        return self._temperature
+
+    @property
+    def boltzmann_constant(self) -> float:
+        """ Boltzmann constant :math:`k_B` (see parameters section above) """
+        return self._boltzmann_constant
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self.total_trials += 1
+        self._total_trials += 1
 
         sublattice_index = self.get_random_sublattice_index()
         sites, species = \
@@ -134,7 +132,7 @@ class CanonicalEnsemble(BaseEnsemble):
         potential_diff = self._get_property_change(sites, species)
 
         if self._acceptance_condition(potential_diff):
-            self.accepted_trials += 1
+            self._accepted_trials += 1
             self.update_occupations(sites, species)
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
@@ -151,7 +149,7 @@ class CanonicalEnsemble(BaseEnsemble):
             return True
         else:
             return np.exp(-potential_diff / (
-                self.boltzmann_constant * self.temperature)) > \
+                self._boltzmann_constant * self._temperature)) > \
                 self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
