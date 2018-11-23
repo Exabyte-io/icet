@@ -42,12 +42,13 @@ class DictObserver(BaseObserver):
 
 class ConcreteEnsemble(BaseEnsemble):
 
-    def __init__(self, calculator, atoms=None, name=None, data_container=None,
+    def __init__(self, atoms, calculator, name=None, data_container=None,
                  data_container_write_period=np.inf, random_seed=None,
                  ensemble_data_write_interval=None,
                  trajectory_write_interval=None):
         super().__init__(
-            calculator, atoms=atoms, name=name, data_container=data_container,
+            atoms=atoms, calculator=calculator, name=name,
+            data_container=data_container,
             data_container_write_period=data_container_write_period,
             random_seed=random_seed,
             ensemble_data_write_interval=ensemble_data_write_interval,
@@ -78,7 +79,7 @@ class TestEnsemble(unittest.TestCase):
         """Setup before each test."""
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
         self.ensemble = ConcreteEnsemble(
-            calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
             random_seed=42)
 
         # Create an observer for testing.
@@ -89,21 +90,16 @@ class TestEnsemble(unittest.TestCase):
 
     def test_init(self):
         """Tests exceptions are raised in initialization."""
-        # without atoms parameters
-        with self.assertRaises(Exception) as context:
-            ConcreteEnsemble(calculator=self.calculator, atoms=None,
-                             name='test-ensemble', random_seed=42)
 
-        self.assertTrue("Missing required keyword argument: atoms"
-                        in str(context.exception))
+        with self.assertRaises(TypeError) as context:
+            ConcreteEnsemble(calculator=self.calculator)
+        self.assertIn("required positional argument: 'atoms'",
+                      str(context.exception))
 
-        # without calculator
-        with self.assertRaises(Exception) as context:
-            ConcreteEnsemble(calculator=None, atoms=self.atoms,
-                             name='test-ensemble', random_seed=42)
-
-        self.assertTrue("Missing required keyword argument: calculator"
-                        in str(context.exception))
+        with self.assertRaises(TypeError) as context:
+            ConcreteEnsemble(atoms=self.atoms)
+        self.assertIn("required positional argument: 'calculator'",
+                      str(context.exception))
 
     def test_property_name(self):
         """Tests name property."""
@@ -119,20 +115,26 @@ class TestEnsemble(unittest.TestCase):
 
     def test_property_accepted_trials(self):
         """Tests property accepted trials."""
-        self.assertEqual(self.ensemble.accepted_trials, 0)
-        self.ensemble.accepted_trials += 1
-        self.assertEqual(self.ensemble.accepted_trials, 1)
+        self.assertEqual(self.ensemble._accepted_trials, 0)
+        self.ensemble._accepted_trials += 1
+        self.assertEqual(self.ensemble._accepted_trials, 1)
 
     def test_property_totals_trials(self):
         """Tests property accepted trials."""
         self.assertEqual(self.ensemble.total_trials, 0)
-        self.ensemble.total_trials += 1
+        self.ensemble._total_trials += 1
         self.assertEqual(self.ensemble.total_trials, 1)
+
+    def test_property_step(self):
+        """Tests property accepted trials."""
+        self.assertEqual(self.ensemble.step, 0)
+        self.ensemble._step += 1
+        self.assertEqual(self.ensemble.step, 1)
 
     def test_property_acceptance_ratio(self):
         """Tests property acceptance ratio."""
-        self.ensemble.total_trials = 30
-        self.ensemble.accepted_trials = 15
+        self.ensemble._total_trials = 30
+        self.ensemble._accepted_trials = 15
         self.assertEqual(self.ensemble.acceptance_ratio, 0.5)
 
     def test_property_calculator(self):
@@ -242,8 +244,7 @@ class TestEnsemble(unittest.TestCase):
 
         # initialise a new ensemble with dc file
         ensemble_reloaded = \
-            ConcreteEnsemble(calculator=self.calculator,
-                             atoms=self.atoms,
+            ConcreteEnsemble(self.atoms, self.calculator,
                              data_container=temp_container_file.name,
                              ensemble_data_write_interval=14,
                              trajectory_write_interval=56)

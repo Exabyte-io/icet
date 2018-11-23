@@ -50,32 +50,17 @@ class BaseEnsemble(ABC):
     random_seed : int
         seed for the random number generator used in the Monte Carlo
         simulation
-
-    Attributes
-    ----------
-    accepted_trials : int
-        number of accepted trial steps
-    total_trials : int
-        number of total trial steps
-    data_container_write_period : int
-        period in units of seconds at which the data container is
-        written to file
     """
 
-    def __init__(self, calculator=None, atoms=None, name='BaseEnsemble',
+    def __init__(self, atoms, calculator, name='BaseEnsemble',
                  data_container=None, data_container_write_period=np.inf,
                  ensemble_data_write_interval=None,
                  trajectory_write_interval=None,
                  random_seed=None):
 
-        if calculator is None:
-            raise TypeError('Missing required keyword argument: calculator')
-        if atoms is None:
-            raise TypeError('Missing required keyword argument: atoms')
-
         # initialize basic variables
-        self.accepted_trials = 0
-        self.total_trials = 0
+        self._accepted_trials = 0
+        self._total_trials = 0
         self._observers = {}
         self._step = 0
 
@@ -110,7 +95,7 @@ class BaseEnsemble(ABC):
         random.seed(a=self._random_seed)
 
         # data container
-        self.data_container_write_period = data_container_write_period
+        self._data_container_write_period = data_container_write_period
         self._data_container_filename = data_container
         if data_container is not None and os.path.isfile(data_container):
             self._data_container = DataContainer.read(data_container)
@@ -147,6 +132,11 @@ class BaseEnsemble(ABC):
         return self._step
 
     @property
+    def total_trials(self) -> int:
+        """ total number of Monte Carlo trial steps """
+        return self._total_trials
+
+    @property
     def data_container(self) -> DataContainer:
         """ data container associated with ensemble """
         return self._data_container
@@ -159,14 +149,23 @@ class BaseEnsemble(ABC):
     @property
     def acceptance_ratio(self) -> float:
         """ acceptance ratio """
-        if self.total_trials > 0:
-            return self.accepted_trials / self.total_trials
+        if self._total_trials > 0:
+            return self._accepted_trials / self._total_trials
         return 0
 
     @property
     def calculator(self) -> BaseCalculator:
         """ calculator attached to the ensemble """
         return self._calculator
+
+    @property
+    def data_container_write_period(self) -> float:
+        " data container write period "
+        return self._data_container_write_period
+
+    @data_container_write_period.setter
+    def data_container_write_period(self, data_container_write_period):
+        self._data_container_write_period = data_container_write_period
 
     def run(self, number_of_trial_steps: int, reset_step: bool=False):
         """
@@ -351,8 +350,8 @@ class BaseEnsemble(ABC):
     def reset_data_container(self):
         """ Resets the data container and the trial step counter. """
         self._step = 0
-        self.total_trials = 0
-        self.accepted_trials = 0
+        self._total_trials = 0
+        self._accepted_trials = 0
 
         self._data_container.reset()
 
@@ -443,8 +442,8 @@ class BaseEnsemble(ABC):
         self.update_occupations(sites, occupations)
 
         # Restart number of total and accepted trial steps
-        self.total_trials = self._step
-        self.accepted_trials = \
+        self._total_trials = self._step
+        self._accepted_trials = \
             self.data_container.last_state['accepted_trials']
 
         # Restart state of random number generator
@@ -457,7 +456,7 @@ class BaseEnsemble(ABC):
         self._data_container._update_last_state(
             last_step=self._step,
             occupations=self.configuration.occupations.tolist(),
-            accepted_trials=self.accepted_trials,
+            accepted_trials=self._accepted_trials,
             random_state=random.getstate())
 
         self.data_container.write(self._data_container_filename)
