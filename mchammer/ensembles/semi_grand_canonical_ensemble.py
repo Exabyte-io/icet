@@ -196,7 +196,9 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
 
     @property
     def chemical_potentials(self) -> Dict[int, float]:
-        """ chemical potentials :math:`\\mu_i` (see parameters section above) """
+        """
+        chemical potentials :math:`\\mu_i` (see parameters section above)
+        """
         return self._chemical_potentials
 
     def _set_chemical_potentials(self,

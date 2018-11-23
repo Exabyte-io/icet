@@ -105,7 +105,7 @@ class CanonicalEnsemble(BaseEnsemble):
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
-        
+
         if temperature is None:
             raise TypeError('Missing required keyword argument: temperature')
         self._temperature = temperature

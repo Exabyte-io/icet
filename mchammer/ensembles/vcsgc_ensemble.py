@@ -233,7 +233,8 @@ class VCSGCEnsemble(BaseEnsemble):
     @property
     def kappa(self) -> float:
         """
-        kappa :math:`\\bar{\kappa}` constrain parameter (see parameters section above)
+        kappa :math:`\\bar{\kappa}` constrain parameter
+        (see parameters section above)
         """
         return self._kappa
 
