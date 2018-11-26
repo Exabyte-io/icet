@@ -114,7 +114,7 @@ class TestEnsemble(unittest.TestCase):
         for _ in range(10):
             self.ensemble._do_trial_step()
 
-        self.assertEqual(self.ensemble.total_trials, 10)
+        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
