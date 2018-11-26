@@ -132,11 +132,6 @@ class BaseEnsemble(ABC):
         return self._step
 
     @property
-    def total_trials(self) -> int:
-        """ total number of Monte Carlo trial steps """
-        return self._total_trials
-
-    @property
     def data_container(self) -> DataContainer:
         """ data container associated with ensemble """
         return self._data_container

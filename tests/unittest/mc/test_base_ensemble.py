@@ -121,9 +121,9 @@ class TestEnsemble(unittest.TestCase):
 
     def test_property_totals_trials(self):
         """Tests property accepted trials."""
-        self.assertEqual(self.ensemble.total_trials, 0)
+        self.assertEqual(self.ensemble._total_trials, 0)
         self.ensemble._total_trials += 1
-        self.assertEqual(self.ensemble.total_trials, 1)
+        self.assertEqual(self.ensemble._total_trials, 1)
 
     def test_property_step(self):
         """Tests property accepted trials."""
