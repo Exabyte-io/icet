@@ -349,6 +349,13 @@ class TestEnsemble(unittest.TestCase):
 
         self.assertIn('potential', data.keys())
 
+    def test_data_container_write_period(self):
+        """Tests property data container write container."""
+        self.assertTrue(np.isinf(self.ensemble.data_container_write_period))
+
+        self.ensemble.data_container_write_period = 1e-2
+        self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
+
 
 if __name__ == '__main__':
     unittest.main()
