@@ -11,22 +11,10 @@ ELSE()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
 
-# Find Boost library.
-IF(NOT USE_BOOST_FILESYSTEM_LIB)
-    FIND_PACKAGE(Boost REQUIRED)
-ELSE()
-    FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem)
-ENDIF()
-IF(NOT Boost_FOUND)
-    MESSAGE(FATAL_ERROR "Boost library not found. Reason: ${Boost_ERROR_REASON}")
-ENDIF()
+SET(Boost_INCLUDE_DIRS "src/3rdparty/boost_1_68_0" )
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
-# Find Eigen3 library
-FIND_PACKAGE(Eigen3 REQUIRED)
-IF(NOT Eigen3_FOUND)
-    MESSAGE(FATAL_ERROR "Eigen3 library not found. Reason: ${Boost_ERROR_REASON}")
-ENDIF()
+SET( EIGEN3_INCLUDE_DIR "src/3rdparty/eigen3/" )
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 
 # Compile code.
