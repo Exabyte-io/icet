@@ -34,7 +34,8 @@ class TestEnsemble(unittest.TestCase):
         """Setup before each test."""
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
         self.ensemble = CanonicalEnsemble(
-            self.atoms, self.calculator,
+            calculator=self.calculator,
+            atoms=self.atoms,
             name='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,

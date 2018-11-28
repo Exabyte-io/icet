@@ -244,7 +244,8 @@ class TestEnsemble(unittest.TestCase):
 
         # initialise a new ensemble with dc file
         ensemble_reloaded = \
-            ConcreteEnsemble(self.atoms, self.calculator,
+            ConcreteEnsemble(calculator=self.calculator,
+                             atoms=self.atoms,
                              data_container=temp_container_file.name,
                              ensemble_data_write_interval=14,
                              trajectory_write_interval=56)
