@@ -70,12 +70,16 @@ class TestEnsemble(unittest.TestCase):
         """Tests init with explicit Boltzmann constant."""
         from ase.units import kB
         ens = CanonicalEnsemble(
-            self.atoms, self.calculator, name='test-ensemble',
+            calculator=self.calculator,
+            atoms=self.atoms,
+            name='test-ensemble',
             random_seed=42, temperature=100.0)
         self.assertAlmostEqual(kB, ens.boltzmann_constant)
 
         ens = CanonicalEnsemble(
-            self.atoms, self.calculator, name='test-ensemble',
+            calculator=self.calculator,
+            atoms=self.atoms,
+            name='test-ensemble',
             random_seed=42, temperature=100.0, boltzmann_constant=1.0)
         self.assertAlmostEqual(1.0, ens.boltzmann_constant)
 
