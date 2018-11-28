@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
+import numpy as np
 import unittest
 
 from icet.tools import map_structure_to_reference
 from icet.tools.structure_mapping import (_get_scaled_cell,
                                           _get_transformation_matrix,
                                           _rescale_structures)
-import numpy as np
 
 
 class TestStructureMapping(unittest.TestCase):
@@ -31,19 +31,19 @@ class TestStructureMapping(unittest.TestCase):
 
         # Displace the atoms somewhat
         rattle = [[0.147, -0.037, -0.01],
-                  [-0.089,  0.084, -0.063],
-                  [0.256, -0.037,  0.097],
-                  [-0.048,  0.005, -0.093],
+                  [-0.089, 0.084, -0.063],
+                  [0.256, -0.037, 0.097],
+                  [-0.048, 0.005, -0.093],
                   [-0.159, -0.194, -0.03],
                   [0.004, -0.041, -0.003],
                   [-0.015, -0.014, -0.007],
-                  [-0.023,  0.094, -0.024],
-                  [-0.01,  0.075, -0.075],
-                  [0.029, -0.024,  0.079],
-                  [0.105,  0.172, -0.147],
-                  [-0.082,  0.073,  0.015],
-                  [-0.062, -0.066,  0.023],
-                  [0.081,  0.078, -0.014]]
+                  [-0.023, 0.094, -0.024],
+                  [-0.01, 0.075, -0.075],
+                  [0.029, -0.024, 0.079],
+                  [0.105, 0.172, -0.147],
+                  [-0.082, 0.073, 0.015],
+                  [-0.062, -0.066, 0.023],
+                  [0.081, 0.078, -0.014]]
 
         atoms.positions = atoms.positions + rattle
         atoms.set_cell(atoms.cell * 1.01, scale_atoms=True)
@@ -58,22 +58,22 @@ class TestStructureMapping(unittest.TestCase):
         modcell = _get_scaled_cell(self.atoms, self.reference,
                                    vacancy_type='V',
                                    inert_species=['Au', 'Pd'])
-        target = np.array([[0.,  4.,  4.],
-                           [4.,  0.,  4.],
-                           [4.,  4.,  0.]])
+        target = np.array([[0., 4., 4.],
+                           [4., 0., 4.],
+                           [4., 4., 0.]])
         self.assertTrue(np.allclose(modcell, target))
 
         modcell = _get_scaled_cell(self.atoms, self.reference,
                                    vacancy_type='V')
-        target = np.array([[0.,    4.04,  4.04],
-                           [4.04,  0.,    4.04],
-                           [4.04,  4.04,  0.]])
+        target = np.array([[0., 4.04, 4.04],
+                           [4.04, 0., 4.04],
+                           [4.04, 4.04, 0.]])
         self.assertTrue(np.allclose(modcell, target))
 
         modcell = _get_scaled_cell(self.atoms, self.reference)
-        target = np.array([[0.,          3.82586237,  3.82586237],
-                           [3.82586237,  0.,          3.82586237],
-                           [3.82586237,  3.82586237,  0.]])
+        target = np.array([[0., 3.82586237, 3.82586237],
+                           [3.82586237, 0., 3.82586237],
+                           [3.82586237, 3.82586237, 0.]])
         self.assertTrue(np.allclose(modcell, target))
 
     def test_get_transformation_matrix(self):
@@ -81,18 +81,18 @@ class TestStructureMapping(unittest.TestCase):
         Testing that transformation matrix calculation works.
         '''
         P = _get_transformation_matrix(self.atoms.cell, self.reference.cell)
-        target = np.array([[2.,  0.,  0.],
-                           [0.,  2.,  0.],
-                           [0.,  0.,  2.]])
+        target = np.array([[2., 0., 0.],
+                           [0., 2., 0.],
+                           [0., 0., 2.]])
         self.assertTrue(np.allclose(P, target))
 
     def test_rescale_structures(self):
         '''
         Testing that the structure rescaling works.
         '''
-        P = np.array([[2.,  0.,  0.],
-                      [0.,  2.,  0.],
-                      [0.,  0.,  2.]])
+        P = np.array([[2., 0., 0.],
+                      [0., 2., 0.],
+                      [0., 0., 2.]])
         scaled_structure, ideal_supercell = \
             _rescale_structures(self.atoms, self.reference, P)
         self.assertEqual(len(scaled_structure), 14)

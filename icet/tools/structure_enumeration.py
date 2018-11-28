@@ -1,6 +1,8 @@
-import numpy as np
-from ase import Atoms
 from itertools import product
+
+import numpy as np
+
+from ase import Atoms
 from spglib import get_symmetry
 from spglib import niggli_reduce as spg_nigg_red
 from .structure_enumeration_support.hermite_normal_form \
@@ -14,7 +16,7 @@ from typing import Dict, List, Tuple, Generator
 
 def _translate_labelings(
         labeling: tuple, snf: SmithNormalForm, nsites: int,
-        include_self: bool=False)-> Generator[Tuple[int], None, None]:
+        include_self: bool = False)-> Generator[Tuple[int], None, None]:
     """
     Yields labelings that are equivalent to the original labeling
     under translations as dictated by the Smith normal form (SNF) provided.
@@ -245,7 +247,7 @@ def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
 
 
 def get_symmetry_operations(atoms: Atoms,
-                            tolerance: float=1e-3) -> Dict[str, list]:
+                            tolerance: float = 1e-3) -> Dict[str, list]:
     """
     Returns symmetry operations permissable for a given structure as
     obtained via `spglib <https://atztogo.github.io/spglib/>`_. The
@@ -323,8 +325,8 @@ def get_symmetry_operations(atoms: Atoms,
 
 def enumerate_structures(atoms: Atoms, sizes: List[int],
                          chemical_symbols: list,
-                         concentration_restrictions: dict=None,
-                         niggli_reduce: bool=None) -> Atoms:
+                         concentration_restrictions: dict = None,
+                         niggli_reduce: bool = None) -> Atoms:
     """Yields a sequence of enumerated structures. The function generates
     *all* inequivalent structures that are permissible given a certain
     lattice. Using the ``chemical_symbols`` and ``concentration_restrictions``

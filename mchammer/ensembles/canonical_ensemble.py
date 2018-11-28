@@ -22,7 +22,7 @@ class CanonicalEnsemble(BaseEnsemble):
 
     .. math::
 
-        \\rho_{\\text{C}} \\propto \exp [ - E / k_B T ].
+        \\rho_{\\text{C}} \\propto \\exp [ - E / k_B T ].
 
     Since the concentrations or equivalently the number of atoms of each
     species is held fixed in the canonical ensemble, a trial step must
@@ -32,7 +32,7 @@ class CanonicalEnsemble(BaseEnsemble):
 
     .. math::
 
-        P = \min \{ 1, \, \exp [ - \\Delta E / k_B T  ] \},
+        P = \\min \\{ 1, \\, \\exp [ - \\Delta E / k_B T  ] \\},
 
     where :math:`\\Delta E` is the change in potential energy caused by the
     swap.
@@ -104,13 +104,14 @@ class CanonicalEnsemble(BaseEnsemble):
         written to file
     """
 
-    def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
-                 name: str='Canonical ensemble',
-                 data_container: DataContainer=None, random_seed: int=None,
-                 data_container_write_period: float=np.inf,
-                 ensemble_data_write_interval: int=None,
-                 trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, *, temperature: float):
+    def __init__(self, atoms: Atoms = None, calculator: BaseCalculator = None,
+                 name: str = 'Canonical ensemble',
+                 data_container: DataContainer = None, random_seed: int = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None,
+                 boltzmann_constant: float = kB,
+                 *, temperature: float) -> None:
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,

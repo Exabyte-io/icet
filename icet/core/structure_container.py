@@ -31,9 +31,9 @@ class StructureContainer:
     """
 
     def __init__(self, cluster_space: ClusterSpace,
-                 list_of_atoms: Union[list, tuple]=None,
-                 list_of_properties: List[dict]=None,
-                 allow_duplicate: bool=True):
+                 list_of_atoms: Union[list, tuple] = None,
+                 list_of_properties: List[dict] = None,
+                 allow_duplicate: bool = True):
 
         self._cluster_space = cluster_space
         self._structure_list = []
@@ -69,7 +69,7 @@ class StructureContainer:
     def __getitem__(self, ind: int):
         return self._structure_list[ind]
 
-    def get_structure_indices(self, user_tag: str=None) -> List[int]:
+    def get_structure_indices(self, user_tag: str = None) -> List[int]:
         """
         Get structure indices via user_tag
 
@@ -86,8 +86,8 @@ class StructureContainer:
         return [i for i, s in enumerate(self)
                 if user_tag is None or s.user_tag == user_tag]
 
-    def _get_string_representation(self, print_threshold: int=None,
-                                   print_minimum: int=10) -> str:
+    def _get_string_representation(self, print_threshold: int = None,
+                                   print_minimum: int = 10) -> str:
         """
         String representation of the structure container that provides an
         overview of the structures in the container.
@@ -166,7 +166,8 @@ class StructureContainer:
         """ String representation. """
         return self._get_string_representation(print_threshold=50)
 
-    def print_overview(self, print_threshold: int=None, print_minimum: int=10):
+    def print_overview(self, print_threshold: int = None,
+                       print_minimum: int = 10):
         """
         Prints a list of structures in the structure container.
 
@@ -181,9 +182,9 @@ class StructureContainer:
         print(self._get_string_representation(print_threshold=print_threshold,
                                               print_minimum=print_minimum))
 
-    def add_structure(self, atoms: Atoms, user_tag: str=None,
-                      properties: dict=None,
-                      allow_duplicate: bool=True):
+    def add_structure(self, atoms: Atoms, user_tag: str = None,
+                      properties: dict = None,
+                      allow_duplicate: bool = True):
         """
         Adds a structure to the structure container.
 
@@ -236,8 +237,8 @@ class StructureContainer:
         structure._set_cluster_vector(cv)
         self._structure_list.append(structure)
 
-    def get_fit_data(self, structure_indices: List[int]=None,
-                     key: str='energy') -> Tuple[np.ndarray, np.ndarray]:
+    def get_fit_data(self, structure_indices: List[int] = None,
+                     key: str = 'energy') -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns fit data for all structures. The cluster vectors and
         target properties for all structures are stacked into NumPy arrays.
@@ -271,8 +272,8 @@ class StructureContainer:
 
         return np.array(cv_list), np.array(prop_list)
 
-    def add_properties(self, structure_indices: List[int]=None,
-                       properties: List[dict]=None):
+    def add_properties(self, structure_indices: List[int] = None,
+                       properties: List[dict] = None):
         """
         This method allows you to add properties and/or modify
         the values of existing properties
@@ -295,8 +296,8 @@ class StructureContainer:
             for i, prop in zip(structure_indices, properties):
                 self._structure_list[i].set_properties(prop)
 
-    def get_properties(self, structure_indices: List[int]=None,
-                       key: str='energy') -> List[float]:
+    def get_properties(self, structure_indices: List[int] = None,
+                       key: str = 'energy') -> List[float]:
         """
         Returns a list with the value of properties with key='key'
         for a desired set of structures
@@ -320,7 +321,8 @@ class StructureContainer:
 
         return prop_list
 
-    def get_structures(self, structure_indices: List[int]=None) -> List[Atoms]:
+    def get_structures(self,
+                       structure_indices: List[int] = None) -> List[Atoms]:
         """
         Returns a list of structures in the form of ASE Atoms
 
@@ -339,7 +341,7 @@ class StructureContainer:
 
         return s_list
 
-    def get_user_tags(self, structure_indices: List[int]=None) -> List[str]:
+    def get_user_tags(self, structure_indices: List[int] = None) -> List[str]:
         """
         Return a list of user tags for the structures in the structure
         container
@@ -460,7 +462,7 @@ class FitStructure:
     """
 
     def __init__(self, atoms: Atoms, user_tag: str,
-                 cv: np.ndarray=None, properties: dict=None):
+                 cv: np.ndarray = None, properties: dict = None):
         self._atoms = atoms
         self._user_tag = user_tag
         self._properties = {}

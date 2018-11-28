@@ -124,7 +124,7 @@ class TestOrbitList(unittest.TestCase):
         """Tests removing all orbits"""
 
         chemical_symbols = [
-            ['Al']*len(self.orbit_list.get_primitive_structure())]
+            ['Al'] * len(self.orbit_list.get_primitive_structure())]
         len_before = len(self.orbit_list)
         self.assertNotEqual(len_before, 0)
         self.orbit_list.remove_inactive_orbits(chemical_symbols)
@@ -228,7 +228,7 @@ class TestOrbitList(unittest.TestCase):
                 self.orbit_list._get_sites_translated_to_unitcell(perm_sites,
                                                                   False)
             for k, sites in enumerate(translated_sites):
-                self.assertEqual(columns[k+2*i], sites)
+                self.assertEqual(columns[k + 2 * i], sites)
 
     def _test_allowed_permutations(self, atoms):
         """Tests allowed permutations of orbits in orbit list.

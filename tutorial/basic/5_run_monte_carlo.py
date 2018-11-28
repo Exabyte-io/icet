@@ -9,9 +9,9 @@ from mchammer.ensembles import SemiGrandCanonicalEnsemble
 ce = ClusterExpansion.read('mixing_energy.ce')
 chemical_symbols = ce.cluster_space.chemical_symbols
 atoms = make_supercell(ce.cluster_space.primitive_structure,
-                       3*array([[-1, 1, 1],
-                                [1, -1, 1],
-                                [1, 1, -1]]))
+                       3 * array([[-1, 1, 1],
+                                  [1, -1, 1],
+                                  [1, 1, -1]]))
 calculator = ClusterExpansionCalculator(atoms, ce)
 
 # step 2: carry out Monte Carlo simulations
@@ -33,7 +33,7 @@ for temperature in [900, 600, 300]:
                                   chemical_symbols[1]: dmu}
 
         mc.reset_data_container()
-        mc.run(number_of_trial_steps=len(atoms)*30)
+        mc.run(number_of_trial_steps=len(atoms) * 30)
         # TODO: change the next line (and the tutorial) once mc.data_container
         # is writable
         mc.data_container.write('sgc-T{}-dmu{:.3f}.dc'

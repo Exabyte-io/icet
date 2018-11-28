@@ -48,8 +48,8 @@ cv_target = np.array([1.0, 0.0, 0.0, -0.3333333333333333,
 assert np.all(np.abs(cv_target - cv) < 1e-6)
 
 # structure #3
-conf = make_supercell(prototype, [[1,  0, 1],
-                                  [0,  1, 1],
+conf = make_supercell(prototype, [[1, 0, 1],
+                                  [0, 1, 1],
                                   [0, -1, 3]])
 conf[0].symbol = 'Ti'
 conf[1].symbol = 'Ti'

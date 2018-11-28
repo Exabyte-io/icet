@@ -44,7 +44,7 @@ def print_timing_ratios(atoms, iters, sizes, cutoffs):
         t_local = time_local_energy(calculator, iters)
         t_total = time_total_energy(calculator, iters)
         print(size, iters, len(atoms_cpy), time_ce_init,
-              t_local, t_total, t_total/t_local)
+              t_local, t_total, t_total / t_local)
 
 
 if __name__ == '__main__':
@@ -62,14 +62,15 @@ if __name__ == '__main__':
     print('Constructing CE calculator')
     t0 = time.time()
     calculator = ClusterExpansionCalculator(atoms, ce)
-    print('Done constructing CE calculator in {:.5f}s'.format(time.time()-t0))
+    print('Done constructing CE calculator in {:.5f}s'
+          .format(time.time() - t0))
     t_local = time_local_energy(calculator, iters)
     t_total = time_total_energy(calculator, iters)
     print('Number of sites: {}'.format(len(calculator.atoms)))
     print('Timing of local energy calculation: {:.5f}'.format(t_local))
     print('Timing of total energy calculation: {:.5f}'.format(t_total))
-    print('Speed up for local calculator: {:.2f} '.format(t_total/t_local))
+    print('Speed up for local calculator: {:.2f} '.format(t_total / t_local))
 
     print('Timing for calculating {} MC cycles ({} sites) local energies {}s'
-          .format(iters/len(atoms), len(atoms),
+          .format(iters / len(atoms), len(atoms),
                   t_local * len(calculator.atoms)))

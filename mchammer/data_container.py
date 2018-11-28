@@ -147,9 +147,12 @@ class DataContainer:
         self._last_state['accepted_trials'] = accepted_trials
         self._last_state['random_state'] = random_state
 
-    def get_data(self, *tags, start: int=None, stop: int=None, interval: int=1,
-                 fill_method: str='skip_none',
-                 apply_to: List[str]=None) \
+    def get_data(self, *tags,
+                 start: int = None,
+                 stop: int = None,
+                 interval: int = 1,
+                 fill_method: str = 'skip_none',
+                 apply_to: List[str] = None) \
             -> Union[np.ndarray, List[Atoms], Tuple[np.ndarray, List[Atoms]]]:
         """Returns the accumulated data for the requested observables.
 
@@ -296,7 +299,7 @@ class DataContainer:
         self._data = pd.DataFrame(columns=['mctrial'])
         self._data = self._data.astype({'mctrial': int})
 
-    def get_number_of_entries(self, tag: str=None) -> int:
+    def get_number_of_entries(self, tag: str = None) -> int:
         """
         Returns the total number of entries with the given observable tag.
 
@@ -320,7 +323,7 @@ class DataContainer:
             return self._data[tag].count()
 
     def get_average(self, tag: str,
-                    start: int=None, stop: int=None) -> float:
+                    start: int = None, stop: int = None) -> float:
         """
         Returns average of a scalar observable.
 
@@ -347,8 +350,8 @@ class DataContainer:
         data = self.get_data(tag, start=start, stop=stop)
         return np.mean(data)
 
-    def get_standard_deviation(self, tag: str, start: int=None,
-                               stop: int=None) -> float:
+    def get_standard_deviation(self, tag: str, start: int = None,
+                               stop: int = None) -> float:
         """
         Returns standard deviation of a scalar observable, calculated using
         numpy.
@@ -376,8 +379,8 @@ class DataContainer:
         data = self.get_data(tag, start=start, stop=stop)
         return np.std(data)
 
-    def _get_trajectory(self, *tags, start: int=None, stop: int=None,
-                        interval: int=1) \
+    def _get_trajectory(self, *tags, start: int = None, stop: int = None,
+                        interval: int = 1) \
             -> Union[List[Atoms], Tuple[List[Atoms], np.ndarray]]:
         """
         Returns a trajectory in the form of a list of ASE Atoms

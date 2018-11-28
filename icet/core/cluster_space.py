@@ -102,8 +102,8 @@ class ClusterSpace(_ClusterSpace):
                 nice_str += '{} '.format(s)
         return nice_str
 
-    def _get_string_representation(self, print_threshold: int=None,
-                                   print_minimum: int=10) -> str:
+    def _get_string_representation(self, print_threshold: int = None,
+                                   print_minimum: int = 10) -> str:
         """
         String representation of the cluster space that provides an overview of
         the orbits (order, radius, multiplicity etc) that constitute the space.
@@ -179,7 +179,8 @@ class ClusterSpace(_ClusterSpace):
         """ String representation. """
         return self._get_string_representation(print_threshold=50)
 
-    def print_overview(self, print_threshold: int=None, print_minimum: int=10):
+    def print_overview(self,
+                       print_threshold: int = None, print_minimum: int = 10):
         """
         Print an overview of the cluster space in terms of the orbits (order,
         radius, multiplicity etc).
@@ -338,7 +339,7 @@ class ClusterSpace(_ClusterSpace):
                             parameters['chemical_symbols'])
 
 
-def get_singlet_info(atoms: Atoms, return_cluster_space: bool=False):
+def get_singlet_info(atoms: Atoms, return_cluster_space: bool = False):
     """
     Retrieves information concerning the singlets in the input structure.
 
@@ -389,7 +390,8 @@ def get_singlet_info(atoms: Atoms, return_cluster_space: bool=False):
         return singlet_data
 
 
-def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
+def get_singlet_configuration(atoms: Atoms,
+                              to_primitive: bool = False) -> Atoms:
     """
     Returns the atomic configuration decorated with a different species for
     each Wyckoff site. This is useful for visualization and analysis.
@@ -438,7 +440,7 @@ def get_singlet_configuration(atoms: Atoms, to_primitive: bool=False) -> Atoms:
     return singlet_configuration
 
 
-def view_singlets(atoms: Atoms, to_primitive: bool=False):
+def view_singlets(atoms: Atoms, to_primitive: bool = False):
     """
     Visualize singlets in a structure using the ASE graphical user interface.
 

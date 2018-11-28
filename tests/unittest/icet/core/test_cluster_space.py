@@ -369,16 +369,16 @@ class TestClusterSpaceSurface(unittest.TestCase):
         target_cluster_vectors = np.array([
             [1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0,
              -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0],
-            [1., -0.5, -1., -1.,  0.,  0.5,  1.,  1.,  1.,  0.5,  0.5,
-             -1., -1., -1., -1.,  0., -0.5, -1., -1., -0.5,  0.5,  1.,
+            [1., -0.5, -1., -1., 0., 0.5, 1., 1., 1., 0.5, 0.5,
+             -1., -1., -1., -1., 0., -0.5, -1., -1., -0.5, 0.5, 1.,
              1.],
             [1., -0.5, -0.5,
-             -1.,  0.,  0.3333333333,
-             0.,  0.5,  1.,
-             0.5,  0.5,  0.5,
+             -1., 0., 0.3333333333,
+             0., 0.5, 1.,
+             0.5, 0.5, 0.5,
              0.5, -1., -1.,
-             -0.1666666667, -0.1666666667,  0.,
-             -0.5,  0.,  0.,
+             -0.1666666667, -0.1666666667, 0.,
+             -0.5, 0., 0.,
              0.5, -0.5]])
         s = ['Error in test setup;']
         s += ['number of cluster vectors ({})'.format(
@@ -571,7 +571,7 @@ class TestClusterSpaceMultiSublattice(unittest.TestCase):
 
         # Twice as many pairs in 100 direction since they can be both
         # sublattice-1 -> sublatice 1 and sublattice 2  -> sublattice 2
-        self.assertEqual(pair_counts_binary[2.045]*2, pair_counts[2.045])
+        self.assertEqual(pair_counts_binary[2.045] * 2, pair_counts[2.045])
 
 
 if __name__ == '__main__':

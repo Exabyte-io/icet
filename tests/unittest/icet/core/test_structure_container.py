@@ -157,36 +157,36 @@ class TestStructureContainer(unittest.TestCase):
         # add atoms with tag and property
         atoms = self.structure_list[0]
         properties = self.properties_list[0]
-        tag = "Structure 4"
+        tag = 'Structure 4'
         self.sc.add_structure(atoms, tag, properties)
-        self.assertEqual(len(self.sc), len(self.structure_list)+1)
+        self.assertEqual(len(self.sc), len(self.structure_list) + 1)
 
         # add atom and read property from calculator
         self.sc.add_structure(atoms)
-        self.assertEqual(len(self.sc), len(self.structure_list)+2)
+        self.assertEqual(len(self.sc), len(self.structure_list) + 2)
         self.assertEqual(self.sc.get_properties([5], 'energy'),
-                         [self.properties_list[0]['energy']/len(atoms)])
+                         [self.properties_list[0]['energy'] / len(atoms)])
 
         # add atom and don't read property from calculator
         atoms_cpy = atoms.copy()
         atoms_cpy.set_calculator(EMT())
         self.sc.add_structure(atoms_cpy)
-        self.assertEqual(len(self.sc), len(self.structure_list)+3)
+        self.assertEqual(len(self.sc), len(self.structure_list) + 3)
         with self.assertRaises(KeyError):
             self.sc.get_properties([6], 'energy')
 
         # check that duplicate structure is not added.
         with self.assertRaises(ValueError) as cm:
             self.sc.add_structure(atoms, allow_duplicate=False)
-        msg = "Input atoms have identical cluster vector with" \
-              " Structure 0 at index 0"
+        msg = 'Input atoms have identical cluster vector with' \
+              ' Structure 0 at index 0'
         self.assertEqual(msg, str(cm.exception))
-        self.assertEqual(len(self.sc), len(self.structure_list)+3)
+        self.assertEqual(len(self.sc), len(self.structure_list) + 3)
 
         symbols = ['Au' for i in range(len(atoms))]
         atoms.set_chemical_symbols(symbols)
         self.sc.add_structure(atoms, 'Structure 5', allow_duplicate=False)
-        self.assertEqual(len(self.sc), len(self.structure_list)+4)
+        self.assertEqual(len(self.sc), len(self.structure_list) + 4)
 
     def test_get_fit_data(self):
         """Tests get_fit_data functionality."""
@@ -232,7 +232,7 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
 
         # test representation of an empty structure container
         sc = StructureContainer(self.cs)
-        self.assertEqual(sc.__repr__(), "Empty StructureContainer")
+        self.assertEqual(sc.__repr__(), 'Empty StructureContainer')
 
     def test_get_string_representation(self):
         """Tests _get_string_representation functionality."""
@@ -352,13 +352,13 @@ class TestFitStructure(unittest.TestCase):
         atoms = self.prim.repeat(2)
         prop = {'energy': 0.0126746}
         cv = self.cs.get_cluster_vector(atoms)
-        tag = "struct1"
+        tag = 'struct1'
         self.fit_structure = FitStructure(atoms, tag, cv, prop)
 
     def test_init(self):
         """Tests that initialization of tested class works."""
         atoms = self.prim.repeat(2)
-        tag = "struct1"
+        tag = 'struct1'
         self.fit_structure = FitStructure(atoms, tag)
 
     def test_cluster_vector(self):

@@ -116,7 +116,7 @@ class TestDataContainer(unittest.TestCase):
     def test_update_last_state(self):
         """Tests update_last_state functionality."""
         self.dc._update_last_state(last_step=10001,
-                                   occupations=[13]*len(self.atoms),
+                                   occupations=[13] * len(self.atoms),
                                    accepted_trials=12,
                                    random_state=random.getstate())
 
@@ -156,12 +156,12 @@ class TestDataContainer(unittest.TestCase):
     def test_property_last_state(self):
         """Tests last_state property."""
         self.dc._update_last_state(last_step=10001,
-                                   occupations=[13]*len(self.atoms),
+                                   occupations=[13] * len(self.atoms),
                                    accepted_trials=12,
                                    random_state=random.getstate())
         self.assertEqual(self.dc.last_state,
                          dict([('last_step', 10001),
-                               ('occupations', [13]*len(self.atoms)),
+                               ('occupations', [13] * len(self.atoms)),
                                ('accepted_trials', 12),
                                ('random_state', random.getstate())]))
 
@@ -175,7 +175,7 @@ class TestDataContainer(unittest.TestCase):
             {'mctrial': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
              'acceptance_ratio': [0.0, 0.9, 0.7, 0.7, 0.75, 0.7, 0.6,
                                   0.65, 0.66, 0.666, 0.7],
-             'obs1': [16, None, 16, None, 14, None,  16, None, 14, None, 16],
+             'obs1': [16, None, 16, None, 14, None, 16, None, 14, None, 16],
              'obs2': [11, None, None, 13, None, None, 10, None, None, 10, None]
              }
 
@@ -201,18 +201,18 @@ class TestDataContainer(unittest.TestCase):
         # using fill_backward
         obs1 = self.dc.get_data('obs1', fill_method='fill_backward')
         self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 14, 14, 16,  16, 14, 14, 16, 16])
+                         [16, 16, 16, 14, 14, 16, 16, 14, 14, 16, 16])
 
         # using fill_forward
         obs1 = self.dc.get_data('obs1', fill_method='fill_forward')
         self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 16, 14, 14,  16, 16, 14, 14, 16])
+                         [16, 16, 16, 16, 14, 14, 16, 16, 14, 14, 16])
 
         # using linear_interpolate
         obs1 = \
             self.dc.get_data('obs1', fill_method='linear_interpolate')
         self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 15, 14, 15,  16, 15, 14, 15, 16])
+                         [16, 16, 16, 15, 14, 15, 16, 15, 14, 15, 16])
 
         # skip_none only for obs1
         obs1, obs2 = self.dc.get_data(

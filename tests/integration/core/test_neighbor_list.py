@@ -17,7 +17,7 @@ for row in db.select('natoms>1'):
 
     atoms_row = row.toatoms()
     # ASE neighbor_list
-    ase_nl = ASENeighborList(len(atoms_row)*[neighbor_cutoff/2], skin=1e-8,
+    ase_nl = ASENeighborList(len(atoms_row) * [neighbor_cutoff / 2], skin=1e-8,
                              bothways=True, self_interaction=False)
     ase_nl.update(atoms_row)
     ase_indices, ase_offsets = ase_nl.get_neighbors(1)
@@ -49,9 +49,9 @@ for row in db.select('natoms>1'):
         msg = 'Testing offsets in neighbor list failed for {}'.format(row.tag)
         assert offset in ase_offsets, msg
 
-        equiv_indices = [x for x, ase_offset in enumerate(ase_offsets)
-                         if ase_indices[x] == i and
-                         (ase_offset == offset).all()]
+        equiv_indices = \
+            [x for x, ase_offset in enumerate(ase_offsets)
+             if (ase_indices[x] == i and (ase_offset == offset).all())]
         if len(equiv_indices) > 1:
             print(i, offset, equiv_indices)
         assert len(equiv_indices) == 1, \

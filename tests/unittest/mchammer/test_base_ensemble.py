@@ -14,10 +14,10 @@ from mchammer.observers.base_observer import BaseObserver
 from mchammer import DataContainer
 
 
-class ParakeetObserver(BaseObserver):
-    """Parakeet says 2.63323e+20."""
+class AppleObserver(BaseObserver):
+    """Apple says 2.63323e+20."""
 
-    def __init__(self, interval, tag='Parakeet'):
+    def __init__(self, interval, tag='Apple'):
         super().__init__(interval=interval, return_type=float, tag=tag)
 
     def get_observable(self, atoms):  # noqa
@@ -82,9 +82,9 @@ class TestEnsemble(unittest.TestCase):
             random_seed=42)
 
         # Create an observer for testing.
-        observer = ParakeetObserver(interval=7)
+        observer = AppleObserver(interval=7)
         self.ensemble.attach_observer(observer)
-        observer = ParakeetObserver(interval=14, tag='Parakeet2')
+        observer = AppleObserver(interval=14, tag='Apple2')
         self.ensemble.attach_observer(observer)
 
     def test_init(self):
@@ -150,13 +150,13 @@ class TestEnsemble(unittest.TestCase):
         n_iters = 364
         self.ensemble.run(n_iters)
         self.assertEqual(self.ensemble.step, n_iters)
-        dc_data = self.ensemble.data_container.get_data('Parakeet2')
+        dc_data = self.ensemble.data_container.get_data('Apple2')
 
         number_of_observations = len([x for x in dc_data if x is not None])
         # plus one since we also count step 0
         self.assertEqual(
             number_of_observations,
-            n_iters // self.ensemble.observers['Parakeet2'].interval + 1)
+            n_iters // self.ensemble.observers['Apple2'].interval + 1)
 
         # run it again to check that step is the same
         n_iters = 50
@@ -179,14 +179,13 @@ class TestEnsemble(unittest.TestCase):
             total_iters = sum(run_iters)
             # Check that the number of iters are correct
             self.assertEqual(self.ensemble.step, total_iters)
-            dc_data = self.ensemble.data_container.get_data('Parakeet2')
+            dc_data = self.ensemble.data_container.get_data('Apple2')
             number_of_observations = len(
                 [x for x in dc_data if x is not None])
             # plus one since we also count step 0
             self.assertEqual(
                 number_of_observations,
-                total_iters //
-                self.ensemble.observers['Parakeet2'].interval + 1)
+                total_iters // self.ensemble.observers['Apple2'].interval + 1)
 
     def test_run_with_dict_observer(self):
         """Tests the run method with a dict observer."""
@@ -219,7 +218,7 @@ class TestEnsemble(unittest.TestCase):
                                     trajectory_write_interval=56)
 
         # attach observer
-        observer = ParakeetObserver(interval=14, tag='Parakeet2')
+        observer = AppleObserver(interval=14, tag='Apple2')
         ensemble.attach_observer(observer)
 
         # back-up data while run ensemble and then read the file
@@ -231,7 +230,7 @@ class TestEnsemble(unittest.TestCase):
             os.remove('my-datacontainer.dc')
 
         # check data container
-        dc_data = dc_read.get_data('Parakeet2')
+        dc_data = dc_read.get_data('Apple2')
         self.assertEqual(
             len(dc_data),
             n_iters // observer.interval + 1)
@@ -279,19 +278,19 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(len(self.ensemble.observers), 2)
 
         self.ensemble.attach_observer(
-            ParakeetObserver(interval=10, tag='test_Parakeet'))
-        self.assertEqual(self.ensemble.observers['test_Parakeet'].interval, 10)
+            AppleObserver(interval=10, tag='test_Apple'))
+        self.assertEqual(self.ensemble.observers['test_Apple'].interval, 10)
         self.assertEqual(
-            self.ensemble.observers['test_Parakeet'].tag, 'test_Parakeet')
+            self.ensemble.observers['test_Apple'].tag, 'test_Apple')
         self.assertEqual(len(self.ensemble.observers), 3)
 
-        # test no duplicates, this should overwrite the last Parakeet
+        # test no duplicates, this should overwrite the last Apple
         self.ensemble.attach_observer(
-            ParakeetObserver(interval=15), tag='test_Parakeet')
+            AppleObserver(interval=15), tag='test_Apple')
         self.assertEqual(len(self.ensemble.observers), 3)
-        self.assertEqual(self.ensemble.observers['test_Parakeet'].interval, 15)
+        self.assertEqual(self.ensemble.observers['test_Apple'].interval, 15)
         self.assertEqual(
-            self.ensemble.observers['test_Parakeet'].tag, 'test_Parakeet')
+            self.ensemble.observers['test_Apple'].tag, 'test_Apple')
 
         # check that correct exceptions are raised
         with self.assertRaises(TypeError) as context:
@@ -337,7 +336,7 @@ class TestEnsemble(unittest.TestCase):
                              list(self.ensemble.configuration.occupations))
 
         with self.assertRaises(ValueError) as context:
-            self.ensemble.update_occupations(indices, elements+[31])
+            self.ensemble.update_occupations(indices, elements + [31])
 
         self.assertTrue('sites and species must have the same length.'
                         in str(context.exception))

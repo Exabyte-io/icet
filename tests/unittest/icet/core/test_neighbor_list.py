@@ -1,10 +1,10 @@
+import numpy as np
 import unittest
 
+from ase.build import bulk
 from ase.neighborlist import NeighborList as ASENeighborList
 from icet.core.neighbor_list import NeighborList, get_neighbor_lists
 from icet import Structure
-from ase.build import bulk
-import numpy as np
 
 
 class TestNeighborList(unittest.TestCase):
@@ -15,7 +15,7 @@ class TestNeighborList(unittest.TestCase):
         self.atoms = bulk('Ni', 'hcp', a=1.0).repeat([3, 3, 1])
         self.cutoff = 1.4
         self.structure = Structure.from_atoms(self.atoms)
-        self.ase_nl = ASENeighborList(len(self.atoms)*[self.cutoff/2],
+        self.ase_nl = ASENeighborList(len(self.atoms) * [self.cutoff / 2],
                                       skin=1e-8, bothways=True,
                                       self_interaction=False)
         self.ase_nl.update(self.atoms)
@@ -60,9 +60,9 @@ class TestNeighborList(unittest.TestCase):
     def test_equivalent_indices(self):
         """Tests equivalent indices."""
         for index, offset in zip(self.indices, self.offsets):
-            equiv_indices = [i for i, ase_offset in enumerate(self.ase_offsets)
-                             if self.ase_indices[i] == index and
-                             (ase_offset == offset).all()]
+            equiv_indices = \
+                [i for i, ase_offset in enumerate(self.ase_offsets) if
+                 self.ase_indices[i] == index and (ase_offset == offset).all()]
             self.assertEqual(len(equiv_indices), 1)
             self.assertEqual(self.ase_indices[equiv_indices[0]], index)
 

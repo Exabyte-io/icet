@@ -16,8 +16,8 @@ T = TypeVar('T')
 
 def get_scaled_positions(positions: np.ndarray,
                          cell: np.ndarray,
-                         wrap: bool=True,
-                         pbc: List[bool]=[True, True, True]) \
+                         wrap: bool = True,
+                         pbc: List[bool] = [True, True, True]) \
         -> np.ndarray:
     """
     Returns the positions in reduced (or scaled) coordinates.
@@ -76,7 +76,7 @@ def add_vacuum_in_non_pbc(configuration: Atoms) -> Atoms:
     return configuration_cpy
 
 
-def get_primitive_structure(atoms: Atoms, no_idealize: bool=True,
+def get_primitive_structure(atoms: Atoms, no_idealize: bool = True,
                             to_primitive=True, symprec=1e-5) -> Atoms:
     """
     Determines primitive structure using spglib.
@@ -192,7 +192,7 @@ def get_position_from_lattice_site(atoms: Atoms, lattice_site: LatticeSite):
 
 
 def find_lattice_site_by_position(atoms: Atoms, position: List[float],
-                                  tol: float=1e-4) -> LatticeSite_py:
+                                  tol: float = 1e-4) -> LatticeSite_py:
     """
     Tries to construct a lattice site equivalent from
     position in reference to the atoms object.

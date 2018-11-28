@@ -18,7 +18,7 @@ for fname in sorted(glob('sgc*.dc')):
     dmu = row['mu_Pd'] - row['mu_Ag']
     data[temperature]['dmu'].append(dmu)
 
-    nequil = nsites*10
+    nequil = nsites * 10
     conc = dc.get_average('Pd_count', start=nequil)[0] / nsites
     data[temperature]['concentration'].append(conc)
 
@@ -35,7 +35,7 @@ ax.set_ylabel('Chemical potential difference (meV/atom)')
 ax.set_xlim([-0.02, 1.02])
 for temperature, series in reversed(sorted(data.items())):
     series = pd.DataFrame.from_dict(series).sort_values('dmu')
-    ax.plot(series['concentration'], 1e3*series['dmu'],
+    ax.plot(series['concentration'], 1e3 * series['dmu'],
             marker='o', markersize=2.5, label='{} K'.format(temperature))
 plt.legend()
 plt.savefig('chemical_potential_difference.png', bbox_inches='tight')
@@ -47,7 +47,7 @@ ax.set_ylabel('Mixing energy (meV/atom)')
 ax.set_xlim([-0.02, 1.02])
 for temperature, series in reversed(sorted(data.items())):
     series = pd.DataFrame.from_dict(series).sort_values('dmu')
-    ax.plot(series['concentration'], 1e3*series['mixing_energy'],
+    ax.plot(series['concentration'], 1e3 * series['mixing_energy'],
             marker='o', markersize=2.5, label='{} K'.format(temperature))
 plt.legend()
 plt.savefig('mixing_energy.png', bbox_inches='tight')
