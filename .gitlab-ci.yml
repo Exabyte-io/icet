@@ -42,7 +42,8 @@ style_check:
   tags:
     - linux
   script:
-    - python3 tests/check_flake8__.py
+    - cd tests
+    - python3 check_flake8__.py
   allow_failure: true
 
 

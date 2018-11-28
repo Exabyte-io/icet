@@ -20,20 +20,20 @@ the cluster_space.py file
 
 """
 
-import numpy as np
+from collections import OrderedDict
+from io import StringIO
 import sys
 import tempfile
 import unittest
 
+import numpy as np
 from ase import Atoms
 from ase.build import bulk, fcc111
 from ase.db import connect as db_connect
-from collections import OrderedDict
 from icet import ClusterSpace
 from icet.core.cluster_space import (get_singlet_info,
                                      get_singlet_configuration)
 from icet.core.lattice_site import LatticeSite
-from io import StringIO
 
 
 def strip_surrounding_spaces(input_string):
