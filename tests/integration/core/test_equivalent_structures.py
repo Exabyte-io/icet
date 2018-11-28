@@ -16,7 +16,8 @@ cs = ClusterSpace(prim, cutoffs, chemical_symbols)
 
 filename = inspect.getframeinfo(inspect.currentframe()).filename
 path = os.path.dirname(os.path.abspath(filename))
-db = connect(os.path.join(path, 'equivalent_structure_pairs.db'))
+db = connect(os.path.join(path,
+    'tests/structure_databases/equivalent_structure_pairs.db'))
 
 # Loop over all pairs
 for structure in db.select():

@@ -288,34 +288,34 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         of structures with known cluster vectors.
         """
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_binary.db')
+            'tests/structure_databases/fcc_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_skew_binary.db')
+            'tests/structure_databases/fcc_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_ternary.db')
+            'tests/structure_databases/fcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_quaternary.db')
+            'tests/structure_databases/fcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_longedge_binary.db')
+            'tests/structure_databases/bcc_longedge_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_ternary.db')
+            'tests/structure_databases/bcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_quaternary.db')
+            'tests/structure_databases/bcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_binary.db')
+            'tests/structure_databases/hcp_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_skew_binary.db')
+            'tests/structure_databases/hcp_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_ternary.db')
+            'tests/structure_databases/hcp_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_quaternary.db')
+            'tests/structure_databases/hcp_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/tetragonal_binary.db')
+            'tests/structure_databases/tetragonal_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/tetragonal_ternary.db')
+            'tests/structure_databases/tetragonal_ternary.db')
 
     def test_read_write(self):
         """Tests read/write functionality."""
