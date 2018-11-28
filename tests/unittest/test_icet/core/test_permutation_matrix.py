@@ -1,7 +1,9 @@
 import unittest
-from ase.build import bulk
-import spglib
 import numpy as np
+import spglib
+
+from ase.build import bulk
+
 from icet import Structure
 from icet.core.neighbor_list import NeighborList
 from icet.core.permutation_matrix import (
@@ -14,7 +16,9 @@ from icet.core.permutation_matrix import (
 from icet.core.permutation_matrix import (
     _prune_permutation_matrix as prune_permutation_matrix)
 from icet.tools.geometry import (
-    get_primitive_structure, get_fractional_positions_from_neighbor_list)
+    ase_atoms_to_spglib_cell,
+    get_primitive_structure,
+    get_fractional_positions_from_neighbor_list)
 
 
 class TestPermutationMatrix(unittest.TestCase):
@@ -39,7 +43,8 @@ class TestPermutationMatrix(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        symmetry = spglib.get_symmetry(self.atoms_prim)
+        symmetry = spglib.get_symmetry(
+            ase_atoms_to_spglib_cell(self.atoms_prim))
         self.translations = symmetry['translations']
         self.rotations = symmetry['rotations']
 
@@ -188,28 +193,28 @@ class TestPermutationMatrix(unittest.TestCase):
         Tests fractional coordinates are converted into cartesians coordinates.
         """
         target = [[0.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0],
-                  [-3.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
+                  [-1.5, 2.6, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0],
                   [0.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
-                  [-3.0, 0.0, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
+                  [-1.5, 2.6, 0.0],
                   [0.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
-                  [-3.0, 0.0, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
+                  [-1.5, 2.6, 0.0],
                   [0.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0],
-                  [-3.0, 0.0, 0.0],
-                  [-1.5, -0.87, -2.45],
-                  [-1.5, -0.87, -2.45],
+                  [-1.5, 2.6, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0]]
 
         fractional_pos = self.pm.get_permuted_positions()[0]
