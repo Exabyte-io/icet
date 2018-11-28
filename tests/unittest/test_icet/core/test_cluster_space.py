@@ -22,6 +22,8 @@ the cluster_space.py file
 
 from collections import OrderedDict
 from io import StringIO
+import inspect
+import os
 import sys
 import tempfile
 import unittest
@@ -268,7 +270,9 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
     def _test_cluster_vectors_in_database(self, db_name):
         """Tests the cluster vectors in the database."""
 
-        db = db_connect(db_name)
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        db = db_connect(os.path.join(path, db_name))
 
         entry1 = db.get(id=1)
         atoms = entry1.toatoms()
@@ -288,34 +292,34 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         of structures with known cluster vectors.
         """
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/fcc_binary.db')
+            '../../../structure_databases/fcc_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/fcc_skew_binary.db')
+            '../../../structure_databases/fcc_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/fcc_ternary.db')
+            '../../../structure_databases/fcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/fcc_quaternary.db')
+            '../../../structure_databases/fcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/bcc_longedge_binary.db')
+            '../../../structure_databases/bcc_longedge_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/bcc_ternary.db')
+            '../../../structure_databases/bcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/bcc_quaternary.db')
+            '../../../structure_databases/bcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/hcp_binary.db')
+            '../../../structure_databases/hcp_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/hcp_skew_binary.db')
+            '../../../structure_databases/hcp_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/hcp_ternary.db')
+            '../../../structure_databases/hcp_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/hcp_quaternary.db')
+            '../../../structure_databases/hcp_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/tetragonal_binary.db')
+            '../../../structure_databases/tetragonal_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/structure_databases/tetragonal_ternary.db')
+            '../../../structure_databases/tetragonal_ternary.db')
 
     def test_read_write(self):
         """Tests read/write functionality."""
