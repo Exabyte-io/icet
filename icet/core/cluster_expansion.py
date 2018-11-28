@@ -5,7 +5,6 @@ import re
 
 from icet import ClusterSpace
 from icet.core.structure import Structure
-from os import PathLike
 from typing import List, Union
 from ase import Atoms
 
@@ -156,7 +155,7 @@ class ClusterExpansion:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
-    def read(filename: PathLike):
+    def read(filename: str):
         """
         Reads ClusterExpansion object from file.
 
