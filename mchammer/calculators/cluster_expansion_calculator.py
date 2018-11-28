@@ -45,8 +45,8 @@ class ClusterExpansionCalculator(BaseCalculator):
     """
 
     def __init__(self, atoms: Atoms, cluster_expansion: ClusterExpansion,
-                 name: str='Cluster Expansion Calculator',
-                 scaling: Union[float, int]=None,
+                 name: str = 'Cluster Expansion Calculator',
+                 scaling: Union[float, int] = None,
                  use_local_energy_calculator: bool = True) -> None:
         super().__init__(atoms=atoms, name=name)
 

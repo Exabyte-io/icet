@@ -20,20 +20,22 @@ the cluster_space.py file
 
 """
 
-import numpy as np
+from collections import OrderedDict
+from io import StringIO
+import inspect
+import os
 import sys
 import tempfile
 import unittest
 
+import numpy as np
 from ase import Atoms
 from ase.build import bulk, fcc111
 from ase.db import connect as db_connect
-from collections import OrderedDict
 from icet import ClusterSpace
 from icet.core.cluster_space import (get_singlet_info,
                                      get_singlet_configuration)
 from icet.core.lattice_site import LatticeSite
-from io import StringIO
 
 
 def strip_surrounding_spaces(input_string):
@@ -268,7 +270,9 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
     def _test_cluster_vectors_in_database(self, db_name):
         """Tests the cluster vectors in the database."""
 
-        db = db_connect(db_name)
+        filename = inspect.getframeinfo(inspect.currentframe()).filename
+        path = os.path.dirname(os.path.abspath(filename))
+        db = db_connect(os.path.join(path, db_name))
 
         entry1 = db.get(id=1)
         atoms = entry1.toatoms()
@@ -288,34 +292,34 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         of structures with known cluster vectors.
         """
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_binary.db')
+            '../../../structure_databases/fcc_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_skew_binary.db')
+            '../../../structure_databases/fcc_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_ternary.db')
+            '../../../structure_databases/fcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/fcc_quaternary.db')
+            '../../../structure_databases/fcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_longedge_binary.db')
+            '../../../structure_databases/bcc_longedge_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_ternary.db')
+            '../../../structure_databases/bcc_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/bcc_quaternary.db')
+            '../../../structure_databases/bcc_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_binary.db')
+            '../../../structure_databases/hcp_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_skew_binary.db')
+            '../../../structure_databases/hcp_skew_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_ternary.db')
+            '../../../structure_databases/hcp_ternary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/hcp_quaternary.db')
+            '../../../structure_databases/hcp_quaternary.db')
 
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/tetragonal_binary.db')
+            '../../../structure_databases/tetragonal_binary.db')
         self._test_cluster_vectors_in_database(
-            'tests/unittest/core/structure_databases/tetragonal_ternary.db')
+            '../../../structure_databases/tetragonal_ternary.db')
 
     def test_read_write(self):
         """Tests read/write functionality."""
@@ -369,16 +373,16 @@ class TestClusterSpaceSurface(unittest.TestCase):
         target_cluster_vectors = np.array([
             [1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0,
              -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0],
-            [1., -0.5, -1., -1.,  0.,  0.5,  1.,  1.,  1.,  0.5,  0.5,
-             -1., -1., -1., -1.,  0., -0.5, -1., -1., -0.5,  0.5,  1.,
+            [1., -0.5, -1., -1., 0., 0.5, 1., 1., 1., 0.5, 0.5,
+             -1., -1., -1., -1., 0., -0.5, -1., -1., -0.5, 0.5, 1.,
              1.],
             [1., -0.5, -0.5,
-             -1.,  0.,  0.3333333333,
-             0.,  0.5,  1.,
-             0.5,  0.5,  0.5,
+             -1., 0., 0.3333333333,
+             0., 0.5, 1.,
+             0.5, 0.5, 0.5,
              0.5, -1., -1.,
-             -0.1666666667, -0.1666666667,  0.,
-             -0.5,  0.,  0.,
+             -0.1666666667, -0.1666666667, 0.,
+             -0.5, 0., 0.,
              0.5, -0.5]])
         s = ['Error in test setup;']
         s += ['number of cluster vectors ({})'.format(
@@ -571,7 +575,7 @@ class TestClusterSpaceMultiSublattice(unittest.TestCase):
 
         # Twice as many pairs in 100 direction since they can be both
         # sublattice-1 -> sublatice 1 and sublattice 2  -> sublattice 2
-        self.assertEqual(pair_counts_binary[2.045]*2, pair_counts[2.045])
+        self.assertEqual(pair_counts_binary[2.045] * 2, pair_counts[2.045])
 
 
 if __name__ == '__main__':

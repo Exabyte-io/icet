@@ -26,9 +26,9 @@ class TestGeometry(unittest.TestCase):
         return None
 
     def setUp(self):
-        """Setup some basic stuff which can be useful in the tests."""
+        """Sets up some basic stuff which can be useful in the tests."""
         cutoff = 3.0
-        self.atoms = bulk("Al")
+        self.atoms = bulk('Al')
         self.neighborlist = NeighborList(
             len(self.atoms) * [cutoff / 2], skin=1e-8,
             bothways=True, self_interaction=False)
@@ -42,19 +42,19 @@ class TestGeometry(unittest.TestCase):
         frac_pos = get_fractional_positions_from_ase_neighbor_list(
             self.atoms, self.neighborlist)
 
-        target = [[0.,  0., - 0.],
-                  [0.,  0., 1.],
-                  [0.,  1., - 1.],
-                  [0.,  1., - 0.],
+        target = [[0., 0., - 0.],
+                  [0., 0., 1.],
+                  [0., 1., - 1.],
+                  [0., 1., - 0.],
                   [1., - 1., - 0.],
-                  [1.,  0., - 1.],
-                  [1.,  0., - 0.],
-                  [0.,  0., - 1.],
-                  [0., - 1.,  1.],
+                  [1., 0., - 1.],
+                  [1., 0., - 0.],
+                  [0., 0., - 1.],
+                  [0., - 1., 1.],
                   [0., - 1., - 0.],
-                  [-1.,  1., - 0.],
+                  [-1., 1., - 0.],
                   [-1., 0., 1.],
-                  [-1.,  0., - 0.]]
+                  [-1., 0., - 0.]]
 
         for pos1, pos2 in zip(frac_pos, target):
             self.assertListEqual(list(pos1), pos2)
@@ -95,7 +95,7 @@ class TestGeometry(unittest.TestCase):
         3. Find lattice site from the position and assert that it should
            be equivalent to the original lattice site.
         """
-        atoms = bulk("Au", 'hcp', a=2.0).repeat([3, 2, 5])
+        atoms = bulk('Au', 'hcp', a=2.0).repeat([3, 2, 5])
         lattice_sites = []
         unit_cell_range = 100
         for j in range(500):
@@ -123,7 +123,7 @@ class TestGeometry(unittest.TestCase):
         3. Find lattice site from the position and assert that it should
            be equivalent to the original lattice site.
         """
-        atoms = bulk("Au", 'hcp', a=2.0).repeat([3, 5, 5])
+        atoms = bulk('Au', 'hcp', a=2.0).repeat([3, 5, 5])
         # Set pbc false in Z-direction and add vacuum
         atoms.pbc = [True, True, False]
         atoms.center(30, axis=[2])
@@ -158,18 +158,18 @@ class TestGeometry(unittest.TestCase):
         for fractional in frac_pos:
             positions.append(fractional_to_cartesian(self.atoms, fractional))
 
-        target_pos = [[0.,  0.,  0.],
-                      [2.025,  2.025,  0.],
-                      [0., - 2.025,  2.025],
-                      [2.025,  0.,     2.025],
-                      [-2.025,  2.025,  0.],
-                      [-2.025,  0.,     2.025],
-                      [0.,     2.025,  2.025],
-                      [-2.025, - 2.025,  0.],
-                      [0.,     2.025, - 2.025],
-                      [-2.025,  0., - 2.025],
-                      [2.025, - 2.025,  0.],
-                      [2.025,  0., - 2.025],
+        target_pos = [[0., 0., 0.],
+                      [2.025, 2.025, 0.],
+                      [0., - 2.025, 2.025],
+                      [2.025, 0., 2.025],
+                      [-2.025, 2.025, 0.],
+                      [-2.025, 0., 2.025],
+                      [0., 2.025, 2.025],
+                      [-2.025, - 2.025, 0.],
+                      [0., 2.025, - 2.025],
+                      [-2.025, 0., - 2.025],
+                      [2.025, - 2.025, 0.],
+                      [2.025, 0., - 2.025],
                       [0., - 2.025, - 2.025]]
 
         for target, pos in zip(target_pos, positions):

@@ -25,7 +25,7 @@ class BaseObserver(ABC):
     """
 
     def __init__(self, interval: int, return_type: type,
-                 tag: str='BaseObserver'):
+                 tag: str = 'BaseObserver') -> None:
         self.tag = tag
         self.interval = interval
         self._return_type = return_type

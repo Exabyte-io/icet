@@ -90,8 +90,8 @@ class ClusterExpansion:
     def __len__(self) -> int:
         return len(self._parameters)
 
-    def _get_string_representation(self, print_threshold: int=None,
-                                   print_minimum: int=10):
+    def _get_string_representation(self, print_threshold: int = None,
+                                   print_minimum: int = 10):
         """
         String representation of the cluster expansion.
         """

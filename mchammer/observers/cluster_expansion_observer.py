@@ -31,8 +31,9 @@ class ClusterExpansionObserver(BaseObserver):
         observation interval
     """
 
-    def __init__(self, cluster_expansion: ClusterExpansion, interval: int=None,
-                 tag: str='ClusterExpansionObserver'):
+    def __init__(self, cluster_expansion: ClusterExpansion,
+                 interval: int = None,
+                 tag: str = 'ClusterExpansionObserver') -> None:
         super().__init__(interval=interval, return_type=float, tag=tag)
         self._cluster_expansion = cluster_expansion
 

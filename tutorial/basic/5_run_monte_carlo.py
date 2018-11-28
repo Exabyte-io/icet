@@ -9,7 +9,7 @@ from mchammer.ensembles import SemiGrandCanonicalEnsemble
 ce = ClusterExpansion.read('mixing_energy.ce')
 chemical_symbols = ce.cluster_space.chemical_symbols[0]
 atoms = make_supercell(ce.cluster_space.primitive_structure,
-                       3*array([[-1, 1, 1],
+                       3 * array([[-1, 1, 1],
                                 [1, -1, 1],
                                 [1, 1, -1]]))
 # TODO: Remove this line once cs.primitive cell is not longer decorated
@@ -30,6 +30,6 @@ for temperature in [900, 600, 300]:
             chemical_potentials={chemical_symbols[0]: 0,
                                  chemical_symbols[1]: dmu})
 
-        mc.run(number_of_trial_steps=len(atoms)*30)
+        mc.run(number_of_trial_steps=len(atoms) * 30)
         mc.data_container.write('sgc-T{}-dmu{:.3f}.dc'
                                 .format(temperature, dmu))

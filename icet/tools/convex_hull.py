@@ -100,7 +100,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
         # Remove points that are above the "pure components plane"
         self._remove_points_above_tie_plane()
 
-    def _remove_points_above_tie_plane(self, tol: float=1e-6):
+    def _remove_points_above_tie_plane(self, tol: float = 1e-6) -> None:
         """
         Remove all points on the convex hull that correspond to maximum rather
         than minimum energy.
@@ -213,7 +213,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
                                             List[List[float]]],
                                       energies: List[float],
                                       energy_tolerance: float, structures:
-                                      list=None):
+                                      list = None) -> List[int]:
         """Returns structures that lie within a certain tolerance of the convex
         hull.
 

@@ -222,7 +222,7 @@ class TestConfigurationManager(unittest.TestCase):
 
         # Set everything to Al-Ag-Al-Ag ...
         indices = [i for i in range(len(self.atoms))]
-        elements = [13, 47] * (len(self.atoms)//2)
+        elements = [13, 47] * (len(self.atoms) // 2)
         self.cm.update_occupations(indices, elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 

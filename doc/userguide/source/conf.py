@@ -27,7 +27,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx_autodoc_typehints',
     'sphinx_sitemap',
-    ]
+]
 
 # html_show_sourcelink = False
 
@@ -80,7 +80,7 @@ html_context = {
          ]}
 htmlhelp_basename = 'icetdoc'
 intersphinx_mapping = \
-    {'ase':    ('https://wiki.fysik.dtu.dk/ase', None),
+    {'ase': ('https://wiki.fysik.dtu.dk/ase', None),
      'python': ('https://docs.python.org/3.6', None),
      'pandas': ('https://pandas.pydata.org/pandas-docs/stable/', None)}
 

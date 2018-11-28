@@ -17,30 +17,29 @@ from ..calculators.base_calculator import BaseCalculator
 class VCSGCEnsemble(BaseEnsemble):
     """Instances of this class allow one to simulate systems in the
     variance-constrained semi-grand canonical (VCSGC) ensemble
-    (:math:`N\phi\kappa VT`), i.e. at constant temperature
-    (:math:`T`), total number of sites (:math:`N=\sum_i N_i`), and two
-    additional dimensionless parameters :math:`\phi` and :math:`\kappa`,
-    which constrain average and variance of the concentration,
-    respectively. The VCSGC ensemble is currently only implemented for
-    binary systems.
+    (:math:`N\\phi\\kappa VT`), i.e. at constant temperature (:math:`T`), total
+    number of sites (:math:`N=\\sum_i N_i`), and two additional dimensionless
+    parameters :math:`\\phi` and :math:`\\kappa`, which constrain average and
+    variance of the concentration, respectively. The VCSGC ensemble is
+    currently only implemented for binary systems.
 
     The probability for a particular state in the VCSGC ensemble for a
     :math:`2`-component system can be written
 
     .. math::
 
-        \\rho_{\\text{VCSGC}} \\propto \exp\\Big[ - E / k_B T
-        + \\kappa N ( c_1 + \phi_1 / 2 )^2 \\Big],
+        \\rho_{\\text{VCSGC}} \\propto \\exp\\Big[ - E / k_B T
+        + \\kappa N ( c_1 + \\phi_1 / 2 )^2 \\Big],
 
     where :math:`c_1` represents the concentration of species 1, i.e.
-    :math:`c_1=N_1/N`. (Please note that the quantities :math:`\kappa` and
-    :math:`\phi` correspond, respectively, to :math:`\\bar{\kappa}` and
-    :math:`\\bar{\phi}` in [SadErh12]_.) This implementation requires
-    :math:`\phi` to be specified for both species. The sum of the specified
-    :math:`\phi` values is required to be :math:`-2`, because then the above
+    :math:`c_1=N_1/N`. (Please note that the quantities :math:`\\kappa` and
+    :math:`\\phi` correspond, respectively, to :math:`\\bar{\\kappa}` and
+    :math:`\\bar{\\phi}` in [SadErh12]_.) This implementation requires
+    :math:`\\phi` to be specified for both species. The sum of the specified
+    :math:`\\phi` values is required to be :math:`-2`, because then the above
     expression is symmetric with respect to interchange of species 1 and 2,
-    i.e., it does not matter if we use :math:`\phi_1` and :math:`c_1` or
-    :math:`\phi_2` and :math:`c_2`.
+    i.e., it does not matter if we use :math:`\\phi_1` and :math:`c_1` or
+    :math:`\\phi_2` and :math:`c_2`.
 
     Just like the :ref:`semi-grand canonical ensemble <canonical_ensemble>`,
     the VCSGC ensemble allows concentrations to change. A trial step consists
@@ -49,21 +48,21 @@ class VCSGCEnsemble(BaseEnsemble):
 
     .. math::
 
-        P = \min \{ 1, \, \exp [ - \\Delta E / k_B T + \kappa N \\Delta c_1 (
-        \phi_1 + \\Delta c_1 + 2 c_1 ) ] \}.
+        P = \\min \\{ 1, \\, \\exp [ - \\Delta E / k_B T
+        + \\kappa N \\Delta c_1 (\\phi_1 + \\Delta c_1 + 2 c_1 ) ] \\}.
 
-    Note that for a sufficiently large value of :math:`\kappa`, say 200, the
+    Note that for a sufficiently large value of :math:`\\kappa`, say 200, the
     probability density :math:`\\rho_{\\text{VCSGC}}` is sharply peaked around
-    :math:`c_1=-\phi_1 / 2`. In practice, this means that we can gradually
-    change :math:`\phi_1` from (using some margins) :math:`-2.1` to :math:`0.1`
-    and take the system continuously from :math:`c_1 = 0` to :math:`1`. The
-    parameter :math:`\kappa` constrains the fluctuations (or the variance) of
-    the concentration at each value of :math:`\phi_1`, with higher values of
-    :math:`\kappa` meaning less fluctuations. Unlike the :ref:`semi-grand
-    canonical ensemble <vcsgc_ensemble>`, one value of :math:`\phi_1` maps to
-    one and only one concentration also in multiphase regions. Since the
-    derivative of the canonical free energy can be expressed in terms of
-    parameters and observables of the VCSGC ensemble,
+    :math:`c_1=-\\phi_1 / 2`. In practice, this means that we can gradually
+    change :math:`\\phi_1` from (using some margins) :math:`-2.1` to
+    :math:`0.1` and take the system continuously from :math:`c_1 = 0` to
+    :math:`1`. The parameter :math:`\\kappa` constrains the fluctuations (or
+    the variance) of the concentration at each value of :math:`\\phi_1`, with
+    higher values of :math:`\\kappa` meaning less fluctuations. Unlike the
+    :ref:`semi-grand canonical ensemble <vcsgc_ensemble>`, one value of
+    :math:`\\phi_1` maps to one and only one concentration also in multiphase
+    regions. Since the derivative of the canonical free energy can be expressed
+    in terms of parameters and observables of the VCSGC ensemble,
 
     .. math::
 
@@ -77,9 +76,8 @@ class VCSGCEnsemble(BaseEnsemble):
     <sgc_ensemble>` when simulating materials with multiphase regions, such as
     alloys with miscibility gaps.
 
-    When using the VCSGC ensemble, please cite
-    Sadigh, B. and Erhart, P., Phys. Rev. B **86**, 134204 (2012)
-    [SadErh12]_.
+    When using the VCSGC ensemble, please cite Sadigh, B. and Erhart, P., Phys.
+    Rev. B **86**, 134204 (2012) [SadErh12]_.
 
     Parameters
     ----------
@@ -122,22 +120,23 @@ class VCSGCEnsemble(BaseEnsemble):
     phis : Dict[str, float]
         average constraint parameters :math:`\\phi_i`; the key denotes the
         species; there must be one entry for each species but their sum must be
-        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
+        :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
     kappa : float
         parameter that constrains the variance of the concentration
-        (referred to as :math:`\\bar{\kappa}` in [SadErh12]_)
+        (referred to as :math:`\\bar{\\kappa}` in [SadErh12]_)
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 name: str='Variance-constrained semi-grand' +
-                           ' canonical ensemble',
-                 data_container: DataContainer=None, random_seed: int=None,
-                 data_container_write_period: float=np.inf,
-                 ensemble_data_write_interval: int=None,
-                 trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, temperature: float=None,
-                 phis: Dict[str, float]=None,
-                 kappa: float=None):
+                 name: str = 'Variance-constrained '
+                 'semi-grand canonical ensemble',
+                 data_container: DataContainer = None,
+                 random_seed: int = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None,
+                 boltzmann_constant: float = kB, temperature: float = None,
+                 phis: Dict[str, float] = None,
+                 kappa: float = None) -> None:
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,
@@ -226,14 +225,14 @@ class VCSGCEnsemble(BaseEnsemble):
     def phis(self) -> Dict[int, float]:
         """
         phis :math:`\\phi_i`, one for each species but their sum must be
-        :math:`-2.0` (referred to as :math:`\\bar{\phi}` in [SadErh12]_)
+        :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
         """
         return self._phis
 
     @property
     def kappa(self) -> float:
         """
-        kappa :math:`\\bar{\kappa}` constrain parameter
+        kappa :math:`\\bar{\\kappa}` constrain parameter
         (see parameters section above)
         """
         return self._kappa

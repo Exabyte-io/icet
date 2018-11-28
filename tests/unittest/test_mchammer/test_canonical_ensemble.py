@@ -22,7 +22,7 @@ class TestEnsemble(unittest.TestCase):
         cutoffs = [5, 5, 4]
         elements = ['Al', 'Ga']
         self.cs = ClusterSpace(self.atoms, cutoffs, elements)
-        parameters = parameters = np.array([1.2]*len(self.cs))
+        parameters = parameters = np.array([1.2] * len(self.cs))
         self.ce = ClusterExpansion(self.cs, parameters)
         self.temperature = 100.0
 

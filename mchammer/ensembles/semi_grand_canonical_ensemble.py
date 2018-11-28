@@ -17,22 +17,21 @@ from ..calculators.base_calculator import BaseCalculator
 
 class SemiGrandCanonicalEnsemble(BaseEnsemble):
     """Instances of this class allow one to simulate systems in the
-    semi-grand canonical (SGC) ensemble (:math:`N\Delta\mu_i VT`),
-    i.e. at constant temperature (:math:`T`), total number of sites
-    (:math:`N=\sum_i N_i`), relative chemical potentials
-    (:math:`\Delta\mu_i=\mu_i - \mu_1`, where :math:`i` denotes the
-    species), and volume (:math:`V`).
+    semi-grand canonical (SGC) ensemble (:math:`N\\Delta\\mu_i VT`), i.e. at
+    constant temperature (:math:`T`), total number of sites (:math:`N=\\sum_i
+    N_i`), relative chemical potentials (:math:`\\Delta\\mu_i=\\mu_i - \\mu_1`,
+    where :math:`i` denotes the species), and volume (:math:`V`).
 
     The probability for a particular state in the SGC ensemble for a
     :math:`m`-component system can be written
 
     .. math::
 
-        \\rho_{\\text{SGC}} \\propto \exp\\Big[ - \\big( E
-        + \sum_{i>1}^m \Delta\mu_i N_i \\big) \\big / k_B T \\Big]
+        \\rho_{\\text{SGC}} \\propto \\exp\\Big[ - \\big( E
+        + \\sum_{i>1}^m \\Delta\\mu_i N_i \\big) \\big / k_B T \\Big]
 
-    with the *relative* chemical potentials :math:`\Delta\mu_i = \mu_i - \mu_1`
-    and species counts :math:`N_i`. Unlike the :ref:`canonical ensemble
+    with the *relative* chemical potentials :math:`\\Delta\\mu_i = \\mu_i -
+    \\mu_1` and species counts :math:`N_i`. Unlike the :ref:`canonical ensemble
     <canonical_ensemble>`, the number of the respective species (or,
     equivalently, the concentrations) are allowed to vary in the SGC ensemble.
     A trial step thus consists of randomly picking an atom and changing its
@@ -40,21 +39,19 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
 
     .. math::
 
-        P = \min \\Big\{ 1, \, \exp \\big[ - \\big( \\Delta E
+        P = \\min \\Big\\{ 1, \\, \\exp \\big[ - \\big( \\Delta E
         + \\sum_i \\Delta \\mu_i \\Delta N_i \\big) \\big / k_B T \\big]
-        \\Big\},
+        \\Big\\},
 
     where :math:`\\Delta E` is the change in potential energy caused by the
     swap.
 
     There exists a simple relation between the differences in chemical
-    potential and the canonical free energy :math:`F`. In a binary system,
-    this relationship reads
+    potential and the canonical free energy :math:`F`. In a binary system, this
+    relationship reads
 
-    .. math::
-        \\Delta \mu = - \\frac{1}{N}
-        \\frac{\\partial F}{\\partial c}
-        ( N, V, T, \\langle c \\rangle).
+    .. math:: \\Delta \\mu = - \\frac{1}{N} \\frac{\\partial F}{\\partial c} (
+        N, V, T, \\langle c \\rangle).
 
     Here :math:`c` denotes concentration (:math:`c=N_i/N`) and :math:`\\langle
     c \\rangle` the average concentration observed in the simulation. By
@@ -118,13 +115,13 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 name: str='Semi-grand canonical ensemble',
-                 data_container: DataContainer=None, random_seed: int=None,
-                 data_container_write_period: float=np.inf,
-                 ensemble_data_write_interval: int=None,
-                 trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, temperature: float=None,
-                 chemical_potentials: Dict[str, float]=None):
+                 name: str = 'Semi-grand canonical ensemble',
+                 data_container: DataContainer = None, random_seed: int = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None,
+                 boltzmann_constant: float = kB, temperature: float = None,
+                 chemical_potentials: Dict[str, float] = None) -> None:
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,

@@ -60,7 +60,7 @@ class TestClusterExpansion(unittest.TestCase):
 
     def test_property_orders(self):
         """Tests orders property."""
-        self.assertEqual(self.ce.orders, list(range(len(self.cutoffs)+2)))
+        self.assertEqual(self.ce.orders, list(range(len(self.cutoffs) + 2)))
 
     def test_property_parameters_as_dataframe(self):
         """Tests parameters_as_dataframe property."""
@@ -112,7 +112,7 @@ class TestClusterExpansion(unittest.TestCase):
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
 ------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI   
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
 ------------------------------------------------------------------------------------------
    0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
    1  |   1   |   0.0000 |        1     |       0     |          [0]           |         1
@@ -137,7 +137,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
 ------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI   
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
 ------------------------------------------------------------------------------------------
    0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
  ...

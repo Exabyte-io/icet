@@ -39,7 +39,7 @@ class ConfigurationManager(object):
     def __init__(self, atoms: Atoms,
                  strict_constraints: Union[List[List[int]], List[int]],
                  sites_by_sublattice: Union[List[List[int]], List[int]],
-                 occupation_constraints: List[List[int]]=None) -> None:
+                 occupation_constraints: List[List[int]] = None) -> None:
 
         self._atoms = atoms
         self._occupations = atoms.numbers

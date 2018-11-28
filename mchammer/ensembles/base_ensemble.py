@@ -52,11 +52,13 @@ class BaseEnsemble(ABC):
         simulation
     """
 
-    def __init__(self, atoms, calculator, name='BaseEnsemble',
-                 data_container=None, data_container_write_period=np.inf,
-                 ensemble_data_write_interval=None,
-                 trajectory_write_interval=None,
-                 random_seed=None):
+    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
+                 name: str = 'BaseEnsemble',
+                 data_container: DataContainer = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None,
+                 random_seed: int = None) -> None:
 
         # initialize basic variables
         self._accepted_trials = 0
@@ -106,7 +108,7 @@ class BaseEnsemble(ABC):
                               random_seed=self._random_seed)
 
         # interval for writing data and further preparation of data container
-        default_interval = max(1, 10*round(len(atoms)/10))
+        default_interval = max(1, 10 * round(len(atoms) / 10))
 
         if ensemble_data_write_interval is None:
             self._ensemble_data_write_interval = default_interval
@@ -162,7 +164,7 @@ class BaseEnsemble(ABC):
     def data_container_write_period(self, data_container_write_period):
         self._data_container_write_period = data_container_write_period
 
-    def run(self, number_of_trial_steps: int, reset_step: bool=False):
+    def run(self, number_of_trial_steps: int, reset_step: bool = False):
         """
         Samples the ensemble for the given number of trial steps.
 
@@ -203,7 +205,8 @@ class BaseEnsemble(ABC):
             if self._step % self.observer_interval == 0:
                 self._observe(self._step)
             if self._data_container_filename is not None and \
-                    time()-last_write_time > self.data_container_write_period:
+                    time() - last_write_time > \
+                    self.data_container_write_period:
                 self._write_data_container()
                 last_write_time = time()
 
@@ -419,7 +422,7 @@ class BaseEnsemble(ABC):
         """
         total_active_sites = sum([len(sub) for sub in self._sublattices])
         probability_distribution = [
-            len(sub)/total_active_sites for sub in self._sublattices]
+            len(sub) / total_active_sites for sub in self._sublattices]
         pick = np.random.choice(
             range(0, len(self._sublattices)), p=probability_distribution)
         return pick

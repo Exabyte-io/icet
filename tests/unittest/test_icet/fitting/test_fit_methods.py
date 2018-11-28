@@ -49,7 +49,7 @@ class TestFitMethods(unittest.TestCase):
         self.assertIsNotNone(res['parameters'])
 
         # rfe-l2 with n_features
-        n_features = int(0.5*self.n_cols)
+        n_features = int(0.5 * self.n_cols)
         res = fit(self.A, self.y, fit_method='rfe-l2', n_features=n_features)
         self.assertIsNotNone(res['parameters'])
         self.assertEqual(len(res['parameters']), self.n_cols)

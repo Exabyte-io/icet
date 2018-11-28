@@ -2,10 +2,10 @@ import unittest
 
 from ase.build import bulk
 from icet import ClusterExpansion, ClusterSpace
+from icet import Structure
 from mchammer.calculators.cluster_expansion_calculator import \
     ClusterExpansionCalculator
 from _icet import _ClusterExpansionCalculator
-from icet import Structure
 
 
 class TestCECalculatorBinary(unittest.TestCase):
@@ -69,7 +69,7 @@ class TestCECalculatorBinary(unittest.TestCase):
     def test_local_contribution_flip(self):
         """Tests potential differences when flipping."""
         # Tests original occupations
-        self._test_flip_changes("original occupations")
+        self._test_flip_changes('original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -78,20 +78,20 @@ class TestCECalculatorBinary(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_flip_changes("Checkerboard")
+        self._test_flip_changes('Checkerboard')
 
         # Tests seggregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_flip_changes("Segregated")
+        self._test_flip_changes('Segregated')
 
     def test_local_contribution_swap(self):
         """Tests correct differences when swapping."""
         # Tests original occupations
-        self._test_swap_changes("Original occupations")
+        self._test_swap_changes('Original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -100,15 +100,15 @@ class TestCECalculatorBinary(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_swap_changes("checkerboard")
+        self._test_swap_changes('checkerboard')
 
         # Tests seggregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_swap_changes("segregated")
+        self._test_swap_changes('segregated')
 
     def _get_energy_diffs_local_and_total(self, indices):
         """Get energy diffs using local and total."""
@@ -243,8 +243,8 @@ class TestCECalculatorBinaryHCP(unittest.TestCase):
             indices = [i]
             local_diff, total_diff = self._get_energy_diffs_local_and_total(
                 indices)
-            msg += ", indices " + str(indices) + \
-                ", len of atoms " + str(len(self.atoms))
+            msg += ', indices ' + str(indices) + \
+                ', len of atoms ' + str(len(self.atoms))
             self.assertAlmostEqual(total_diff, local_diff, msg=msg)
 
     def _test_swap_changes(self, msg):
@@ -256,14 +256,14 @@ class TestCECalculatorBinaryHCP(unittest.TestCase):
                 indices = [i, j]
                 local_diff, total_diff = \
                     self._get_energy_diffs_local_and_total(indices)
-                msg += ", indices " + \
-                    str(indices) + ", len of atoms " + str(len(self.atoms))
+                msg += ', indices ' + \
+                    str(indices) + ', len of atoms ' + str(len(self.atoms))
                 self.assertAlmostEqual(total_diff, local_diff, msg=msg)
 
     def test_local_contribution_flip(self):
         """Tests potential differences when flipping."""
         # Tests original occupations
-        self._test_flip_changes("original occupations")
+        self._test_flip_changes('original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -272,20 +272,20 @@ class TestCECalculatorBinaryHCP(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_flip_changes("Checkerboard")
+        self._test_flip_changes('Checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_flip_changes("Segregated")
+        self._test_flip_changes('Segregated')
 
     def test_local_contribution_swap(self):
         """Tests correct differences when swapping."""
         # Tests original occupations
-        self._test_swap_changes("Original occupations")
+        self._test_swap_changes('Original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -294,15 +294,15 @@ class TestCECalculatorBinaryHCP(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_swap_changes("checkerboard")
+        self._test_swap_changes('checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_swap_changes("segregated")
+        self._test_swap_changes('segregated')
 
     def _get_energy_diffs_local_and_total(self, indices):
         """Gets energy diffs using local and total."""
@@ -400,7 +400,7 @@ class TestCECalculatorBinaryBCC(unittest.TestCase):
         """Tests potential differences when flipping."""
 
         # Tests original occupations
-        self._test_flip_changes("original occupations")
+        self._test_flip_changes('original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -409,20 +409,20 @@ class TestCECalculatorBinaryBCC(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_flip_changes("Checkerboard")
+        self._test_flip_changes('Checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_flip_changes("Segregated")
+        self._test_flip_changes('Segregated')
 
     def test_local_contribution_swap(self):
         """Tests correct differences when swapping."""
         # Tests original occupations
-        self._test_swap_changes("Original occupations")
+        self._test_swap_changes('Original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -431,15 +431,15 @@ class TestCECalculatorBinaryBCC(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_swap_changes("checkerboard")
+        self._test_swap_changes('checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_swap_changes("segregated")
+        self._test_swap_changes('segregated')
 
     def _get_energy_diffs_local_and_total(self, indices):
         """Gets energy diffs using local and total."""
@@ -529,14 +529,14 @@ class TestCECalculatorTernaryBCC(unittest.TestCase):
                 indices = [i, j]
                 local_diff, total_diff = \
                     self._get_energy_diffs_local_and_total(indices)
-                msg1 = "[{}, {}]".format(i, j)
+                msg1 = '[{}, {}]'.format(i, j)
                 self.assertAlmostEqual(total_diff, local_diff, msg=msg1)
 
     def test_local_contribution_flip(self):
         """Tests potential differences when flipping."""
 
         # Tests original occupations
-        self._test_flip_changes("original occupations")
+        self._test_flip_changes('original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -545,20 +545,20 @@ class TestCECalculatorTernaryBCC(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_flip_changes("Checkerboard")
+        self._test_flip_changes('Checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_flip_changes("Segregated")
+        self._test_flip_changes('Segregated')
 
     def test_local_contribution_swap(self):
         """Tests correct differences when swapping."""
         # Tests original occupations
-        self._test_swap_changes("Original occupations")
+        self._test_swap_changes('Original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -567,15 +567,15 @@ class TestCECalculatorTernaryBCC(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_swap_changes("checkerboard")
+        self._test_swap_changes('checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_swap_changes("segregated")
+        self._test_swap_changes('segregated')
 
     def _get_energy_diffs_local_and_total(self, indices):
         """Gets energy diffs using local and total."""
@@ -665,13 +665,13 @@ class TestCECalculatorTernaryHCP(unittest.TestCase):
                 indices = [i, j]
                 local_diff, total_diff = \
                     self._get_energy_diffs_local_and_total(indices)
-                msg1 = "[{}, {}]".format(i, j)
+                msg1 = '[{}, {}]'.format(i, j)
                 self.assertAlmostEqual(total_diff, local_diff, msg=msg1)
 
     def test_local_contribution_flip(self):
         """Tests potential differences when flipping."""
         # Tests original occupations
-        self._test_flip_changes("original occupations")
+        self._test_flip_changes('original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -680,20 +680,20 @@ class TestCECalculatorTernaryHCP(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_flip_changes("Checkerboard")
+        self._test_flip_changes('Checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_flip_changes("Segregated")
+        self._test_flip_changes('Segregated')
 
     def test_local_contribution_swap(self):
         """Tests correct differences when swapping."""
         # Tests original occupations
-        self._test_swap_changes("Original occupations")
+        self._test_swap_changes('Original occupations')
 
         # Tests checkerboard-ish
         for i in range(len(self.atoms)):
@@ -702,15 +702,15 @@ class TestCECalculatorTernaryHCP(unittest.TestCase):
             else:
                 self.atoms[i].number = 32
 
-        self._test_swap_changes("checkerboard")
+        self._test_swap_changes('checkerboard')
 
         # Tests segregated-ish
         for i in range(len(self.atoms)):
-            if i < len(self.atoms)/2:
+            if i < len(self.atoms) / 2:
                 self.atoms[i].number = 13
             else:
                 self.atoms[i].number = 32
-        self._test_swap_changes("segregated")
+        self._test_swap_changes('segregated')
 
     def _get_energy_diffs_local_and_total(self, indices):
         """Gets energy diffs using local and total."""

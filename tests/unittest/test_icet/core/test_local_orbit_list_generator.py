@@ -120,7 +120,7 @@ class TestLocalOrbitListGenerator(unittest.TestCase):
             pos_prim = self.primitive.get_position(LatticeSite(0, offset))
             self.assertTrue(
                 np.any(np.isclose(pos_prim, pos) for pos in super_pos))
-            for i in range(k+1, len(unique_offsets)):
+            for i in range(k + 1, len(unique_offsets)):
                 self.assertFalse(np.all(np.isclose(offset, unique_offsets[i])))
 
 
@@ -171,7 +171,7 @@ class TestLocalOrbitListGeneratorHCP(unittest.TestCase):
         of atoms in the supercell given that there is two atoms per unitcell.
         """
         self.assertEqual(self.lolg.get_unique_offsets_count(),
-                         len(self.supercell)/2)
+                         len(self.supercell) / 2)
 
     def test_get_primitive_to_supercell_map(self):
         """Tests primitive to supercell mapping."""
@@ -197,7 +197,7 @@ class TestLocalOrbitListGeneratorHCP(unittest.TestCase):
             pos_prim = self.primitive.get_position(LatticeSite(0, offset))
             self.assertTrue(
                 np.any(np.isclose(pos_prim, pos) for pos in super_pos))
-            for i in range(k+1, len(unique_offsets)):
+            for i in range(k + 1, len(unique_offsets)):
                 self.assertFalse(np.all(np.isclose(offset, unique_offsets[i])))
 
 

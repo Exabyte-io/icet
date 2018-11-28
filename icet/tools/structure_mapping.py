@@ -1,8 +1,9 @@
-import numpy as np
 import logging
+from typing import List, Tuple
+
+import numpy as np
 from ase import Atoms
 from ase.build import cut
-from typing import List, Tuple
 
 from icet.io.logging import logger
 logger = logger.getChild('structure_mapping')
@@ -11,10 +12,10 @@ logger = logger.getChild('structure_mapping')
 def map_structure_to_reference(input_structure: Atoms,
                                reference_structure: Atoms,
                                tolerance_mapping: float,
-                               vacancy_type: str=None,
-                               inert_species: List[str]=None,
-                               tolerance_cell: float=0.05,
-                               tolerance_positions: float=0.01) \
+                               vacancy_type: str = None,
+                               inert_species: List[str] = None,
+                               tolerance_cell: float = 0.05,
+                               tolerance_positions: float = 0.01) \
                                -> Tuple[Atoms, float, float]:
     """Maps a relaxed structure onto a reference structure.
     The function returns a tuple comprising
@@ -212,9 +213,10 @@ def map_structure_to_reference(input_structure: Atoms,
     return ideal_supercell, dr_max, dr_avg
 
 
-def _get_scaled_cell(input_structure: Atoms, reference_structure: Atoms,
-                     vacancy_type: str=None, inert_species: List[str]=None) \
-                     -> np.ndarray:
+def _get_scaled_cell(input_structure: Atoms,
+                     reference_structure: Atoms,
+                     vacancy_type: str = None,
+                     inert_species: List[str] = None) -> np.ndarray:
     """
     The input structure needs to be scaled in order to match the lattice
     structure of the reference structure. The reference structure can be a
@@ -265,7 +267,7 @@ def _get_scaled_cell(input_structure: Atoms, reference_structure: Atoms,
 
 def _get_transformation_matrix(input_cell: np.ndarray,
                                reference_cell: np.ndarray,
-                               tolerance_cell: float=0.05) -> np.ndarray:
+                               tolerance_cell: float = 0.05) -> np.ndarray:
     """
     Obtain the(in general non - integer) transformation matrix connecting the
     input structure to the reference structure L=L_p.P - -> P=L_p ^ -1.L
@@ -305,8 +307,10 @@ def _get_transformation_matrix(input_cell: np.ndarray,
     return P
 
 
-def _rescale_structures(input_structure: Atoms, reference_structure: Atoms,
-                        P: np.ndarray, tolerance_positions: float=0.01) \
+def _rescale_structures(input_structure: Atoms,
+                        reference_structure: Atoms,
+                        P: np.ndarray,
+                        tolerance_positions: float = 0.01) \
                         -> Tuple[Atoms, Atoms]:
     """
     Rescale `input_structure` with `P` so that it matches
