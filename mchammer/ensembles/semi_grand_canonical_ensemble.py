@@ -169,8 +169,8 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         # change in chemical potential
         old_species = self.configuration.occupations[index]
         chemical_potential_diff = \
-            self._chemical_potentials[old_species] - \
-            self._chemical_potentials[species]
+            self.chemical_potentials[old_species] - \
+            self.chemical_potentials[species]
         potential_diff += chemical_potential_diff
 
         if self._acceptance_condition(potential_diff):

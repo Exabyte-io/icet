@@ -149,7 +149,7 @@ class CanonicalEnsemble(BaseEnsemble):
             return True
         else:
             return np.exp(-potential_diff / (
-                self._boltzmann_constant * self._temperature)) > \
+                self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
