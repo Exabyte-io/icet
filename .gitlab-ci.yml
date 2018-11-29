@@ -8,8 +8,7 @@ build_linux:
   script:
     - mkdir build
     - cd build
-    - cmake ..
-    - make
+    - python3 -m pip install .. -t . -v --no-cache-dir
   artifacts:
     expire_in: 14 days
     paths:
@@ -24,7 +23,7 @@ tests:
     - build_linux
   script:
     - export PATH=${PATH}:${HOME}/.local/bin
-    - export PYTHONPATH=$PWD:$PWD/build/src/:$PYTHONPATH
+    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - coverage run tests/main.py
     - coverage report -m
     - coverage html -d coverage
