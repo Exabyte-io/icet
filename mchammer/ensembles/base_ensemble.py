@@ -98,11 +98,19 @@ class BaseEnsemble(ABC):
 
         # data container
         self._data_container_write_period = data_container_write_period
+
         self._data_container_filename = data_container
+
         if data_container is not None and os.path.isfile(data_container):
             self._data_container = DataContainer.read(data_container)
             self._restart_ensemble()
         else:
+            if data_container is not None:
+                # check if path to file exists
+                filedir = os.path.dirname(data_container)
+                if filedir and not os.path.isdir(filedir):
+                    raise FileNotFoundError('Path to data container file does'
+                                            ' not exist: {}'.format(filedir))
             self._data_container = \
                 DataContainer(atoms=atoms, ensemble_name=name,
                               random_seed=self._random_seed)
