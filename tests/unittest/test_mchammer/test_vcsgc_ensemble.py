@@ -37,8 +37,8 @@ class TestEnsemble(unittest.TestCase):
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
 
         self.ensemble = VCSGCEnsemble(
-            calculator=self.calculator,
             atoms=self.atoms,
+            calculator=self.calculator,
             name='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
@@ -51,18 +51,20 @@ class TestEnsemble(unittest.TestCase):
     def test_init(self):
         """ Tests exceptions are raised during initialization. """
         with self.assertRaises(TypeError) as context:
-            VCSGCEnsemble(self.atoms, self.calculator)
+            VCSGCEnsemble(atoms=self.atoms, calculator=self.calculator)
         self.assertTrue('Missing required keyword argument: temperature' in
                         str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            VCSGCEnsemble(self.atoms, self.calculator,
+            VCSGCEnsemble(atoms=self.atoms,
+                          calculator=self.calculator,
                           temperature=self.temperature)
         self.assertTrue('Missing required keyword argument: phis'
                         in str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            VCSGCEnsemble(self.atoms, self.calculator,
+            VCSGCEnsemble(atoms=self.atoms,
+                          calculator=self.calculator,
                           temperature=self.temperature,
                           phis=self.phis)
         self.assertTrue('Missing required keyword argument: kappa'
@@ -130,7 +132,7 @@ class TestEnsemble(unittest.TestCase):
 
         phis = {13: -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            self.atoms, self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)
@@ -139,7 +141,7 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         phis = {'Al': -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            self.atoms, self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)

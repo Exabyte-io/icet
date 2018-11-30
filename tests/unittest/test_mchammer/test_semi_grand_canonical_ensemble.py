@@ -33,8 +33,8 @@ class TestEnsemble(unittest.TestCase):
         self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
 
         self.ensemble = SemiGrandCanonicalEnsemble(
-            calculator=self.calculator,
             atoms=self.atoms,
+            calculator=self.calculator,
             name='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
@@ -46,12 +46,14 @@ class TestEnsemble(unittest.TestCase):
     def test_init(self):
         """ Tests exceptions are raised during initialization. """
         with self.assertRaises(TypeError) as context:
-            SemiGrandCanonicalEnsemble(self.atoms, self.calculator)
+            SemiGrandCanonicalEnsemble(atoms=self.atoms,
+                                       calculator=self.calculator)
         self.assertTrue('Missing required keyword argument: temperature' in
                         str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            SemiGrandCanonicalEnsemble(self.atoms, self.calculator,
+            SemiGrandCanonicalEnsemble(atoms=self.atoms,
+                                       calculator=self.calculator,
                                        temperature=self.temperature)
         self.assertTrue('Missing required keyword argument:'
                         ' chemical_potentials' in str(context.exception))
@@ -116,7 +118,7 @@ class TestEnsemble(unittest.TestCase):
 
         chemical_potentials = {13: 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
@@ -124,7 +126,7 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         chemical_potentials = {'Al': 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            calculator=self.calculator, atoms=self.atoms, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()

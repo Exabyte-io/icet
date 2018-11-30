@@ -137,9 +137,14 @@ class BaseEnsemble(ABC):
         return self.configuration.atoms.copy()
 
     @property
-    def step(self) -> int:
-        """ current Monte Carlo trial step """
-        return self._step
+    def total_trials(self) -> int:
+        """ number of Monte Carlo trial steps """
+        return self._total_trials
+
+    @property
+    def accepted_trials(self) -> int:
+        """ number of accepted trial steps """
+        return self._accepted_trials
 
     @property
     def data_container(self) -> DataContainer:
@@ -154,8 +159,8 @@ class BaseEnsemble(ABC):
     @property
     def acceptance_ratio(self) -> float:
         """ acceptance ratio """
-        if self._total_trials > 0:
-            return self._accepted_trials / self._total_trials
+        if self.total_trials > 0:
+            return self.accepted_trials / self.total_trials
         return 0
 
     @property

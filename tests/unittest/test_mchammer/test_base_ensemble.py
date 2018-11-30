@@ -103,8 +103,8 @@ class TestEnsemble(unittest.TestCase):
 
         # wrong path to data container file
         with self.assertRaises(FileNotFoundError) as context:
-            ConcreteEnsemble(calculator=self.calculator,
-                             atoms=self.atoms,
+            ConcreteEnsemble(atoms=self.atoms,
+                             calculator=self.calculator,
                              data_container='path/to/nowhere/mydc')
 
         self.assertTrue('Path to data container file does not exist:'
@@ -136,9 +136,9 @@ class TestEnsemble(unittest.TestCase):
 
     def test_property_step(self):
         """Tests property accepted trials."""
-        self.assertEqual(self.ensemble.step, 0)
+        self.assertEqual(self.ensemble._step, 0)
         self.ensemble._step += 1
-        self.assertEqual(self.ensemble.step, 1)
+        self.assertEqual(self.ensemble._step, 1)
 
     def test_property_acceptance_ratio(self):
         """Tests property acceptance ratio."""
@@ -160,7 +160,7 @@ class TestEnsemble(unittest.TestCase):
 
         n_iters = 364
         self.ensemble.run(n_iters)
-        self.assertEqual(self.ensemble.step, n_iters)
+        self.assertEqual(self.ensemble._step, n_iters)
         dc_data = self.ensemble.data_container.get_data('Apple2')
 
         number_of_observations = len([x for x in dc_data if x is not None])
@@ -172,13 +172,13 @@ class TestEnsemble(unittest.TestCase):
         # run it again to check that step is the same
         n_iters = 50
         self.ensemble.run(n_iters, reset_step=True)
-        self.assertEqual(self.ensemble.step, 50)
+        self.assertEqual(self.ensemble._step, 50)
 
         # run it yet again to check that step accumulates
         n_iters = 10
         self.ensemble.run(n_iters, reset_step=False)
         self.ensemble.run(n_iters, reset_step=False)
-        self.assertEqual(self.ensemble.step, 70)
+        self.assertEqual(self.ensemble._step, 70)
 
         # Do a number of steps of continuous runs and see that
         # we get the expected number of parakeet observations.
@@ -189,7 +189,7 @@ class TestEnsemble(unittest.TestCase):
                 self.ensemble.run(n_iter)
             total_iters = sum(run_iters)
             # Check that the number of iters are correct
-            self.assertEqual(self.ensemble.step, total_iters)
+            self.assertEqual(self.ensemble._step, total_iters)
             dc_data = self.ensemble.data_container.get_data('Apple2')
             number_of_observations = len(
                 [x for x in dc_data if x is not None])
@@ -205,7 +205,7 @@ class TestEnsemble(unittest.TestCase):
 
         n_iters = 364
         self.ensemble.run(n_iters)
-        self.assertEqual(self.ensemble.step, n_iters)
+        self.assertEqual(self.ensemble._step, n_iters)
         dc_data = \
             self.ensemble.data_container.get_data('value_1', 'value_2')
 
@@ -220,8 +220,8 @@ class TestEnsemble(unittest.TestCase):
     def test_backup_file(self):
         """Tests data is being saved and can be read by the ensemble."""
         # set-up ensemble with a non-inf write period
-        ensemble = ConcreteEnsemble(calculator=self.calculator,
-                                    atoms=self.atoms,
+        ensemble = ConcreteEnsemble(atoms=self.atoms,
+                                    calculator=self.calculator,
                                     name='this-ensemble',
                                     data_container='my-datacontainer.dc',
                                     data_container_write_period=1e-2,
@@ -252,8 +252,8 @@ class TestEnsemble(unittest.TestCase):
 
         # initialise a new ensemble with dc file
         ensemble_reloaded = \
-            ConcreteEnsemble(calculator=self.calculator,
-                             atoms=self.atoms,
+            ConcreteEnsemble(atoms=self.atoms,
+                             calculator=self.calculator,
                              data_container=temp_container_file.name,
                              ensemble_data_write_interval=14,
                              trajectory_write_interval=56)
