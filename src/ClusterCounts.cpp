@@ -37,7 +37,6 @@ void ClusterCounts::count(const Structure &structure,
     std::vector<int> elements(clusterSize);
     for (size_t i = 0; i < latticeNeighbors.size(); i++)
     {
-        // elements[i] = structure.getAtomicNumber(latticeNeighbors[i].index());
         elements[i] = structure._atomicNumbers[latticeNeighbors[i].index()];
     }
 
@@ -61,7 +60,6 @@ void ClusterCounts::count(const Structure &structure, const std::vector<std::vec
     {
         for (size_t i = 0; i < sites.size(); i++)
         {
-            // elements[i] = structure.getAtomicNumber(sites[i].index());
             elements[i] = structure._atomicNumbers[sites[i].index()];
         }
         countCluster(cluster, elements, orderIntact);

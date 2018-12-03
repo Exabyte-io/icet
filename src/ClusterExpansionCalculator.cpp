@@ -180,7 +180,6 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
     // Count clusters and get cluster count map
     clusterCounts.countOrbitList(_superCell, translatedOrbitList, orderIntact, permuteSites);
 
-    // const auto clusterMap = clusterCounts.getClusterCounts();
     const auto clusterMap = clusterCounts._clusterCounts;
 
     // Finally begin occupying the cluster vector
