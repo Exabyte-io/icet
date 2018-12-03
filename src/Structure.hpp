@@ -116,6 +116,8 @@ class Structure
     /// Returns tolerance applied when comparing positions.
     double getTolerance() const { return _tolerance; }
 
+    /// List of atomic numbers.
+    std::vector<int> _atomicNumbers;
 
   private:
 
@@ -140,9 +142,6 @@ class Structure
 
     /// Cell metric.
     Eigen::Matrix3d _cell;
-
-    /// List of atomic numbers.
-    std::vector<int> _atomicNumbers;
 
     /// Periodic boundary conditions.
     std::vector<bool> _pbc;
