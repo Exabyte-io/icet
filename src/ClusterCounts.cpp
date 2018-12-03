@@ -37,7 +37,8 @@ void ClusterCounts::count(const Structure &structure,
     std::vector<int> elements(clusterSize);
     for (size_t i = 0; i < latticeNeighbors.size(); i++)
     {
-        elements[i] = structure.getAtomicNumber(latticeNeighbors[i].index());
+        // elements[i] = structure.getAtomicNumber(latticeNeighbors[i].index());
+        elements[i] = structure._atomicNumbers[latticeNeighbors[i].index()];
     }
 
     // Don't do intact order since there is no reason for it
@@ -64,29 +65,6 @@ void ClusterCounts::count(const Structure &structure, const std::vector<std::vec
             elements[i] = structure._atomicNumbers[sites[i].index()];
         }
         countCluster(cluster, elements, orderIntact);
-    }
-}
-
-/**
-@details Will count the vectors in latticeNeighbors and assuming these sets of sites are represented by the cluster 'cluster'.
-@param structure the structure that will have its clusters counted
-@param latticeSites A group of sites, represented by 'cluster', that will be counted
-@param cluster A cluster used as identification on what sites the clusters belong to
-@param orderIntact if true the order of the sites will stay the same otherwise the vector of species being counted will be sorted
-*/
-void ClusterCounts::countIntact(const Structure &structure, const std::vector<std::vector<LatticeSite>> &latticeSites,
-                                const Cluster &cluster, bool orderIntact)
-{
-    std::vector<int> elements(latticeSites[0].size());
-    for (const auto &sites : latticeSites)
-    {
-        for (size_t i = 0; i < sites.size(); i++)
-        {
-            // elements[i] = structure.getAtomicNumber(sites[i].index());
-            elements[i] = structure._atomicNumbers[sites[i].index()];
-        }
-        _clusterCounts[cluster][elements] += 1;
-
     }
 }
 
@@ -130,23 +108,6 @@ void ClusterCounts::countOrbitList(const Structure &structure, const OrbitList &
         {
             count(structure, orbitList._orbitList[i]._equivalentSites, repr_cluster, orderIntact);
         }
-    }
-}
-
-/**
- @brief Counts the clusters in the input structure.
- @param structure input configuration
- @param orbitList orbit list
- @param orderIntact if true do not reorder clusters before comparison (i.e., ABC != ACB)
- @param permuteSites if true the sites will be permuted according to the correspondin permutations in the orbit
-*/
-void ClusterCounts::countIntactOrbitList(const Structure &structure, const OrbitList &orbitList, bool orderIntact, bool permuteSites)
-{
-    for (int i = 0; i < orbitList.size(); i++)
-    {
-        Cluster repr_cluster = orbitList._orbitList[i].getRepresentativeCluster();
-        repr_cluster.setTag(i);
-        countIntact(structure, orbitList._orbitList[i]._equivalentSites, repr_cluster, orderIntact);
     }
 }
 

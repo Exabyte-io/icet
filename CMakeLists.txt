@@ -11,13 +11,6 @@ ELSE()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
 
-# set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -W -O2 -falign-functions=32 -falign-loops=32")
-# set(CMAKE_CXX_FLAGS "-DNDEBUG -W -O3 -falign-functions=32 -falign-loops=32")
-
-set(CMAKE_CXX_FLAGS_RELEASE "-DNDEBUG -W -O3")
-set(CMAKE_CXX_FLAGS "-DNDEBUG -W -O3")
-message(${CMAKE_CXX_FLAGS_RELEASE})
-message(${CMAKE_CXX_FLAGS})
 SET(Boost_INCLUDE_DIRS "src/3rdparty/boost_1_68_0" )
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 

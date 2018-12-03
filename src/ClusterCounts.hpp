@@ -32,10 +32,7 @@ public:
   void count(const Structure &, const std::vector<std::vector<LatticeSite>> &,
              const Cluster &, bool);
   void countCluster(const Cluster &, const std::vector<int> &, bool);
-  void countOrbitList(const Structure &, const OrbitList &, bool orderIntact, bool permuteSites=false);
-  void countIntactOrbitList(const Structure &structure, const OrbitList &orbitList, bool orderIntact, bool permuteSites);
-void countIntact(const Structure &structure, const std::vector<std::vector<LatticeSite>> &latticeSites,
-                                const Cluster &cluster, bool orderIntact);
+  void countOrbitList(const Structure &, const OrbitList &, bool orderIntact, bool permuteSites = false);
 
   std::unordered_map<Cluster, std::map<std::vector<int>, int>> getClusterCounts() const
   {
@@ -81,9 +78,8 @@ void countIntact(const Structure &structure, const std::vector<std::vector<Latti
     }
   }
   std::unordered_map<Cluster, std::map<std::vector<int>, int>> _clusterCounts;
+
 private:
-
-
   double roundDouble(const double &double_value)
   {
     return round(double_value * 1.0 / symprec) / (1.0 / symprec);
