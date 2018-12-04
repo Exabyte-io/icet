@@ -68,9 +68,8 @@ pages:
     - export PYTHONPATH=$PWD:$PWD/build/src/:$PYTHONPATH
     - sphinx-build doc/userguide/source/ public/
     # make tests and tutorial downloadable
-    - mkdir -p public/downloads/
-    - zip -rj public/downloads/basic_tutorial.zip tutorial/basic/
-    - find tests/ -name '*.py' -print | zip public/downloads/tests.zip -@
+    - zip -rj public/basic_tutorial.zip tutorial/basic/
+    - find tests/ -name '*.py' -print | zip public/tests.zip -@
     # clean up
     - ls -l public/.well-known/acme-challenge/
     - ls -l public/
