@@ -36,15 +36,18 @@ or alternatively::
 
     python3 -m pip install icet --user
 
-**icet** requires Python3 and invokes functionality from several external
-libraries including the
-`atomic simulation environment <https://wiki.fysik.dtu.dk/ase>`_,
-`pandas <https://pandas.pydata.org/>`_,
-`scipy <https://www.scipy.org/>`_, and
-`spglib <https://atztogo.github.io/spglib/>`_.
-Installation also requires a C++11 compliant compiler. Please consult the
+Installation requires a C++11 compliant compiler. Please consult the
 `installation section of the user guide
 <https://icet.materialsmodeling.org/installation.html>`_ for details.
+
+**icet** is based on Python3 and invokes functionality from other Python
+libraries including
+`ase <https://wiki.fysik.dtu.dk/ase>`_,
+`pandas <https://pandas.pydata.org/>`_,
+`numpy <http://www.numpy.org/>`_,
+`scipy <https://www.scipy.org/>`_,
+`scitkit-learn <http://scikit-learn.org/>`_, and
+`spglib <https://atztogo.github.io/spglib/>`_.
 
 
 Authors
