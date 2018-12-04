@@ -7,6 +7,9 @@ Basic tutorial
 This tutorial serves as a hands-on introduction to :program:`icet` and provides
 an overview of its key features.
 
+The scripts and database that are required for this tutorial can be downloaded
+as a single zip archive `here <../downloads/basic_tutorial.zip>`_.
+
 Building a cluster expansion
 ============================
 
