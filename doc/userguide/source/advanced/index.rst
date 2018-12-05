@@ -7,6 +7,9 @@ Advanced topics
 This section demonstrates the use of :program:`icet` via a set of examples that
 showcase different features and modes of usage.
 
+The scripts in this section can be downloaded as
+`a single zip archive <../advanced_tutorial.zip>`_.
+
 .. toctree::
    :maxdepth: 1
    :caption: Contents

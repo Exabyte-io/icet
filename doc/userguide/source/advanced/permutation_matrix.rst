@@ -18,7 +18,7 @@ function is required, namely
 the `ASE <https://wiki.fysik.dtu.dk/ase>`_ function
 :func:`~ase.build.bulk` will be used to generate a structure.
 
-.. literalinclude:: ../../../../examples/get_permutation_matrix.py
+.. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py
    :start-after: # Import modules
    :end-before: # Create a prototype
 
@@ -28,7 +28,7 @@ Generate prototype unit cell
 The next step is to build a prototype ASE :class:`~ase.Atoms` object,
 here an aluminum fcc unit cell.
 
-.. literalinclude:: ../../../../examples/get_permutation_matrix.py
+.. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py
    :start-after: # Create a prototype
    :end-before: # Generate a permutation
 
@@ -43,7 +43,7 @@ resulting output is a list that contains three elements, namely a
 :class:`~_icet.PermutationMatrix`, a primitive
 :class:`~_icet.Structure` and a :class:`~_icet.NeighborList`.
 
-.. literalinclude:: ../../../../examples/get_permutation_matrix.py
+.. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py
    :start-after: # Generate a permutation matrix
    :end-before: # Extract the permuted,
 
@@ -63,7 +63,7 @@ earlier, using the methods
 :meth:`~_icet.PermutationMatrix.get_permuted_positions` and
 :meth:`~_icet.PermutationMatrix.get_indexed_positions`, respectively.
 
-.. literalinclude:: ../../../../examples/get_permutation_matrix.py
+.. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py
    :start-after: # Extract the permuted,
    :end-before: # Print the permuted,
 
@@ -73,7 +73,7 @@ Print positions
 Finally the permuted as well as the indexed and unique positions, obtained in
 the previous section, are printed using the following snippet:
 
-.. literalinclude:: ../../../../examples/get_permutation_matrix.py
+.. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py
    :start-after: # Print the permuted,
 
 These lines should give the following (partial) output::
@@ -104,4 +104,4 @@ Source code
        The complete source code is available in
        ``examples/get_permutation_matrix.py``
 
-    .. literalinclude:: ../../../../examples/get_permutation_matrix.py
+    .. literalinclude:: ../../../../tutorial/advanced/get_permutation_matrix.py

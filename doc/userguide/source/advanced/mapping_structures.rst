@@ -31,7 +31,7 @@ The :func:`~icet.tools.structure_mapping.map_structure_to_reference`
 function needs to be imported together with some additional
 functionality from `ASE <https://wiki.fysik.dtu.dk/ase>`_.
 
-.. literalinclude:: ../../../../examples/map_structure_to_reference.py
+.. literalinclude:: ../../../../tutorial/advanced/map_structure_to_reference.py
    :start-after: # Import modules
    :end-before: # End import
 
@@ -42,7 +42,7 @@ First, for the sake of demonstration, a reference structure defining
 the ideal lattice is created, and a supercell thereof is scaled and
 rattled to simulate relaxation in an energy minimixation.
 
-.. literalinclude:: ../../../../examples/map_structure_to_reference.py
+.. literalinclude:: ../../../../tutorial/advanced/map_structure_to_reference.py
    :start-after: # simulate a relaxed structure.
    :end-before: # Map the
 
@@ -53,7 +53,7 @@ The structure can now be mapped onto a structure in which all atoms reside
 on ideal lattice sites. The function returns the ideal structure, as well as
 the maximum and average displacement.
 
-.. literalinclude:: ../../../../examples/map_structure_to_reference.py
+.. literalinclude:: ../../../../tutorial/advanced/map_structure_to_reference.py
    :start-after: # Map the "relaxed"
    :end-before: # Map a structure
 
@@ -74,7 +74,7 @@ occupied by H and vacancies. Since Au and Pd belong to a sublattice
 in which we do not allow vacancies, we may set ``inert_species =
 ['Au', 'Pd']``.
 
-.. literalinclude:: ../../../../examples/map_structure_to_reference.py
+.. literalinclude:: ../../../../tutorial/advanced/map_structure_to_reference.py
    :start-after: # Pd and Au share
 
 Source code
@@ -87,4 +87,4 @@ Source code
        The complete source code is available in
        ``examples/map_structure_to_reference.py``
 
-    .. literalinclude:: ../../../../examples/map_structure_to_reference.py
+    .. literalinclude:: ../../../../tutorial/advanced/map_structure_to_reference.py

@@ -68,6 +68,7 @@ pages:
     - sphinx-build doc/userguide/source/ public/
     # make tests and tutorial downloadable
     - zip -rj public/basic_tutorial.zip tutorial/basic/
+    - zip -rj public/advanced_tutorial.zip tutorial/advanced/
     - find tests/ -name '*.py' -print | zip public/tests.zip tests/structure_databases/*.db -@
     # clean up
     - ls -l public/.well-known/acme-challenge/
