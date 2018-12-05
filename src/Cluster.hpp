@@ -242,7 +242,7 @@ private:
     /// @todo move to a more general location.
     double roundDouble(const double &double_value)
     {
-        return round(double_value * 1.0 / _symprec) / (1.0 / _symprec);
+        return round(double_value / _symprec) * _symprec;
     }
 };
 

@@ -131,7 +131,7 @@ class Structure
     /// @todo move to a more general location.
     double roundFloat(const double &val, const double rounding_tolerance = 1e-7) const
     {
-        return round(val * 1.0 / rounding_tolerance) / (1.0 / rounding_tolerance);
+        return round(val / rounding_tolerance) * rounding_tolerance;
     }
 
 

@@ -82,7 +82,7 @@ public:
 private:
   double roundDouble(const double &double_value)
   {
-    return round(double_value * 1.0 / symprec) / (1.0 / symprec);
+    return round(double_value / symprec) * symprec;
   }
   double symprec;
 
