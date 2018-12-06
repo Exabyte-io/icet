@@ -23,6 +23,7 @@ the structure_container.py file
 import sys
 import tempfile
 import unittest
+import numpy as np
 
 from io import StringIO
 from ase import Atoms
@@ -187,6 +188,13 @@ class TestStructureContainer(unittest.TestCase):
         atoms.set_chemical_symbols(symbols)
         self.sc.add_structure(atoms, 'Structure 5', allow_duplicate=False)
         self.assertEqual(len(self.sc), len(self.structure_list) + 4)
+
+    def test_get_condition_number(self):
+        """Tests get_condition_number functionality."""
+        target = np.linalg.cond(self.sc.get_fit_data()[0])
+        retval = self.sc.get_condition_number()
+
+        self.assertEqual(target, retval)
 
     def test_get_fit_data(self):
         """Tests get_fit_data functionality."""

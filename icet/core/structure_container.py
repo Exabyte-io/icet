@@ -237,8 +237,8 @@ class StructureContainer:
         structure._set_cluster_vector(cv)
         self._structure_list.append(structure)
 
-    def get_fit_data(self, structure_indices: List[int] = None,
-                     key: str = 'energy') -> float:
+    def get_condition_number(self, structure_indices: List[int] = None,
+                             key: str = 'energy') -> float:
         """ Returns the condition number for the sensing matrix.
 
         A very large condition number can be a sign of multicollinearity,
