@@ -238,6 +238,27 @@ class StructureContainer:
         self._structure_list.append(structure)
 
     def get_fit_data(self, structure_indices: List[int] = None,
+                     key: str = 'energy') -> float:
+        """ Returns the condition number for the sensing matrix.
+
+        A very large condition number can be a sign of multicollinearity,
+        read more here https://en.wikipedia.org/wiki/Condition_number
+
+        Parameters
+        ----------
+        structure_indices
+            list of structure indices. By default (``None``) the
+            method will return all fit data available.
+        key
+            key of properties dictionary
+
+        Returns
+        -------
+        condition number for the sensing matrix
+        """
+        return np.linalg.cond(self.get_fit_data(structure_indices, key)[0])
+
+    def get_fit_data(self, structure_indices: List[int] = None,
                      key: str = 'energy') -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns fit data for all structures. The cluster vectors and
