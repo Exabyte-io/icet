@@ -103,6 +103,13 @@ class BaseEnsemble(ABC):
 
         if data_container is not None and os.path.isfile(data_container):
             self._data_container = DataContainer.read(data_container)
+
+            dc_ensemble_parameters = self.data_container.ensemble_parameters
+            if self.ensemble_parameters != dc_ensemble_parameters:
+                raise ValueError('Ensemble parameters do not match with those'
+                                 ' stored in DataContainer file: {}'.format(
+                                     set(dc_ensemble_parameters.items()) -
+                                     set(self.ensemble_parameters.items())))
             self._restart_ensemble()
         else:
             if data_container is not None:
@@ -112,8 +119,10 @@ class BaseEnsemble(ABC):
                     raise FileNotFoundError('Path to data container file does'
                                             ' not exist: {}'.format(filedir))
             self._data_container = \
-                DataContainer(atoms=atoms, ensemble_name=name,
-                              random_seed=self._random_seed)
+                DataContainer(atoms=atoms,
+                              ensemble_parameters=self.ensemble_parameters,
+                              ensemble_name=self.name,
+                              seed=self.random_seed)
 
         # interval for writing data and further preparation of data container
         default_interval = max(1, 10 * round(len(atoms) / 10))
@@ -476,3 +485,9 @@ class BaseEnsemble(ABC):
             random_state=random.getstate())
 
         self.data_container._write(outfile)
+
+    @property
+    def ensemble_parameters(self):
+        """Returns parameters associated with the ensemble."""
+        self._ensemble_parameters['n_atoms'] = len(self.atoms)
+        return self._ensemble_parameters

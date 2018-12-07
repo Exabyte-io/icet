@@ -1,6 +1,5 @@
 """Definition of the canonical ensemble class."""
 
-from typing import Dict
 import numpy as np
 
 from ase import Atoms
@@ -58,6 +57,13 @@ class CanonicalEnsemble(BaseEnsemble):
     calculator : :class:`BaseCalculator`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
+    temperature : float
+        temperature :math:`T` in appropriate units [commonly Kelvin]
+    boltzmann_constant : float
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
     name : str
         human-readable ensemble name [default: `BaseEnsemble`]
     data_container : str
@@ -81,23 +87,20 @@ class CanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 name: str = 'Canonical ensemble',
+                 temperature: float, name: str = 'Canonical ensemble',
+                 boltzmann_constant: float = kB,
                  data_container: DataContainer = None, random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
-                 trajectory_write_interval: int = None,
-                 boltzmann_constant: float = kB,
-                 temperature: float = None) -> None:
+                 trajectory_write_interval: int = None) -> None:
+
+        self._ensemble_parameters = dict(ensemble_name=self.__class__.__name__,
+                                         temperature=temperature)
+
+        self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
             atoms=atoms, calculator=calculator, name=name,
@@ -107,15 +110,10 @@ class CanonicalEnsemble(BaseEnsemble):
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        if temperature is None:
-            raise TypeError('Missing required keyword argument: temperature')
-        self._temperature = temperature
-        self._boltzmann_constant = boltzmann_constant
-
     @property
     def temperature(self) -> float:
         """ temperature :math:`T` (see parameters section above) """
-        return self._temperature
+        return self.ensemble_parameters['temperature']
 
     @property
     def boltzmann_constant(self) -> float:
@@ -152,12 +150,3 @@ class CanonicalEnsemble(BaseEnsemble):
             return np.exp(-potential_diff / (
                 self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
-
-    def _get_ensemble_data(self) -> Dict:
-        """
-        Returns the data associated with the ensemble. For the SGC ensemble
-        this specifically includes the temperature and the species counts.
-        """
-        data = super()._get_ensemble_data()
-        data['temperature'] = self.temperature
-        return data

@@ -48,15 +48,15 @@ class TestEnsemble(unittest.TestCase):
         with self.assertRaises(TypeError) as context:
             SemiGrandCanonicalEnsemble(atoms=self.atoms,
                                        calculator=self.calculator)
-        self.assertTrue('Missing required keyword argument: temperature' in
+        self.assertTrue("required positional arguments: 'temperature'" in
                         str(context.exception))
 
         with self.assertRaises(TypeError) as context:
             SemiGrandCanonicalEnsemble(atoms=self.atoms,
                                        calculator=self.calculator,
                                        temperature=self.temperature)
-        self.assertTrue('Missing required keyword argument:'
-                        ' chemical_potentials' in str(context.exception))
+        self.assertTrue("required positional argument:"
+                        " 'chemical_potentials'" in str(context.exception))
 
     def test_property_boltzmann(self):
         """Tests explicit Boltzmann constant."""
@@ -138,15 +138,34 @@ class TestEnsemble(unittest.TestCase):
         self.assertIn('potential', data.keys())
         self.assertIn('Al_count', data.keys())
         self.assertIn('Ga_count', data.keys())
-        self.assertIn('mu_Al', data.keys())
-        self.assertIn('mu_Ga', data.keys())
-        self.assertIn('temperature', data.keys())
 
         self.assertEqual(data['Al_count'], 13)
         self.assertEqual(data['Ga_count'], 14)
-        self.assertEqual(data['temperature'], 100.0)
-        self.assertEqual(data['mu_Al'], 5)
-        self.assertEqual(data['mu_Ga'], 0)
+
+    def test_get_ensemble_parameters(self):
+        """Tests the get ensemble parameters method."""
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
+                         len(self.atoms))
+        self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
+                         self.temperature)
+        self.assertEqual(self.ensemble.ensemble_parameters['mu_Al'], 5)
+        self.assertEqual(self.ensemble.ensemble_parameters['mu_Ga'], 0)
+        self.assertEqual(self.ensemble.ensemble_parameters['ensemble_name'],
+                         'SemiGrandCanonicalEnsemble')
+
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['n_atoms'],
+            len(self.atoms))
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['temperature'],
+            self.temperature)
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['mu_Al'], 5)
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['mu_Ga'], 0)
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['ensemble_name'],
+            'SemiGrandCanonicalEnsemble')
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""
