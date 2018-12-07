@@ -3,7 +3,7 @@ import random
 from abc import ABC, abstractmethod
 from math import gcd
 from time import time
-from typing import Dict, List
+from typing import Dict, List, Union, BinaryIO, TextIO
 
 import numpy as np
 
@@ -460,16 +460,15 @@ class BaseEnsemble(ABC):
         # Restart state of random number generator
         random.setstate(self.data_container.last_state['random_state'])
 
-    def write_data_container(self, outfile: Union[str, BinaryIO, TextIO] ):
+    def write_data_container(self, outfile: Union[str, BinaryIO, TextIO]):
         """Updates last state of the Monte Carlo simulation and
         writes DataContainer to file.
-        
+
         Parameters
         ----------
         outfile
             fiel to which to write
         """
-
         self._data_container._update_last_state(
             last_step=self._step,
             occupations=self.configuration.occupations.tolist(),
