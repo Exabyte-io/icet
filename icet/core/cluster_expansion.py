@@ -17,12 +17,12 @@ class ClusterExpansion:
     ----------
     cluster_space : ClusterSpace object
         cluster space that was used for constructing the cluster expansion
-    parameters : list of floats
+    parameters : numpy array
         effective cluster interactions (ECIs)
     """
 
     def __init__(self, cluster_space: ClusterSpace,
-                 parameters: List[float]) -> None:
+                 parameters: np.array) -> None:
         """
         Initializes a ClusterExpansion object.
 
@@ -43,6 +43,8 @@ class ClusterExpansion:
                              ' the same length'.format(len(cluster_space),
                                                        len(parameters)))
         self._cluster_space = cluster_space
+        if isinstance(parameters, list):
+            parameters = np.array(parameters)
         self._parameters = parameters
         self._original_parameters = parameters.copy()
         self._pruning_history = []
