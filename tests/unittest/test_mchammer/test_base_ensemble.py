@@ -290,7 +290,7 @@ class TestEnsemble(unittest.TestCase):
         n_iters = 10
         self.ensemble.run(n_iters)
         ensemble_T1000 = tempfile.NamedTemporaryFile()
-        self.ensemble.data_container.write(ensemble_T1000.name)
+        self.ensemble.write_data_container(ensemble_T1000.name)
 
         with self.assertRaises(ValueError) as context:
             ConcreteEnsemble(atoms=self.atoms,

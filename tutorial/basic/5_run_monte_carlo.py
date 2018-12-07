@@ -31,5 +31,5 @@ for temperature in [900, 600, 300]:
                                  chemical_symbols[1]: dmu})
 
         mc.run(number_of_trial_steps=len(atoms) * 30)
-        mc.data_container.write('sgc-T{}-dmu{:.3f}.dc'
+        mc.write_data_container('sgc-T{}-dmu{:.3f}.dc'
                                 .format(temperature, dmu))
