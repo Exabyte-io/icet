@@ -10,12 +10,12 @@ for fname in sorted(glob('sgc*.dc')):
     row = dc.data.T[0]
     nsites = row['Pd_count'] + row['Ag_count']
 
-    temperature = row['temperature']
+    temperature = dc.ensemble_parameters['temperature']
     if temperature not in data:
         data[temperature] = {'dmu': [], 'concentration': [],
                              'mixing_energy': [], 'acceptance_ratio': []}
 
-    dmu = row['mu_Pd'] - row['mu_Ag']
+    dmu = dc.ensemble_parameters['mu_Pd'] - dc.ensemble_parameters['mu_Ag']
     data[temperature]['dmu'].append(dmu)
 
     nequil = nsites * 10
