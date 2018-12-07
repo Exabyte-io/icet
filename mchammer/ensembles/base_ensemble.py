@@ -220,7 +220,7 @@ class BaseEnsemble(ABC):
             if self._data_container_filename is not None and \
                     time() - last_write_time > \
                     self.data_container_write_period:
-                self._write_data_container()
+                self.write_data_container(self._data_container_filename)
                 last_write_time = time()
 
             self._run(uninterrupted_steps)
@@ -232,7 +232,7 @@ class BaseEnsemble(ABC):
             self._observe(self._step)
 
         if self._data_container_filename is not None:
-            self._write_data_container()
+            self.write_data_container(self._data_container_filename)
 
     def _run(self, number_of_trial_steps: int):
         """Runs MC simulation for a number of trial steps without
@@ -460,9 +460,15 @@ class BaseEnsemble(ABC):
         # Restart state of random number generator
         random.setstate(self.data_container.last_state['random_state'])
 
-    def _write_data_container(self):
+    def write_data_container(self, outfile: Union[str, BinaryIO, TextIO] ):
         """Updates last state of the Monte Carlo simulation and
-        writes DataContainer to file."""
+        writes DataContainer to file.
+        
+        Parameters
+        ----------
+        outfile
+            fiel to which to write
+        """
 
         self._data_container._update_last_state(
             last_step=self._step,
@@ -470,4 +476,4 @@ class BaseEnsemble(ABC):
             accepted_trials=self._accepted_trials,
             random_state=random.getstate())
 
-        self.data_container.write(self._data_container_filename)
+        self.data_container._write(outfile)

@@ -524,7 +524,7 @@ class DataContainer:
 
         return dc
 
-    def write(self, outfile: Union[str, BinaryIO, TextIO]):
+    def _write(self, outfile: Union[str, BinaryIO, TextIO]):
         """
         Writes DataContainer object to file.
 

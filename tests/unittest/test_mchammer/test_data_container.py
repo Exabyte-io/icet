@@ -387,7 +387,7 @@ class TestDataContainer(unittest.TestCase):
                         in str(context.exception))
 
         # save to file
-        self.dc.write(temp_file.name)
+        self.dc._write(temp_file.name)
 
         # read from file object
         dc_read = self.dc.read(temp_file)

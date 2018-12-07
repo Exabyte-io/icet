@@ -248,7 +248,7 @@ class TestEnsemble(unittest.TestCase):
 
         # write data container to tempfile
         temp_container_file = tempfile.NamedTemporaryFile()
-        dc_read.write(temp_container_file.name)
+        dc_read._write(temp_container_file.name)
 
         # initialise a new ensemble with dc file
         ensemble_reloaded = \
