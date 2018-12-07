@@ -46,6 +46,8 @@ class ClusterExpansionCalculator(BaseCalculator):
         super().__init__(atoms=atoms, name=name)
 
         atoms_cpy = atoms.copy()
+        cluster_expansion.prune()
+
         self.use_local_energy_calculator = use_local_energy_calculator
         if self.use_local_energy_calculator:
             self.cpp_calc = _ClusterExpansionCalculator(
