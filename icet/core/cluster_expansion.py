@@ -138,8 +138,8 @@ class ClusterExpansion:
         return self._get_string_representation(print_threshold=50)
 
     def prune(self, indices: List[int] = None, tol: float = 0):
-        """Tries to prune the cluster expansion
-        if called withouth argument it will try prune each parameter that is zero
+        """Tries to prune the cluster expansion if called withouth
+        argument it will try prune each parameter that is zero
 
         Parameters
         ----------
@@ -217,4 +217,5 @@ class ClusterExpansion:
         for arg in pruning_history:
             ce.prune(indices=arg['indices'], tol=arg['tol'])
 
+        assert list(parameters) == list(ce.parameters)
         return ce

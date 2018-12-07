@@ -274,7 +274,7 @@ class ClusterSpace(_ClusterSpace):
         return _ClusterSpace.get_cluster_vector(self,
                                                 Structure.from_atoms(atoms))
 
-    def _prune_orbit_list(self, indices : List[int]) -> None:
+    def _prune_orbit_list(self, indices: List[int]) -> None:
         """
         Prunes the internal orbit list
 
@@ -284,10 +284,10 @@ class ClusterSpace(_ClusterSpace):
             indices to all orbits to be removed
         """
         size_before = len(self._orbit_list)
-        
+
         self._prune_orbit_list_cpp(indices)
-        
-        for index in sorted(indices,reverse=True):
+
+        for index in sorted(indices, reverse=True):
             self._orbit_list.remove_orbit(index)
         self._precompute_multi_component_vectors()
         size_after = len(self._orbit_list)

@@ -116,8 +116,8 @@ class TestClusterExpansion(unittest.TestCase):
         # read from file
         temp_file.seek(0)
         ce_read = ClusterExpansion.read(temp_file.name)
-        params_read = self.ce.parameters
-        cs_len_read = len(self.ce.cluster_space)
+        params_read = ce_read.parameters
+        cs_len_read = len(ce_read.cluster_space)
 
         # check cluster space
         self.assertEqual(cs_len_read, pruned_cs_len)
@@ -225,12 +225,12 @@ class TestClusterExpansionTernary(unittest.TestCase):
         self.parameters = np.arange(params_len)
         self.ce = ClusterExpansion(self.cs, self.parameters)
 
-    def test_prune_cluster_expansion(self):
+    def test_prune_cluster_expansion_with_indices(self):
         """Tests pruning cluster expansion."""
 
         self.ce.prune(indices=[1, 2, 3, 4, 5])
 
-    def test_prune_cluster_expansion(self):
+    def test_prune_cluster_expansion_with_tol(self):
         """Tests pruning cluster expansion."""
         # Prune everything
         self.ce.prune(tol=1e3)

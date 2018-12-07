@@ -312,7 +312,7 @@ class TestOrbitList(unittest.TestCase):
                     if repr_sites in columns:
                         match_repr_site = True
             self.assertTrue(match_repr_site)
-    
+
     def test_orbit_permutations_for_atoms_in_database(self):
         """
         Tests allowed_permutation and equivalent_sites of orbits in orbit_list
@@ -398,6 +398,7 @@ class TestOrbitList(unittest.TestCase):
             self.orbit_list.remove_orbit(i)
             current_size -= 1
             self.assertEqual(len(self.orbit_list), current_size)
+
 
 if __name__ == '__main__':
     unittest.main()
