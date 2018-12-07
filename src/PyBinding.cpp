@@ -781,6 +781,15 @@ PYBIND11_MODULE(_icet, m)
              "Clears the OrbitList")
         .def("sort", &OrbitList::sort,
              "Sorts the orbits by orbit comparison")
+        .def("remove_orbit", &OrbitList::removeOrbit,
+           R"pbdoc(
+                 Removes the orbit with the input index
+
+             Parameters
+             ---------
+             index: int
+                index of the orbit to be removed             
+             )pbdoc")
         .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
              R"pbdoc(
                  Returns the index of the orbit with the given representative cluster.
@@ -915,6 +924,8 @@ PYBIND11_MODULE(_icet, m)
         .def("_get_primitive_structure", &ClusterSpace::getPrimitiveStructure)
         .def("get_multi_component_vector_permutations", &ClusterSpace::getMultiComponentVectorPermutations)
         .def("get_number_of_allowed_species_by_site", &ClusterSpace::getNumberOfAllowedSpeciesBySite)
+        .def("_precompute_multi_component_vectors", &ClusterSpace::precomputeMultiComponentVectors)
+        .def("_prune_orbit_list_cpp", &ClusterSpace::pruneOrbitList)
         .def("__len__", &ClusterSpace::getClusterSpaceSize);
 
     // ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clusterSpace, const Structure &structure)

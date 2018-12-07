@@ -81,10 +81,14 @@ class ClusterSpace
 
     /// Precomputed site permutations for each orbit in _orbitlist.
     std::vector<std::vector<std::vector<std::vector<int>>>> _sitePermutations;
-
-  private:
+    
     /// Precomputes permutations and multicomponent vectors of each orbit.
     void precomputeMultiComponentVectors();
+    
+    /// Prunes the orbit list
+    void pruneOrbitList(std::vector<size_t> &);
+
+  private:
 
     /// Returns the default cluster function.
     double evaluateClusterFunction(const int, const int, const int) const;

@@ -44,6 +44,8 @@ class ClusterExpansion:
                                                        len(parameters)))
         self._cluster_space = cluster_space
         self._parameters = parameters
+        self._original_parameters = parameters.copy()
+        self._pruning_history = []
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
@@ -135,6 +137,44 @@ class ClusterExpansion:
         """ string representation """
         return self._get_string_representation(print_threshold=50)
 
+    def prune(self, indices: List[int] = None, tol: float = 0):
+        """Tries to prune the cluster expansion
+        if called withouth argument it will try prune each parameter that is zero
+
+        Parameters
+        ----------
+        indices
+            indices to parameters to remove in the cluster expansion.
+        tol
+            if a perameter is withing tol then it will be pruned
+        """
+        self._pruning_history.append({'indices': indices, 'tol': tol})
+
+        if indices is None:
+            indices = [i for i, param in enumerate(
+                self.parameters) if np.abs(param) <= tol and i > 0]
+        df = self.parameters_as_dataframe
+        indices = list(set(indices))
+
+        if 0 in indices:
+            raise ValueError("index 0, i.e the zerolet may not be pruned.")
+        orbit_index_try_to_remove = df.orbit_index[np.array(indices)].tolist()
+        safe_to_remove_orbits = []
+        safe_to_remove_params = []
+        for oi in set(orbit_index_try_to_remove):
+            if oi == -1:
+                continue
+            orbit_count = df.orbit_index.tolist().count(oi)
+            oi_remove_count = orbit_index_try_to_remove.count(oi)
+            if orbit_count <= oi_remove_count:
+                safe_to_remove_orbits.append(oi)
+                safe_to_remove_params += df.index[df['orbit_index']
+                                                  == oi].tolist()
+
+        self._cluster_space._prune_orbit_list(indices=safe_to_remove_orbits)
+        self._parameters = self._parameters[np.setdiff1d(
+            np.arange(len(self._parameters)), safe_to_remove_params)]
+
     def write(self, filename: str):
         """
         Writes ClusterExpansion object to file.
@@ -150,6 +190,9 @@ class ClusterExpansion:
             data = pickle.load(handle)
 
         data['parameters'] = self.parameters
+        data['original_parameters'] = self._original_parameters
+
+        data['pruning_history'] = self._pruning_history
 
         with open(filename, "wb") as handle:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
@@ -168,5 +211,10 @@ class ClusterExpansion:
         with open(filename, 'rb') as handle:
             data = pickle.load(handle)
         parameters = data['parameters']
+        pruning_history = data['pruning_history']
+        original_parameters = data['original_parameters']
+        ce = ClusterExpansion(cs, original_parameters)
+        for arg in pruning_history:
+            ce.prune(indices=arg['indices'], tol=arg['tol'])
 
-        return ClusterExpansion(cs, parameters)
+        return ce

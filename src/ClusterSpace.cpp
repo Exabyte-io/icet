@@ -298,6 +298,7 @@ void ClusterSpace::precomputeMultiComponentVectors()
     _sitePermutations.resize(_orbitList.size());
     for (int i = 0; i < _orbitList.size(); i++)
     {
+        
         std::vector<std::vector<int>> permutedMCVector;
         auto numberOfAllowedSpecies = getNumberOfAllowedSpeciesBySite(_primitiveStructure, _orbitList.getOrbit(i).getRepresentativeSites());
 
@@ -334,4 +335,18 @@ std::pair<int, std::vector<int>> ClusterSpace::getClusterSpaceInfo(const unsigne
     }
 
     return _clusterSpaceInfo[index];
+}
+
+
+/// Prunes the orbit list
+void ClusterSpace::pruneOrbitList(std::vector<size_t> &indices)
+{
+    std::sort(indices.begin(), indices.end());
+
+    for(int i = indices.size()-1; i >=0; i--)
+    {
+        _orbitList.removeOrbit(indices[i]);
+    }
+    precomputeMultiComponentVectors();
+
 }
