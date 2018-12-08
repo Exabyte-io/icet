@@ -15,14 +15,14 @@ ClusterSpace::ClusterSpace(std::vector<std::vector<std::string>> &chemicalSymbol
     _chemicalSymbols = chemicalSymbols;
 
     _numberOfAllowedSpeciesPerSite.resize(chemicalSymbols.size());
-    for (int i = 0; i < _numberOfAllowedSpeciesPerSite.size(); i++)
+    for (size_t i = 0; i < _numberOfAllowedSpeciesPerSite.size(); i++)
     {
         _numberOfAllowedSpeciesPerSite[i] = chemicalSymbols[i].size();
     }
     _primitiveStructure.setNumberOfAllowedSpecies(_numberOfAllowedSpeciesPerSite);
 
     // Set up a map between chemical species and the internal species enumeration scheme.
-    for (int i = 0; i < _primitiveStructure.size(); i++)
+    for (size_t i = 0; i < _primitiveStructure.size(); i++)
     {
         std::unordered_map<int, int> speciesMap;
         std::vector<int> species;
@@ -67,14 +67,14 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
     ClusterCounts clusterCounts = ClusterCounts();
 
     // Create local orbit lists and count associated clusters.
-    for (int i = 0; i < uniqueOffsets; i++)
+    for (size_t i = 0; i < uniqueOffsets; i++)
     {
         const auto localOrbitList = localOrbitListGenerator.getLocalOrbitList(i);
         clusterCounts.countOrbitList(structure, localOrbitList, orderIntact, permuteSites);
     }
 
     // Check that the number of unique offsets equals the number of unit cells in the supercell.
-    int numberOfUnitcellRepetitions = structure.size() / _primitiveStructure.size();
+    size_t numberOfUnitcellRepetitions = structure.size() / _primitiveStructure.size();
     if (uniqueOffsets != numberOfUnitcellRepetitions)
     {
         std::string msg = "The number of unique offsets does not match the number of primitive units in the input structure: ";
@@ -110,7 +110,7 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
             throw std::runtime_error(msg);
         }
 
-        // Jump to the next orbit if any of the sites in the representative cluster are in-active (i.e. the number of allowed species on this site is less than 2).
+        // Jump to the next orbit if any of the sites in the representative cluster are inactive (i.e. the number of allowed species on this site is less than 2).
         if (any_of(numberOfAllowedSpeciesBySite.begin(), numberOfAllowedSpeciesBySite.end(), [](int n) { return n < 2; }))
         {
             continue;
@@ -145,8 +145,8 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
                 for (const auto &perm : sitePermutations[currentMultiComponentVectorIndex])
                 {
                     auto permutedMultiComponentVector = icet::getPermutedVector(multiComponentVector, perm);
-                    auto permutedNumberOfAllowedSpeciesBySite = icet::getPermutedVector(numberOfAllowedSpeciesBySite, perm);
                     auto permutedRepresentativeIndices = icet::getPermutedVector(representativeSitesIndices, perm);
+                    auto permutedNumberOfAllowedSpeciesBySite = icet::getPermutedVector(numberOfAllowedSpeciesBySite, perm);
 
                     clusterVectorElement += evaluateClusterProduct(permutedMultiComponentVector, permutedNumberOfAllowedSpeciesBySite, speciesCountPair.first, permutedRepresentativeIndices) * speciesCountPair.second;
                     multiplicity += speciesCountPair.second;
@@ -188,7 +188,7 @@ std::vector<std::vector<std::vector<int>>> ClusterSpace::getMultiComponentVector
 
     std::vector<std::vector<std::vector<int>>> elementPermutations;
     std::vector<int> selfPermutation;
-    for (int i = 0; i < multiComponentVectors[0].size(); i++)
+    for (size_t i = 0; i < multiComponentVectors[0].size(); i++)
     {
         selfPermutation.push_back(i);
     }
@@ -261,9 +261,8 @@ double ClusterSpace::evaluateClusterProduct(const std::vector<int> &multiCompone
 {
     double clusterProduct = 1;
 
-    for (int i = 0; i < species.size(); i++)
+    for (size_t i = 0; i < species.size(); i++)
     {
-
         clusterProduct *= evaluateClusterFunction(numberOfAllowedSpecies[i], multiComponentVector[i], _speciesMaps[indices[i]].at(species[i]));
     }
     return clusterProduct;
@@ -296,7 +295,7 @@ void ClusterSpace::precomputeMultiComponentVectors()
     _clusterSpaceInfo.push_back(make_pair(-1, emptyVec));
     _multiComponentVectors.resize(_orbitList.size());
     _sitePermutations.resize(_orbitList.size());
-    for (int i = 0; i < _orbitList.size(); i++)
+    for (size_t i = 0; i < _orbitList.size(); i++)
     {
         std::vector<std::vector<int>> permutedMCVector;
         auto numberOfAllowedSpecies = getNumberOfAllowedSpeciesBySite(_primitiveStructure, _orbitList.getOrbit(i).getRepresentativeSites());

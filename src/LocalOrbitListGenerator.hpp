@@ -39,7 +39,7 @@ class LocalOrbitListGenerator
     LocalOrbitListGenerator(const OrbitList &, const Structure &);
 
     ///generate and returns the local orbit list with the input index
-    OrbitList getLocalOrbitList(const unsigned int);
+    OrbitList getLocalOrbitList(const size_t);
 
     ///generate and returns the local orbit list with the input offset (require that the offset is in uniquecell offset?)
     OrbitList getLocalOrbitList(const Vector3d &);
@@ -91,7 +91,7 @@ class LocalOrbitListGenerator
     {
         Vector3d closestToOrigin;
         double distanceToOrigin = 1e6;
-        for (int i = 0; i < _orbitList.getPrimitiveStructure().size(); i++)
+        for (size_t i = 0; i < _orbitList.getPrimitiveStructure().size(); i++)
         {
             Vector3d position_i = _orbitList.getPrimitiveStructure().getPositions().row(i);
             if ((position_i.norm()) < distanceToOrigin)

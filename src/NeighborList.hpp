@@ -39,10 +39,10 @@ public:
     void update(const Structure &);
 
     /// Check if two sites are neighbors.
-    bool isNeighbor(const int, const int, const Vector3d) const;
+    bool isNeighbor(const size_t, const size_t, const Vector3d) const;
 
     /// Returns list of neighbors.
-    std::vector<LatticeSite> getNeighbors(int) const;
+    std::vector<LatticeSite> getNeighbors(size_t) const;
 
     /// Returns size of neighbor list.
     size_t size() const { return _neighbors.size(); }

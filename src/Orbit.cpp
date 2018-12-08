@@ -19,7 +19,7 @@ int Orbit::getNumberOfDuplicates(int verbosity) const
         {
             auto i_sites = _equivalentSites[i];
             auto j_sites = _equivalentSites[j];
-            //compare the sorted sites
+            // compare the sorted sites
             std::sort(i_sites.begin(), i_sites.end());
             std::sort(j_sites.begin(), j_sites.end());
             if (i_sites == j_sites)
@@ -49,9 +49,8 @@ int Orbit::getNumberOfDuplicates(int verbosity) const
 }
 
 /**
-  @Brief Returns the inequivalent MC vectors for this orbit
-    @Param
-        Mi_local : Vector of the number of allowed sites
+  @brief Returns the inequivalent MC vectors for this orbit
+  @param Mi_local : Vector of the number of allowed sites
 
  */
 std::vector<std::vector<int>> Orbit::getMultiComponentVectors(const std::vector<int> &Mi_local) const
@@ -85,7 +84,7 @@ std::vector<std::vector<int>> Orbit::getAllPossibleMultiComponentVectorPermutati
 {
 
     std::vector<std::vector<int>> cartesianFactors(Mi_local.size());
-    for (int i = 0; i < Mi_local.size(); i++)
+    for (size_t i = 0; i < Mi_local.size(); i++)
     {
         for (int j = 0; j < Mi_local[i] - 1; j++) // N.B minus one so a binary only get one cluster function
         {
@@ -99,7 +98,7 @@ std::vector<std::vector<int>> Orbit::getAllPossibleMultiComponentVectorPermutati
     do
     {
         allPossibleMCPermutations.push_back(firstVector);
-    } while (icet::next_cartesian_product(cartesianFactors, firstVector));
+    } while (icet::nextCartesianProduct(cartesianFactors, firstVector));
 
     return allPossibleMCPermutations;
 }
@@ -139,17 +138,17 @@ bool Orbit::contains(const std::vector<LatticeSite> sites, bool sorted) const
 
 
 /**
-@details Removes sets of sites in equivalent sites for which any site in the set has an index equal to indexRemove.
-@param indexRemove the index to look for
+@details Removes sets of sites in equivalent sites for which any site in the set has an index equal to indexToRemove.
+@param indexToRemove the index to look for
 @param onlyConsiderZeroOffset if true remove only sites with zero offset
 **/
-void Orbit::removeSitesWithIndex(const int indexRemove, bool onlyConsiderZeroOffset)
+void Orbit::removeSitesWithIndex(const size_t indexToRemove, bool onlyConsiderZeroOffset)
 {
     for (int i = _equivalentSites.size() - 1; i >= 0; i--)
     {
         if (onlyConsiderZeroOffset)
         {
-            if (std::any_of(_equivalentSites[i].begin(), _equivalentSites[i].end(), [=](LatticeSite &ls) { return ls.index() == indexRemove && ls.unitcellOffset().norm() < 1e-4; }))
+            if (std::any_of(_equivalentSites[i].begin(), _equivalentSites[i].end(), [=](LatticeSite &ls) { return ls.index() == indexToRemove && ls.unitcellOffset().norm() < 1e-4; }))
             {
                 _equivalentSites.erase(_equivalentSites.begin() + i);
                 _equivalentSitesPermutations.erase(_equivalentSitesPermutations.begin() + i);
@@ -157,7 +156,7 @@ void Orbit::removeSitesWithIndex(const int indexRemove, bool onlyConsiderZeroOff
         }
         else
         {
-            if (std::any_of(_equivalentSites[i].begin(), _equivalentSites[i].end(), [=](LatticeSite &ls) { return ls.index() == indexRemove; }))
+            if (std::any_of(_equivalentSites[i].begin(), _equivalentSites[i].end(), [=](LatticeSite &ls) { return ls.index() == indexToRemove; }))
             {
                 _equivalentSites.erase(_equivalentSites.begin() + i);
                 _equivalentSitesPermutations.erase(_equivalentSitesPermutations.begin() + i);
@@ -172,7 +171,7 @@ void Orbit::removeSitesWithIndex(const int indexRemove, bool onlyConsiderZeroOff
 @param index the index to look for
 @param onlyConsiderZeroOffset if true only look for sites with zero offset
 **/
-void Orbit::removeSitesNotWithIndex(const int index, bool onlyConsiderZeroOffset)
+void Orbit::removeSitesNotWithIndex(const size_t index, bool onlyConsiderZeroOffset)
 {
     for (int i = _equivalentSites.size() - 1; i >= 0; i--)
     {

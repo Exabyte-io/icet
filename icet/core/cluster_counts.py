@@ -51,7 +51,8 @@ class ClusterCounts(_ClusterCounts):
         local_orbit_list_generator = LocalOrbitListGenerator(
             self._orbit_list, self._structure)
 
-        for i in range(local_orbit_list_generator.get_unique_offsets_count()):
+        for i in range(
+                local_orbit_list_generator.get_number_of_unique_offsets()):
             self.count_orbit_list(
                 self._structure,
                 local_orbit_list_generator.generate_local_orbit_list(i),

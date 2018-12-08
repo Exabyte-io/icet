@@ -25,9 +25,10 @@ class ClusterExpansionCalculator
     ClusterExpansionCalculator(const ClusterSpace &, const Structure &);
 
     /// Returns the local cluster vector.
-    std::vector<double> getLocalClusterVector(const std::vector<int>& ,const int, const std::vector<int>);
+    std::vector<double> getLocalClusterVector(const std::vector<int>&, const int, const std::vector<size_t>);
 
     private:
+  
     /// Maps offsets to local orbit lists.
     std::unordered_map<Vector3d, OrbitList, Vector3dHash> _localOrbitlists;
 

@@ -41,7 +41,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
 
     */
 
-    for (int offsetIndex = 0; offsetIndex < uniqueOffsets; offsetIndex++)
+    for (size_t offsetIndex = 0; offsetIndex < uniqueOffsets; offsetIndex++)
     {
         int orbitIndex = -1;
         // This orbit is a local orbit related to the supercell
@@ -102,7 +102,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     _indexToOffset.clear();
 
     /// Precompute all possible local orbitlists for this supercell and map it to the offset
-    for (int i = 0; i < structure.size(); i++)
+    for (size_t i = 0; i < structure.size(); i++)
     {
         Vector3d localPosition = structure.getPositions().row(i);
         LatticeSite localSite = _clusterSpace._primitiveStructure.findLatticeSiteByPosition(localPosition);
@@ -130,7 +130,9 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
 @param ignoredIndices a vector of indices which have already had their local energy calculated. This is required to input so that no double counting occurs.
 */
 
-std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std::vector<int> &occupations, int index, std::vector<int> ignoredIndices)
+std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std::vector<int> &occupations,
+								      int index,
+								      std::vector<size_t> ignoredIndices)
 {
     _superCell.setAtomicNumbers(occupations);
 
@@ -183,7 +185,6 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
     const auto clusterMap = clusterCounts._clusterCounts;
 
     // Finally begin occupying the cluster vector
-    int orbitIndex = -1;
     std::vector<double> clusterVector;
     clusterVector.push_back(1.0 / _superCell.size());
     for (size_t i = 0; i < _fullPrimitiveOrbitList.size(); i++)
@@ -219,11 +220,10 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
         }
 
         const auto &mcVectors = _clusterSpace._multiComponentVectors[i];
-        const auto &elementPermutations = _clusterSpace._sitePermutations[i];
         repCluster.setTag(i);
 
         /// Loop over all multi component vectors for this orbit
-        for (int currentMCVectorIndex = 0; currentMCVectorIndex < _clusterSpace._multiComponentVectors[i].size(); currentMCVectorIndex++)
+        for (size_t currentMCVectorIndex = 0; currentMCVectorIndex < _clusterSpace._multiComponentVectors[i].size(); currentMCVectorIndex++)
         {
             double clusterVectorElement = 0;
 

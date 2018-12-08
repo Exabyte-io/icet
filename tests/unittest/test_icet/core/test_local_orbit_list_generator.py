@@ -83,7 +83,7 @@ class TestLocalOrbitListGenerator(unittest.TestCase):
         """
         self.lolg.generate_local_orbit_list(2)
         self.lolg.clear()
-        offsets_count = self.lolg.get_unique_offsets_count()
+        offsets_count = self.lolg.get_number_of_unique_offsets()
         self.assertEqual(offsets_count, 0)
         mapping = self.lolg._get_primitive_to_supercell_map()
         self.assertEqual(len(mapping), 0)
@@ -93,7 +93,7 @@ class TestLocalOrbitListGenerator(unittest.TestCase):
         Tests number of unique offsets corresponds to the number of atoms
         in the supercell given that there is one atom in the primitive cell.
         """
-        self.assertEqual(self.lolg.get_unique_offsets_count(),
+        self.assertEqual(self.lolg.get_number_of_unique_offsets(),
                          len(self.supercell))
 
     def test_get_primitive_to_supercell_map(self):
@@ -170,7 +170,7 @@ class TestLocalOrbitListGeneratorHCP(unittest.TestCase):
         Tests number of unique offsets corresponds to half of the total number
         of atoms in the supercell given that there is two atoms per unitcell.
         """
-        self.assertEqual(self.lolg.get_unique_offsets_count(),
+        self.assertEqual(self.lolg.get_number_of_unique_offsets(),
                          len(self.supercell) / 2)
 
     def test_get_primitive_to_supercell_map(self):

@@ -4,7 +4,6 @@
 import re
 import sys
 from glob import glob
-from multiprocessing import Process
 
 import setuptools
 from setuptools import Extension, find_packages, setup

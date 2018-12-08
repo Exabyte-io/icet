@@ -100,7 +100,6 @@ class ClusterSpace
     /// Number of allowed components on each site of the primitive structure.
     std::vector<int> _numberOfAllowedSpeciesPerSite;
 
-
     /// Radial cutoffs by cluster order starting with pairs.
     std::vector<double> _clusterCutoffs;
 
