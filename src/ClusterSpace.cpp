@@ -94,14 +94,14 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
     for (size_t i = 0; i < _orbitList.size(); i++)
     {
 
-        auto representativeCluster = _orbitList._orbitList[i].getRepresentativeCluster();
+        auto representativeCluster = _orbitList.getOrbit(i).getRepresentativeCluster();
         // @todo This is necessary. Side effects need to carefully evaluated. Ideally move this task elsewhere as it is repeated for every structure, for which the cluster vector is computed.
         representativeCluster.setTag(i);
 
         std::vector<int> numberOfAllowedSpeciesBySite;
         try
         {
-            numberOfAllowedSpeciesBySite = getNumberOfAllowedSpeciesBySite(_primitiveStructure, _orbitList._orbitList[i].getRepresentativeSites());
+            numberOfAllowedSpeciesBySite = getNumberOfAllowedSpeciesBySite(_primitiveStructure, _orbitList.getOrbit(i).getRepresentativeSites());
         }
         catch (const std::exception &e)
         {
@@ -115,7 +115,7 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
         {
             continue;
         }
-        auto representativeSites = _orbitList._orbitList[i].getRepresentativeSites();
+        auto representativeSites = _orbitList.getOrbit(i).getRepresentativeSites();
         std::vector<int> representativeSitesIndices;
         for(const auto site : representativeSites)
         {
@@ -184,7 +184,7 @@ std::vector<double> ClusterSpace::getClusterVector(const Structure &structure) c
 
 std::vector<std::vector<std::vector<int>>> ClusterSpace::getMultiComponentVectorPermutations(const std::vector<std::vector<int>> &multiComponentVectors, const int orbitIndex) const
 {
-    const auto allowedPermutations = _orbitList._orbitList[orbitIndex].getAllowedSitesPermutations();
+    const auto allowedPermutations = _orbitList.getOrbit(orbitIndex).getAllowedSitesPermutations();
 
     std::vector<std::vector<std::vector<int>>> elementPermutations;
     std::vector<int> selfPermutation;
