@@ -9,7 +9,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     size_t uniqueOffsets = _theLog.getNumberOfUniqueOffsets();
     int numberOfOrbits = _clusterSpace._orbitList.size();
     std::vector<Orbit> orbitVector;
-    for (const auto orbit : clusterSpace._orbitList._orbitList)
+    for (const auto orbit : clusterSpace._orbitList._orbits)
     {
         orbitVector.push_back(Orbit(orbit.getRepresentativeCluster()));
     }
@@ -29,9 +29,9 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     Now we do something similar by looping over each local orbit list
     (by looping over offsetIndex)
     The local orbitlist is retrieved here:
-        `_theLog.getLocalOrbitList(offsetIndex).getOrbitList()`
+        `_theLog.getLocalOrbitList(offsetIndex).getOrbits()`
 
-    Then for each orbit `orbitIndex` in `_theLog.getLocalOrbitList(offsetIndex).getOrbitList()`
+    Then for each orbit `orbitIndex` in `_theLog.getLocalOrbitList(offsetIndex).getOrbits()`
     each group of lattice sites in orbit.equivalentSites() is added to
     orbitVector[orbitIndex] if the lattice sites have a site with offset [0, 0, 0].
 
@@ -45,7 +45,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     {
         int orbitIndex = -1;
         // This orbit is a local orbit related to the supercell
-        for (const auto orbit : _theLog.getLocalOrbitList(offsetIndex).getOrbitList())
+        for (const auto orbit : _theLog.getLocalOrbitList(offsetIndex).getOrbits())
         {
             orbitIndex++;
 
@@ -114,7 +114,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
             _localOrbitlists[offsetVector] = _fullPrimitiveOrbitList.getLocalOrbitList(structure, offsetVector, _primToSupercellMap);
 
             /// Set eq sites equal to the permuted sites so no permutation is required in the orbitlist counting.
-            for (auto &orbit : _localOrbitlists[offsetVector]._orbitList)
+            for (auto &orbit : _localOrbitlists[offsetVector]._orbits)
             {
                 auto permutedSites = orbit.getPermutedEquivalentSites();
                 orbit._equivalentSites = permutedSites;
@@ -189,7 +189,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
     clusterVector.push_back(1.0 / _superCell.size());
     for (size_t i = 0; i < _fullPrimitiveOrbitList.size(); i++)
     {
-        Cluster repCluster = _fullPrimitiveOrbitList._orbitList[i]._representativeCluster;
+        Cluster repCluster = _fullPrimitiveOrbitList._orbits[i]._representativeCluster;
         std::vector<int> allowedOccupations;
 
         if (i >= _clusterSpace._orbitList.size())
@@ -199,7 +199,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
         }
         try
         {
-            allowedOccupations = _clusterSpace.getNumberOfAllowedSpeciesBySite(_clusterSpace._primitiveStructure, _clusterSpace._orbitList._orbitList[i].getRepresentativeSites());
+            allowedOccupations = _clusterSpace.getNumberOfAllowedSpeciesBySite(_clusterSpace._primitiveStructure, _clusterSpace._orbitList._orbits[i].getRepresentativeSites());
         }
         catch (const std::exception &e)
         {
@@ -212,7 +212,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
         {
             continue;
         }
-        auto representativeSites = _clusterSpace._orbitList._orbitList[i].getRepresentativeSites();
+        auto representativeSites = _clusterSpace._orbitList._orbits[i].getRepresentativeSites();
         std::vector<int> representativeSitesIndices;
         for (const auto site : representativeSites)
         {
@@ -252,7 +252,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
             }
 
             /// This is the multiplicity one would have gotten during a full cluster vector calculation and is needed as normalizing factor
-            double realMultiplicity = (double)_clusterSpace._sitePermutations[i][currentMCVectorIndex].size() * (double)_clusterSpace._orbitList._orbitList[i]._equivalentSites.size() / (double)_clusterSpace._primitiveStructure.size();
+            double realMultiplicity = (double)_clusterSpace._sitePermutations[i][currentMCVectorIndex].size() * (double)_clusterSpace._orbitList._orbits[i]._equivalentSites.size() / (double)_clusterSpace._primitiveStructure.size();
             clusterVectorElement /= ((double)realMultiplicity * (double)_superCell.size());
             clusterVector.push_back(clusterVectorElement);
         }

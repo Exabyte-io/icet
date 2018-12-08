@@ -92,7 +92,7 @@ void ClusterCounts::countOrbitList(const Structure &structure, const OrbitList &
 {
     for (size_t i = 0; i < orbitList.size(); i++)
     {
-        Cluster repr_cluster = orbitList._orbitList[i].getRepresentativeCluster();
+        Cluster repr_cluster = orbitList._orbits[i].getRepresentativeCluster();
         repr_cluster.setTag(i);
         if (permuteSites && orderIntact && repr_cluster.order() != 1)
         {
@@ -100,11 +100,11 @@ void ClusterCounts::countOrbitList(const Structure &structure, const OrbitList &
         }
         else if (!permuteSites && orderIntact && repr_cluster.order() != 1)
         {
-            count(structure, orbitList._orbitList[i]._equivalentSites, repr_cluster, orderIntact);
+            count(structure, orbitList._orbits[i]._equivalentSites, repr_cluster, orderIntact);
         }
         else
         {
-            count(structure, orbitList._orbitList[i]._equivalentSites, repr_cluster, orderIntact);
+            count(structure, orbitList._orbits[i]._equivalentSites, repr_cluster, orderIntact);
         }
     }
 }
