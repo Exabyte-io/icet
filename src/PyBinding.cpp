@@ -793,7 +793,8 @@ PYBIND11_MODULE(_icet, m)
              "Returns the number of orbits in the OrbitList")
         .def("get_orbit", &OrbitList::getOrbit,
              "Returns a copy of the orbit at the position i in the OrbitList")
-        .def("_remove_inactive_orbits",&OrbitList::removeInactiveOrbits)
+        .def("_remove_inactive_orbits",
+	     &OrbitList::removeInactiveOrbits)
         .def("clear", &OrbitList::clear,
              "Clears the list of orbits.")
         .def("sort", &OrbitList::sort,
