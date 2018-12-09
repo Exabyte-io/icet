@@ -42,6 +42,7 @@ class ClusterSpace
     std::vector<std::vector<std::vector<int>>> getMultiComponentVectorPermutations(const std::vector<std::vector<int>> &, const int) const;
 
   public:
+  
     /// Returns the cutoff for each order.
     std::vector<double> getCutoffs() const { return _clusterCutoffs; }
 
@@ -52,16 +53,10 @@ class ClusterSpace
     std::vector<int> getNumberOfAllowedSpeciesBySite(const Structure &, const std::vector<LatticeSite> &) const;
 
     /// Returns a list of species associated with cluster space as chemical symbols.
-    std::vector<std::vector<std::string>> getChemicalSymbols() const
-    {
-      return _chemicalSymbols;
-    }
+    std::vector<std::vector<std::string>> getChemicalSymbols() const { return _chemicalSymbols; }
 
     /// Returns the cluster space size, i.e. the length of a cluster vector.
-    size_t getClusterSpaceSize()
-    {
-        return _clusterSpaceInfo.size();
-    }
+    size_t getClusterSpaceSize() { return _clusterSpaceInfo.size(); }
 
     /// Returns the mapping between atomic numbers and the internal species enumeration scheme for each site.
     std::vector<std::unordered_map<int, int>> getSpeciesMaps() const { return _speciesMaps; }
@@ -70,16 +65,14 @@ class ClusterSpace
     OrbitList _orbitList;
 
     /// Returns the cluster product.
-    /// @todo Can we find a more telling name?
     double evaluateClusterProduct(const std::vector<int> &, const std::vector<int> &, const std::vector<int> &, const std::vector<int>&) const;
 
-    /// Primitive (prototype) structure.
-    Structure _primitiveStructure;
-
     /// Precomputed multicomponent vectors for each orbit in _orbitlist.
+    /// @todo Make private.
     std::vector<std::vector<std::vector<int>>> _multiComponentVectors;
 
     /// Precomputed site permutations for each orbit in _orbitlist.
+    /// @todo Make private.
     std::vector<std::vector<std::vector<std::vector<int>>>> _sitePermutations;
 
   private:
@@ -96,6 +89,9 @@ class ClusterSpace
     /// @todo Check description.
     /// @todo This function returns a very specific type of information. Consider giving it a more descriptive name.
     std::vector<std::pair<int, std::vector<int>>> _clusterSpaceInfo;
+
+    /// Primitive (prototype) structure.
+    Structure _primitiveStructure;
 
     /// Number of allowed components on each site of the primitive structure.
     std::vector<int> _numberOfAllowedSpeciesPerSite;

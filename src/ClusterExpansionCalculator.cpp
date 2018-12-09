@@ -60,7 +60,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
                 for (const auto site : latticeSites)
                 {
                     Vector3d sitePosition = _superCell.getPosition(site);
-                    auto primitiveSite = _clusterSpace._primitiveStructure.findLatticeSiteByPosition(sitePosition);
+                    auto primitiveSite = _clusterSpace.getPrimitiveStructure().findLatticeSiteByPosition(sitePosition);
                     primitiveEquivalentSites.push_back(primitiveSite);
                 }
                 std::vector<std::vector<LatticeSite>> latticeSitesTranslated = _clusterSpace._orbitList.getSitesTranslatedToUnitcell(primitiveEquivalentSites, false);
@@ -103,7 +103,7 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
     for (size_t i = 0; i < structure.size(); i++)
     {
         Vector3d localPosition = structure.getPositions().row(i);
-        LatticeSite localSite = _clusterSpace._primitiveStructure.findLatticeSiteByPosition(localPosition);
+        LatticeSite localSite = _clusterSpace.getPrimitiveStructure().findLatticeSiteByPosition(localPosition);
         Vector3d offsetVector = localSite.unitcellOffset();
         _indexToOffset[i] = offsetVector;
 
@@ -167,7 +167,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
     OrbitList translatedOrbitList = _localOrbitlists[_indexToOffset[index]];
 
     // Remove sites not containing the local index
-    if (_clusterSpace._primitiveStructure.size() > 1)
+    if (_clusterSpace.getPrimitiveStructure().size() > 1)
     {
         translatedOrbitList.removeSitesNotContainingIndex(index, onlyConsiderZeroOffsetNotContain);
     }
@@ -198,7 +198,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
         }
         try
         {
-            allowedOccupations = _clusterSpace.getNumberOfAllowedSpeciesBySite(_clusterSpace._primitiveStructure, _clusterSpace._orbitList._orbits[i].getRepresentativeSites());
+            allowedOccupations = _clusterSpace.getNumberOfAllowedSpeciesBySite(_clusterSpace.getPrimitiveStructure(), _clusterSpace._orbitList._orbits[i].getRepresentativeSites());
         }
         catch (const std::exception &e)
         {
@@ -251,7 +251,7 @@ std::vector<double> ClusterExpansionCalculator::getLocalClusterVector(const std:
             }
 
             /// This is the multiplicity one would have gotten during a full cluster vector calculation and is needed as normalizing factor
-            double realMultiplicity = (double)_clusterSpace._sitePermutations[i][currentMCVectorIndex].size() * (double)_clusterSpace._orbitList._orbits[i]._equivalentSites.size() / (double)_clusterSpace._primitiveStructure.size();
+            double realMultiplicity = (double)_clusterSpace._sitePermutations[i][currentMCVectorIndex].size() * (double)_clusterSpace._orbitList._orbits[i]._equivalentSites.size() / (double)_clusterSpace.getPrimitiveStructure().size();
             clusterVectorElement /= ((double)realMultiplicity * (double)_superCell.size());
             clusterVector.push_back(clusterVectorElement);
         }
