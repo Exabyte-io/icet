@@ -185,17 +185,17 @@ void OrbitList::addClusterToOrbitList(const Cluster &cluster,
 @param cluster cluster to search for
 @returns orbit index; -1 if nothing is found
 **/
-//int OrbitList::findOrbitIndex(const Cluster &cluster) const
-//{
-//    for (size_t i = 0; i < _orbits.size(); i++)
-//    {
-//        if (_orbits[i].getRepresentativeCluster() == cluster)
-//        {
-//            return i;
-//        }
-//    }
-//    return -1;
-//}
+// int OrbitList::findOrbitIndex(const Cluster &cluster) const
+// {
+//     for (size_t i = 0; i < _orbits.size(); i++)
+//     {
+//         if (_orbits[i].getRepresentativeCluster() == cluster)
+//         {
+//             return i;
+//         }
+//     }
+//     return -1;
+// }
 
 /**
 @details Returns the index of the orbit for which the given cluster is representative.

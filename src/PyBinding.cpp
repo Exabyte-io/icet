@@ -810,16 +810,16 @@ PYBIND11_MODULE(_icet, m)
             index : int
                 index of the orbit to be removed             
             )pbdoc")
-        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
-             R"pbdoc(
-                 Returns the index of the orbit with the given representative cluster.
-
-             Parameters
-             ---------
-             cluster: icet Cluster object
-                representative cluster of an orbit
-             )pbdoc",
-             py::arg("cluster"))
+//        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
+//             R"pbdoc(
+//                 Returns the index of the orbit with the given representative cluster.
+//
+//             Parameters
+//             ---------
+//             cluster: icet Cluster object
+//                representative cluster of an orbit
+//             )pbdoc",
+//             py::arg("cluster"))
         .def("_is_row_taken", &OrbitList::isRowsTaken,
             R"pbdoc(
             Returns true if rows exist in taken_rows.
