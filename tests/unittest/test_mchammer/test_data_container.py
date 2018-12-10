@@ -1,10 +1,10 @@
 import unittest
 import tempfile
 import random
-from collections import OrderedDict
 import numpy as np
 import pandas as pd
 from ase.build import bulk
+from collections import OrderedDict
 from mchammer import DataContainer
 from mchammer.observers.base_observer import BaseObserver
 
@@ -25,6 +25,8 @@ class TestDataContainer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestDataContainer, self).__init__(*args, **kwargs)
         self.atoms = bulk('Al').repeat(2)
+        self.ensemble_parameters = {'number_of_atoms': len(self.atoms),
+                                    'temperature': 375.15}
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -32,10 +34,11 @@ class TestDataContainer(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test case."""
-        self.dc = DataContainer(self.atoms,
-                                ensemble_name='test-ensemble',
-                                random_seed=44)
-        self.dc.add_parameter('temperature', 375.15)
+        self.dc = \
+            DataContainer(atoms=self.atoms,
+                          ensemble_parameters=self.ensemble_parameters,
+                          metadata=OrderedDict(ensemble_name='test-ensemble',
+                                               seed=144))
 
     def test_init(self):
         """Tests initializing DataContainer."""
@@ -43,32 +46,17 @@ class TestDataContainer(unittest.TestCase):
 
         # test fails with a non ASE Atoms type
         with self.assertRaises(TypeError) as context:
-            DataContainer('atoms', 'test-ensemble', 44)
+            DataContainer(atoms='atoms',
+                          ensemble_parameters=self.ensemble_parameters,
+                          metadata=OrderedDict(ensemble_name='test-ensemble',
+                                               seed=144))
+
         self.assertTrue('atoms is not an ASE Atoms object'
                         in str(context.exception))
 
-    def test_structure(self):
-        """Tests reference structure property."""
+    def test_atoms(self):
+        """Tests reference atoms property."""
         self.assertEqual(self.dc.atoms, self.atoms)
-
-    def test_add_parameter(self):
-        """Tests add parameter functionality."""
-        self.dc.add_parameter('sro', -0.1)
-
-        # add a list as parameters
-        index_atoms = [i for i in range(len(self.atoms))]
-        self.dc.add_parameter('index_atoms', index_atoms)
-        self.assertEqual(len(self.dc.parameters), 4)
-
-        # test whether method raises Exceptions
-        with self.assertRaises(TypeError) as context:
-            self.dc.add_parameter(1, 'tst')
-        self.assertTrue('tag has the wrong type'
-                        in str(context.exception))
-        with self.assertRaises(TypeError) as context:
-            self.dc.add_parameter('tst', 'tst')
-        self.assertTrue('value has the wrong type'
-                        in str(context.exception))
 
     def test_append_data(self):
         """Tests append data functionality."""
@@ -136,9 +124,8 @@ class TestDataContainer(unittest.TestCase):
 
     def test_property_parameters(self):
         """Tests parameters property."""
-        self.assertEqual(self.dc.parameters,
-                         OrderedDict([('seed', 44),
-                                      ('temperature', 375.15)]))
+        self.assertEqual(self.dc.ensemble_parameters,
+                         self.ensemble_parameters)
 
     def test_property_observables(self):
         """Tests observables property."""
@@ -147,11 +134,13 @@ class TestDataContainer(unittest.TestCase):
         self.assertListEqual(self.dc.observables, ['obs1', 'potential'])
 
     def test_property_metadata(self):
-        """
-        Tests metadata property.
-        """
-        for key in self.dc.metadata:
-            self.assertIsInstance(self.dc.metadata[key], str)
+        """Tests get metadata method."""
+        metadata = self.dc.metadata
+        self.assertIn('seed', metadata.keys())
+        self.assertIn('ensemble_name', metadata.keys())
+        self.assertIn('username', metadata.keys())
+        self.assertIn('hostname', metadata.keys())
+        self.assertIn('icet_version', metadata.keys())
 
     def test_property_last_state(self):
         """Tests last_state property."""
@@ -395,7 +384,8 @@ class TestDataContainer(unittest.TestCase):
         # check properties and metadata
         self.assertEqual(self.atoms, dc_read.atoms)
         self.assertEqual(self.dc.metadata, dc_read.metadata)
-        self.assertEqual(self.dc.parameters, dc_read.parameters)
+        self.assertEqual(self.dc.ensemble_parameters,
+                         dc_read.ensemble_parameters)
 
         # check data
         pd.testing.assert_frame_equal(

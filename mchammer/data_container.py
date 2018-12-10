@@ -1,19 +1,19 @@
-import json
 import getpass
+import json
 import numbers
 import numpy as np
 import pandas as pd
-import socket
 import tarfile
 import tempfile
+import socket
 
 from ase import Atoms
 from ase.io import Trajectory
 from ase.io import write as ase_write, read as ase_read
 from collections import OrderedDict
 from datetime import datetime
-from icet import __version__ as icet_version
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
+from icet import __version__ as icet_version
 
 
 class DataContainer:
@@ -26,14 +26,15 @@ class DataContainer:
     atoms : ASE Atoms object
         reference atomic structure associated with the data container
 
-    name_ensemble : str
-        name of associated ensemble
+    ensemble_parameters : dict
+        parameters associated with the underlying ensemble
 
-    random_seed : int
-        seed used in random number generator
+    metadata : dict
+        metadata associated with the data container
     """
 
-    def __init__(self, atoms: Atoms, ensemble_name: str, random_seed: int):
+    def __init__(self, atoms: Atoms, ensemble_parameters: dict,
+                 metadata: dict = OrderedDict()):
         """
         Initializes a DataContainer object.
         """
@@ -41,47 +42,12 @@ class DataContainer:
             raise TypeError('atoms is not an ASE Atoms object')
 
         self.atoms = atoms.copy()
-
-        self._parameters = OrderedDict()
-        self._metadata = OrderedDict()
+        self._ensemble_parameters = ensemble_parameters
+        self._metadata = metadata
+        self._add_default_metadata()
         self._last_state = {}
 
         self._data = pd.DataFrame(columns=['mctrial'])
-
-        self.add_parameter('seed', random_seed)
-
-        self._metadata['ensemble_name'] = ensemble_name
-        self._metadata['date_created'] = \
-            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        self._metadata['username'] = getpass.getuser()
-        self._metadata['hostname'] = socket.gethostname()
-        self._metadata['icet_version'] = icet_version
-
-    def add_parameter(self, tag: str,
-                      value: Union[int, float, List[int], List[float]]):
-        """
-        Adds parameter associated with underlying ensemble.
-
-        Parameters
-        ----------
-        tag
-            parameter name
-        value
-            parameter value
-
-        Raises
-        ------
-        TypeError
-            if input parameters have the wrong type
-        """
-        import copy
-        if not isinstance(tag, str):
-            raise TypeError('tag has the wrong type: {}'
-                            .format(type(tag)))
-        if not isinstance(value, (int, float, list)):
-            raise TypeError('value has the wrong type: {}'
-                            .format(type(value)))
-        self._parameters[tag] = copy.deepcopy(value)
 
     def append(self, mctrial: int,
                record: Dict[str, Union[int, float, list]]):
@@ -276,9 +242,9 @@ class DataContainer:
         return self._data
 
     @property
-    def parameters(self) -> dict:
+    def ensemble_parameters(self) -> dict:
         """ parameters associated with Monte Carlo simulation """
-        return self._parameters.copy()
+        return self._ensemble_parameters.copy()
 
     @property
     def observables(self) -> List[str]:
@@ -490,27 +456,19 @@ class DataContainer:
                 reference_data = json.load(fd)
 
             # init DataContainer
-            dc = DataContainer(atoms,
-                               reference_data['metadata']['ensemble_name'],
-                               reference_data['parameters']['seed'])
-            for key in reference_data:
-                if key == 'metadata':
-                    for tag, value in reference_data[key].items():
-                        if tag == 'ensemble_name':
-                            continue
-                        dc._metadata[tag] = value
-                elif key == 'last_state':
-                    for tag, value in reference_data[key].items():
-                        if tag == 'random_state':
-                            value = \
-                                tuple(tuple(x) if isinstance(x, list)
-                                      else x for x in value)
-                        dc._last_state[tag] = value
-                elif key == 'parameters':
-                    for tag, value in reference_data[key].items():
-                        if tag == 'seed':
-                            continue
-                        dc.add_parameter(tag, value)
+            dc = \
+                DataContainer(atoms=atoms,
+                              ensemble_parameters=reference_data['parameters'])
+
+            # overwrite metadata
+            dc._metadata = reference_data['metadata']
+
+            for tag, value in reference_data['last_state'].items():
+                if tag == 'random_state':
+                    value = \
+                        tuple(tuple(x) if isinstance(x, list)
+                              else x for x in value)
+                dc._last_state[tag] = value
 
             # add runtime data from file
             runtime_data_file.write(
@@ -541,7 +499,7 @@ class DataContainer:
         ase_write(reference_atoms_file.name, self.atoms, format='json')
 
         # Save reference data
-        reference_data = {'parameters': self._parameters,
+        reference_data = {'parameters': self._ensemble_parameters,
                           'metadata': self._metadata,
                           'last_state': self._last_state}
 
@@ -558,3 +516,12 @@ class DataContainer:
             handle.add(reference_data_file.name, arcname='reference_data')
             handle.add(runtime_data_file.name, arcname='runtime_data')
         runtime_data_file.close()
+
+    def _add_default_metadata(self):
+        """Adds default metadata to metadata dict."""
+
+        self._metadata['date_created'] = \
+            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self._metadata['username'] = getpass.getuser()
+        self._metadata['hostname'] = socket.gethostname()
+        self._metadata['icet_version'] = icet_version

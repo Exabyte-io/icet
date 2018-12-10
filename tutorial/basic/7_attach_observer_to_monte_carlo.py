@@ -13,6 +13,8 @@ from mchammer.observers import ClusterExpansionObserver
 ce_mix_energies = ClusterExpansion.read('mixing_energy.ce')
 cs = ce_mix_energies.cluster_space
 atoms = cs.primitive_structure.repeat(3)
+# TODO: Remove this line once atoms is not longer decorated with H atoms
+atoms.numbers = [47]*len(atoms)
 
 # step 2: Parse the input structures and set up a structure container
 db = connect('reference_data.db')

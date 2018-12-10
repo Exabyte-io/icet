@@ -35,7 +35,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble = SemiGrandCanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble', random_seed=42,
+            user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
             trajectory_write_interval=40,
@@ -48,15 +48,15 @@ class TestEnsemble(unittest.TestCase):
         with self.assertRaises(TypeError) as context:
             SemiGrandCanonicalEnsemble(atoms=self.atoms,
                                        calculator=self.calculator)
-        self.assertTrue('Missing required keyword argument: temperature' in
+        self.assertTrue("required positional arguments: 'temperature'" in
                         str(context.exception))
 
         with self.assertRaises(TypeError) as context:
             SemiGrandCanonicalEnsemble(atoms=self.atoms,
                                        calculator=self.calculator,
                                        temperature=self.temperature)
-        self.assertTrue('Missing required keyword argument:'
-                        ' chemical_potentials' in str(context.exception))
+        self.assertTrue("required positional argument:"
+                        " 'chemical_potentials'" in str(context.exception))
 
     def test_property_boltzmann(self):
         """Tests explicit Boltzmann constant."""
@@ -118,7 +118,8 @@ class TestEnsemble(unittest.TestCase):
 
         chemical_potentials = {13: 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
@@ -126,7 +127,8 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         chemical_potentials = {'Al': 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
@@ -138,15 +140,29 @@ class TestEnsemble(unittest.TestCase):
         self.assertIn('potential', data.keys())
         self.assertIn('Al_count', data.keys())
         self.assertIn('Ga_count', data.keys())
-        self.assertIn('mu_Al', data.keys())
-        self.assertIn('mu_Ga', data.keys())
-        self.assertIn('temperature', data.keys())
 
         self.assertEqual(data['Al_count'], 13)
         self.assertEqual(data['Ga_count'], 14)
-        self.assertEqual(data['temperature'], 100.0)
-        self.assertEqual(data['mu_Al'], 5)
-        self.assertEqual(data['mu_Ga'], 0)
+
+    def test_get_ensemble_parameters(self):
+        """Tests the get ensemble parameters method."""
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
+                         len(self.atoms))
+        self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
+                         self.temperature)
+        self.assertEqual(self.ensemble.ensemble_parameters['mu_Al'], 5)
+        self.assertEqual(self.ensemble.ensemble_parameters['mu_Ga'], 0)
+
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['n_atoms'],
+            len(self.atoms))
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['temperature'],
+            self.temperature)
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['mu_Al'], 5)
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['mu_Ga'], 0)
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""

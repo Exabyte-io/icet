@@ -336,6 +336,13 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         target = [['Ag', 'Au']]
         self.assertEqual(self.cs.chemical_symbols, target)
 
+    def test_prune_orbit_list(self):
+        """Tests pruning internal orbit list."""
+        orig_size = len(self.cs.orbit_list)
+        prune_indices = [0, 1, 3, 2]
+        self.cs._prune_orbit_list(indices=prune_indices)
+        self.assertEqual(orig_size-len(prune_indices), len(self.cs.orbit_list))
+
 
 class TestClusterSpaceSurface(unittest.TestCase):
     """

@@ -3,6 +3,7 @@ import tempfile
 from icet import ClusterSpace, ClusterExpansion
 from ase.build import bulk
 from io import StringIO
+import numpy as np
 
 
 def strip_surrounding_spaces(input_string):
@@ -40,7 +41,7 @@ class TestClusterExpansion(unittest.TestCase):
     def setUp(self):
         """Setup before each test."""
         params_len = self.cs.get_cluster_space_size()
-        self.parameters = list(range(params_len))
+        self.parameters = np.arange(params_len)
         self.ce = ClusterExpansion(self.cs, self.parameters)
 
     def test_init(self):
@@ -76,7 +77,7 @@ class TestClusterExpansion(unittest.TestCase):
 
     def test_property_parameters(self):
         """Tests parameters properties."""
-        self.assertEqual(self.ce.parameters, self.parameters)
+        self.assertEqual(list(self.ce.parameters), list(self.parameters))
 
     def test_len(self):
         """Tests len functionality."""
@@ -98,8 +99,77 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertEqual(self.cs._chemical_symbols,
                          ce_read.cluster_space._chemical_symbols)
 
+        self.assertIsInstance(ce_read.parameters, np.ndarray)
         # check parameters
-        self.assertEqual(ce_read.parameters, self.parameters)
+        self.assertEqual(list(ce_read.parameters), list(self.parameters))
+
+    def test_read_write_pruned(self):
+        """Tests read and write functionalities."""
+        # save to file
+        temp_file = tempfile.NamedTemporaryFile()
+        self.ce.prune(indices=[2, 3])
+        self.ce.prune(tol=3)
+        pruned_params = self.ce.parameters
+        pruned_cs_len = len(self.ce.cluster_space)
+        self.ce.write(temp_file.name)
+
+        # read from file
+        temp_file.seek(0)
+        ce_read = ClusterExpansion.read(temp_file.name)
+        params_read = ce_read.parameters
+        cs_len_read = len(ce_read.cluster_space)
+
+        # check cluster space
+        self.assertEqual(cs_len_read, pruned_cs_len)
+        self.assertEqual(list(params_read), list(pruned_params))
+
+    def test_prune_cluster_expansion(self):
+        """Tests pruning cluster expansion."""
+        len_before = len(self.ce)
+        self.ce.prune()
+        len_after = len(self.ce)
+        self.assertEqual(len_before, len_after)
+
+        # Set all ECIs to zero except three
+        self.ce._parameters = np.array([0.0] * len_after)
+        self.ce._parameters[0] = 1.0
+        self.ce._parameters[1] = 2.0
+        self.ce._parameters[2] = 0.5
+        self.ce.prune()
+        self.assertEqual(len(self.ce), 3)
+        self.assertNotEqual(len(self.ce), len_after)
+
+    def test_prune_cluster_expansion_tol(self):
+        """Tests pruning cluster expansion with tolerance."""
+        len_before = len(self.ce)
+        self.ce.prune()
+        len_after = len(self.ce)
+        self.assertEqual(len_before, len_after)
+
+        # Set all ECIs to zero except two, one of which is
+        # non-zero but below the tolerance
+        self.ce._parameters = np.array([0.0] * len_after)
+        self.ce._parameters[0] = 1.0
+        self.ce._parameters[1] = 0.01
+        self.ce.prune(tol=0.02)
+        self.assertEqual(len(self.ce), 1)
+        self.assertNotEqual(len(self.ce), len_after)
+
+    def test_prune_pairs(self):
+        """Tests pruning pairs only."""
+        df = self.ce.parameters_as_dataframe
+        pair_indices = df.index[df['order'] == 2].tolist()
+        self.ce.prune(indices=pair_indices)
+
+        df_new = self.ce.parameters_as_dataframe
+        pair_indices_new = df_new.index[df_new['order'] == 2].tolist()
+        self.assertEqual(pair_indices_new, [])
+
+    def test_prune_zerolet(self):
+        """Tests pruning zerolet."""
+        with self.assertRaises(ValueError) as context:
+            self.ce.prune(indices=[0])
+        self.assertTrue('zerolet may not be pruned' in str(context.exception))
 
     def test_repr(self):
         """Tests repr functionality."""
@@ -146,6 +216,49 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
+
+
+class TestClusterExpansionTernary(unittest.TestCase):
+    """Container for tests of the class functionality."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestClusterExpansionTernary, self).__init__(*args, **kwargs)
+        self.atoms = bulk('Au')
+        self.cutoffs = [3.0] * 3
+        chemical_symbols = ['Au', 'Pd', 'Ag']
+        self.cs = ClusterSpace(self.atoms, self.cutoffs, chemical_symbols)
+
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
+    def setUp(self):
+        """Setup before each test."""
+        params_len = self.cs.get_cluster_space_size()
+        self.parameters = np.arange(params_len)
+        self.ce = ClusterExpansion(self.cs, self.parameters)
+
+    def test_prune_cluster_expansion_with_indices(self):
+        """Tests pruning cluster expansion."""
+
+        self.ce.prune(indices=[1, 2, 3, 4, 5])
+
+    def test_prune_cluster_expansion_with_tol(self):
+        """Tests pruning cluster expansion."""
+        # Prune everything
+        self.ce.prune(tol=1e3)
+        self.assertEqual(len(self.ce), 1)
+
+    def test_prune_pairs(self):
+        """Tests pruning pairs only"""
+
+        df = self.ce.parameters_as_dataframe
+        pair_indices = df.index[df['order'] == 2].tolist()
+        self.ce.prune(indices=pair_indices)
+
+        df_new = self.ce.parameters_as_dataframe
+        pair_indices_new = df_new.index[df_new['order'] == 2].tolist()
+        self.assertEqual(pair_indices_new, [])
 
 
 if __name__ == '__main__':

@@ -36,7 +36,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble', random_seed=42,
+            user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
             trajectory_write_interval=40,
@@ -46,7 +46,7 @@ class TestEnsemble(unittest.TestCase):
         """ Tests exceptions are raised during initialization. """
         with self.assertRaises(TypeError) as context:
             CanonicalEnsemble(atoms=self.atoms, calculator=self.calculator)
-        self.assertTrue('Missing required keyword argument: temperature' in
+        self.assertTrue("required positional argument: 'temperature'" in
                         str(context.exception))
 
     def test_do_trial_step(self):
@@ -72,14 +72,14 @@ class TestEnsemble(unittest.TestCase):
         ens = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble',
+            user_tag='test-ensemble',
             random_seed=42, temperature=100.0)
         self.assertAlmostEqual(kB, ens.boltzmann_constant)
 
         ens = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble',
+            user_tag='test-ensemble',
             random_seed=42, temperature=100.0, boltzmann_constant=1.0)
         self.assertAlmostEqual(1.0, ens.boltzmann_constant)
 
@@ -90,11 +90,21 @@ class TestEnsemble(unittest.TestCase):
     def test_get_ensemble_data(self):
         """Tests the get ensemble data method."""
         data = self.ensemble._get_ensemble_data()
-
         self.assertIn('potential', data.keys())
-        self.assertIn('temperature', data.keys())
 
-        self.assertEqual(data['temperature'], 100.0)
+    def test_ensemble_parameters(self):
+        """Tests the get ensemble parameters method."""
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
+                         len(self.atoms))
+        self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
+                         self.temperature)
+
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['n_atoms'],
+            len(self.atoms))
+        self.assertEqual(
+            self.ensemble.data_container.ensemble_parameters['temperature'],
+            self.temperature)
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""

@@ -798,24 +798,28 @@ PYBIND11_MODULE(_icet, m)
         .def("clear", &OrbitList::clear,
              "Clears the list of orbits.")
         .def("sort", &OrbitList::sort,
-             "Sorts the orbits.")
-//        .def(
-//            "_find_orbit_index",
-//            (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbitIndex,
-//            R"pbdoc(
-//            Returns the index of the orbit that is associated with the given representative cluster.
-//
-//            Parameters
-//            ---------
-//            cluster: _icet.Cluster
-//                representative cluster of an orbit
-//
-//            Returns
-//            -------
-//            int
-//                orbit index
-//            )pbdoc",
-//            py::arg("cluster"))
+             "Sorts the orbits by orbit comparison")
+        .def(
+	    "remove_orbit",
+	    &OrbitList::removeOrbit,
+	    R"pbdoc(
+            Removes the orbit with the input index.
+
+            Parameters
+            ---------
+            index : int
+                index of the orbit to be removed             
+            )pbdoc")
+        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
+             R"pbdoc(
+                 Returns the index of the orbit with the given representative cluster.
+
+             Parameters
+             ---------
+             cluster: icet Cluster object
+                representative cluster of an orbit
+             )pbdoc",
+             py::arg("cluster"))
         .def("_is_row_taken", &OrbitList::isRowsTaken,
             R"pbdoc(
             Returns true if rows exist in taken_rows.
@@ -939,6 +943,11 @@ PYBIND11_MODULE(_icet, m)
         .def("_get_primitive_structure", &ClusterSpace::getPrimitiveStructure)
         .def("get_multi_component_vector_permutations", &ClusterSpace::getMultiComponentVectorPermutations)
         .def("get_number_of_allowed_species_by_site", &ClusterSpace::getNumberOfAllowedSpeciesBySite)
+        .def(
+	    "_precompute_multi_component_vectors",
+	    &ClusterSpace::precomputeMultiComponentVectors,
+	    "Precompute the multi-component vectors (internal).")
+        .def("_prune_orbit_list_cpp", &ClusterSpace::pruneOrbitList)
         .def("__len__", &ClusterSpace::getClusterSpaceSize);
 
 

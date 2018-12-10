@@ -122,7 +122,7 @@ class TestOrbitList(unittest.TestCase):
                                  repr_clusters[k])
 
     def test_remove_all_orbits(self):
-        """Tests removing all orbits"""
+        """Tests removing all orbits."""
 
         chemical_symbols = [
             ['Al'] * len(self.orbit_list.get_primitive_structure())]
@@ -385,6 +385,15 @@ class TestOrbitList(unittest.TestCase):
         # not more orbits listed
         with self.assertRaises(IndexError):
             orbit_list.get_orbit(3)
+
+    def test_remove_orbit(self):
+        """Tests removing orbits by index."""
+        current_size = len(self.orbit_list)
+
+        for i in sorted(range(current_size), reverse=True):
+            self.orbit_list.remove_orbit(i)
+            current_size -= 1
+            self.assertEqual(len(self.orbit_list), current_size)
 
 
 if __name__ == '__main__':

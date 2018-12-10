@@ -15,14 +15,14 @@ class ClusterExpansion:
 
     Attributes
     ----------
-    cluster_space : ClusterSpace object
+    cluster_space : icet.ClusterSpace
         cluster space that was used for constructing the cluster expansion
-    parameters : list of floats
+    parameters : numpy.ndarray
         effective cluster interactions (ECIs)
     """
 
     def __init__(self, cluster_space: ClusterSpace,
-                 parameters: List[float]) -> None:
+                 parameters: np.array) -> None:
         """
         Initializes a ClusterExpansion object.
 
@@ -43,7 +43,11 @@ class ClusterExpansion:
                              ' the same length'.format(len(cluster_space),
                                                        len(parameters)))
         self._cluster_space = cluster_space
+        if isinstance(parameters, list):
+            parameters = np.array(parameters)
         self._parameters = parameters
+        self._original_parameters = parameters.copy()
+        self._pruning_history = []
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
@@ -66,7 +70,7 @@ class ClusterExpansion:
 
     @property
     def parameters_as_dataframe(self) -> pd.DataFrame:
-        """ pandas dataframe containing orbit data and ECIs """
+        """ dataframe containing orbit data and ECIs """
         rows = self.cluster_space.orbit_data
         for row, eci in zip(rows, self.parameters):
             row['eci'] = eci
@@ -78,7 +82,7 @@ class ClusterExpansion:
 
     @property
     def cluster_space(self) -> ClusterSpace:
-        """ cluster space on which the cluster expansion is based """
+        """ cluster space on which cluster expansion is based """
         return self._cluster_space
 
     @property
@@ -91,9 +95,7 @@ class ClusterExpansion:
 
     def _get_string_representation(self, print_threshold: int = None,
                                    print_minimum: int = 10):
-        """
-        String representation of the cluster expansion.
-        """
+        """ String representation of the cluster expansion. """
         cluster_space_repr = self._cluster_space._get_string_representation(
             print_threshold, print_minimum).split('\n')
         # rescale width
@@ -135,6 +137,52 @@ class ClusterExpansion:
         """ string representation """
         return self._get_string_representation(print_threshold=50)
 
+    def prune(self, indices: List[int] = None, tol: float = 0):
+        """
+        Removes orbits from the cluster expansion (CE), for which the effective
+        cluster interactions (ECIs; parameters) are zero or close to zero.
+        This commonly reduces the computational cost for evaluating the CE and
+        is therefore recommended prior to using it in production. If the method
+        is called without arguments orbits will be pruned, for which the ECIs
+        are strictly zero. Less restrictive pruning can be achived by setting
+        the `tol` keyword.
+
+        Parameters
+        ----------
+        indices
+            indices to parameters to remove in the cluster expansion.
+        tol
+            orbits for which the absolute ECIs is/are within this
+            value will be pruned
+        """
+        self._pruning_history.append({'indices': indices, 'tol': tol})
+
+        if indices is None:
+            indices = [i for i, param in enumerate(
+                self.parameters) if np.abs(param) <= tol and i > 0]
+        df = self.parameters_as_dataframe
+        indices = list(set(indices))
+
+        if 0 in indices:
+            raise ValueError('Orbit index cannot be 0 since'
+                             ' the zerolet may not be pruned.')
+        orbit_candidates_for_removal = \
+            df.orbit_index[np.array(indices)].tolist()
+        safe_to_remove_orbits, safe_to_remove_params = [], []
+        for oi in set(orbit_candidates_for_removal):
+            if oi == -1:
+                continue
+            orbit_count = df.orbit_index.tolist().count(oi)
+            oi_remove_count = orbit_candidates_for_removal.count(oi)
+            if orbit_count <= oi_remove_count:
+                safe_to_remove_orbits.append(oi)
+                safe_to_remove_params += df.index[df['orbit_index']
+                                                  == oi].tolist()
+
+        self._cluster_space._prune_orbit_list(indices=safe_to_remove_orbits)
+        self._parameters = self._parameters[np.setdiff1d(
+            np.arange(len(self._parameters)), safe_to_remove_params)]
+
     def write(self, filename: str):
         """
         Writes ClusterExpansion object to file.
@@ -150,8 +198,10 @@ class ClusterExpansion:
             data = pickle.load(handle)
 
         data['parameters'] = self.parameters
+        data['original_parameters'] = self._original_parameters
+        data['pruning_history'] = self._pruning_history
 
-        with open(filename, "wb") as handle:
+        with open(filename, 'wb') as handle:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
@@ -168,5 +218,11 @@ class ClusterExpansion:
         with open(filename, 'rb') as handle:
             data = pickle.load(handle)
         parameters = data['parameters']
+        pruning_history = data['pruning_history']
+        original_parameters = data['original_parameters']
+        ce = ClusterExpansion(cs, original_parameters)
+        for arg in pruning_history:
+            ce.prune(indices=arg['indices'], tol=arg['tol'])
 
-        return ClusterExpansion(cs, parameters)
+        assert list(parameters) == list(ce.parameters)
+        return ce

@@ -78,8 +78,19 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     calculator : :class:`BaseCalculator`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
-    name : str
-        human-readable ensemble name [default: `BaseEnsemble`]
+    temperature : float
+        temperature :math:`T` in appropriate units [commonly Kelvin]
+    chemical_potentials : Dict[str, float]
+        chemical potential for each species :math:`\\mu_i`; the key
+        denotes the species, the value specifies the chemical potential in
+        units that are consistent with the underlying cluster expansion
+    boltzmann_constant : float
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
+    user_tag : str
+        human-readable tag for ensemble [default: None]
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
@@ -101,52 +112,39 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    chemical_potentials : Dict[str, float]
-        chemical potential for each species :math:`\\mu_i`; the key
-        denotes the species, the value specifies the chemical potential in
-        units that are consistent with the underlying cluster expansion
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 name: str = 'Semi-grand canonical ensemble',
+                 temperature: float, chemical_potentials: Dict[str, float],
+                 user_tag: str = None,
                  data_container: DataContainer = None, random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
-                 boltzmann_constant: float = kB, temperature: float = None,
-                 chemical_potentials: Dict[str, float] = None) -> None:
+                 boltzmann_constant: float = kB) -> None:
+
+        self._ensemble_parameters = dict(temperature=temperature)
+
+        self._chemical_potentials = None
+        self._set_chemical_potentials(chemical_potentials)
+        for atnum, chempot in self.chemical_potentials.items():
+            mu_sym = 'mu_{}'.format(chemical_symbols[atnum])
+            self._ensemble_parameters[mu_sym] = chempot
+
+        self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
-            atoms=atoms, calculator=calculator, name=name,
+            atoms=atoms, calculator=calculator, user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        if temperature is None:
-            raise TypeError('Missing required keyword argument: temperature')
-        self._temperature = temperature
-
-        self._boltzmann_constant = boltzmann_constant
-
-        self._chemical_potentials = None
-        if chemical_potentials is None:
-            raise TypeError('Missing required keyword argument:'
-                            ' chemical_potentials')
-        self._set_chemical_potentials(chemical_potentials)
-
     @property
     def temperature(self) -> float:
         """ temperature :math:`T` (see parameters section above) """
-        return self._temperature
+        return self.ensemble_parameters['temperature']
 
     @property
     def boltzmann_constant(self) -> float:
@@ -223,18 +221,10 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
 
     def _get_ensemble_data(self) -> Dict:
         """Returns the data associated with the ensemble. For the SGC
-        ensemble this specifically includes the temperature and the
-        species counts.
+        ensemble this specifically includes the species counts.
         """
         # generic data
         data = super()._get_ensemble_data()
-
-        # temperature
-        data['temperature'] = self.temperature
-
-        # chemical potentials
-        for atnum, chempot in self.chemical_potentials.items():
-            data['mu_{}'.format(chemical_symbols[atnum])] = chempot
 
         # species counts
         atoms = self.configuration.atoms
