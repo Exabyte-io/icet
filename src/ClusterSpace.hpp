@@ -85,7 +85,7 @@ class ClusterSpace
     /// Precomputes permutations and multicomponent vectors of each orbit.
     void precomputeMultiComponentVectors();
     
-    /// Prunes the orbit list
+    /// Prunes the orbit list.
     void pruneOrbitList(std::vector<size_t> &);
 
   private:
