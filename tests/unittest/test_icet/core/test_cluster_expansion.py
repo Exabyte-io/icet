@@ -125,24 +125,38 @@ class TestClusterExpansion(unittest.TestCase):
 
     def test_prune_cluster_expansion(self):
         """Tests pruning cluster expansion."""
-
         len_before = len(self.ce)
         self.ce.prune()
         len_after = len(self.ce)
-
         self.assertEqual(len_before, len_after)
 
-        # Set all to zero except one
-        self.ce._parameters = np.array([0] * len_after)
-        self.ce._parameters[0] = 1
-
+        # Set all ECIs to zero except three
+        self.ce._parameters = np.array([0.0] * len_after)
+        self.ce._parameters[0] = 1.0
+        self.ce._parameters[1] = 2.0
+        self.ce._parameters[2] = 0.5
         self.ce.prune()
+        self.assertEqual(len(self.ce), 3)
+        self.assertNotEqual(len(self.ce), len_after)
+
+    def test_prune_cluster_expansion_tol(self):
+        """Tests pruning cluster expansion with tolerance."""
+        len_before = len(self.ce)
+        self.ce.prune()
+        len_after = len(self.ce)
+        self.assertEqual(len_before, len_after)
+
+        # Set all ECIs to zero except two, one of which is
+        # non-zero but below the tolerance
+        self.ce._parameters = np.array([0.0] * len_after)
+        self.ce._parameters[0] = 1.0
+        self.ce._parameters[1] = 0.01
+        self.ce.prune(tol=0.02)
         self.assertEqual(len(self.ce), 1)
         self.assertNotEqual(len(self.ce), len_after)
 
     def test_prune_pairs(self):
-        """Tests pruning pairs only"""
-
+        """Tests pruning pairs only."""
         df = self.ce.parameters_as_dataframe
         pair_indices = df.index[df['order'] == 2].tolist()
         self.ce.prune(indices=pair_indices)
@@ -152,10 +166,9 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertEqual(pair_indices_new, [])
 
     def test_prune_zerolet(self):
-        """Tests pruning zerolet"""
+        """Tests pruning zerolet."""
         with self.assertRaises(ValueError) as context:
             self.ce.prune(indices=[0])
-
         self.assertTrue('zerolet may not be pruned' in str(context.exception))
 
     def test_repr(self):
