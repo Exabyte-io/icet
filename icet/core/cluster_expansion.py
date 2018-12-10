@@ -15,9 +15,9 @@ class ClusterExpansion:
 
     Attributes
     ----------
-    cluster_space : ClusterSpace object
+    cluster_space : icet.ClusterSpace
         cluster space that was used for constructing the cluster expansion
-    parameters : numpy array
+    parameters : numpy.ndarray
         effective cluster interactions (ECIs)
     """
 
@@ -70,7 +70,7 @@ class ClusterExpansion:
 
     @property
     def parameters_as_dataframe(self) -> pd.DataFrame:
-        """ pandas dataframe containing orbit data and ECIs """
+        """ dataframe containing orbit data and ECIs """
         rows = self.cluster_space.orbit_data
         for row, eci in zip(rows, self.parameters):
             row['eci'] = eci
@@ -82,7 +82,7 @@ class ClusterExpansion:
 
     @property
     def cluster_space(self) -> ClusterSpace:
-        """ cluster space on which the cluster expansion is based """
+        """ cluster space on which cluster expansion is based """
         return self._cluster_space
 
     @property
@@ -95,9 +95,7 @@ class ClusterExpansion:
 
     def _get_string_representation(self, print_threshold: int = None,
                                    print_minimum: int = 10):
-        """
-        String representation of the cluster expansion.
-        """
+        """ String representation of the cluster expansion. """
         cluster_space_repr = self._cluster_space._get_string_representation(
             print_threshold, print_minimum).split('\n')
         # rescale width
@@ -140,15 +138,22 @@ class ClusterExpansion:
         return self._get_string_representation(print_threshold=50)
 
     def prune(self, indices: List[int] = None, tol: float = 0):
-        """Tries to prune the cluster expansion if called withouth
-        argument it will try prune each parameter that is zero
+        """
+        Removes orbits from the cluster expansion (CE), for which the effective
+        cluster interactions (ECIs; parameters) are zero or close to zero.
+        This commonly reduces the computational cost for evaluating the CE and
+        is therefore recommended prior to using it in production. If the method
+        is called without arguments orbits will be pruned, for which the ECIs
+        are strictly zero. Less restrictive pruning can be achived by setting
+        the `tol` keyword.
 
         Parameters
         ----------
         indices
             indices to parameters to remove in the cluster expansion.
         tol
-            if a perameter is withing tol then it will be pruned
+            orbits for which the absolute ECIs is/are within this
+            value will be pruned
         """
         self._pruning_history.append({'indices': indices, 'tol': tol})
 
@@ -159,15 +164,16 @@ class ClusterExpansion:
         indices = list(set(indices))
 
         if 0 in indices:
-            raise ValueError("index 0, i.e the zerolet may not be pruned.")
-        orbit_index_try_to_remove = df.orbit_index[np.array(indices)].tolist()
-        safe_to_remove_orbits = []
-        safe_to_remove_params = []
-        for oi in set(orbit_index_try_to_remove):
+            raise ValueError('Orbit index cannot be 0 since'
+                             ' the zerolet may not be pruned.')
+        orbit_candidates_for_removal = \
+            df.orbit_index[np.array(indices)].tolist()
+        safe_to_remove_orbits, safe_to_remove_params = [], []
+        for oi in set(orbit_candidates_for_removal):
             if oi == -1:
                 continue
             orbit_count = df.orbit_index.tolist().count(oi)
-            oi_remove_count = orbit_index_try_to_remove.count(oi)
+            oi_remove_count = orbit_candidates_for_removal.count(oi)
             if orbit_count <= oi_remove_count:
                 safe_to_remove_orbits.append(oi)
                 safe_to_remove_params += df.index[df['orbit_index']
@@ -193,10 +199,9 @@ class ClusterExpansion:
 
         data['parameters'] = self.parameters
         data['original_parameters'] = self._original_parameters
-
         data['pruning_history'] = self._pruning_history
 
-        with open(filename, "wb") as handle:
+        with open(filename, 'wb') as handle:
             pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
