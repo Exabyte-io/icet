@@ -36,7 +36,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble', random_seed=42,
+            user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
             trajectory_write_interval=40,
@@ -72,14 +72,14 @@ class TestEnsemble(unittest.TestCase):
         ens = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble',
+            user_tag='test-ensemble',
             random_seed=42, temperature=100.0)
         self.assertAlmostEqual(kB, ens.boltzmann_constant)
 
         ens = CanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble',
+            user_tag='test-ensemble',
             random_seed=42, temperature=100.0, boltzmann_constant=1.0)
         self.assertAlmostEqual(1.0, ens.boltzmann_constant)
 
@@ -98,8 +98,6 @@ class TestEnsemble(unittest.TestCase):
                          len(self.atoms))
         self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
                          self.temperature)
-        self.assertEqual(self.ensemble.ensemble_parameters['ensemble_name'],
-                         'CanonicalEnsemble')
 
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['n_atoms'],
@@ -107,9 +105,6 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['temperature'],
             self.temperature)
-        self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['ensemble_name'],
-            'CanonicalEnsemble')
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""

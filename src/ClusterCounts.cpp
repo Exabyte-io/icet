@@ -90,7 +90,7 @@ void ClusterCounts::countCluster(const Cluster &cluster, const std::vector<int> 
 */
 void ClusterCounts::countOrbitList(const Structure &structure, const OrbitList &orbitList, bool orderIntact, bool permuteSites)
 {
-    for (int i = 0; i < orbitList.size(); i++)
+    for (size_t i = 0; i < orbitList.size(); i++)
     {
         Cluster repr_cluster = orbitList._orbitList[i].getRepresentativeCluster();
         repr_cluster.setTag(i);

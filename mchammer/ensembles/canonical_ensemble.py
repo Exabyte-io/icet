@@ -64,8 +64,8 @@ class CanonicalEnsemble(BaseEnsemble):
         units, i.e. units that are consistent
         with the underlying cluster expansion
         and the temperature units [default: eV/K]
-    name : str
-        human-readable ensemble name [default: `BaseEnsemble`]
+    user_tag : str
+        human-readable tag for ensemble [default: None]
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
@@ -90,20 +90,19 @@ class CanonicalEnsemble(BaseEnsemble):
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 temperature: float, name: str = 'Canonical ensemble',
+                 temperature: float, user_tag: str = None,
                  boltzmann_constant: float = kB,
                  data_container: DataContainer = None, random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None) -> None:
 
-        self._ensemble_parameters = dict(ensemble_name=self.__class__.__name__,
-                                         temperature=temperature)
+        self._ensemble_parameters = dict(temperature=temperature)
 
         self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
-            atoms=atoms, calculator=calculator, name=name,
+            atoms=atoms, calculator=calculator, user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,

@@ -23,17 +23,17 @@ public:
     @param index site index
     @param unitcellOffset offset of site relative to unit cell at origin in units of lattice vectors
     */
-    LatticeSite(const int index, const Eigen::Vector3d unitcellOffset)
+    LatticeSite(const size_t index, const Eigen::Vector3d unitcellOffset)
     {
         _index = index;
         _unitcellOffset = unitcellOffset;
     }
 
     /// Return index of site.
-    int index() const { return _index; }
+    size_t index() const { return _index; }
 
     /// Set index of site.
-    void setIndex(int index) { _index = index; }
+    void setIndex(size_t index) { _index = index; }
 
     /// Return offset relative to unit cell at origin in units of lattice vectors.
     Eigen::Vector3d unitcellOffset() const { return _unitcellOffset; }
@@ -49,7 +49,7 @@ public:
     {
         if (_index == other.index())
         {
-            for (int i = 0; i < 3; i++)
+            for (size_t i = 0; i < 3; i++)
             {
                 if (_unitcellOffset[i] != other.unitcellOffset()[i])
                 {
@@ -68,7 +68,7 @@ public:
             return false;
         }
 
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             if (_unitcellOffset[i] != other.unitcellOffset()[i])
             {
@@ -103,7 +103,7 @@ public:
     operator std::string () const
     {
         std::string str = std::to_string(_index) + " :";
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             str += " " + std::to_string(_unitcellOffset[i]);
         }
@@ -114,7 +114,7 @@ public:
     void print() const
     {
         std::string str = std::to_string(_index) + " :";
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             str += " " + std::to_string(_unitcellOffset[i]);
         }
@@ -124,7 +124,7 @@ public:
 private:
 
     /// Site index.
-    int _index;
+    size_t _index;
 
     /// Offset relative to the unit cell at the origin in units of lattice vectors.
     Eigen::Vector3d _unitcellOffset;
@@ -147,7 +147,7 @@ namespace std
             size_t seed = 0;
             hash_combine(seed, hash_value(k.index()));
 
-            for (int i = 0; i < 3; i++)
+            for (size_t i = 0; i < 3; i++)
             {
                 hash_combine(seed, hash_value(k.unitcellOffset()[i]));
             }

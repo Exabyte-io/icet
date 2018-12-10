@@ -41,11 +41,13 @@ void LocalOrbitListGenerator::mapSitesAndFindCellOffsets()
 }
 
 ///generate and returns the local orbit list with the input index
-OrbitList LocalOrbitListGenerator::getLocalOrbitList(const unsigned int index)
+OrbitList LocalOrbitListGenerator::getLocalOrbitList(const size_t index)
 {
     if (index >= _uniquePrimcellOffsets.size())
     {
-        std::string errMsg = "Error: attempting to getLocalOrbitList with index " + std::to_string(index) + " when size of unique offsets are: " + std::to_string(_uniquePrimcellOffsets.size()) + ".";
+        std::string errMsg;
+        errMsg += "Error: attempting to getLocalOrbitList with index " + std::to_string(index);
+        errMsg += " when size of unique offsets are: " + std::to_string(_uniquePrimcellOffsets.size()) + ".";
         throw std::out_of_range(errMsg);
     }
 
@@ -68,7 +70,7 @@ OrbitList LocalOrbitListGenerator::getLocalOrbitList(const Vector3d &primOffset)
 OrbitList LocalOrbitListGenerator::getFullOrbitList()
 {
     OrbitList orbitList = OrbitList();
-    for (int i = 0; i < getNumberOfUniqueOffsets(); i++)
+    for (size_t i = 0; i < getNumberOfUniqueOffsets(); i++)
     {
         orbitList += getLocalOrbitList(i);
     }
@@ -80,7 +82,7 @@ OrbitList LocalOrbitListGenerator::getFullOrbitList()
 std::vector<int> LocalOrbitListGenerator::findMatchingSupercellPositions(const Vector3d &position) const
 {
     std::vector<int> matchedIndices;
-    for (int i = 0; i < _supercell.getPositions().rows(); i++)
+    for (size_t i = 0; i < (size_t) _supercell.getPositions().rows(); i++)
     {
         if ((position - _supercell.getPositionByIndex(i)).norm() < 1e-3)
         {

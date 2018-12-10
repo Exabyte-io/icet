@@ -781,6 +781,17 @@ PYBIND11_MODULE(_icet, m)
              "Clears the OrbitList")
         .def("sort", &OrbitList::sort,
              "Sorts the orbits by orbit comparison")
+        .def(
+	    "remove_orbit",
+	    &OrbitList::removeOrbit,
+	    R"pbdoc(
+            Removes the orbit with the input index.
+
+            Parameters
+            ---------
+            index : int
+                index of the orbit to be removed             
+            )pbdoc")
         .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
              R"pbdoc(
                  Returns the index of the orbit with the given representative cluster.
@@ -850,8 +861,8 @@ PYBIND11_MODULE(_icet, m)
     py::class_<LocalOrbitListGenerator>(m, "LocalOrbitListGenerator")
         .def(py::init<const OrbitList &, const Structure &>(),
              R"pbdoc(
-             Constructs a LocalOrbitListGenerator object from an OrbitList instance
-             and a Structure instance.
+             Constructs a LocalOrbitListGenerator object from an orbit list
+             and a structure.
 
              Parameters
              ----------
@@ -862,7 +873,8 @@ PYBIND11_MODULE(_icet, m)
              )pbdoc",
              py::arg("orbit_list"),
              py::arg("supercell"))
-        .def("generate_local_orbit_list", (OrbitList(LocalOrbitListGenerator::*)(const unsigned int)) & LocalOrbitListGenerator::getLocalOrbitList,
+        .def("generate_local_orbit_list",
+             (OrbitList(LocalOrbitListGenerator::*)(const size_t)) & LocalOrbitListGenerator::getLocalOrbitList,
              R"pbdoc(
              Generates and returns the local orbit list from an input index corresponding a specific offset of
              the primitive structure.
@@ -890,7 +902,8 @@ PYBIND11_MODULE(_icet, m)
              )pbdoc")
         .def("clear", &LocalOrbitListGenerator::clear,
              "Clears the list of offsets and primitive-to-supercell map of the LocalOrbitListGenerator object")
-        .def("get_unique_offsets_count", &LocalOrbitListGenerator::getNumberOfUniqueOffsets,
+        .def("get_number_of_unique_offsets",
+	     &LocalOrbitListGenerator::getNumberOfUniqueOffsets,
              "Returns the number of unique offsets")
         .def("_get_primitive_to_supercell_map", &LocalOrbitListGenerator::getMapFromPrimitiveToSupercell,
              "Returns the primitive to supercell mapping")
@@ -915,6 +928,11 @@ PYBIND11_MODULE(_icet, m)
         .def("_get_primitive_structure", &ClusterSpace::getPrimitiveStructure)
         .def("get_multi_component_vector_permutations", &ClusterSpace::getMultiComponentVectorPermutations)
         .def("get_number_of_allowed_species_by_site", &ClusterSpace::getNumberOfAllowedSpeciesBySite)
+        .def(
+	    "_precompute_multi_component_vectors",
+	    &ClusterSpace::precomputeMultiComponentVectors,
+	    "Precompute the multi-component vectors (internal).")
+        .def("_prune_orbit_list_cpp", &ClusterSpace::pruneOrbitList)
         .def("__len__", &ClusterSpace::getClusterSpaceSize);
 
     // ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clusterSpace, const Structure &structure)
@@ -933,7 +951,7 @@ PYBIND11_MODULE(_icet, m)
         )pbdoc",
              py::arg("cluster_space"),
              py::arg("structure"))
-        .def("get_local_cluster_vector", [](ClusterExpansionCalculator &ceCalc, const std::vector<int> &occupations, const int index, const std::vector<int> indices) {
+        .def("get_local_cluster_vector", [](ClusterExpansionCalculator &ceCalc, const std::vector<int> &occupations, const int index, const std::vector<size_t> indices) {
             auto cv = ceCalc.getLocalClusterVector(occupations, index, indices);
             return py::array(cv.size(), cv.data());
         },

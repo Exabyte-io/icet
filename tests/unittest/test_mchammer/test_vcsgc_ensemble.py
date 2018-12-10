@@ -43,7 +43,7 @@ class TestEnsemble(unittest.TestCase):
             phis=self.phis,
             kappa=self.kappa,
             boltzmann_constant=1e-5,
-            name='test-ensemble', random_seed=42,
+            user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
             trajectory_write_interval=40)
@@ -135,8 +135,9 @@ class TestEnsemble(unittest.TestCase):
 
         phis = {13: -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
-            random_seed=42, temperature=self.temperature,
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble', random_seed=42,
+            temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)
         ensemble._do_trial_step()
@@ -144,8 +145,9 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         phis = {'Al': -1, 31: -1}
         ensemble = VCSGCEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
-            random_seed=42, temperature=self.temperature,
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble', random_seed=42,
+            temperature=self.temperature,
             phis=phis,
             kappa=self.kappa)
         ensemble._do_trial_step()
@@ -170,8 +172,6 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble.ensemble_parameters['phi_Al'], -1.3)
         self.assertEqual(self.ensemble.ensemble_parameters['phi_Ga'], -0.7)
         self.assertEqual(self.ensemble.ensemble_parameters['kappa'], 10)
-        self.assertEqual(self.ensemble.ensemble_parameters['ensemble_name'],
-                         'VCSGCEnsemble')
 
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['n_atoms'],
@@ -185,9 +185,6 @@ class TestEnsemble(unittest.TestCase):
             self.ensemble.data_container.ensemble_parameters['phi_Ga'], -0.7)
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['kappa'], 10)
-        self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['ensemble_name'],
-            'VCSGCEnsemble')
 
     def test_write_interval_and_period(self):
         """

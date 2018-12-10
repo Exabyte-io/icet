@@ -4,6 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 from ase.build import bulk
+from collections import OrderedDict
 from mchammer import DataContainer
 from mchammer.observers.base_observer import BaseObserver
 
@@ -33,10 +34,11 @@ class TestDataContainer(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test case."""
-        self.dc = DataContainer(atoms=self.atoms,
-                                ensemble_parameters=self.ensemble_parameters,
-                                ensemble_name='test-ensemble',
-                                seed=144)
+        self.dc = \
+            DataContainer(atoms=self.atoms,
+                          ensemble_parameters=self.ensemble_parameters,
+                          metadata=OrderedDict(ensemble_name='test-ensemble',
+                                               seed=144))
 
     def test_init(self):
         """Tests initializing DataContainer."""
@@ -46,8 +48,8 @@ class TestDataContainer(unittest.TestCase):
         with self.assertRaises(TypeError) as context:
             DataContainer(atoms='atoms',
                           ensemble_parameters=self.ensemble_parameters,
-                          ensemble_name='test-ensemble',
-                                seed=144)
+                          metadata=OrderedDict(ensemble_name='test-ensemble',
+                                               seed=144))
 
         self.assertTrue('atoms is not an ASE Atoms object'
                         in str(context.exception))

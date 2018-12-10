@@ -99,7 +99,7 @@ void Cluster::sort()
     }
 
     std::vector<LocalEnvironment> localEnvironments(_sites.size());
-    for (int i = 0; i < _sites.size(); i++)
+    for (size_t i = 0; i < _sites.size(); i++)
     {
         localEnvironments[i] = getLocalEnvironment(i);
     }
@@ -158,7 +158,7 @@ std::tuple<std::vector<int>, std::vector<double>, std::vector<int>> Cluster::fin
 {
 
     std::vector<int> atomic_order(_sites.size());
-    for (int i = 0; i < atomic_order.size(); i++)
+    for (size_t i = 0; i < atomic_order.size(); i++)
     {
         atomic_order[i] = i;
     }
@@ -239,7 +239,7 @@ std::vector<LocalEnvironment> Cluster::getEqualMinimumFirstSites(const std::vect
     std::vector<LocalEnvironment> equalFirstDists;
     equalFirstDists.push_back(i_neighbors[0]);
 
-    for (int i = 1; i < i_neighbors.size(); i++)
+    for (size_t i = 1; i < i_neighbors.size(); i++)
     {
 
         if (i_neighbors[i] == i_neighbors[0])
@@ -254,7 +254,7 @@ std::vector<LocalEnvironment> Cluster::getEqualMinimumFirstSites(const std::vect
 
     // std::cout << " Found " << equalFirstDists.size() << " equal first dists" << std::endl;
     // std::cout << "Minimum and second minimum: " << std::endl;
-    // for (int i = 0; i < i_neighbors.size(); i++)
+    // for (size_t i = 0; i < i_neighbors.size(); i++)
     // {
     //     i_neighbors[i].print();
     // }
@@ -271,7 +271,7 @@ index when comparing
 */
 bool Cluster::isEqualFirstDists(const std::vector<std::pair<double, int>> &dist_index1, const std::vector<std::pair<double, int>> &dist_index2) const
 {
-    for (int i = 0; i < dist_index1.size(); i++)
+    for (size_t i = 0; i < dist_index1.size(); i++)
     {
         if (!(dist_index1[i].first == dist_index2[i].first && _sites[dist_index1[i].second] == _sites[dist_index2[i].second]))
         {
@@ -310,7 +310,7 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Cluster::cas
     if (isCase2(equal_minimum_i_neighbors[0]))
     {
         // std::cout << "case 2 inside case1" << std::endl;
-        for (int i = 0; i < equal_minimum_i_neighbors.size(); i++)
+        for (size_t i = 0; i < equal_minimum_i_neighbors.size(); i++)
         {
             //case2_min_indices(const int i_index, const std::vector<std::pair<double, int>> &i_dist)
             auto case_2_solution = case2_min_indices(equal_minimum_i_neighbors[i]);
@@ -330,7 +330,7 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Cluster::cas
     else
     {
         // std::cout << "NOT case 2 inside case1" << std::endl;
-        for (int i = 0; i < equal_minimum_i_neighbors.size(); i++)
+        for (size_t i = 0; i < equal_minimum_i_neighbors.size(); i++)
         {
 
             auto min_order_trial = equal_minimum_i_neighbors[i].getClusterIndices();
@@ -432,7 +432,7 @@ std::vector<int> Cluster::getOrderFromFirstDists(const std::pair<std::vector<std
 */
 bool Cluster::isCase2(const LocalEnvironment &i_neighbors) const
 {
-    for (int i = 0; i < i_neighbors.neighborDistances().size() - 1; i++)
+    for (size_t i = 0; i < i_neighbors.neighborDistances().size() - 1; i++)
     {
     if (i_neighbors.neighborDistances()[i] == i_neighbors.neighborDistances()[i + 1] && i_neighbors.neighborSites()[i] == i_neighbors.neighborSites()[i + 1])
         {
@@ -458,9 +458,9 @@ std::vector<std::tuple<int, int, double>> Cluster::getDistIndices() const
 
     std::vector<std::tuple<int, int, double>> dist_indices;
     int counter = 0;
-    for (int k = 0; k < _sites.size(); k++)
+    for (size_t k = 0; k < _sites.size(); k++)
     {
-        for (int l = k + 1; l < _sites.size(); l++)
+        for (size_t l = k + 1; l < _sites.size(); l++)
         {
             dist_indices.push_back(std::make_tuple(k, l, _distances[counter++]));
         }
@@ -491,9 +491,9 @@ std::vector<std::tuple<int, int, double>> Cluster::getDistIndices(const std::vec
     std::vector<std::tuple<int, int, double>> dist_indices;
     dist_indices.reserve(_distances.size());
     int counter = 0;
-    for (int k = 0; k < _sites.size(); k++)
+    for (size_t k = 0; k < _sites.size(); k++)
     {
-        for (int l = k + 1; l < _sites.size(); l++)
+        for (size_t l = k + 1; l < _sites.size(); l++)
         {
 
             auto find_first = std::find(indiceOrder.begin(), indiceOrder.end(), k);
@@ -540,7 +540,7 @@ Return the sites if the order would have been as is given in indiceOrder
 std::vector<int> Cluster::getReorderedSites(const std::vector<int> &indiceOrder) const
 {
     std::vector<int> tempSites(_sites.size());
-    for (int i = 0; i < indiceOrder.size(); i++)
+    for (size_t i = 0; i < indiceOrder.size(); i++)
     {
         tempSites[i] = _sites[indiceOrder[i]];
     }
@@ -618,27 +618,27 @@ std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> Cluster::cas
     //this i_neighbor has the right first indice and site
 
     auto trial_order = minimumOrder;
-    findMinimumIndicePermutation(0, identicalIndices, minimumOrder, trial_order, min_distances, min_sites, min_indices);
+    findMinimumIndexPermutation(0, identicalIndices, minimumOrder, trial_order, min_distances, min_sites, min_indices);
 
     return std::make_tuple(min_distances, min_sites, min_indices);
 }
 
-void Cluster::findMinimumIndicePermutation(int currentIndiceSet,
-                                  const std::vector<std::vector<int>> &identicalIndices,
-                                  const std::vector<int> &minimumOrder,
-                                  std::vector<int> trial_order,
-                                  std::vector<double> &min_distances,
-                                  std::vector<int> &min_sites,
-                                  std::vector<int> &min_indices) const
+void Cluster::findMinimumIndexPermutation(size_t currentIndexSet,
+					  const std::vector<std::vector<int>> &identicalIndices,
+					  const std::vector<int> &minimumOrder,
+					  std::vector<int> trial_order,
+					  std::vector<double> &min_distances,
+					  std::vector<int> &min_sites,
+					  std::vector<int> &min_indices) const
 {
-    std::vector<int> identicalIndiceSet = identicalIndices[currentIndiceSet];
+    std::vector<int> identicalIndexSet = identicalIndices[currentIndexSet];
     //trial_order = minimumOrder;
     do
     {
         // trial_order = minimumOrder;
-        for (int i = 0; i < identicalIndiceSet.size(); i++)
+        for (size_t i = 0; i < identicalIndexSet.size(); i++)
         {
-            trial_order[identicalIndiceSet[i]] = minimumOrder[identicalIndices[currentIndiceSet][i]];
+            trial_order[identicalIndexSet[i]] = minimumOrder[identicalIndices[currentIndexSet][i]];
         }
 
         auto distances_trial = getReorderedDistances(trial_order);
@@ -650,12 +650,12 @@ void Cluster::findMinimumIndicePermutation(int currentIndiceSet,
             min_sites = trial_sites;
             min_indices = trial_order;
         }
-        if (currentIndiceSet + 1 < identicalIndices.size())
+        if (currentIndexSet + 1 < identicalIndices.size())
         {
-            findMinimumIndicePermutation(currentIndiceSet + 1, identicalIndices, minimumOrder, trial_order, min_distances, min_sites, min_indices);
+            findMinimumIndexPermutation(currentIndexSet + 1, identicalIndices, minimumOrder, trial_order, min_distances, min_sites, min_indices);
         }
 
-    } while (std::next_permutation(identicalIndiceSet.begin(), identicalIndiceSet.end()));
+    } while (std::next_permutation(identicalIndexSet.begin(), identicalIndexSet.end()));
 }
 
 /**
@@ -665,7 +665,7 @@ compare distances and sites if dist1 and sites1 < dists2 and sites2
 bool Cluster::compare_sites_dists(const std::vector<double> &dist1, const std::vector<int> &sites1, const std::vector<double> &dist2, const std::vector<int> &sites2) const
 {
 
-    for (int i = 0; i < dist1.size(); i++)
+    for (size_t i = 0; i < dist1.size(); i++)
     {
         if (dist1[i] < dist2[i])
         {
@@ -699,13 +699,13 @@ Get all dists, sites and indices that origin from site i
 
 Returns a I_Neighbors structure
 */
-LocalEnvironment Cluster::getLocalEnvironment(const int i_index)
+LocalEnvironment Cluster::getLocalEnvironment(const size_t i_index)
 {
     std::vector<std::tuple<double, int, int>> dists_site_index;
-    int counter = 0;
-    for (int k = 0; k < _sites.size(); k++)
+    size_t counter = 0;
+    for (size_t k = 0; k < _sites.size(); k++)
     {
-        for (int l = k + 1; l < _sites.size(); l++)
+        for (size_t l = k + 1; l < _sites.size(); l++)
         {
             if (k == i_index or l == i_index)
             {
@@ -732,7 +732,7 @@ LocalEnvironment Cluster::getLocalEnvironment(const int i_index)
     std::vector<int> sites(dists_site_index.size());
     std::vector<int> indices(dists_site_index.size());
 
-    for (int i = 0; i < dists_site_index.size(); i++)
+    for (size_t i = 0; i < dists_site_index.size(); i++)
     {
         distances[i] = std::get<0>(dists_site_index[i]);
         sites[i] = std::get<1>(dists_site_index[i]);
@@ -753,9 +753,9 @@ void Cluster::swapSites(const int i, const int j)
 
     std::vector<std::tuple<int, int, double>> dist_indices;
     int counter = 0;
-    for (int k; k < _sites.size(); k++)
+    for (size_t k = 0; k < _sites.size(); k++)
     {
-        for (int l = k; l < _sites.size(); l++)
+        for (size_t l = k; l < _sites.size(); l++)
         {
             int first = k;
             int second = l;

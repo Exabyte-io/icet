@@ -10,10 +10,9 @@ ce = ClusterExpansion.read('mixing_energy.ce')
 chemical_symbols = ce.cluster_space.chemical_symbols[0]
 atoms = make_supercell(ce.cluster_space.primitive_structure,
                        3 * array([[-1, 1, 1],
-                                 [1, -1, 1],
-                                 [1, 1, -1]]))
-# TODO: Remove this line once cs.primitive cell is not longer decorated
-# with H atoms
+                                  [1, -1, 1],
+                                  [1, 1, -1]]))
+# TODO: Remove this line once atoms is not longer decorated with H atoms
 atoms.numbers = [47]*len(atoms)
 
 calculator = ClusterExpansionCalculator(atoms, ce)

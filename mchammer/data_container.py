@@ -29,15 +29,12 @@ class DataContainer:
     ensemble_parameters : dict
         parameters associated with the underlying ensemble
 
-    ensemble_name : str
-        name of associated ensemble
-
-    seed : int
-        seed used in random number generator
+    metadata : dict
+        metadata associated with the data container
     """
 
     def __init__(self, atoms: Atoms, ensemble_parameters: dict,
-                 ensemble_name: str, seed: int):
+                 metadata: dict = OrderedDict()):
         """
         Initializes a DataContainer object.
         """
@@ -46,7 +43,8 @@ class DataContainer:
 
         self.atoms = atoms.copy()
         self._ensemble_parameters = ensemble_parameters
-        self._generate_default_metadata(seed, ensemble_name)
+        self._metadata = metadata
+        self._add_default_metadata()
         self._last_state = {}
 
         self._data = pd.DataFrame(columns=['mctrial'])
@@ -458,10 +456,9 @@ class DataContainer:
                 reference_data = json.load(fd)
 
             # init DataContainer
-            dc = DataContainer(atoms,
-                               reference_data['parameters'],
-                               reference_data['metadata']['ensemble_name'],
-                               reference_data['metadata']['seed'])
+            dc = \
+                DataContainer(atoms=atoms,
+                              ensemble_parameters=reference_data['parameters'])
 
             # overwrite metadata
             dc._metadata = reference_data['metadata']
@@ -520,12 +517,9 @@ class DataContainer:
             handle.add(runtime_data_file.name, arcname='runtime_data')
         runtime_data_file.close()
 
-    def _generate_default_metadata(self, seed, ensemble_name):
-        """Collects and returns all metadata to be saved in DataContainer."""
-        self._metadata = OrderedDict()
+    def _add_default_metadata(self):
+        """Adds default metadata to metadata dict."""
 
-        self._metadata['seed'] = seed
-        self._metadata['ensemble_name'] = ensemble_name
         self._metadata['date_created'] = \
             datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
         self._metadata['username'] = getpass.getuser()

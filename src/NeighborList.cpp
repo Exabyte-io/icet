@@ -10,7 +10,7 @@ neighbors of site in question.
 
 @returns vector of LatticeSite objects
 */
-std::vector<LatticeSite> NeighborList::getNeighbors(int index) const
+std::vector<LatticeSite> NeighborList::getNeighbors(size_t index) const
 {
     if (index < 0 || index >= _neighbors.size())
     {
@@ -31,7 +31,7 @@ their respective indices are (not) neighbors of each other.
 @param index2 second site
 @param offset \
 */
-bool NeighborList::isNeighbor(const int index1, const int index2, const Vector3d offset) const
+bool NeighborList::isNeighbor(const size_t index1, const size_t index2, const Vector3d offset) const
 {
     if (index1 < 0 || index1 >= _neighbors.size() || index2 < 0 || index2 >= _neighbors.size())
     {
@@ -64,12 +64,12 @@ bool NeighborList::isNeighbor(const int index1, const int index2, const Vector3d
 **/
 void NeighborList::build(const Structure &conf)
 {
-    int numberOfSites = conf.size();
+    size_t numberOfSites = conf.size();
     _neighbors.resize(numberOfSites);
 
     Matrix3d cellInverse = conf.getCell().inverse();
     std::vector<int> unitCellExpanse(3);
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         if (conf.hasPBC(i))
         {
@@ -94,9 +94,9 @@ void NeighborList::build(const Structure &conf)
                 for (int m = -1; m < 2; m += 2)
                 {
                     Vector3d extVector(n1 * m, n2 * m, n3 * m);
-                    for (int i = 0; i < numberOfSites; i++)
+                    for (size_t i = 0; i < numberOfSites; i++)
                     {
-                        for (int j = 0; j < numberOfSites; j++)
+                        for (size_t j = 0; j < numberOfSites; j++)
                         {
                             Vector3d noOffset(0, 0, 0);
                             double distance_ij = conf.getDistance(i, j, noOffset, extVector);

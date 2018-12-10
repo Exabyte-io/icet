@@ -35,7 +35,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble = SemiGrandCanonicalEnsemble(
             atoms=self.atoms,
             calculator=self.calculator,
-            name='test-ensemble', random_seed=42,
+            user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
             ensemble_data_write_interval=25,
             trajectory_write_interval=40,
@@ -118,7 +118,8 @@ class TestEnsemble(unittest.TestCase):
 
         chemical_potentials = {13: 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
@@ -126,7 +127,8 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         chemical_potentials = {'Al': 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator, name='test-ensemble',
+            atoms=self.atoms, calculator=self.calculator,
+            user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
         ensemble._do_trial_step()
@@ -150,8 +152,6 @@ class TestEnsemble(unittest.TestCase):
                          self.temperature)
         self.assertEqual(self.ensemble.ensemble_parameters['mu_Al'], 5)
         self.assertEqual(self.ensemble.ensemble_parameters['mu_Ga'], 0)
-        self.assertEqual(self.ensemble.ensemble_parameters['ensemble_name'],
-                         'SemiGrandCanonicalEnsemble')
 
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['n_atoms'],
@@ -163,9 +163,6 @@ class TestEnsemble(unittest.TestCase):
             self.ensemble.data_container.ensemble_parameters['mu_Al'], 5)
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['mu_Ga'], 0)
-        self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['ensemble_name'],
-            'SemiGrandCanonicalEnsemble')
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""

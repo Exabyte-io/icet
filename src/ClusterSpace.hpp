@@ -81,10 +81,14 @@ class ClusterSpace
 
     /// Precomputed site permutations for each orbit in _orbitlist.
     std::vector<std::vector<std::vector<std::vector<int>>>> _sitePermutations;
-
-  private:
+    
     /// Precomputes permutations and multicomponent vectors of each orbit.
     void precomputeMultiComponentVectors();
+    
+    /// Prunes the orbit list.
+    void pruneOrbitList(std::vector<size_t> &);
+
+  private:
 
     /// Returns the default cluster function.
     double evaluateClusterFunction(const int, const int, const int) const;
@@ -99,7 +103,6 @@ class ClusterSpace
 
     /// Number of allowed components on each site of the primitive structure.
     std::vector<int> _numberOfAllowedSpeciesPerSite;
-
 
     /// Radial cutoffs by cluster order starting with pairs.
     std::vector<double> _clusterCutoffs;

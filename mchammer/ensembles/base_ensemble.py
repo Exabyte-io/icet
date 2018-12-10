@@ -9,6 +9,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.data import chemical_symbols
+from collections import OrderedDict
 
 from ..calculators.base_calculator import BaseCalculator
 from ..configuration_manager import ConfigurationManager
@@ -27,8 +28,8 @@ class BaseEnsemble(ABC):
     atoms : :class:`ase:Atoms`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
-    name : str
-        human-readable ensemble name [default: `BaseEnsemble`]
+    user_tag : str
+        human-readable tag for ensemble [default: None]
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
@@ -53,8 +54,7 @@ class BaseEnsemble(ABC):
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 name: str = 'BaseEnsemble',
-                 data_container: DataContainer = None,
+                 user_tag: str = None, data_container: DataContainer = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
@@ -68,7 +68,7 @@ class BaseEnsemble(ABC):
 
         # calculator and configuration
         self._calculator = calculator
-        self._name = name
+        self._user_tag = user_tag
         strict_constraints_symbol = self.calculator.occupation_constraints
         symbols = list({tuple(sym)
                         for sym in strict_constraints_symbol if len(sym) > 1})
@@ -96,6 +96,12 @@ class BaseEnsemble(ABC):
             self._random_seed = random_seed
         random.seed(a=self._random_seed)
 
+        # add ensemble parameters and metadata
+        self._ensemble_parameters['n_atoms'] = len(self.atoms)
+        metadata = OrderedDict(ensemble_name=self.__class__.__name__,
+                               user_tag=user_tag,
+                               seed=self.random_seed)
+
         # data container
         self._data_container_write_period = data_container_write_period
 
@@ -121,8 +127,7 @@ class BaseEnsemble(ABC):
             self._data_container = \
                 DataContainer(atoms=atoms,
                               ensemble_parameters=self.ensemble_parameters,
-                              ensemble_name=self.name,
-                              seed=self.random_seed)
+                              metadata=metadata)
 
         # interval for writing data and further preparation of data container
         default_interval = max(1, 10 * round(len(atoms) / 10))
@@ -295,9 +300,9 @@ class BaseEnsemble(ABC):
         pass
 
     @property
-    def name(self) -> str:
-        """ ensemble name """
-        return self._name
+    def user_tag(self) -> str:
+        """ tag used for labeling the ensemble """
+        return self._user_tag
 
     @property
     def random_seed(self) -> int:
@@ -487,7 +492,6 @@ class BaseEnsemble(ABC):
         self.data_container._write(outfile)
 
     @property
-    def ensemble_parameters(self):
+    def ensemble_parameters(self) -> dict:
         """Returns parameters associated with the ensemble."""
-        self._ensemble_parameters['n_atoms'] = len(self.atoms)
-        return self._ensemble_parameters
+        return self._ensemble_parameters.copy()

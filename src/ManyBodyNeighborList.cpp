@@ -38,7 +38,6 @@ std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> ManyB
     for (size_t c = 2; c < neighbor_lists.size() + 2; c++)
     {
         auto Ni = neighbor_lists[c - 2].getNeighbors(index);
-        int numberOfSites = neighbor_lists[c - 2].size();
         Vector3d zeroVector = {0.0, 0.0, 0.0};
         std::vector<LatticeSite> currentOriginalNeighbors;
         currentOriginalNeighbors.push_back(LatticeSite(index, zeroVector)); // index is always first index
@@ -119,8 +118,12 @@ be removed/overlooked when moving to the next vector<LatticeSite>.
     what is saved is then i,j and N_ij up to the desired order "maxorder"
 */
 void ManyBodyNeighborList::combineToHigherOrder(const NeighborList &nl,
-                                                std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> &many_bodyNeighborIndices,
-                                                const std::vector<LatticeSite> &Ni, std::vector<LatticeSite> &currentOriginalNeighbors, bool saveBothWays, const int maxOrder)
+                                                std::vector<std::pair<std::vector<LatticeSite>,
+						std::vector<LatticeSite>>> &many_bodyNeighborIndices,
+                                                const std::vector<LatticeSite> &Ni,
+						std::vector<LatticeSite> &currentOriginalNeighbors,
+						bool saveBothWays,
+						const size_t maxOrder)
 {
 
     for (const auto &j : Ni)
