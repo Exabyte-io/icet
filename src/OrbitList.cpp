@@ -134,7 +134,7 @@ OrbitList::OrbitList(const Structure &structure, const std::vector<std::vector<L
                 lat_nbrs.push_back(latnbr);
                 auto lat_nbrs_copy = lat_nbrs;
                 std::sort(lat_nbrs_copy.begin(), lat_nbrs_copy.end());
-                if (lat_nbrs_copy != lat_nbrs and !bothways)
+                if (lat_nbrs_copy != lat_nbrs && !bothways)
                 {
                     throw std::runtime_error("Original sites is not sorted");
                 }

@@ -1,5 +1,8 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Structure.hpp"
 #include "OrbitList.hpp"
 #include "LocalOrbitListGenerator.hpp"

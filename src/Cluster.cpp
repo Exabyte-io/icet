@@ -707,7 +707,7 @@ LocalEnvironment Cluster::getLocalEnvironment(const size_t i_index)
     {
         for (size_t l = k + 1; l < _sites.size(); l++)
         {
-            if (k == i_index or l == i_index)
+            if (k == i_index || l == i_index)
             {
                 if (k != i_index)
                 {
