@@ -481,7 +481,7 @@ class BaseEnsemble(ABC):
         Parameters
         ----------
         outfile
-            fiel to which to write
+            file to which to write
         """
         self._data_container._update_last_state(
             last_step=self._step,

@@ -26,9 +26,8 @@ for temperature in [900, 600, 300]:
             atoms=atoms,
             calculator=calculator,
             temperature=temperature,
+            data_container='sgc-T{}-dmu{:.3f}.dc'.format(temperature, dmu),
             chemical_potentials={chemical_symbols[0]: 0,
                                  chemical_symbols[1]: dmu})
 
         mc.run(number_of_trial_steps=len(atoms) * 30)
-        mc.write_data_container('sgc-T{}-dmu{:.3f}.dc'
-                                .format(temperature, dmu))
