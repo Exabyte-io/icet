@@ -28,10 +28,6 @@ class OrbitList
     /// Empty constructor.
     OrbitList() { };
 
-    /// Constructs orbit list from a set of neighbor lists and a structure.
-    OrbitList(const std::vector<NeighborList> &neighbor_lists,
-              const Structure &);
-
     /// Constructs orbit list from a set of neighbor lists, a permutation matrix, and a structure.
     OrbitList(const Structure &,
               const std::vector<std::vector<LatticeSite>> &,

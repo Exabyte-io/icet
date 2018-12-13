@@ -1,54 +1,6 @@
 #include "OrbitList.hpp"
 
 /**
-@details This constructor generates an orbit list for the given (supercell)
-structure from a set of neighbor lists.
-@param neighbor_lists list of neighbor lists
-@param structure (supercell) structure for which to generate orbit list
-**/
-OrbitList::OrbitList(const std::vector<NeighborList> &neighbor_lists,
-                     const Structure &structure)
-{
-    _primitiveStructure = structure;
-    std::unordered_map<Cluster, int> clusterIndexMap;
-    ManyBodyNeighborList mbnl = ManyBodyNeighborList();
-
-    for (size_t index = 0; index < structure.size(); index++)
-    {
-        mbnl.build(neighbor_lists, index, false); //bothways=false
-        for (size_t i = 0; i < mbnl.getNumberOfSites(); i++)
-        {
-            // special case for singlet
-            if (mbnl.getNumberOfSites(i) == 0)
-            {
-                std::vector<LatticeSite> sites = mbnl.getSites(i, 0);
-                Cluster cluster = Cluster(structure, sites);
-                addClusterToOrbitList(cluster, sites, clusterIndexMap);
-            }
-
-            for (size_t j = 0; j < mbnl.getNumberOfSites(i); j++)
-            {
-                std::vector<LatticeSite> sites = mbnl.getSites(i, j);
-                Cluster cluster = Cluster(structure, sites);
-                addClusterToOrbitList(cluster, sites, clusterIndexMap);
-            }
-        }
-    }
-
-    for (auto &orbit : _orbits)
-    {
-        orbit.sortOrbit();
-    }
-
-    // @todo Should this be kept?
-    bool debug = true;
-    if (debug)
-    {
-        checkEquivalentClusters();
-    }
-}
-
-/**
 @details This constructor generates an orbit list for the given (supercell) structure from a set of neighbor lists and a permutation map.
 @param neighbor_lists list of neighbor lists
 @param permutationMatrix permutation matrix
@@ -445,13 +397,13 @@ bool OrbitList::isRowsTaken(const std::unordered_set<std::vector<int>, VectorHas
 
 /**
 @brief Returns all columns from the given rows in permutation matrix
-@param includetranslatedSites If true it will also include the equivalent sites found from the rows by moving each site into the unitcell.
+@param includeTranslatedSites If true it will also include the equivalent sites found from the rows by moving each site into the unitcell.
 @todo complete description
 **/
 std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(
     const std::vector<int> &rows,
     const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-    bool includetranslatedSites,
+    bool includeTranslatedSites,
     bool sortIt) const
 {
     std::vector<std::vector<LatticeSite>> allColumns;
@@ -465,7 +417,7 @@ std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(
             indistinctlatticeSites.push_back(permutationMatrix[row][column]);
         }
 
-        if (includetranslatedSites)
+        if (includeTranslatedSites)
         {
             auto translatedEquivalentSites = getSitesTranslatedToUnitcell(indistinctlatticeSites, sortIt);
             allColumns.insert(allColumns.end(), translatedEquivalentSites.begin(), translatedEquivalentSites.end());

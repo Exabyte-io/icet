@@ -749,21 +749,6 @@ PYBIND11_MODULE(_icet, m)
     py::class_<OrbitList>(m, "_OrbitList")
         .def(py::init<>())
         .def(
-            py::init<const std::vector<NeighborList> &, const Structure &>(),
-            R"pbdoc(
-            Initializes an OrbitList instance from a list of neighbor lists
-            and a structure.
-
-            Parameters
-            ----------
-            neighbor_lists : list(icet.NeighborList)
-                list of neighbor lists for the atomic configuration with different cutoffs
-            structure : _icet.Structure
-                primitive atomic structure
-            )pbdoc",
-            py::arg("neigbor_lists"),
-            py::arg("structure"))
-        .def(
             py::init<const Structure &,
                      const std::vector<std::vector<LatticeSite>> &,
                      const std::vector<NeighborList> &>(),
@@ -808,7 +793,7 @@ PYBIND11_MODULE(_icet, m)
             Parameters
             ---------
             index : int
-                index of the orbit to be removed             
+                index of the orbit to be removed
             )pbdoc")
 //        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
 //             R"pbdoc(
