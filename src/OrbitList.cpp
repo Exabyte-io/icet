@@ -564,7 +564,7 @@ void OrbitList::addOrbitsFromPM(const Structure &structure,
     }
 }
 
-///add these equivalent sites as an orbit to orbit list
+/// Adds these equivalent sites as an orbit to orbit list.
 void OrbitList::addOrbitFromPM(const Structure &structure,
                                const std::vector<std::vector<LatticeSite>> &equivalent_sites)
 {
@@ -681,7 +681,7 @@ bool OrbitList::validCluster(const std::vector<LatticeSite> &latticeSites) const
 }
 
 /**
-@details This function searchers for lattice sites in the first column of the permutation matrix and returns the corresponding rows.
+@details This function searches for lattice sites in the first column of the permutation matrix and returns the corresponding rows.
 @param sortIt if true the first column will be sorted
 @todo Complete description.
 **/
@@ -711,7 +711,7 @@ std::vector<int> OrbitList::findRowsFromCol1(const std::vector<LatticeSite> &col
 }
 
 /**
-@brief Returns the first column of the permutation matrix.
+@todo Expand description.
 @param permutationMatrix permutation matrix
 @param sortIt if true (default) the first column will be sorted
 **/
@@ -735,7 +735,7 @@ std::vector<LatticeSite> OrbitList::getColumn1FromPM(const std::vector<std::vect
 @details This function returns the orbit for a supercell that is associated with a given orbit in the primitive structure.
 @param superCell input structure
 @param cellOffset offset by which to translate the orbit
-@param orbitIndex index of orbit in primitive structure
+@param orbitIndex index of orbit in list of orbits
 @param primToSuperMap map from sites in the primitive cell to sites in the supercell
 **/
 Orbit OrbitList::getSuperCellOrbit(const Structure &superCell,
@@ -819,7 +819,7 @@ OrbitList OrbitList::getLocalOrbitList(const Structure &superCell,
 /**
 @details This function will loop over all orbits in the list and remove from each orbit the sites that match the given index.
 @param index the index for which to check
-@param onlyConsiderZeroOffset if true only remove sites with zero offset will be removed
+@param onlyConsiderZeroOffset if true only sites with zero offset will be removed
 **/
 void OrbitList::removeSitesContainingIndex(const int index,
                                            bool onlyConsiderZeroOffset)
@@ -833,7 +833,7 @@ void OrbitList::removeSitesContainingIndex(const int index,
 /**
 @details This function will loop over all orbits in the list and remove from each orbit the sites that _do _not_ match the given index.
 @param index the index for which to check
-@param onlyConsiderZeroOffset if true only remove sites with zero offset will be removed
+@param onlyConsiderZeroOffset if true only sites with zero offset will be removed
 **/
 void OrbitList::removeSitesNotContainingIndex(const int index,
                                               bool onlyConsiderZeroOffset)
@@ -911,7 +911,6 @@ OrbitList &OrbitList::operator+=(const OrbitList &rhs_ol)
         return *this;
     }
 
-    // @todo Why is it a problem if the two sides differ in size?
     if (size() != rhs_ol.size())
     {
 	    std::string msg = "";

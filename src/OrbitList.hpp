@@ -42,9 +42,6 @@ class OrbitList
     /// Returns a copy of the orbit of the given index.
     Orbit getOrbit(unsigned int) const;
 
-    /// Returns the orbit for which the given cluster is representative.
-    //int findOrbitIndex(const Cluster &) const;
-
     /// Adds cluster to orbit list.
     void addClusterToOrbitList(const Cluster &cluster,
                                const std::vector<LatticeSite> &,
@@ -84,11 +81,11 @@ class OrbitList
     /// Returns the number of orbits which are made up of a certain number of bodies.
     unsigned int getNumberOfNBodyClusters(unsigned int) const;
 
-    // @todo Add description.
+    // Returns the first column of the permutation matrix.
     std::vector<LatticeSite> getColumn1FromPM(const std::vector<std::vector<LatticeSite>> &,
                                               bool = true) const;
 
-    // @todo Add description.
+    // Returns rows of the permutation matrix that match the lattice sites.
     std::vector<int> findRowsFromCol1(const std::vector<LatticeSite> &,
                                       const std::vector<LatticeSite> &,
                                       bool = true) const;
@@ -111,15 +108,15 @@ class OrbitList
     std::vector<LatticeSite> translateSites(const std::vector<LatticeSite> &,
                                             const unsigned int) const;
 
-    // @todo Add description.
+    /// @todo Add description.
     std::vector<std::vector<LatticeSite>> getSitesTranslatedToUnitcell(const std::vector<LatticeSite> &,
                                                                        bool sortit = true) const;
 
-    // @todo Add description.
+    /// @todo Add description.
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> getMatchesInPM(const std::vector<std::vector<LatticeSite>> &,
                                                                                       const std::vector<LatticeSite> &) const;
 
-    // @todo Add description.
+    /// @todo Add description.
     void transformSiteToSupercell(LatticeSite &,
                                   const Structure &,
                                   std::unordered_map<LatticeSite, LatticeSite> &) const;
@@ -133,7 +130,8 @@ class OrbitList
                                                                bool,
                                                                bool) const;
 
-    // @todo Add description.
+    /// @todo Clarify description.
+    /// First construct rows_sort = sorted(rows)  then returns true/false if rows_sort exists in taken_rows
     bool isRowsTaken(const std::unordered_set<std::vector<int>,
                      VectorHash> &,
                      std::vector<int>) const;
@@ -169,7 +167,7 @@ class OrbitList
     /// Removes all orbits that have inactive sites.
     void removeInactiveOrbits(const Structure &);
 
-    /// Returns the orbits in this list.
+    /// Returns the orbits in this orbit list.
     std::vector<Orbit> getOrbits() const { return _orbits; }
 
     /// Returns the primitive structure.
