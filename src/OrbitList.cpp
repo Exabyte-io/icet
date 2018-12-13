@@ -91,9 +91,9 @@ OrbitList::OrbitList(const Structure &structure,
                 {
                     throw std::runtime_error("Original sites is not sorted");
                 }
-                std::vector<std::vector<LatticeSite>> transSites = getSitesTranslatedToUnitcell(lat_nbrs);
+                std::vector<std::vector<LatticeSite>> translatedSites = getSitesTranslatedToUnitcell(lat_nbrs);
 
-                auto sites_index_pair = getMatchesInPM(transSites, col1);
+                auto sites_index_pair = getMatchesInPM(translatedSites, col1);
                 if (!isRowsTaken(taken_rows, sites_index_pair[0].second))
                 {
                     //new stuff found
@@ -445,13 +445,13 @@ bool OrbitList::isRowsTaken(const std::unordered_set<std::vector<int>, VectorHas
 
 /**
 @brief Returns all columns from the given rows in permutation matrix
-@param includetransSites If true it will also include the equivalent sites found from the rows by moving each site into the unitcell.
+@param includetranslatedSites If true it will also include the equivalent sites found from the rows by moving each site into the unitcell.
 @todo complete description
 **/
 std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(
     const std::vector<int> &rows,
     const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-    bool includetransSites,
+    bool includetranslatedSites,
     bool sortIt) const
 {
     std::vector<std::vector<LatticeSite>> allColumns;
@@ -465,7 +465,7 @@ std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(
             indistinctlatticeSites.push_back(permutationMatrix[row][column]);
         }
 
-        if (includetransSites)
+        if (includetranslatedSites)
         {
             auto translatedEquivalentSites = getSitesTranslatedToUnitcell(indistinctlatticeSites, sortIt);
             allColumns.insert(allColumns.end(), translatedEquivalentSites.begin(), translatedEquivalentSites.end());
@@ -511,18 +511,18 @@ std::vector<std::vector<LatticeSite>> OrbitList::getSitesTranslatedToUnitcell(
     {
         if ((latticeSites[i].unitcellOffset() - zeroVector).norm() > 0.1) // only translate those outside unitcell
         {
-            auto transSites = translateSites(latticeSites, i);
+            auto translatedSites = translateSites(latticeSites, i);
             if (sortIt)
             {
-                std::sort(transSites.begin(), transSites.end());
+                std::sort(translatedSites.begin(), translatedSites.end());
             }
 
-            if (!isSitesPBCCorrect(transSites))
+            if (!isSitesPBCCorrect(translatedSites))
             {
                 throw std::runtime_error("Function getSitesTranslatedToUnitcell translated a latticeSite and got a repeated site in the unitcell direction where pbc was false");
             }
 
-            translatedLatticeSites.push_back(transSites);
+            translatedLatticeSites.push_back(translatedSites);
         }
     }
 
@@ -555,12 +555,12 @@ std::vector<LatticeSite> OrbitList::translateSites(const std::vector<LatticeSite
                                                    const unsigned int index) const
 {
     Vector3d offset = latticeSites[index].unitcellOffset();
-    auto transSites = latticeSites;
-    for (auto &latticeSite : transSites)
+    auto translatedSites = latticeSites;
+    for (auto &latticeSite : translatedSites)
     {
         latticeSite.addUnitcellOffset(-offset);
     }
-    return transSites;
+    return translatedSites;
 }
 
 /// Debug function to check that all equivalent sites in every orbit give same sorted cluster.
@@ -683,12 +683,12 @@ void OrbitList::addPermutationMatrixColumns(std::vector<std::vector<std::vector<
 /// Returns the first set of translated sites that exists in col1 of permutationmatrix.
 /// @todo Complete description.
 std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> OrbitList::getMatchesInPM(
-    const std::vector<std::vector<LatticeSite>> &transSites,
+    const std::vector<std::vector<LatticeSite>> &translatedSites,
     const std::vector<LatticeSite> &col1) const
 {
     std::vector<int> perm_matrix_rows;
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> matchedSites;
-    for (const auto &sites : transSites)
+    for (const auto &sites : translatedSites)
     {
         try
         {
