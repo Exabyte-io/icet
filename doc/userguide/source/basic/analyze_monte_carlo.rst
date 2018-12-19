@@ -6,24 +6,31 @@
 Analyze Monte Carlo simulations
 ===============================
 
-After the :ref:`Monte Carlo simulations
-<tutorial_monte_carlo_simulations>` have finished, they can be
-analyzed in various ways. It is convenient first to collect all data
-in a convenient format. Here, we discard data collected during the
-first ten MC cycles to allow for equilibration.
+After the :ref:`Monte Carlo simulations <tutorial_monte_carlo_simulations>`
+have finished, they can be analyzed in various ways. With dense sampling, it
+may take several minutes to load the data. It is therefore recommended to
+first collect all data in an averaged form. Here, we read all data containers
+and take averages but discard data collected during the first ten MC cycles
+to allow for equilibration.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
    :start-after: # step 1
    :end-before: # step 2
 
-Now we can easily plot the chemical potential difference as a function of
-composition. Here, we use a `pandas DataFrame object
-<https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html>`_,
-which provides us with a very simple means to sort the data.
+Finally, we create a `pandas DataFrame object <https://pandas.pydata.org
+/pandas-docs/stable/generated/pandas.DataFrame.html>`_ which we save to a csv
+file for future access.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
    :start-after: # step 2
-   :end-before: # step 3
+
+Now we can easily and quickly load the aggregated data and plot properties of
+interest, such as the chemical potential difference as a function of
+composition.
+
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 1
+   :end-before: # step 2
 
 .. figure:: _static/chemical_potential_difference.png
 
@@ -43,9 +50,9 @@ vibrational contributions, etc.
 
 It can also be instructive to plot the mixing energy.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
-   :start-after: # step 3
-   :end-before: # step 4
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 2
+   :end-before: # step 3
 
 .. figure:: _static/mixing_energy.png
 
@@ -54,8 +61,8 @@ It can also be instructive to plot the mixing energy.
 
 Furthermore one might want to consider for example the acceptance rates.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
-   :start-after: # step 4
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 3
 
 .. figure:: _static/acceptance_ratio.png
 
@@ -74,5 +81,8 @@ Source code
 
        The complete source code is available in
        ``tutorial/basic/6_analyze_monte_carlo.py``
+       and
+       ``tutorial/basic/7_plot_monte_carlo_data.py``
 
-    .. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+    .. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+    .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
