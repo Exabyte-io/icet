@@ -47,6 +47,7 @@ class DataContainer:
         self._last_state = {}
 
         self._data = pd.DataFrame(columns=['mctrial'])
+        self._data_list = []
 
         self.add_parameter('seed', random_seed)
 
@@ -125,6 +126,33 @@ class DataContainer:
         row_data.update(record)
         self._data = self._data.append(row_data, ignore_index=True)
         self._data.mctrial = self._data.mctrial.astype('int')
+
+    def append_as_dict(self, mctrial: int,
+               record: Dict[str, Union[int, float, list]]):
+        """
+        Appends data to data container.
+
+        Parameters
+        ----------
+        mctrial
+            current Monte Carlo trial step
+        record
+            dictionary of tag-value pairs representing observations
+
+        Raises
+        ------
+        TypeError
+            if input parameters have the wrong type
+
+        Todo
+        ----
+        * This might be a quite expensive way to add data to the data
+          frame. Testing and profiling to be carried out later.
+        """
+        row_data = OrderedDict()
+        row_data['mctrial'] = mctrial
+        row_data.update(record)
+        self._data_list.append(row_data)
 
     def _update_last_state(self, last_step: int, occupations: List[int],
                            accepted_trials: int, random_state: tuple):
@@ -206,14 +234,14 @@ class DataContainer:
                                         interval=interval)
 
         for tag in tags:
-            if tag not in self._data:
+            if tag not in self.data:
                 raise ValueError('No observable named {} in data'
                                  ' container'.format(tag))
 
         if start is None and stop is None:
-            data = self._data.loc[::interval, tags]
+            data = self.data.loc[::interval, tags]
         else:
-            data = self._data.set_index(self._data.mctrial)
+            data = self.data.set_index(self._data.mctrial)
             if start is None:
                 data = data.loc[:stop:interval, tags]
             elif stop is None:
@@ -269,7 +297,10 @@ class DataContainer:
     @property
     def data(self) -> pd.DataFrame:
         """ pandas data frame (see :class:`pandas.DataFrame`) """
-        return self._data
+        if self._data_list:
+            return pd.DataFrame.from_records(self._data_list)
+        else:
+            return self._data
 
     @property
     def parameters(self) -> dict:
@@ -312,12 +343,12 @@ class DataContainer:
             if observable is requested that is not in data container
         """
         if tag is None:
-            return len(self._data)
+            return len(self.data)
         else:
-            if tag not in self._data:
+            if tag not in self.data:
                 raise ValueError('No observable named {}'
                                  ' in data container'.format(tag))
-            return self._data[tag].count()
+            return self.data[tag].count()
 
     def get_average(self, tag: str,
                     start: int=None, stop: int=None) -> float:
@@ -512,10 +543,12 @@ class DataContainer:
                 tar_file.extractfile('runtime_data').read())
 
             runtime_data_file.seek(0)
-            runtime_data = pd.read_json(runtime_data_file)
-            dc._data = runtime_data.sort_index(ascending=True)
-            dc._data.occupations = \
-                dc._data.occupations.replace({None: np.nan})
+            runtime_data = pd.read_json(runtime_data_file, compression='zip')
+            data = runtime_data.sort_index(ascending=True)
+            data.occupations = \
+                data.occupations.replace({None: np.nan})
+
+            dc._data_list = dc._data.to_dict(orient='records')
 
         return dc
 
@@ -546,7 +579,8 @@ class DataContainer:
 
         # Save pandas DataFrame
         runtime_data_file = tempfile.NamedTemporaryFile()
-        self._data.to_json(runtime_data_file.name, double_precision=15)
+        self.data.to_json(runtime_data_file.name, double_precision=15,
+                          compression='zip')
 
         with tarfile.open(outfile, mode='w') as handle:
             handle.add(reference_atoms_file.name, arcname='atoms')
