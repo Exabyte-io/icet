@@ -66,7 +66,7 @@ class Cluster
     std::vector<double> distances() const { return _distances; }
 
     /// Returns the local environment of a site (point) in the cluster.
-    LocalEnvironment getLocalEnvironment(const int);
+    LocalEnvironment getLocalEnvironment(const size_t);
 
     /// Returns true if this is a sorted cluster
     bool isSorted() const { return _sorted; }
@@ -112,13 +112,13 @@ class Cluster
 
     std::tuple<std::vector<double>, std::vector<int>, std::vector<int>> case2_min_indices(const LocalEnvironment &) const;
 
-    void findMinimumIndicePermutation(int,
-                                      const std::vector<std::vector<int>> &,
-                                      const std::vector<int> &,
-                                      std::vector<int>,
-                                      std::vector<double> &,
-                                      std::vector<int> &,
-                                      std::vector<int> &) const;
+    void findMinimumIndexPermutation(size_t,
+				     const std::vector<std::vector<int>> &,
+				     const std::vector<int> &,
+				     std::vector<int>,
+				     std::vector<double> &,
+				     std::vector<int> &,
+				     std::vector<int> &) const;
 
     /// Compare distances and sites if dist1 and sites1 < dists2 and sites2
     bool compare_sites_dists(const std::vector<double> &,
@@ -148,7 +148,7 @@ public:
         {
             return false;
         }
-        for (int i =0; i < c1.distances().size(); i++)
+        for (size_t i =0; i < c1.distances().size(); i++)
         {
             if(fabs(c1.distances()[i] - c2.distances()[i])>1e-5)
             {
@@ -185,7 +185,7 @@ public:
         }
 
         // 2) compare distances
-        for (int i = 0; i < c1.order(); i++)
+        for (size_t i = 0; i < c1.order(); i++)
         {
             if (c1.distances()[i] < c2.distances()[i])
             {
@@ -198,7 +198,7 @@ public:
         }
 
         // 3) compare sites
-        for (int i = 0; i < c1.order(); i++)
+        for (size_t i = 0; i < c1.order(); i++)
         {
             if (c1.sites()[i] < c2.sites()[i])
             {
@@ -242,7 +242,7 @@ private:
     /// @todo move to a more general location.
     double roundDouble(const double &double_value)
     {
-        return round(double_value * 1.0 / _symprec) / (1.0 / _symprec);
+        return round(double_value / _symprec) * _symprec;
     }
 };
 

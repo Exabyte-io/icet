@@ -112,7 +112,7 @@ struct LocalEnvironment
 
         // maps _neighborDistances, _neighborSites to vector of _neighborIndices
         std::map<std::pair<double, int>, std::vector<int>> equivalentIndicesMap;
-        for (int i = 0; i < _neighborDistances.size(); i++)
+        for (size_t i = 0; i < _neighborDistances.size(); i++)
         {
             equivalentIndicesMap[std::make_pair(_neighborDistances[i], _neighborSites[i])].push_back(i + 1);
         }
@@ -140,7 +140,7 @@ struct LocalEnvironment
             return false;
         }
 
-        for (int i = 0; i < locEnv1._neighborDistances.size(); i++)
+        for (size_t i = 0; i < locEnv1._neighborDistances.size(); i++)
         {
 
             if (locEnv1._neighborDistances[i] < locEnv2._neighborDistances[i])
@@ -162,7 +162,7 @@ struct LocalEnvironment
             return false;
         }
 
-        for (int i = 0; i < locEnv1._neighborSites.size(); i++)
+        for (size_t i = 0; i < locEnv1._neighborSites.size(); i++)
         {
             if (locEnv1._neighborSites[i] < locEnv2._neighborSites[i])
             {

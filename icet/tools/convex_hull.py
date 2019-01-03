@@ -15,23 +15,23 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
     Parameters
     ----------
-    concentrations : list of floats / list of lists of floats
+    concentrations : list(float) or list(list(float))
         concentrations for each structure listed as ``[[c1, c2], [c1, c2],
         ...]``; for binaries, in which case there is only one independent
         concentration, the format ``[c1, c2, c3, ...]`` works as well.
-    energies : list of floats
+    energies : list(float)
         energy (or energy of mixing) for each structure
 
     Attributes
     ----------
-    concentrations : NumPy array (N, dimensions)
+    concentrations : np.ndarray
         concentrations of the `N` structures on the convex hull
-    energies : NumPy array
+    energies : np.ndarray
         energies of the `N` structures on the convex hull
     dimensions : int
         number of independent concentrations needed to specify a point in
         concentration space (1 for binaries, 2 for ternaries etc.)
-    structures : list of int
+    structures : list(int)
         indices of structures that constitute the convex hull (indices are
         defined by the order of their concentrations and energies are fed when
         initializing the ConvexHull object)
@@ -100,7 +100,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
         # Remove points that are above the "pure components plane"
         self._remove_points_above_tie_plane()
 
-    def _remove_points_above_tie_plane(self, tol: float=1e-6):
+    def _remove_points_above_tie_plane(self, tol: float = 1e-6) -> None:
         """
         Remove all points on the convex hull that correspond to maximum rather
         than minimum energy.
@@ -213,7 +213,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
                                             List[List[float]]],
                                       energies: List[float],
                                       energy_tolerance: float, structures:
-                                      list=None):
+                                      list = None) -> List[int]:
         """Returns structures that lie within a certain tolerance of the convex
         hull.
 

@@ -1,13 +1,13 @@
-from icet.core_py.lattice_site import LatticeSite
+from icet.core.lattice_site import LatticeSite
 import time
 
 
 def generate_list_of_lattice_site(amount):
     """
-    Generate a list of lattice sites.
+    Generates a list of lattice sites.
 
     amount : int
-        The size of the list of lattice sites
+        size of list of lattice sites
     """
     sites = []
     indices = range(amount)
@@ -19,9 +19,7 @@ def generate_list_of_lattice_site(amount):
 
 
 def time_sorting(sites, iterations=1000):
-    """
-    Time sorting. Alternates between reverse = True and False
-    """
+    """ Times sorting by alternating between reverse = True and False. """
     t = time.process_time()
     for i in range(iterations):
         sites.sort()
@@ -31,9 +29,7 @@ def time_sorting(sites, iterations=1000):
 
 
 def time_hash_function(sites, iterations=1000):
-    """
-    Time the hash function
-    """
+    """ Times the hash function. """
     t = time.process_time()
     for i in range(iterations):
         for lattice_site in sites:
@@ -43,9 +39,7 @@ def time_hash_function(sites, iterations=1000):
 
 
 def time_index_lookup(sites, iterations=1000):
-    """
-    Time looping through sites
-    """
+    """ Times looping through sites. """
     t = time.process_time()
     for i in range(iterations):
         for lattice_site in sites:
@@ -55,9 +49,7 @@ def time_index_lookup(sites, iterations=1000):
 
 
 def time_offset_lookup(sites, iterations=1000):
-    """
-    Time looping through sites
-    """
+    """ Times looping through sites. """
     t = time.process_time()
     for i in range(iterations):
         for lattice_site in sites:
@@ -70,11 +62,11 @@ if __name__ == '__main__':
     amount = 100
     sites = generate_list_of_lattice_site(amount)
 
-    print("Timing for sorting: {:.6f} micro sec".format(
+    print('Timing for sorting: {:.6f} musec'.format(
         1e6 * time_sorting(sites)))
-    print("Timing for hash: {:.6f} micro sec".format(
+    print('Timing for hash: {:.6f} musec'.format(
         1e6 * time_hash_function(sites)))
-    print("Timing for index lookup: {:.6f} micro sec".format(
+    print('Timing for index lookup: {:.6f} musec'.format(
         1e6 * time_index_lookup(sites)))
-    print("Timing for offset lookup: {:.6f} micro sec".format(
+    print('Timing for offset lookup: {:.6f} musec'.format(
         1e6 * time_offset_lookup(sites)))

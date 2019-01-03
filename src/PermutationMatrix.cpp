@@ -17,7 +17,7 @@ void PermutationMatrix::build(const Eigen::Matrix<double, Eigen::Dynamic, 3, Eig
 {
     _permutedPositions.clear();
     _permutedPositions.resize(fractionalPositions.rows());
-    for (size_t j = 0; j < fractionalPositions.rows(); j++) //row
+    for (unsigned j = 0; j < fractionalPositions.rows(); j++) //row
     {
         for (size_t i = 0; i < _translations.size(); i++) //column
         {

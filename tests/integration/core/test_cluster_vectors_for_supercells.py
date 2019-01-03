@@ -31,7 +31,7 @@ for subset in itertools.product(*cartesian_product_input):
         atom.symbol = element
     atoms = supercell
     cv = cs.get_cluster_vector(atoms)
-    expected_singlet = (-atoms.get_chemical_symbols().count("Pd") +
-                        atoms.get_chemical_symbols().
-                        count("Au")) / len(atoms)
+    expected_singlet = -atoms.get_chemical_symbols().count("Pd")
+    expected_singlet += atoms.get_chemical_symbols().count("Au")
+    expected_singlet /= len(atoms)
     npt.assert_almost_equal(cv[1], expected_singlet)

@@ -20,9 +20,10 @@ class CrossValidationEstimator(BaseOptimizer):
     """
     Optimizer with cross validation.
 
-    This optimizer can compute cross-validation scores in different ways.
-    It can also produce the finalized model (using the full input data) for
-    which the CV score is an estimation of its performance.
+    This optimizer can compute cross-validation (CV) scores in
+    different ways.  It can also produce the finalized model (using
+    the full input data) for which the CV score is an estimation of
+    its performance.
 
     Warning
     -------
@@ -33,7 +34,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tupe(np.ndarray, np.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -50,6 +51,11 @@ class CrossValidationEstimator(BaseOptimizer):
         "shuffle-split", "k-fold"
     n_splits : int
         number of times the fit data set will be split for the cross-validation
+    check_condition : bool
+        whether or not to carry out a check of the condition number
+
+        N.B.: This can be sligthly more time consuming for larger
+        matrices.
     seed : int
         seed for pseudo random number generator
 
@@ -63,13 +69,15 @@ class CrossValidationEstimator(BaseOptimizer):
         contains target and predicted values from each individual
         validation set in the cross-validation split;
         :class:`ScatterData` is a namedtuple.
+
     """
 
     def __init__(self, fit_data, fit_method='least-squares', standardize=True,
-                 validation_method='k-fold', n_splits=10,
+                 validation_method='k-fold', n_splits=10, check_condition=True,
                  seed=42, **kwargs):
 
-        super().__init__(fit_data, fit_method, standardize, seed)
+        super().__init__(fit_data, fit_method, standardize, check_condition,
+                         seed)
 
         if validation_method not in validation_methods.keys():
             msg = ['Validation method not available']
@@ -98,7 +106,8 @@ class CrossValidationEstimator(BaseOptimizer):
     def train(self):
         """ Constructs the final model using all input data available. """
         self._fit_results = fit(self._A, self._y, self.fit_method,
-                                self.standardize, **self._fit_kwargs)
+                                self.standardize, self._check_condition,
+                                **self._fit_kwargs)
         self._rmse_train_final = self.compute_rmse(self._A, self._y)
 
     def validate(self):
@@ -111,6 +120,7 @@ class CrossValidationEstimator(BaseOptimizer):
             opt = Optimizer((self._A, self._y), self.fit_method,
                             train_set=train_set,
                             test_set=test_set,
+                            check_condition=self._check_condition,
                             **self._fit_kwargs)
             opt.train()
 
@@ -192,7 +202,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     @property
     def parameters_splits(self):
-        """ numpy.ndarray : all parameters obtained during cross-validation """
+        """ np.ndarray : all parameters obtained during cross-validation """
         return self._parameters_splits
 
     @property

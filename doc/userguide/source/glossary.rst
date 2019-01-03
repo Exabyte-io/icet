@@ -34,22 +34,23 @@ Optimization and machine learning
 =================================
 .. glossary::
 
-   Automatic relevance determination regression
+   ARDR
         Automatic relevance determination regression (ARDR) is an optimization
         algorithm provided by `scikit-learn
-        <http://scikit-learn.org/stable/auto_examples/linear_model/plot_ard.html>`_
+        <https://scikit-learn.org/stable/modules/linear_model.html#automatic-relevance-determination-ard>`_
 
    Compressive sensing
         `Compressive sensing (CS)
         <https://en.wikipedia.org/wiki/Compressed_sensing>`_, also known as
         compressive sampling, is an efficient method for constructing sparse
-        solutions for linear systems [CanWak08]_ [NelOzoRee13]_.
+        solutions for linear systems.
 
    CV
    Cross validation
         `Cross validation (CV)
         <https://en.wikipedia.org/wiki/Cross-validation_(statistics)>`_
-       	is employed to evaluated the transferability and accuracy of :term:`CEs`.
+        is commonly employed to evaluated the transferability and accuracy of 
+	linear problems.
 
    LASSO
         The `least absolute shrinkage and selection operator (LASSO)
@@ -57,16 +58,18 @@ Optimization and machine learning
         performing variable selection and regularization in problems in
         statistics and machine learning.
 
-   LOOCV
-        The leave one out cross validation (LOOCV) score
-        is one of the most commonly adopted measures for quantifying
-        the basic performance of a :term:`CE`.
-
    Kernel ridge regression
         `Kernel ridge regression (KRR) <http://scikit-
         learn.org/stable/modules/kernel_ridge.html>`_ combines `ridge
         regression <https://en.wikipedia.org/wiki/Tikhonov_regularization>`_
         with the `kernel trick <https://en.wikipedia.org/wiki/Kernel_method>`_.
+
+   RFE
+        In machine learning `recursive feature elimination (RFE)
+        <https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.RFE.html>`_
+        is a popular `feature selection
+        <https://en.wikipedia.org/wiki/Feature_selection>`_ process in model
+        construction.
 
    Regularization
         `Regularization

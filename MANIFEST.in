@@ -1,0 +1,13 @@
+# include icet's header files
+include src/*.hpp
+
+# include pybind11 header files and license
+include src/3rdparty/pybind11/LICENSE
+recursive-include src/3rdparty/pybind11/include/ *.h
+
+# include boost header files
+recursive-include src/3rdparty/boost_1_68_0/ *.hpp
+
+# include eigen header files and copyright statement
+include src/3rdparty/eigen3/COPYING.MPL2
+recursive-include src/3rdparty/eigen3/Eigen *

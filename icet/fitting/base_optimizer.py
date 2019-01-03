@@ -28,11 +28,17 @@ class BaseOptimizer(ABC):
         "rfe-l2", "split-bregman"
     standardize : bool
         whether or not to standardize the fit matrix before fitting
+    check_condition : bool
+        whether or not to carry out a check of the condition number
+
+        N.B.: This can be sligthly more time consuming for larger
+        matrices.
     seed : int
         seed for pseudo random number generator
     """
 
-    def __init__(self, fit_data, fit_method, standardize=True, seed=42):
+    def __init__(self, fit_data, fit_method, standardize=True,
+                 check_condition=True, seed=42):
         """
         Attributes
         ----------
@@ -58,28 +64,31 @@ class BaseOptimizer(ABC):
         self._n_cols = self._A.shape[1]
         self._fit_method = fit_method
         self._standarize = standardize
+        self._check_condition = check_condition
         self._seed = seed
         self._fit_results = {'parameters': None}
 
     def compute_rmse(self, A, y):
         """
-        Computes the root mean square error using the `A`, `y`, and the
-        vector of fitted parameters `x` corresponding to `||Ax-y||_2`.
+        Computes the root mean square error using :math:`A`, :math:`y`,
+        and the vector of fitted parameters :math:`x` corresponding to
+        :math:`||Ax-y||_2`.
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix (`N,M` array) where `N` (=rows of `A`, elements
             of `y`) equals the number of target values and `M`
             (=columns of `A`) equals the number of parameters
             (=elements of `x`)
-        y : numpy.ndarray
+        y : np.ndarray
             vector of target values
 
         Returns
         -------
         float
             root mean squared error
+
         """
         y_predicted = self.predict(A)
         delta_y = y_predicted - y
@@ -88,20 +97,21 @@ class BaseOptimizer(ABC):
 
     def predict(self, A):
         """
-        Predicts data given an input matrix `A`, i.e., `Ax`, where `x` is
-        the vector of the fitted parameters.
+        Predicts data given an input matrix :math:`A`, i.e., :math:`Ax`,
+        where :math:`x` is the vector of the fitted parameters.
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix where `N` (=rows of `A`, elements of `y`) equals the
             number of target values and `M` (=columns of `A`) equals the number
             of parameters
 
         Returns
         -------
-        numpy.ndarray or float
+        np.ndarray or float
             vector of predicted values; float if single row provided as input
+
         """
         return np.dot(A, self.parameters)
 
@@ -112,14 +122,14 @@ class BaseOptimizer(ABC):
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix where `N` (=rows of `A`, elements of `y`) equals the
             number of target values and `M` (=columns of `A`) equals the number
             of parameters
 
         Returns
         -------
-        numpy.ndarray
+        np.ndarray
             average contribution for each row of `A` from each parameter
         """
         return np.mean(np.abs(np.multiply(A, self.parameters)), axis=0)
@@ -132,6 +142,7 @@ class BaseOptimizer(ABC):
     def summary(self):
         """ dict : comprehensive information about the optimizer """
         info = dict()
+        info['seed'] = self.seed
         info['fit_method'] = self.fit_method
         info['standardize'] = self.standardize
         info['n_target_values'] = self.n_target_values
@@ -164,7 +175,7 @@ class BaseOptimizer(ABC):
 
     @property
     def parameters(self):
-        """ numpy.ndarray : copy of parameter vector """
+        """ np.ndarray : copy of parameter vector """
         if self._fit_results['parameters'] is None:
             return None
         else:

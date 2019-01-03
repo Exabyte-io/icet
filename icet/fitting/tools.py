@@ -24,12 +24,12 @@ def compute_correlation_matrix(A):
 
     Parameters
     ----------
-    A : numpy.ndarray
+    A : np.ndarray
         fit matrix
 
     Returns
     -------
-    numpy.ndarray
+    np.ndarray
         correlation matrix
     """
     N = A.shape[0]

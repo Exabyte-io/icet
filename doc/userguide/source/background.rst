@@ -6,6 +6,7 @@ Background
 
 (expand and add more references; some references to topics such as cluster
 functions are intentionally left broken as a reminder to cover these things)
+[AngLinErh16]_, [CanWak08]_, [NelOzoRee13]_
 
 .. _cluster-expansions:
 .. index::

@@ -2,16 +2,14 @@ import time
 from ase.build import bulk
 from icet import Structure
 from icet.core.neighbor_list import NeighborList
-from icet.core_py.many_body_neighbor_list import (
-    ManyBodyNeighborList as TestManyBodyNeighborList)
 from icet.core.many_body_neighbor_list import ManyBodyNeighborList
 
 
 def build_many_body_neighbor_list_cpp(structure, order, cutoff):
-    '''
-    Build a many-body neighbor list up to `order` using the neighbor list
+    """
+    Builds a many-body neighbor list up to `order` using the neighbor list
     implemented in C++.
-    '''
+    """
     cutoffs = (order - 1) * [cutoff]
     neighbor_lists = []
 
@@ -28,24 +26,7 @@ def build_many_body_neighbor_list_cpp(structure, order, cutoff):
     return elapsed_time
 
 
-def build_many_body_neighbor_list_python(atoms, order, cutoff):
-    '''
-    Build a many-body neighbor list up to `order` based on the
-    Python implementation from ASE.
-    '''
-
-    cutoffs = (order - 1) * [cutoff]
-    mbnl_T = TestManyBodyNeighborList(atoms, cutoffs)
-
-    bothways = False
-    t = time.process_time()
-    for i in range(len(atoms)):
-        mbnl_T.build(i, bothways=bothways)
-    elapsed_time = time.process_time() - t
-    return elapsed_time
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
 
     order = 3
     cutoff = 10.0
@@ -59,13 +40,5 @@ if __name__ == "__main__":
     mbnl_time_cpp = build_many_body_neighbor_list_cpp(structure,
                                                       order, cutoff)
     elapsed_time_cpp = time.process_time() - t
-    print('Timing C++: {:.6f} sec'.format(elapsed_time_cpp))
-
-    t = time.process_time()
-    mbnl_time_py = build_many_body_neighbor_list_python(atoms,
-                                                        order, cutoff)
-    elapsed_time_python = time.process_time() - t
-    print('Timing Python (ASE): {:.6f} s'.format(elapsed_time_python))
-    print('C++ speedup: {:.3f}'.format(elapsed_time_python / elapsed_time_cpp))
-    print('C++ speedup (only mbnl build): {:.3f}'.format
-          (mbnl_time_py / mbnl_time_cpp))
+    print('Time for constructing many-body neighbor list: {:.6f} sec'
+          .format(elapsed_time_cpp))

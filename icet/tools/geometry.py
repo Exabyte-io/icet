@@ -7,7 +7,6 @@ from ase.neighborlist import NeighborList as ase_NeighborList
 from icet.core.neighbor_list import NeighborList
 from icet.core.structure import Structure
 from icet.core.lattice_site import LatticeSite
-from icet.core_py.lattice_site import LatticeSite as LatticeSite_py
 from ase.data import chemical_symbols
 
 Vector = List[float]
@@ -16,8 +15,8 @@ T = TypeVar('T')
 
 def get_scaled_positions(positions: np.ndarray,
                          cell: np.ndarray,
-                         wrap: bool=True,
-                         pbc: List[bool]=[True, True, True]) \
+                         wrap: bool = True,
+                         pbc: List[bool] = [True, True, True]) \
         -> np.ndarray:
     """
     Returns the positions in reduced (or scaled) coordinates.
@@ -76,7 +75,7 @@ def add_vacuum_in_non_pbc(configuration: Atoms) -> Atoms:
     return configuration_cpy
 
 
-def get_primitive_structure(atoms: Atoms, no_idealize: bool=True,
+def get_primitive_structure(atoms: Atoms, no_idealize: bool = True,
                             to_primitive=True, symprec=1e-5) -> Atoms:
     """
     Determines primitive structure using spglib.
@@ -160,12 +159,12 @@ def get_fractional_positions_from_ase_neighbor_list(
     fractional_positions = []
 
     for i in range(len(atoms)):
-        lattice_site = LatticeSite_py(i, [0., 0., 0.])
+        lattice_site = LatticeSite(i, [0., 0., 0.])
         position = get_position_from_lattice_site(atoms, lattice_site)
         neighbor_positions.append(position)
         indices, offsets = neighbor_list.get_neighbors(i)
         for index, offset in zip(indices, offsets):
-            lattice_site = LatticeSite_py(index, offset)
+            lattice_site = LatticeSite(index, offset)
             position = get_position_from_lattice_site(atoms, lattice_site)
             neighbor_positions.append(position)
     if len(neighbor_positions) > 0:
@@ -192,7 +191,7 @@ def get_position_from_lattice_site(atoms: Atoms, lattice_site: LatticeSite):
 
 
 def find_lattice_site_by_position(atoms: Atoms, position: List[float],
-                                  tol: float=1e-4) -> LatticeSite_py:
+                                  tol: float = 1e-4) -> LatticeSite:
     """
     Tries to construct a lattice site equivalent from
     position in reference to the atoms object.
@@ -207,17 +206,17 @@ def find_lattice_site_by_position(atoms: Atoms, position: List[float],
         pos = position - atom.position
         # Direct match
         if np.linalg.norm(pos) < tol:
-            return LatticeSite_py(i, np.array((0., 0., 0.)))
+            return LatticeSite(i, np.array((0., 0., 0.)))
 
         fractional = np.linalg.solve(atoms.cell.T, np.array(pos).T).T
         unit_cell_offset = [np.floor(round(x)) for x in fractional]
         residual = np.dot(fractional - unit_cell_offset, atoms.cell)
         if np.linalg.norm(residual) < tol:
-            latNbr = LatticeSite_py(i, unit_cell_offset)
+            latNbr = LatticeSite(i, unit_cell_offset)
             return latNbr
 
     # found nothing, raise error
-    raise RuntimeError("Did not find site in find_lattice_site_by_position")
+    raise RuntimeError('Did not find site in find_lattice_site_by_position')
 
 
 def fractional_to_cartesian(atoms: Atoms,
@@ -241,8 +240,8 @@ def get_permutation(container: Sequence[T],
     Returns the permuted version of container.
     """
     if len(permutation) != len(container):
-        raise RuntimeError("Container and permutation"
-                           " not of same size {} != {}".format(
+        raise RuntimeError('Container and permutation'
+                           ' not of same size {} != {}'.format(
                                len(container), len(permutation)))
     if len(set(permutation)) != len(permutation):
         raise Exception
@@ -295,7 +294,7 @@ def get_decorated_primitive_structure(
     """
     if len(atoms) != len(allowed_species):
         raise ValueError(
-            "Atoms object and chemical symbols need to be the same size.")
+            'Atoms object and chemical symbols need to be the same size.')
     symbols = set()
     symbols = sorted({tuple(sorted(s)) for s in allowed_species})
 

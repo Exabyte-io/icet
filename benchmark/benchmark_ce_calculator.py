@@ -1,8 +1,9 @@
-from mchammer.calculators import ClusterExpansionCalculator
-from icet import ClusterSpace, ClusterExpansion
-from ase.build import bulk
 import numpy as np
 import time
+from ase.build import bulk
+
+from icet import ClusterSpace, ClusterExpansion
+from mchammer.calculators import ClusterExpansionCalculator
 
 
 def time_local_energy(calculator, iters):
@@ -30,8 +31,8 @@ def time_total_energy(calculator, iters):
 def print_timing_ratios(atoms, iters, sizes, cutoffs):
     """ Prints timing ratios between local and total energy calculations. """
 
-    print('# $1 size, $2 iters, $3 atom size, $4 ce calc init time (s)'
-          ', $5 t_local, $6 t_total, $7 t_total/t_local')
+    print('# 1:size 2:iters 3:atom size, 4:ce calc init time (sec)'
+          ', 5:t_local 6:t_total 7:t_total/t_local')
     cs = ClusterSpace(atoms, cutoffs, chemical_symbols=['Al', 'Ga'])
     parameters = np.array([1.2 for _ in range(len(cs))])
     ce = ClusterExpansion(cs, parameters)
@@ -44,10 +45,11 @@ def print_timing_ratios(atoms, iters, sizes, cutoffs):
         t_local = time_local_energy(calculator, iters)
         t_total = time_total_energy(calculator, iters)
         print(size, iters, len(atoms_cpy), time_ce_init,
-              t_local, t_total, t_total/t_local)
+              t_local, t_total, t_total / t_local)
 
 
 if __name__ == '__main__':
+
     iters = 2
     atoms = bulk('Al')
     cutoffs = [10, 6, 5]
@@ -62,14 +64,15 @@ if __name__ == '__main__':
     print('Constructing CE calculator')
     t0 = time.time()
     calculator = ClusterExpansionCalculator(atoms, ce)
-    print('Done constructing CE calculator in {:.5f}s'.format(time.time()-t0))
+    print('Constructed CE calculator in {:.6} sec'
+          .format(time.time() - t0))
     t_local = time_local_energy(calculator, iters)
     t_total = time_total_energy(calculator, iters)
     print('Number of sites: {}'.format(len(calculator.atoms)))
-    print('Timing of local energy calculation: {:.5f}'.format(t_local))
-    print('Timing of total energy calculation: {:.5f}'.format(t_total))
-    print('Speed up for local calculator: {:.2f} '.format(t_total/t_local))
+    print('Time of local energy calculation: {:.5f}'.format(t_local))
+    print('Time of total energy calculation: {:.5f}'.format(t_total))
+    print('Speed up for local calculator: {:.2f} '.format(t_total / t_local))
 
-    print('Timing for calculating {} MC cycles ({} sites) local energies {}s'
-          .format(iters/len(atoms), len(atoms),
+    print('Time for calculating {} MC cycles ({} sites) local energies {} sec'
+          .format(iters / len(atoms), len(atoms),
                   t_local * len(calculator.atoms)))

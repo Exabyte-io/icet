@@ -71,7 +71,7 @@ def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
 
 def _get_lattice_site_permutation_matrix(structure: Structure,
                                          permutation_matrix: PermutationMatrix,
-                                         prune: bool=True):
+                                         prune: bool = True):
     """
     Returns a transformed permutation matrix with lattice sites as entries
     instead of fractional coordinates.

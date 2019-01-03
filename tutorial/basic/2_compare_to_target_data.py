@@ -11,8 +11,8 @@ db = connect('reference_data.db')
 for row in db.select('natoms<=6'):
     data['concentration'].append(row.concentration)
     # the factor of 1e3 serves to convert from eV/atom to meV/atom
-    data['reference_energy'].append(1e3*row.mixing_energy)
-    data['predicted_energy'].append(1e3*ce.predict(row.toatoms()))
+    data['reference_energy'].append(1e3 * row.mixing_energy)
+    data['predicted_energy'].append(1e3 * ce.predict(row.toatoms()))
 
 # step 2: Plot results
 fig, ax = plt.subplots(figsize=(4, 3))

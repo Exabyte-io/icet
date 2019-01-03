@@ -25,8 +25,12 @@ class ManyBodyNeighborList
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> build(const std::vector<NeighborList> &, int index, bool);
 
     void combineToHigherOrder(const NeighborList &nl,
-                              std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> &many_bodyNeighborIndex,
-                              const std::vector<LatticeSite> &Ni, std::vector<LatticeSite> &currentOriginalNeighbrs, bool saveBothWays, const int);
+                              std::vector<std::pair<std::vector<LatticeSite>,
+			      std::vector<LatticeSite>>> &many_bodyNeighborIndex,
+                              const std::vector<LatticeSite> &Ni,
+			      std::vector<LatticeSite> &currentOriginalNeighbrs,
+			      bool saveBothWays,
+			      const size_t);
 
     std::vector<LatticeSite> getIntersection(const std::vector<LatticeSite> &Ni, const std::vector<LatticeSite> &Nj)
     {

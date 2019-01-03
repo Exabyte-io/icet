@@ -1,7 +1,14 @@
 # Require a modern version of CMake.
 CMAKE_MINIMUM_REQUIRED(VERSION 3.0.0 FATAL_ERROR)
 PROJECT(icet)
-SET(CMAKE_BUILD_TYPE Release)
+
+# Set default build type.
+IF(NOT CMAKE_BUILD_TYPE) 
+    SET(CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+# Additional flags for special builds.
+SET(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 # Enable C++11 standard.
 IF(NOT CMAKE_VERSION VERSION_LESS "3.1")
@@ -11,23 +18,12 @@ ELSE()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ENDIF()
 
-# Find Boost library.
-IF(NOT USE_BOOST_FILESYSTEM_LIB)
-    FIND_PACKAGE(Boost REQUIRED)
-ELSE()
-    FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem)
-ENDIF()
-IF(NOT Boost_FOUND)
-    MESSAGE(FATAL_ERROR "Boost library not found. Reason: ${Boost_ERROR_REASON}")
-ENDIF()
+# Add third-party libraries.
+SET(Boost_INCLUDE_DIRS "src/3rdparty/boost_1_68_0" )
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 
-# Find Eigen3 library
-FIND_PACKAGE(Eigen3 REQUIRED)
-IF(NOT Eigen3_FOUND)
-    MESSAGE(FATAL_ERROR "Eigen3 library not found. Reason: ${Boost_ERROR_REASON}")
-ENDIF()
+SET( EIGEN3_INCLUDE_DIR "src/3rdparty/eigen3/" )
 INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
 
-# Compile code.
+# Add main sources.
 ADD_SUBDIRECTORY(src)

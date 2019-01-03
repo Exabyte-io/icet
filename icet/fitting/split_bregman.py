@@ -16,9 +16,9 @@ def fit_split_bregman(A, y, mu=1e-3, lmbda=100, n_iters=1000, tol=1e-6,
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     mu : float
         Sparseness parameter
@@ -78,21 +78,21 @@ def _objective_function(x, A, y, mu, lmbda, d, b, AtA, ftA):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     mu : float
         the parameter that adjusts sparseness.
     lmbda : float
         Split Bregman parameter
-    d : numpy.ndarray
+    d : np.ndarray
         same notation as Nelson, Hart paper
-    b : numpy.ndarray
+    b : np.ndarray
         same notation as Nelson, Hart paper
-    AtA : numpy.ndarray
+    AtA : np.ndarray
         sensing matrix transpose times sensing matrix.
-    ftA : numpy.ndarray
+    ftA : np.ndarray
         np.dot(y.conj().transpose(), A)
     """
 
@@ -120,21 +120,21 @@ def _objective_function_derivative(x, A, y, mu, lmbda, d, b, AtA, ftA):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     mu : float
         the parameter that adjusts sparseness.
     lmbda : float
         Split Bregman parameter
-    d : numpy.ndarray
+    d : np.ndarray
         same notation as Nelson, Hart paper
-    b : numpy.ndarray
+    b : np.ndarray
         same notation as Nelson, Hart paper
-    AtA : numpy.ndarray
+    AtA : np.ndarray
         sensing matrix transpose times sensing matrix.
-    ftA : numpy.ndarray
+    ftA : np.ndarray
         np.dot(y.conj().transpose(), A)
 
     """
@@ -151,7 +151,7 @@ def _shrink(y, alpha):
 
     Parameters
     -----------
-    y : numpy.ndarray
+    y : np.ndarray
     alpha : float
     """
     return np.sign(y) * np.maximum(np.abs(y) - alpha, 0.0)

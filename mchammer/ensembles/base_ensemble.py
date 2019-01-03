@@ -3,12 +3,13 @@ import random
 from abc import ABC, abstractmethod
 from math import gcd
 from time import time
-from typing import Dict, List
+from typing import Dict, List, Union, BinaryIO, TextIO
 
 import numpy as np
 
 from ase import Atoms
 from ase.data import chemical_symbols
+from collections import OrderedDict
 
 from ..calculators.base_calculator import BaseCalculator
 from ..configuration_manager import ConfigurationManager
@@ -27,8 +28,8 @@ class BaseEnsemble(ABC):
     atoms : :class:`ase:Atoms`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
-    name : str
-        human-readable ensemble name [default: `BaseEnsemble`]
+    user_tag : str
+        human-readable tag for ensemble [default: None]
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
@@ -50,38 +51,24 @@ class BaseEnsemble(ABC):
     random_seed : int
         seed for the random number generator used in the Monte Carlo
         simulation
-
-    Attributes
-    ----------
-    accepted_trials : int
-        number of accepted trial steps
-    total_trials : int
-        number of total trial steps
-    data_container_write_period : int
-        period in units of seconds at which the data container is
-        written to file
     """
 
-    def __init__(self, calculator=None, atoms=None, name='BaseEnsemble',
-                 data_container=None, data_container_write_period=np.inf,
-                 ensemble_data_write_interval=None,
-                 trajectory_write_interval=None,
-                 random_seed=None):
-
-        if calculator is None:
-            raise TypeError('Missing required keyword argument: calculator')
-        if atoms is None:
-            raise TypeError('Missing required keyword argument: atoms')
+    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
+                 user_tag: str = None, data_container: DataContainer = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None,
+                 random_seed: int = None) -> None:
 
         # initialize basic variables
-        self.accepted_trials = 0
-        self.total_trials = 0
+        self._accepted_trials = 0
+        self._total_trials = 0
         self._observers = {}
         self._step = 0
 
         # calculator and configuration
         self._calculator = calculator
-        self._name = name
+        self._user_tag = user_tag
         strict_constraints_symbol = self.calculator.occupation_constraints
         symbols = list({tuple(sym)
                         for sym in strict_constraints_symbol if len(sym) > 1})
@@ -109,19 +96,41 @@ class BaseEnsemble(ABC):
             self._random_seed = random_seed
         random.seed(a=self._random_seed)
 
+        # add ensemble parameters and metadata
+        self._ensemble_parameters['n_atoms'] = len(self.atoms)
+        metadata = OrderedDict(ensemble_name=self.__class__.__name__,
+                               user_tag=user_tag,
+                               seed=self.random_seed)
+
         # data container
-        self.data_container_write_period = data_container_write_period
+        self._data_container_write_period = data_container_write_period
+
         self._data_container_filename = data_container
+
         if data_container is not None and os.path.isfile(data_container):
             self._data_container = DataContainer.read(data_container)
+
+            dc_ensemble_parameters = self.data_container.ensemble_parameters
+            if self.ensemble_parameters != dc_ensemble_parameters:
+                raise ValueError('Ensemble parameters do not match with those'
+                                 ' stored in DataContainer file: {}'.format(
+                                     set(dc_ensemble_parameters.items()) -
+                                     set(self.ensemble_parameters.items())))
             self._restart_ensemble()
         else:
+            if data_container is not None:
+                # check if path to file exists
+                filedir = os.path.dirname(data_container)
+                if filedir and not os.path.isdir(filedir):
+                    raise FileNotFoundError('Path to data container file does'
+                                            ' not exist: {}'.format(filedir))
             self._data_container = \
-                DataContainer(atoms=atoms, ensemble_name=name,
-                              random_seed=self._random_seed)
+                DataContainer(atoms=atoms,
+                              ensemble_parameters=self.ensemble_parameters,
+                              metadata=metadata)
 
         # interval for writing data and further preparation of data container
-        default_interval = max(1, 10*round(len(atoms)/10))
+        default_interval = max(1, 10 * round(len(atoms) / 10))
 
         if ensemble_data_write_interval is None:
             self._ensemble_data_write_interval = default_interval
@@ -142,9 +151,14 @@ class BaseEnsemble(ABC):
         return self.configuration.atoms.copy()
 
     @property
-    def step(self) -> int:
-        """ current Monte Carlo trial step """
-        return self._step
+    def total_trials(self) -> int:
+        """ number of Monte Carlo trial steps """
+        return self._total_trials
+
+    @property
+    def accepted_trials(self) -> int:
+        """ number of accepted trial steps """
+        return self._accepted_trials
 
     @property
     def data_container(self) -> DataContainer:
@@ -168,7 +182,16 @@ class BaseEnsemble(ABC):
         """ calculator attached to the ensemble """
         return self._calculator
 
-    def run(self, number_of_trial_steps: int, reset_step: bool=False):
+    @property
+    def data_container_write_period(self) -> float:
+        " data container write period "
+        return self._data_container_write_period
+
+    @data_container_write_period.setter
+    def data_container_write_period(self, data_container_write_period):
+        self._data_container_write_period = data_container_write_period
+
+    def run(self, number_of_trial_steps: int, reset_step: bool = False):
         """
         Samples the ensemble for the given number of trial steps.
 
@@ -209,8 +232,9 @@ class BaseEnsemble(ABC):
             if self._step % self.observer_interval == 0:
                 self._observe(self._step)
             if self._data_container_filename is not None and \
-                    time()-last_write_time > self.data_container_write_period:
-                self._write_data_container()
+                    time() - last_write_time > \
+                    self.data_container_write_period:
+                self.write_data_container(self._data_container_filename)
                 last_write_time = time()
 
             self._run(uninterrupted_steps)
@@ -222,7 +246,7 @@ class BaseEnsemble(ABC):
             self._observe(self._step)
 
         if self._data_container_filename is not None:
-            self._write_data_container()
+            self.write_data_container(self._data_container_filename)
 
     def _run(self, number_of_trial_steps: int):
         """Runs MC simulation for a number of trial steps without
@@ -277,9 +301,9 @@ class BaseEnsemble(ABC):
         pass
 
     @property
-    def name(self) -> str:
-        """ ensemble name """
-        return self._name
+    def user_tag(self) -> str:
+        """ tag used for labeling the ensemble """
+        return self._user_tag
 
     @property
     def random_seed(self) -> int:
@@ -352,8 +376,8 @@ class BaseEnsemble(ABC):
     def reset_data_container(self):
         """ Resets the data container and the trial step counter. """
         self._step = 0
-        self.total_trials = 0
-        self.accepted_trials = 0
+        self._total_trials = 0
+        self._accepted_trials = 0
 
         self._data_container.reset()
 
@@ -426,7 +450,7 @@ class BaseEnsemble(ABC):
         """
         total_active_sites = sum([len(sub) for sub in self._sublattices])
         probability_distribution = [
-            len(sub)/total_active_sites for sub in self._sublattices]
+            len(sub) / total_active_sites for sub in self._sublattices]
         pick = np.random.choice(
             range(0, len(self._sublattices)), p=probability_distribution)
         return pick
@@ -444,21 +468,31 @@ class BaseEnsemble(ABC):
         self.update_occupations(sites, occupations)
 
         # Restart number of total and accepted trial steps
-        self.total_trials = self._step
-        self.accepted_trials = \
+        self._total_trials = self._step
+        self._accepted_trials = \
             self.data_container.last_state['accepted_trials']
 
         # Restart state of random number generator
         random.setstate(self.data_container.last_state['random_state'])
 
-    def _write_data_container(self):
+    def write_data_container(self, outfile: Union[str, BinaryIO, TextIO]):
         """Updates last state of the Monte Carlo simulation and
-        writes DataContainer to file."""
+        writes DataContainer to file.
 
+        Parameters
+        ----------
+        outfile
+            file to which to write
+        """
         self._data_container._update_last_state(
             last_step=self._step,
             occupations=self.configuration.occupations.tolist(),
-            accepted_trials=self.accepted_trials,
+            accepted_trials=self._accepted_trials,
             random_state=random.getstate())
 
-        self.data_container.write(self._data_container_filename)
+        self.data_container._write(outfile)
+
+    @property
+    def ensemble_parameters(self) -> dict:
+        """Returns parameters associated with the ensemble."""
+        return self._ensemble_parameters.copy()

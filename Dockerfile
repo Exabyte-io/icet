@@ -1,32 +1,29 @@
 # Base image
-FROM ubuntu:18.04
+FROM ubuntu:18.10
 
-# Install required packages
+# Bring package repos up to speed
 RUN apt-get update -qy
 RUN apt-get upgrade -qy
 
+# packages for icet
 RUN apt-get install -qy \
-        build-essential \
-    	cmake \
-        libboost-dev \
-        libeigen3-dev \
-        python3-dev
-
-RUN apt-get install -qy \
-        doxygen \
-        graphviz
-
-RUN apt-get install -qy \
-        python3-pip
-
-# Set up some Python3 packages via pip
-RUN pip3 install --upgrade pip
-RUN pip3 install --upgrade setuptools
-
+            python3-pip
 RUN pip3 install --upgrade \
-	 h5py \
+         pip \
+	 setuptools
+RUN pip3 install --upgrade \
+         ase \
     	 numpy \
-	 scipy
+         pandas \
+         scikit-learn \
+	 scipy \
+         spglib
+
+# packages for compilation of documentation
+RUN apt-get install -qy \
+            doxygen \
+            graphviz \
+	    zip
 
 RUN pip3 install --upgrade \
     	 breathe \
@@ -38,9 +35,3 @@ RUN pip3 install --upgrade \
          sphinx_autodoc_typehints \
          sphinx_sitemap \
          sphinxcontrib-bibtex
-
-RUN pip3 install --upgrade \
-         ase \
-         pandas \
-         scikit-learn \
-         spglib

@@ -15,7 +15,7 @@ for k, order in enumerate(ce.orders):
     df_order = df_ecis.loc[df_ecis['order'] == order]
     if k < 2 or k > 4:
         continue
-    ax = axs[k-2]
+    ax = axs[k - 2]
     ax.set_ylim((-6, 39))
     ax.set_xlabel(r'Cluster radius (Å)')
     if order == 2:
@@ -26,13 +26,13 @@ for k, order in enumerate(ce.orders):
     if order == 4:
         ax.set_xlim((1.5, 3.9))
         ax.text(0.05, 0.55, 'zerolet: {:.1f} meV'
-                .format(1e3*df_ecis.eci.iloc[0]),
+                .format(1e3 * df_ecis.eci.iloc[0]),
                 transform=ax.transAxes)
         ax.text(0.05, 0.45, 'singlet: {:.1f} meV'
-                .format(1e3*df_ecis.eci.iloc[1]),
+                .format(1e3 * df_ecis.eci.iloc[1]),
                 transform=ax.transAxes)
     ax.plot([0, 5], [0, 0], color='black')
-    ax.bar(df_order.radius, 1e3*df_order.eci, width=0.05)
+    ax.bar(df_order.radius, 1e3 * df_order.eci, width=0.05)
     ax.scatter(df_order.radius, len(df_order) * [-5],
                marker='o', s=2.0)
     ax.text(0.05, 0.91, 'order: {}'.format(order),

@@ -1,6 +1,5 @@
 """Definition of the canonical ensemble class."""
 
-from typing import Dict
 import numpy as np
 
 from ase import Atoms
@@ -22,7 +21,7 @@ class CanonicalEnsemble(BaseEnsemble):
 
     .. math::
 
-        \\rho_{\\text{C}} \\propto \exp [ - E / k_B T ].
+        \\rho_{\\text{C}} \\propto \\exp [ - E / k_B T ].
 
     Since the concentrations or equivalently the number of atoms of each
     species is held fixed in the canonical ensemble, a trial step must
@@ -32,7 +31,7 @@ class CanonicalEnsemble(BaseEnsemble):
 
     .. math::
 
-        P = \min \{ 1, \, \exp [ - \\Delta E / k_B T  ] \},
+        P = \\min \\{ 1, \\, \\exp [ - \\Delta E / k_B T  ] \\},
 
     where :math:`\\Delta E` is the change in potential energy caused by the
     swap.
@@ -52,6 +51,12 @@ class CanonicalEnsemble(BaseEnsemble):
 
     Parameters
     ----------
+    atoms : :class:`ase:Atoms`
+        atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector
+    calculator : :class:`BaseCalculator`
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
     temperature : float
         temperature :math:`T` in appropriate units [commonly Kelvin]
     boltzmann_constant : float
@@ -59,19 +64,16 @@ class CanonicalEnsemble(BaseEnsemble):
         units, i.e. units that are consistent
         with the underlying cluster expansion
         and the temperature units [default: eV/K]
-    calculator : :class:`BaseCalculator`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    atoms : :class:`ase:Atoms`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    name : str
-        human-readable ensemble name [default: `BaseEnsemble`]
+    user_tag : str
+        human-readable tag for ensemble [default: None]
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     ensemble_data_write_interval : int
         interval at which data is written to the data container; this
         includes for example the current value of the calculator
@@ -85,47 +87,41 @@ class CanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-
-    Attributes
-    ----------
-    temperature : float
-        temperature :math:`T` (see parameters section above)
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` (see parameters section above)
-    accepted_trials : int
-        number of accepted trial steps
-    total_trials : int
-        number of total trial steps
-    data_container_write_period : int
-        period in units of seconds at which the data container is
-        written to file
     """
 
-    def __init__(self, atoms: Atoms=None, calculator: BaseCalculator=None,
-                 name: str='Canonical ensemble',
-                 data_container: DataContainer=None, random_seed: int=None,
-                 data_container_write_period: float=np.inf,
-                 ensemble_data_write_interval: int=None,
-                 trajectory_write_interval: int=None,
-                 boltzmann_constant: float=kB, *, temperature: float):
+    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
+                 temperature: float, user_tag: str = None,
+                 boltzmann_constant: float = kB,
+                 data_container: DataContainer = None, random_seed: int = None,
+                 data_container_write_period: float = np.inf,
+                 ensemble_data_write_interval: int = None,
+                 trajectory_write_interval: int = None) -> None:
+
+        self._ensemble_parameters = dict(temperature=temperature)
+
+        self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
-            atoms=atoms, calculator=calculator, name=name,
+            atoms=atoms, calculator=calculator, user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        self.temperature = temperature
-        self.boltzmann_constant = boltzmann_constant
+    @property
+    def temperature(self) -> float:
+        """ temperature :math:`T` (see parameters section above) """
+        return self.ensemble_parameters['temperature']
+
+    @property
+    def boltzmann_constant(self) -> float:
+        """ Boltzmann constant :math:`k_B` (see parameters section above) """
+        return self._boltzmann_constant
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self.total_trials += 1
+        self._total_trials += 1
 
         sublattice_index = self.get_random_sublattice_index()
         sites, species = \
@@ -134,7 +130,7 @@ class CanonicalEnsemble(BaseEnsemble):
         potential_diff = self._get_property_change(sites, species)
 
         if self._acceptance_condition(potential_diff):
-            self.accepted_trials += 1
+            self._accepted_trials += 1
             self.update_occupations(sites, species)
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
@@ -153,12 +149,3 @@ class CanonicalEnsemble(BaseEnsemble):
             return np.exp(-potential_diff / (
                 self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
-
-    def _get_ensemble_data(self) -> Dict:
-        """
-        Returns the data associated with the ensemble. For the SGC ensemble
-        this specifically includes the temperature and the species counts.
-        """
-        data = super()._get_ensemble_data()
-        data['temperature'] = self.temperature
-        return data

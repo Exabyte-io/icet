@@ -37,20 +37,17 @@ class ClusterExpansionCalculator(BaseCalculator):
         evaluate energy changes using only the local environment; this method
         is generally *much* faster; unless you know what you are doing do *not*
         set this option to `False`
-
-    Todo
-    ----
-    * add OccupationConstraints once available
-
     """
 
     def __init__(self, atoms: Atoms, cluster_expansion: ClusterExpansion,
-                 name: str='Cluster Expansion Calculator',
-                 scaling: Union[float, int]=None,
+                 name: str = 'Cluster Expansion Calculator',
+                 scaling: Union[float, int] = None,
                  use_local_energy_calculator: bool = True) -> None:
         super().__init__(atoms=atoms, name=name)
 
         atoms_cpy = atoms.copy()
+        cluster_expansion.prune()
+
         self.use_local_energy_calculator = use_local_energy_calculator
         if self.use_local_energy_calculator:
             self.cpp_calc = _ClusterExpansionCalculator(

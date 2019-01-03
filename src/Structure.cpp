@@ -37,16 +37,16 @@ Structure::Structure(const Eigen::Matrix<double, Dynamic, 3, RowMajor> &position
   @param offset2 offset of site 2 relative to origin in units of lattice vectors
   @todo Add  mic functionality
 */
-double Structure::getDistance(const int index1, const int index2,
+double Structure::getDistance(const size_t index1, const size_t index2,
                               const Vector3d offset1 = {0.0, 0.0, 0.0},
                               const Vector3d offset2 = {0.0, 0.0, 0.0}) const
 {
-    if (index1 < 0 || index1 >= _positions.rows() or
-        index2 < 0 || index2 >= _positions.rows())
+    if (index1 >= (size_t) _positions.rows() or
+        index2 >= (size_t) _positions.rows())
     {
         std::string errorMessage = "At least one site index out of bounds ";
-        errorMessage += " index1:" + std::to_string(index1);
-        errorMessage += " index2:" + std::to_string(index2);
+        errorMessage += " index1: " + std::to_string(index1);
+        errorMessage += " index2: " + std::to_string(index2);
         errorMessage += " npositions: " + std::to_string(_positions.rows());
         errorMessage += " (Structure::getDistance)";
         throw std::out_of_range(errorMessage);
@@ -63,7 +63,7 @@ double Structure::getDistance(const int index1, const int index2,
 */
 Vector3d Structure::getPosition(const LatticeSite &latticeNeighbor) const
 {
-    if (latticeNeighbor.index() < 0 || latticeNeighbor.index() >= _positions.rows())
+    if (latticeNeighbor.index() >= (size_t) _positions.rows())
     {
         std::string errorMessage = "Site index out of bounds";
         errorMessage += " index: " + std::to_string(latticeNeighbor.index());
@@ -85,31 +85,31 @@ Vector3d Structure::getPositionByIndex(const size_t &index) const
 }
 /**
   @details This function returns the atomic number of a site.
-  @param i index of site
+  @param site index of site
   @returns atomic number
 **/
-int Structure::getAtomicNumber(const unsigned int i) const
+int Structure::getAtomicNumber(const size_t index) const
 {
-    if (i >= _atomicNumbers.size())
+    if (index >= _atomicNumbers.size())
     {
         std::string errorMessage = "Site index out of bounds";
-        errorMessage += " i: " + std::to_string(i);
+        errorMessage += " index: " + std::to_string(index);
         errorMessage += " nsites: " + std::to_string(_atomicNumbers.size());
         errorMessage += " (Structure::getAtomicNumber)";
         throw std::out_of_range(errorMessage);
     }
-    return _atomicNumbers[i];
+    return _atomicNumbers[index];
 }
 
 /**
   @details This function sets the symmetrically distinct sites associated
-  with the structure. It requires a vector<int> as input the length of
+  with the structure. It requires a vector as input the length of
   which  must match the number of positions.
   @param sites list of integers
 **/
-void Structure::setUniqueSites(const std::vector<int> &sites)
+void Structure::setUniqueSites(const std::vector<size_t> &sites)
 {
-    if (sites.size() != _positions.rows())
+    if (sites.size() != (size_t) _positions.rows())
     {
         std::string errorMessage = "Length of input vector does not match number of sites";
         errorMessage += " nsites: " + std::to_string(sites.size());
@@ -125,7 +125,7 @@ void Structure::setUniqueSites(const std::vector<int> &sites)
   @param i index of site
   @returns index of unique site
 **/
-int Structure::getUniqueSite(const size_t i) const
+size_t Structure::getUniqueSite(const size_t i) const
 {
     if (i >= _uniqueSites.size())
     {
@@ -149,7 +149,7 @@ int Structure::getUniqueSite(const size_t i) const
 **/
 int Structure::findSiteByPosition(const Vector3d &position) const
 {
-    for (size_t i = 0; i < _positions.rows(); i++)
+    for (size_t i = 0; i < (size_t) _positions.rows(); i++)
     {
         if ((_positions.row(i).transpose() - position).norm() < _tolerance)
         {
@@ -180,17 +180,10 @@ int Structure::findSiteByPosition(const Vector3d &position) const
 */
 LatticeSite Structure::findLatticeSiteByPosition(const Vector3d &position) const
 {
-    // int simpleSolutionIndex = findSiteByPosition(position);
-    // if (simpleSolutionIndex != -1)
-    // {
-    //     Vector3d zeroOffset = {0, 0, 0};
-    //     LatticeSite latSite = LatticeSite(simpleSolutionIndex, zeroOffset);
-    //     return latSite;
-    // }
     Vector3d fractional = _cell.transpose().partialPivLu().solve(position);
 
     Vector3d unitcellOffset;
-    for (int i = 0; i < 3; i++)
+    for (size_t i = 0; i < 3; i++)
     {
         if (hasPBC(i))
         {
@@ -209,30 +202,6 @@ LatticeSite Structure::findLatticeSiteByPosition(const Vector3d &position) const
     auto index = findSiteByPosition(remainder);
     if (index == -1)
     {
-
-        // std::cout << "cell" << std::endl;
-        // std::cout << _cell << std::endl;
-        // std::cout << "fractional\n" << fractional << std::endl;
-        // std::cout << "position\n" << position << std::endl;
-
-        // std::cout << "Positions" << std::endl;
-        // for (int i = 0; i < size(); i++)
-        // {
-        //     Vector3d pos = _positions.row(i);
-        //     std::cout << pos[0] << " " << pos[1] << " " << pos[2] << std::endl;
-        // }
-        // for (int i = 0; i < 3; i++)
-        // {
-        //     if (hasPBC(i))
-        //     {
-        //         // unitcellOffset[i] = floor(roundFloat((double)fractional[i]));
-        //         std::cout << "unitcellOffset[i]"
-        //           << " " << unitcellOffset[i] << " " << roundFloat((double)fractional[i]) << std::endl;
-        //     }
-        // }
-        // std::cout << "remainder" << std::endl;
-        // std::cout << remainder << std::endl;
-
         std::string errorMessage = "Failed to find site by position (findLatticeSiteByPosition)";
         throw std::runtime_error(errorMessage);
     }
@@ -302,30 +271,29 @@ void Structure::setNumberOfAllowedSpecies(const int numberOfAllowedSpecies)
 /**
   @details This function returns the number of components allowed on a
   given site.
-  @param i index of the site
+  @param index index of the site
   @returns the number of the allowed components
 **/
-int Structure::getNumberOfAllowedSpeciesBySite(const unsigned int i) const
+int Structure::getNumberOfAllowedSpeciesBySite(const size_t index) const
 {
-    if (i >= _numbersOfAllowedSpecies.size())
+    if (index >= _numbersOfAllowedSpecies.size())
     {
         std::string errorMessage = "Site index out of bounds";
-        errorMessage += " i: " + std::to_string(i);
+        errorMessage += " index: " + std::to_string(index);
         errorMessage += " nsites: " + std::to_string(_numbersOfAllowedSpecies.size());
         errorMessage += " (Structure::getNumberOfAllowedSpeciesBySite)";
         throw std::out_of_range(errorMessage);
     }
-    return _numbersOfAllowedSpecies[i];
+    return _numbersOfAllowedSpecies[index];
 }
 
 /**
   @details This function returns the a vector with number of components allowed on each site index
   @param indices indices of sites
-  @returns the list of number of the allowed components on each site
+  @returns the list of number of allowed components for each site
 **/
 std::vector<int> Structure::getNumberOfAllowedSpeciesBySites(const std::vector<LatticeSite> &sites) const
-{   
-    
+{
     std::vector<int> numberOfAllowedSpecies(sites.size());
     int i = -1;
     for (const auto site : sites)
@@ -343,7 +311,7 @@ std::vector<int> Structure::getNumberOfAllowedSpeciesBySites(const std::vector<L
 std::vector<int> Structure::convertChemicalSymbolsToAtomicNumbers(const std::vector<std::string> &chemicalSymbols) const
 {
     std::vector<int> atomicNumbers(chemicalSymbols.size());
-    for (int i = 0; i < chemicalSymbols.size(); i++)
+    for (size_t i = 0; i < chemicalSymbols.size(); i++)
     {
         atomicNumbers[i] = PeriodicTable::strInt[chemicalSymbols[i]];
     }
@@ -357,7 +325,7 @@ std::vector<int> Structure::convertChemicalSymbolsToAtomicNumbers(const std::vec
 std::vector<std::string> Structure::convertAtomicNumbersToChemicalSymbols(const std::vector<int> &atomicNumbers) const
 {
     std::vector<std::string> chemicalSymbols(atomicNumbers.size());
-    for (int i = 0; i < atomicNumbers.size(); i++)
+    for (size_t i = 0; i < atomicNumbers.size(); i++)
     {
         chemicalSymbols[i] = PeriodicTable::intStr[atomicNumbers[i]];
     }

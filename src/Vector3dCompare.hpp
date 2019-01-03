@@ -11,7 +11,7 @@ struct Vector3dCompare
 {
     bool operator()(const Vector3d &lhs, const Vector3d &rhs) const
     {
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             if (lhs[i] == rhs[i])
             {
@@ -40,7 +40,7 @@ struct NeighborPairCompare
             return false;
         }
 
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             if (lhs.second[i] == rhs.second[i])
             {
@@ -76,7 +76,7 @@ struct NeighborPairCompareOffset
             return false;
         }
 
-        for (int i = 0; i < 3; i++)
+        for (size_t i = 0; i < 3; i++)
         {
             if (lhs.second[i] == (rhs.second[i] + _rhs_offset[i]) )
             {

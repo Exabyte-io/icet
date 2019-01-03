@@ -30,7 +30,7 @@ class Structure
               double);
 
     /// Returns distance vector between two sites.
-    double getDistance(const int, const int, const Vector3d, const Vector3d) const;
+    double getDistance(const size_t, const size_t, const Vector3d, const Vector3d) const;
 
     /// Return the position of a site in Cartesian coordinates.
     Vector3d getPosition(const LatticeSite &) const;
@@ -39,17 +39,17 @@ class Structure
     Vector3d getPositionByIndex(const size_t &index) const;
 
     /// Returns atomic number of site.
-    int getAtomicNumber(const unsigned int) const;
+    int getAtomicNumber(const size_t) const;
 
     /// Returns the list of unique sites.
-    std::vector<int> getUniqueSites() const { return _uniqueSites; }
+    std::vector<size_t> getUniqueSites() const { return _uniqueSites; }
 
     /// Set list of unique sites.
     /// @todo add example for how the unique sites are supposed to work.
-    void setUniqueSites(const std::vector<int> &);
+    void setUniqueSites(const std::vector<size_t> &);
 
     /// Returns a unique site.
-    int getUniqueSite(const size_t) const;
+    size_t getUniqueSite(const size_t) const;
 
     /// Returns index of site that matches the given position.
     int findSiteByPosition(const Vector3d &) const;
@@ -101,11 +101,11 @@ class Structure
     /// Set allowed components for each site by vector.
     void setNumberOfAllowedSpecies(const std::vector<int> &);
 
-    /// Set allowed components for each site by scalar.
+    /// Set allowed components for all sites to the same value.
     void setNumberOfAllowedSpecies(const int);
 
     /// Returns number of allowed components on each site.
-    int getNumberOfAllowedSpeciesBySite(const unsigned int) const;
+    int getNumberOfAllowedSpeciesBySite(const size_t) const;
 
     /// Returns number of allowed components on each site.
     std::vector<int> getNumberOfAllowedSpeciesBySites(const std::vector<LatticeSite> &) const;
@@ -116,6 +116,8 @@ class Structure
     /// Returns tolerance applied when comparing positions.
     double getTolerance() const { return _tolerance; }
 
+    /// List of atomic numbers.
+    std::vector<int> _atomicNumbers;
 
   private:
 
@@ -129,7 +131,7 @@ class Structure
     /// @todo move to a more general location.
     double roundFloat(const double &val, const double rounding_tolerance = 1e-7) const
     {
-        return round(val * 1.0 / rounding_tolerance) / (1.0 / rounding_tolerance);
+        return round(val / rounding_tolerance) * rounding_tolerance;
     }
 
 
@@ -141,14 +143,11 @@ class Structure
     /// Cell metric.
     Eigen::Matrix3d _cell;
 
-    /// List of atomic numbers.
-    std::vector<int> _atomicNumbers;
-
     /// Periodic boundary conditions.
     std::vector<bool> _pbc;
 
     /// List of unique sites.
-    std::vector<int> _uniqueSites;
+    std::vector<size_t> _uniqueSites;
 
     /// List of the number of allowed components on each site.
     std::vector<int> _numbersOfAllowedSpecies;

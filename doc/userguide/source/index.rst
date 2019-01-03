@@ -8,18 +8,26 @@
 :program:`icet` — A Pythonic approach to cluster expansions
 ***********************************************************
 
-:program:`icet` is a Python environment for the construction and sampling of
-alloy cluster expansions. It features a Python interface that enables seamless
-integration with other Python libraries including for example
-`SciPy <https://www.scipy.org/>`_ or
-`scikit-learn <http://scikit-learn.org/>`_.
-Yet, all computationally demanding parts are written in C++ providing
-performance while maintaining portability.
+:program:`icet` is a tool for the construction and sampling of alloy cluster
+expansions. A detailed description of the functionality provided as well as an
+extensive tutorial can be found in the `user guide
+<https://icet.materialsmodeling.org/>`_
 
-:program:`icet` requires Python3 and invokes functionality from
-several external libraries including the `atomic simulation
-environment <https://wiki.fysik.dtu.dk/ase>`_ and `spglib
-<https://atztogo.github.io/spglib/>`_.
+:program:`icet` is written in Python, which allows easy integration with
+countless first-principles codes and analysis tools accessible from Python, and
+allows for a simple and intuitive user interface. All computationally demanding
+parts are, however, written in C++ providing performance while maintaining
+portability.
+
+The following snippet provides a minimal example for its usage:
+
+.. code-block:: python
+
+   cs = ClusterSpace(primitive_cell, cutoffs, species)
+   sc = StructureContainer(cs, list_of_training_structure)
+   opt = Optimizer(sc.get_fit_data())
+   opt.train()
+   ce = ClusterExpansion(cs, opt.parameters)
 
 :program:`icet` and its development are hosted on `gitlab
 <https://gitlab.com/materials-modeling/icet>`_. Bugs and feature

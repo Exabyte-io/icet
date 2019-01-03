@@ -38,6 +38,6 @@ if __name__ == '__main__':
     t = time.process_time()
     build_neighbor_list_python(atoms, cutoff)
     elapsed_time_python = time.process_time() - t
-    print('Timing Pyhton (ASE): {:.6f} s'.format(elapsed_time_python))
+    print('Timing Python (ASE): {:.6f} s'.format(elapsed_time_python))
 
     print('C++ speedup: {:.3f}'.format(elapsed_time_python / elapsed_time_cpp))
