@@ -34,7 +34,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tupe(np.ndarray, np.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -202,7 +202,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     @property
     def parameters_splits(self):
-        """ numpy.ndarray : all parameters obtained during cross-validation """
+        """ np.ndarray : all parameters obtained during cross-validation """
         return self._parameters_splits
 
     @property

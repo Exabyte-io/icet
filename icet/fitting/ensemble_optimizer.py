@@ -24,7 +24,7 @@ class EnsembleOptimizer(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tupe(np.ndarray, np.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -136,7 +136,7 @@ class EnsembleOptimizer(BaseOptimizer):
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix where `N` (=rows of `A`, elements of `y`) equals the
             number of target values and `M` (=columns of `A`) equals the number
             of parameters
@@ -144,7 +144,7 @@ class EnsembleOptimizer(BaseOptimizer):
             whether or not to return the standard deviation of the prediction
         Returns
         -------
-        tuple(numpy.ndarray, numpy.ndarray) or tuple(float, float)
+        tuple(np.ndarray, np.ndarray) or tuple(float, float)
             vector of predicted values, vector of standard deviations
         """
         prediction = np.dot(A, self.parameters)
@@ -161,7 +161,7 @@ class EnsembleOptimizer(BaseOptimizer):
     @property
     def error_matrix(self):
         """
-        numpy.ndarray : matrix of fit errors where `N` is the number
+        np.ndarray : matrix of fit errors where `N` is the number
         of target values and `M` is the number of fits (i.e., the size
         of the ensemble)
         """
@@ -204,12 +204,12 @@ class EnsembleOptimizer(BaseOptimizer):
 
     @property
     def parameters_std(self):
-        """ numpy.ndarray : standard deviation for each parameter """
+        """ np.ndarray : standard deviation for each parameter """
         return self._parameters_std
 
     @property
     def parameter_vectors(self):
-        """ list(numpy.ndarray) : all parameter vectors in the ensemble """
+        """ list(np.ndarray) : all parameter vectors in the ensemble """
         return self._parameter_vectors
 
     @property

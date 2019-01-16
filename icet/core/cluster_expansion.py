@@ -10,15 +10,40 @@ from ase import Atoms
 
 
 class ClusterExpansion:
-    """
-    Cluster expansion model
+    """Cluster expansions are obtained by combining a cluster space with
+    a set of effective cluster interactions (ECIs). Instances of this
+    class allow one to predict the property of interest for a given
+    structure.
 
     Attributes
     ----------
     cluster_space : icet.ClusterSpace
         cluster space that was used for constructing the cluster expansion
-    parameters : numpy.ndarray
+    parameters : np.ndarray
         effective cluster interactions (ECIs)
+
+    Example
+    -------
+    The following snippet illustrates the initialization and usage of
+    a ClusterExpansion object. Here, the ECIs are taken to be a list
+    of ones. Usually, they would be obtained by training with
+    respect to a set of reference data::
+
+        from ase.build import bulk
+        from icet import ClusterSpace, ClusterExpansion
+
+        # create cluster expansion
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[7.0, 5.0],
+                          chemical_symbols=[['Au', 'Pd']])
+        ecis = 14 * [1.0]
+        ce = ClusterExpansion(cs, ecis)
+
+        # make prediction for supercell
+        sc = prim.repeat(3)
+        for k in [1, 4, 7]:
+            sc[k].symbol = 'Pd'
+        print(ce.predict(sc))
     """
 
     def __init__(self, cluster_space: ClusterSpace,
@@ -77,7 +102,8 @@ class ClusterExpansion:
         return pd.DataFrame(rows)
 
     @property
-    def orders(self) -> List:
+    def orders(self) -> List[int]:
+        """ orders included in cluster expansion """
         return list(range(len(self.cluster_space.cutoffs)+2))
 
     @property

@@ -39,9 +39,9 @@ def fit(X, y, fit_method, standardize=True, check_condition=True, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray or list(list(float))
+    X : np.ndarray or list(list(float))
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     fit_method : str
         method to be used for training; possible choice are
@@ -91,9 +91,9 @@ def _fit_least_squares(X, y):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
 
     Returns
@@ -120,9 +120,9 @@ def _fit_lasso(X, y, alpha=None, fit_intercept=False, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     alpha : float
         alpha value
@@ -152,9 +152,9 @@ def _fit_lassoCV(X, y, alphas=None, fit_intercept=False, cv=10, n_jobs=-1,
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     alphas : list / array
         list of alpha values to be evaluated during regularization path
@@ -196,9 +196,9 @@ def _fit_elasticnet(X, y, alpha=None, fit_intercept=False, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     alpha : float
         alpha value
@@ -229,11 +229,11 @@ def _fit_elasticnetCV(X, y, alphas=None, l1_ratio=None, fit_intercept=False,
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
-    alphas : list or numpy.ndarray
+    alphas : list or np.ndarray
         list of alpha values to be evaluated during regularization path
     l1_ratio : float or list(float)
         l1_ratio values to be evaluated during regularization path
@@ -280,9 +280,9 @@ def _fit_bayesian_ridge(X, y, fit_intercept=False, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     fit_intercept : bool
         center data or not, forwarded to sklearn
@@ -307,9 +307,9 @@ def _fit_ardr(X, y, threshold_lambda=1e6, fit_intercept=False, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     threshold_lambda : float
         threshold lambda parameter forwarded to sklearn
@@ -338,9 +338,9 @@ def _fit_rfe_l2(X, y, n_features=None, step=None, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     n_features : int
         number of features to select, if None RFECV will be used to determine
@@ -384,9 +384,9 @@ def _fit_rfe_l2_CV(X, y, step=None, rank=1, n_jobs=-1, **kwargs):
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X : np.ndarray
         fit matrix
-    y : numpy.ndarray
+    y : np.ndarray
         target array
     step : int
         number of parameters to eliminate in each iteration

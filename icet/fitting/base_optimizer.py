@@ -76,12 +76,12 @@ class BaseOptimizer(ABC):
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix (`N,M` array) where `N` (=rows of `A`, elements
             of `y`) equals the number of target values and `M`
             (=columns of `A`) equals the number of parameters
             (=elements of `x`)
-        y : numpy.ndarray
+        y : np.ndarray
             vector of target values
 
         Returns
@@ -102,14 +102,14 @@ class BaseOptimizer(ABC):
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix where `N` (=rows of `A`, elements of `y`) equals the
             number of target values and `M` (=columns of `A`) equals the number
             of parameters
 
         Returns
         -------
-        numpy.ndarray or float
+        np.ndarray or float
             vector of predicted values; float if single row provided as input
 
         """
@@ -122,14 +122,14 @@ class BaseOptimizer(ABC):
 
         Parameters
         ----------
-        A : numpy.ndarray
+        A : np.ndarray
             fit matrix where `N` (=rows of `A`, elements of `y`) equals the
             number of target values and `M` (=columns of `A`) equals the number
             of parameters
 
         Returns
         -------
-        numpy.ndarray
+        np.ndarray
             average contribution for each row of `A` from each parameter
         """
         return np.mean(np.abs(np.multiply(A, self.parameters)), axis=0)
@@ -175,7 +175,7 @@ class BaseOptimizer(ABC):
 
     @property
     def parameters(self):
-        """ numpy.ndarray : copy of parameter vector """
+        """ np.ndarray : copy of parameter vector """
         if self._fit_results['parameters'] is None:
             return None
         else:

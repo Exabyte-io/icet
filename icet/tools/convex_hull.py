@@ -15,23 +15,23 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
     Parameters
     ----------
-    concentrations : list of floats / list of lists of floats
+    concentrations : list(float) or list(list(float))
         concentrations for each structure listed as ``[[c1, c2], [c1, c2],
         ...]``; for binaries, in which case there is only one independent
         concentration, the format ``[c1, c2, c3, ...]`` works as well.
-    energies : list of floats
+    energies : list(float)
         energy (or energy of mixing) for each structure
 
     Attributes
     ----------
-    concentrations : NumPy array (N, dimensions)
+    concentrations : np.ndarray
         concentrations of the `N` structures on the convex hull
-    energies : NumPy array
+    energies : np.ndarray
         energies of the `N` structures on the convex hull
     dimensions : int
         number of independent concentrations needed to specify a point in
         concentration space (1 for binaries, 2 for ternaries etc.)
-    structures : list of int
+    structures : list(int)
         indices of structures that constitute the convex hull (indices are
         defined by the order of their concentrations and energies are fed when
         initializing the ConvexHull object)

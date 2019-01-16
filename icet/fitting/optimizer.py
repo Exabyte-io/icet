@@ -25,7 +25,7 @@ class Optimizer(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tupe(np.ndarray, np.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -219,13 +219,13 @@ class Optimizer(BaseOptimizer):
 
     @property
     def contributions_train(self):
-        """ numpy.ndarray : average contribution to the predicted values for
+        """ np.ndarray : average contribution to the predicted values for
         the train set from each parameter """
         return self._contributions_train
 
     @property
     def contributions_test(self):
-        """ numpy.ndarray : average contribution to the predicted values for
+        """ np.ndarray : average contribution to the predicted values for
         the test set from each parameter """
         return self._contributions_test
 
