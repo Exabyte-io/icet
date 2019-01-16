@@ -13,20 +13,21 @@ atoms = make_supercell(ce.cluster_space.primitive_structure,
                                   [1, -1, 1],
                                   [1, 1, -1]]))
 # TODO: Remove this line once atoms is not longer decorated with H atoms
-atoms.numbers = [47]*len(atoms)
+atoms.numbers = [47] * len(atoms)
 
 calculator = ClusterExpansionCalculator(atoms, ce)
 
 # step 2: carry out Monte Carlo simulations
 for temperature in [900, 600, 300]:
     # Evolve configuration through the entire composition range
-    for dmu in arange(-0.6, 0.51, 0.05):
+    for dmu in arange(-0.6, 0.51, 0.1):
         # Initialize MC ensemble
         mc = SemiGrandCanonicalEnsemble(
             atoms=atoms,
             calculator=calculator,
             temperature=temperature,
-            data_container='sgc-T{}-dmu{:.3f}.dc'.format(temperature, dmu),
+            data_container='monte-carlo-data/sgc-T{}-dmu{:.3f}.dc'.format(
+                temperature, dmu),
             chemical_potentials={chemical_symbols[0]: 0,
                                  chemical_symbols[1]: dmu})
 
