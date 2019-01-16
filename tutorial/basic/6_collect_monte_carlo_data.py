@@ -1,8 +1,8 @@
+import pandas as pd
 from glob import glob
 from mchammer import DataContainer
-import pandas as pd
 
-# step 1: Collect data for SGC and VCSGC
+# step 1: Collect data from SGC and VCSGC simulations
 for ensemble in ['sgc', 'vcsgc']:
     data = []
     for filename in glob('monte_carlo_data/{}-*.dc'.format(ensemble)):
@@ -12,7 +12,6 @@ for ensemble in ['sgc', 'vcsgc']:
         n_atoms = data_row['n_atoms']
 
         equilibration = 5 * n_atoms
-
         data_row['Pd_concentration'] = \
             dc.get_average('Pd_count', start=equilibration) / n_atoms
         data_row['mixing_energy'] = \

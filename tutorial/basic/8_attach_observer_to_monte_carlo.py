@@ -6,9 +6,9 @@ from mchammer.ensembles import SemiGrandCanonicalEnsemble as SGCEnsemble
 from mchammer.calculators import ClusterExpansionCalculator as CECalculator
 from mchammer.observers import ClusterExpansionObserver as CEObserver
 
-
 # step 1: Read cluster expansion for mixing energies from file
 ce_mix_energies = ClusterExpansion.read('mixing_energy.ce')
+chemical_symbols = ce_mix_energies.cluster_space.chemical_symbols[0]
 cs = ce_mix_energies.cluster_space
 
 # step 2: Read structures from database into a structure container
@@ -28,8 +28,7 @@ ce_latt_param = ClusterExpansion(cluster_space=cs, parameters=opt.parameters)
 
 # step 4: Set up the calculator and a canonical ensemble
 atoms = cs.primitive_structure.repeat(3)
-# TODO: Remove this line once atoms is not longer decorated with H atoms
-atoms.numbers = [47] * len(atoms)
+atoms.set_chemical_symbols([chemical_symbols[0]] * len(atoms))
 calculator = CECalculator(atoms=atoms, cluster_expansion=ce_mix_energies)
 ensemble = SGCEnsemble(calculator=calculator, atoms=atoms,
                        random_seed=42, temperature=900.0,

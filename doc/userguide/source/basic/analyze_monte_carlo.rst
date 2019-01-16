@@ -41,10 +41,11 @@ of interest, such as the free energy derivative as a function of concentration.
 
 A gap in the semi-grand canonical (SGC) data around 85% Pd indicates a very
 asymmetric miscibility gap, which agrees with `experimental assessments of the
-phase diagram <http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. (It is
+phase diagram <http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. It is
 possible to sample across the miscibility gap using the variance-constrained
-semi-grand canonical (VCSGC) ensemble for sampling.)
-It can also be instructive to plot the mixing energy.
+semi-grand canonical (VCSGC) ensemble for sampling. The latter, however, might
+require longer simulation times to converge. It can also be instructive to plot
+the mixing energy.
 
 .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
    :start-after: # step 2
