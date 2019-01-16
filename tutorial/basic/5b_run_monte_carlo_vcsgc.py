@@ -25,7 +25,7 @@ for temperature in [900, 300]:
             atoms=atoms,
             calculator=calculator,
             temperature=temperature,
-            data_container='monte-carlo-data/vcsgc-T{}-phi{:.3f}.dc'.format(
+            data_container='monte-carlo-data/vcsgc-T{}-phi{:+.3f}.dc'.format(
                 temperature, phi),
             phis={chemical_symbols[0]: -2.0 - phi,
                   chemical_symbols[1]: phi},

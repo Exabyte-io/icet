@@ -7,7 +7,6 @@ dfs['sgc'] = pd.read_csv('monte-carlo-sgc.csv', delimiter='\t')
 dfs['vcsgc'] = pd.read_csv('monte-carlo-vcsgc.csv', delimiter='\t')
 
 
-
 # step 1: Plot free energy derivatives
 colors = {300: '#D62728',  # red
           900: '#1F77B4'}  # blue
@@ -31,11 +30,13 @@ ax.legend()
 plt.savefig('free_energy_derivative.png', bbox_inches='tight')
 
 # step 2: Plot mixing energy vs composition
+df = dfs['sgc']
 fig, ax = plt.subplots(figsize=(4, 3.5))
 for T in sorted(df.temperature.unique()):
     df_T = df.loc[df['temperature'] == T].sort_values('Pd_concentration')
     ax.plot(df_T['Pd_concentration'], 1e3 * df_T['mixing_energy'],
-            marker='o', markersize=2.5, label='{} K'.format(T))
+            marker='o', markersize=2.5, label='{} K'.format(T),
+            color=colors[T])
 ax.set_xlabel('Pd concentration')
 ax.set_ylabel('Mixing energy (meV/atom)')
 ax.set_xlim([-0.02, 1.02])
@@ -43,11 +44,13 @@ ax.legend()
 plt.savefig('mixing_energy_sgc.png', bbox_inches='tight')
 
 # step 3: Plot acceptance ratio vs composition
+df = dfs['sgc']
 fig, ax = plt.subplots(figsize=(4, 3.5))
 for T in sorted(df.temperature.unique()):
     df_T = df.loc[df['temperature'] == T].sort_values('Pd_concentration')
     ax.plot(df_T['Pd_concentration'], df_T['acceptance_ratio'],
-            marker='o', markersize=2.5, label='{} K'.format(T))
+            marker='o', markersize=2.5, label='{} K'.format(T),
+            color=colors[T])
 ax.set_xlabel('Pd concentration')
 ax.set_ylabel('Acceptance ratio')
 ax.set_xlim([-0.02, 1.02])
