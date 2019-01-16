@@ -144,11 +144,11 @@ def map_structure_to_reference(input_structure: Atoms,
                                               mic=True)
             del ideal_supercell[-1]
             if dr < tolerance_mapping:
-                assert mapped[ideal_site.index] < 0, \
-                    ('More than one atom from the relaxed'
-                     ' (and rescaled) structure have been'
-                     ' mapped onto the same ideal site.\n'
-                     ' Try reducing `tolerance_mapping`.')
+                if mapped[ideal_site.index] >= 0:
+                    raise Exception('More than one atom from the relaxed'
+                                    ' (and rescaled) structure have been'
+                                    ' mapped onto the same ideal site.\n'
+                                    ' Try reducing `tolerance_mapping`.')
                 mapped[ideal_site.index] = atom.index
                 drs[ideal_site.index] = dr
                 ideal_site.symbol = atom.symbol
@@ -167,12 +167,12 @@ def map_structure_to_reference(input_structure: Atoms,
     dr_avg = dr_sum / len(ideal_supercell)
     dr_sdv = np.sqrt(dr_sumsq / len(ideal_supercell) - dr_avg ** 2)
 
-    # Check that not more than one atom was assigned to the same site
+    # check that not more than one atom was assigned to the same site
     for k in set(mapped):
         assert k < 0 or mapped.count(k) <= 1, \
             ('Site {} has been assigned more than once.'.format(k))
 
-    # Check that the chemical composition of input and ideal supercell matches
+    # check that the chemical composition of input and ideal supercell matches
     for symbol in set(input_structure.get_chemical_symbols()):
         n1 = input_structure.get_chemical_symbols().count(symbol)
         n2 = ideal_supercell.get_chemical_symbols().count(symbol)
@@ -225,17 +225,17 @@ def _get_scaled_cell(input_structure: Atoms,
     structure.
 
     Parameters
-    - ---------
+    ----------
     input_structure
         relaxed input structure
     reference_structure: ASE Atoms object
         reference structure, which can but need not represent the primitive
         cell
     vacancy_type
-        If not None, the cell is scaled if and only if `inert_species` is not
+        if not None, the cell is scaled if and only if `inert_species` is not
         None
     inert_species
-        List of chemical symbols(e.g., `['Au', 'Pd']`) that are never
+        list of chemical symbols(e.g., `['Au', 'Pd']`) that are never
         substituted for a vacancy. Needless if `vacancy_type` is `None`
     """
     modcell = input_structure.get_cell()
@@ -244,11 +244,12 @@ def _get_scaled_cell(input_structure: Atoms,
         atvol_in = input_structure.get_volume() / len(input_structure)
         atvol_ref = reference_structure.get_volume() / len(reference_structure)
         scale = atvol_in / atvol_ref
+
     if vacancy_type is not None:
         if inert_species is None:
             scale = 1.0
         else:
-            # We can not use the number of atoms since there may be vacancies
+            # We cannot use the number of atoms since there may be vacancies
             # in the input_structure. Instead we count the species that we
             # know should always be present.
             n_in = 0
@@ -269,38 +270,38 @@ def _get_transformation_matrix(input_cell: np.ndarray,
                                reference_cell: np.ndarray,
                                tolerance_cell: float = 0.05) -> np.ndarray:
     """
-    Obtain the(in general non - integer) transformation matrix connecting the
+    Obtains the (in general non-integer) transformation matrix connecting the
     input structure to the reference structure L=L_p.P - -> P=L_p ^ -1.L
 
     Parameters
     ----------
     input_cell
-        Cell metric of input structure(possibly scaled)
+        cell metric of input structure(possibly scaled)
     reference_cell
-        Cell metric of reference structure
+        cell metric of reference structure
     tolerance_cell
-        Tolerance for how much the elements of P are allowed to deviate from
-        nearest integer before they are rounded.
+        tolerance for how much the elements of P are allowed to deviate from
+        the nearest integer before they are rounded
 
     Returns
     -------
-    Transformation matrix P of integers.
+    transformation matrix P of integers
     """
     P = np.dot(input_cell, np.linalg.inv(reference_cell))
 
-    # assert that the transformation matrix does not deviate too
+    # ensure that the transformation matrix does not deviate too
     # strongly from the nearest integer matrix
-    assert np.linalg.norm(P - np.around(P)) / 9 < tolerance_cell, \
-        ('Failed to map structure to reference' +
-         'structure (tolerance_cell exceeded).\n' +
-         'reference:\n {}\n'.format(reference_cell) +
-         'input:\n {}\n'.format(input_cell) +
-         'P:\n {}\n'.format(P) +
-         'det P = {}\n'.format(np.linalg.det(P)) +
-         'P_round:\n {}\n'.format(np.around(P)) +
-         'Deviation: {}\n'.format(np.linalg.norm(P - np.around(P)) / 9) +
-         'If there are vacancies, you can try specifying `inert_species`.' +
-         ' Else, you can try raising `tolerance_cell`.')
+    if np.linalg.norm(P - np.around(P)) / 9 > tolerance_cell:
+        print('reference:\n {}\n'.format(reference_cell))
+        print('input:\n {}\n'.format(input_cell))
+        print('P:\n {}\n'.format(P))
+        print('det P = {}\n'.format(np.linalg.det(P)))
+        print('P_round:\n {}\n'.format(np.around(P)))
+        print('Deviation: {}\n'.format(np.linalg.norm(P - np.around(P)) / 9))
+        raise Exception('Failed to map structure to reference structure'
+                        ' (tolerance_cell exceeded). If there are vacancies,'
+                        ' one can try specifying `inert_species`. Otherwise,'
+                        ' one can try raising `tolerance_cell`.')
 
     # reduce the (real) transformation matrix to the nearest integer one
     P = np.around(P)
@@ -313,9 +314,9 @@ def _rescale_structures(input_structure: Atoms,
                         tolerance_positions: float = 0.01) \
                         -> Tuple[Atoms, Atoms]:
     """
-    Rescale `input_structure` with `P` so that it matches
-    `reference_structure`, and make a supercell of `reference_structure` using
-    `P`
+    Rescales `input_structure` with `P` so that it matches
+    `reference_structure`, and creates a supercell of `reference_structure`
+    using `P`
 
     Parameters
     ----------
@@ -325,29 +326,32 @@ def _rescale_structures(input_structure: Atoms,
         reference structure, which can but need not represent the primitive
         cell
     P
-        Transformation matrix of integers
+        transformation matrix of integers
     tolerance_positions
         tolerance factor applied when scanning for overlapping positions in
         Angstrom(forwarded to `ase.build.cut`)
 
     Returns
     -------
-    A tuple with the scaled version of `input_structure` and the supercell of
-    `reference_structure` matching cell metric of `scaled_structure`.
+    a tuple with the scaled version of `input_structure` and the supercell of
+    `reference_structure` matching cell metric of `scaled_structure`
     """
     scaled_structure = input_structure.copy()
     scaled_structure.set_cell(np.dot(P, reference_structure.cell),
                               scale_atoms=True)
 
     # generate supercell of (presumably primitive) reference structure
-    ideal_supercell = cut(reference_structure,
-                          P[0], P[1], P[2],
+    ideal_supercell = cut(reference_structure, *P,
                           tolerance=tolerance_positions)
-    assert(len(ideal_supercell) ==
-           int(np.round(len(reference_structure) * np.linalg.det(P)))), \
-        ('Supercell construction of reference structure failed'
-         ' (number of atoms do not match).\n'
-         'Permutation matrix used:\n{}'.format(P) +
-         '\nYou can try change tolerance_positions.')
+    n_mapped = int(np.round(len(reference_structure) * np.linalg.det(P)))
+    if len(ideal_supercell) != n_mapped:
+        print('len(reference_structure)', len(reference_structure))
+        print('det(P)', np.linalg.det(P))
+        print('len(ideal_supercell)', len(ideal_supercell))
+        print('n_mapped', n_mapped)
+        raise Exception('Supercell construction of reference structure failed'
+                        ' (number of atoms do not match).\n'
+                        'Permutation matrix used:\n{}'.format(P) +
+                        '\nYou can try to change tolerance_positions.')
 
     return scaled_structure, ideal_supercell
