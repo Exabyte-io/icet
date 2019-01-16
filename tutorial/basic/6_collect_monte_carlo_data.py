@@ -5,7 +5,7 @@ import pandas as pd
 # step 1: Collect data for SGC and VCSGC
 for ensemble in ['sgc', 'vcsgc']:
     data = []
-    for filename in glob('monte-carlo-data/{}-*.dc'.format(ensemble)):
+    for filename in glob('monte_carlo_data/{}-*.dc'.format(ensemble)):
         dc = DataContainer.read(filename)
         data_row = dc.ensemble_parameters
         data_row['filename'] = filename

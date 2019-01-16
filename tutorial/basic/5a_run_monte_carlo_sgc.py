@@ -25,7 +25,7 @@ for temperature in [900, 300]:
             atoms=atoms,
             calculator=calculator,
             temperature=temperature,
-            data_container='monte-carlo-data/sgc-T{}-dmu{:+.3f}.dc'.format(
+            data_container='monte_carlo_data/sgc-T{}-dmu{:+.3f}.dc'.format(
                 temperature, dmu),
             chemical_potentials={chemical_symbols[0]: 0,
                                  chemical_symbols[1]: dmu})
