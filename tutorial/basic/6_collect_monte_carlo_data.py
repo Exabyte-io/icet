@@ -2,6 +2,7 @@ from glob import glob
 from mchammer import DataContainer
 import pandas as pd
 
+# step 1: Collect data for SGC and VCSGC
 for ensemble in ['sgc', 'vcsgc']:
     data = []
     for filename in glob('monte-carlo-data/{}-*.dc'.format(ensemble)):
@@ -28,5 +29,6 @@ for ensemble in ['sgc', 'vcsgc']:
 
         data.append(data_row)
 
+    # step 2: Write data to pandas dataframe in csv format
     df = pd.DataFrame(data)
     df.to_csv('monte-carlo-{}.csv'.format(ensemble), sep='\t')
