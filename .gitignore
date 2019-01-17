@@ -26,6 +26,7 @@ NOTES*
 *.dc
 *.ce
 *.db
+*.csv
 
 !tests/integration/core/equivalent_structure_pairs.db
 !tests/unittest/core/structure_databases/*.db

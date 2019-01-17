@@ -196,7 +196,7 @@ class StructureContainer:
             custom user tag to label structure
         properties
             scalar properties. If properties are not specified the atoms
-            object are required to have an attached ASE calculator object
+            object will be checked for an attached ASE calculator object
             with a calculated potential energy
         allow_duplicate
              whether or not to add the structure if there already exists a
@@ -412,7 +412,8 @@ class StructureContainer:
 
         # Write fit structures as an ASE db in tempfile
         temp_db_file = tempfile.NamedTemporaryFile()
-        db = ase.db.connect(temp_db_file.name, type='db', append=False)
+        if self.fit_structures:
+            db = ase.db.connect(temp_db_file.name, type='db', append=False)
 
         for fit_structure in self.fit_structures:
             data_dict = {'user_tag': fit_structure.user_tag,

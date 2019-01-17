@@ -1,68 +1,75 @@
 .. _tutorial_monte_carlo_analysis:
 .. highlight:: python
 .. index::
-   single: Tutorial; Analyze Monte Carlo simulations
+   single: Tutorial; Analyzing Monte Carlo simulations
 
-Analyze Monte Carlo simulations
-===============================
+Analyzing Monte Carlo simulations
+=================================
 
-After the :ref:`Monte Carlo simulations
-<tutorial_monte_carlo_simulations>` have finished, they can be
-analyzed in various ways. It is convenient first to collect all data
-in a convenient format. Here, we discard data collected during the
-first ten MC cycles to allow for equilibration.
+After the :ref:`Monte Carlo simulations <tutorial_monte_carlo_simulations>`
+have finished, they can be analyzed in various ways. With dense sampling, it
+may take several minutes to load the data. It is therefore recommended to
+first collect all data in averaged form. Here, we read all data containers
+and take averages but discard data collected during the first five MC cycles
+to allow for equilibration (please be aware that in general five MC cycles
+may be insufficient).
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
    :start-after: # step 1
    :end-before: # step 2
 
-Now we can easily plot the chemical potential difference as a function of
-composition. Here, we use a `pandas DataFrame object
-<https://pandas.pydata.org/pandas-docs/stable/generated/pandas.DataFrame.html>`_,
-which provides us with a very simple means to sort the data.
+Next, we create a `pandas DataFrame object <https://pandas.pydata.org
+/pandas-docs/stable/generated/pandas.DataFrame.html>`_ which we store as
+a csv-file for future access.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
    :start-after: # step 2
-   :end-before: # step 3
 
-.. figure:: _static/chemical_potential_difference.png
+Now, we can easily and quickly load the aggregated data and inspect properties
+of interest, such as the free energy derivative as a function of concentration.
 
-  Chemical potential difference as a function of concentration from Monte Carlo
-  simulations in the semi-grandcanonical ensemble.
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 1
+   :end-before: # step 2
 
-In the resulting figure one observes a gap in the :math:`\Delta\mu` vs
-composition plot at concentrations around 85% Pd, which indicates a very
-assymmetric miscibility gap and in qualitative agreement with `experimental
+.. figure:: _static/free_energy_derivative.png
+
+  Free energy derivative as a function of concentration from Monte
+  Carlo simulations in the semi-grand canonical (SGC) and
+  variance-constrained semi-grand canonical (VCSGC) ensembles (the
+  curves are noisy due to insufficient sampling).
+
+A gap in the semi-grand canonical (SGC) data around 85% Pd indicates a
+very asymmetric miscibility gap, which agrees with `experimental
 assessments of the phase diagram
-<http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. In the latter the
-miscibility gap closes, however, already at just above 600 K. This quantitative
-discrepancy can originate from a number of factors including, in approximately
-decreasing order of importance, the exchange-correlation functional used in the
-density functional theory calculations, the accuracy of the cluster expansion,
-vibrational contributions, etc.
+<http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. It is
+possible to sample across the miscibility gap using the
+variance-constrained semi-grand canonical (VCSGC) ensemble for
+sampling. The latter, however, might require longer simulation times
+to obtain well converged data.
 
 It can also be instructive to plot the mixing energy.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
-   :start-after: # step 3
-   :end-before: # step 4
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 2
+   :end-before: # step 3
 
-.. figure:: _static/mixing_energy.png
+.. figure:: _static/mixing_energy_sgc.png
 
   Mixing energy as a function of concentration from Monte Carlo simulations in
-  the semi-grandcanonical ensemble.
+  the SGC ensemble.
 
-Furthermore one might want to consider for example the acceptance rates.
+Furthermore one might want to consider for example the acceptance ratio.
 
-.. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
-   :start-after: # step 4
+.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+   :start-after: # step 3
 
-.. figure:: _static/acceptance_ratio.png
+.. figure:: _static/acceptance_ratio_sgc.png
 
   Acceptance ratio as a function of concentration from Monte Carlo simulations
-  in the semi-grandcanonical ensemble.
+  in the SGC ensemble.
 
-As expected the acceptance rate increases with temperature and is maximal for
+As expected the acceptance ratio increases with temperature and is maximal for
 intermediate concentrations.
 
 Source code
@@ -72,7 +79,16 @@ Source code
 
     .. container:: header
 
-       The complete source code is available in
-       ``tutorial/basic/6_analyze_monte_carlo.py``
+       The source code for data aggregation is available in
+       ``tutorial/basic/6_analyze_monte_carlo.py``.
 
-    .. literalinclude:: ../../../../tutorial/basic/6_analyze_monte_carlo.py
+    .. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+
+.. container:: toggle
+
+    .. container:: header
+
+       The source code for generating the figures is available in
+       ``tutorial/basic/7_plot_monte_carlo_data.py``.
+
+    .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py

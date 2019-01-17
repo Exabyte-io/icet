@@ -58,7 +58,7 @@ class ClusterSpace(_ClusterSpace):
 
         # (Ga,Al)(As,Sb) alloy with pairs, triplets, and quadruplets
         prim = bulk('GaAs', crystalstructure='zincblende', a=6.5)
-        cs = ClusterSpace(atoms=prim, cutoffs=[7.0],
+        cs = ClusterSpace(atoms=prim, cutoffs=[7.0, 6.0, 5.0],
                           chemical_symbols=[['Ga', 'Al'], ['As', 'Sb']])
         print(cs)
 

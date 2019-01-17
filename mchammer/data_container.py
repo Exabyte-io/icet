@@ -16,6 +16,13 @@ from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
 from icet import __version__ as icet_version
 
 
+class Int64Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.int64):
+            return int(obj)
+        return json.JSONEncoder.default(self, obj)
+
+
 class DataContainer:
     """
     Data container for storing information concerned with
@@ -541,7 +548,7 @@ class DataContainer:
 
         reference_data_file = tempfile.NamedTemporaryFile()
         with open(reference_data_file.name, 'w') as handle:
-            json.dump(reference_data, handle)
+            json.dump(reference_data, handle, cls=Int64Encoder)
 
         # Save runtime data
         runtime_data_file = tempfile.NamedTemporaryFile()

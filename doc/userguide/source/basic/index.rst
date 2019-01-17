@@ -5,7 +5,11 @@ Basic tutorial
 **************
 
 This tutorial serves as a hands-on introduction to :program:`icet` and provides
-an overview of its key features.
+an overview of its key features. The objective is to predict the phase diagram
+of the Ag--Pd alloy, which is based on the :term:`FCC` crystal structure. In
+this context, the following sections demonstrate how to construct, validate,
+and sample cluster expansions as well as to analyze the thus obtained data to
+generate a phase diagram.
 
 The scripts and database that are required for this tutorial can be downloaded
 as `a single zip archive <../basic_tutorial.zip>`_.

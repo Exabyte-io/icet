@@ -323,6 +323,13 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
             self.sc.read(temp_file)
         self.assertTrue('{} is not a tar file'.format(str(temp_file.name))
                         in str(context.exception))
+
+        # save and read an empty structure container
+        sc = StructureContainer(self.cs)
+        sc.write(temp_file.name)
+        sc_read = StructureContainer.read(temp_file.name)
+        self.assertEqual(sc_read.__str__(), 'Empty StructureContainer')
+
         # save to file
         self.sc.write(temp_file.name)
 
