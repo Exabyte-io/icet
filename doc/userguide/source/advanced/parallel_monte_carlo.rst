@@ -6,12 +6,13 @@
 Parallel Monte Carlo simulations
 ================================
 
-Monte Carlo simulations are in general pleasingly parallel in the sense that
-no communication is needed between two runs with different sets of parameters.
-In :ref:`mchammer <moduleref_mchammer>`, this can be conveniently exploited
-with the `multiprocessing package
+Monte Carlo simulations are in general `pleasingly parallel
+<https://en.wikipedia.org/wiki/Embarrassingly_parallel>`_ in the sense that no
+communication is needed between two runs with different sets of parameters. In
+:ref:`mchammer <moduleref_mchammer>`, this can be conveniently exploited with
+the `multiprocessing package
 <https://docs.python.org/3/library/multiprocessing.html>`_, which is included
-in Python's standard library. A run script requires very little modification
+in the Python standard library. A run script requires very little modification
 to be parallelized. Here, the :ref:`Monte Carlo simulation in the basic
 tutorial <tutorial_monte_carlo_simulations>` is reproduced. The initialization
 is identic:
@@ -36,7 +37,7 @@ Next, all sets of parameters to be run are stored in a list:
 
 Finally, a `multiprocessing Pool object <https://docs.python.org/3.7/library/m
 ultiprocessing.html#multiprocessing.pool.Pool>`_ is created. At this step, the
-number of processes are specified. It is typically advisable to use the same
+number of processes is specified. It is typically advisable to use the same
 number of processes as available cores. The simulation is started by
 mapping the sets of parameters to the run function:
 
@@ -46,13 +47,13 @@ mapping the sets of parameters to the run function:
 Note that in the above example, an ensemble object will always be initialized
 with the same supercell, which means that the system needs to be equilibrated
 from scratch for every set of parameter. If equilibration is time consuming,
-it may be advisable to, for example, parallelize over temperature but not
-chemical potential.
+it may be advisable to, for example, avoid parallelization over chemical
+potential (but keep parallelization over temperature).
 
 HPC environments
 ----------------
 
-The above desribed parallelization can usually be used in HPC environments as
+The above described parallelization can usually be used in HPC environments as
 well. If the system requires a job to be launched with `aprun`, some extra
 arguments may be required. The following run command has been used
 successfully on at least one such system:
