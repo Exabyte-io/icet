@@ -1,10 +1,10 @@
 .. _tutorial_monte_carlo_analysis:
 .. highlight:: python
 .. index::
-   single: Tutorial; Analyze Monte Carlo simulations
+   single: Tutorial; Analyzing Monte Carlo simulations
 
-Analyze Monte Carlo simulations
-===============================
+Analyzing Monte Carlo simulations
+=================================
 
 After the :ref:`Monte Carlo simulations <tutorial_monte_carlo_simulations>`
 have finished, they can be analyzed in various ways. With dense sampling, it
@@ -39,13 +39,16 @@ of interest, such as the free energy derivative as a function of concentration.
   variance-constrained semi-grand canonical (VCSGC) ensembles (the
   curves are noisy due to insufficient sampling).
 
-A gap in the semi-grand canonical (SGC) data around 85% Pd indicates a very
-asymmetric miscibility gap, which agrees with `experimental assessments of the
-phase diagram <http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. It is
-possible to sample across the miscibility gap using the variance-constrained
-semi-grand canonical (VCSGC) ensemble for sampling. The latter, however, might
-require longer simulation times to converge. It can also be instructive to plot
-the mixing energy.
+A gap in the semi-grand canonical (SGC) data around 85% Pd indicates a
+very asymmetric miscibility gap, which agrees with `experimental
+assessments of the phase diagram
+<http://resource.npl.co.uk/mtdata/phdiagrams/agpd.htm>`_. It is
+possible to sample across the miscibility gap using the
+variance-constrained semi-grand canonical (VCSGC) ensemble for
+sampling. The latter, however, might require longer simulation times
+to obtain well converged data.
+
+It can also be instructive to plot the mixing energy.
 
 .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
    :start-after: # step 2
@@ -76,10 +79,16 @@ Source code
 
     .. container:: header
 
-       The complete source code is available in
-       ``tutorial/basic/6_analyze_monte_carlo.py``
-       and
-       ``tutorial/basic/7_plot_monte_carlo_data.py``
+       The source code for data aggregation is available in
+       ``tutorial/basic/6_analyze_monte_carlo.py``.
 
     .. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+
+.. container:: toggle
+
+    .. container:: header
+
+       The source code for generating the figures is available in
+       ``tutorial/basic/7_plot_monte_carlo_data.py``.
+
     .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
