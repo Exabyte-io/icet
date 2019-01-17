@@ -22,3 +22,4 @@ The scripts in this section can be downloaded as
    cluster_vector_correlations
    neighbor_list
    permutation_matrix
+   parallel_monte_carlo

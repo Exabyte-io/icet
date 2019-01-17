@@ -33,8 +33,7 @@ def run_mc(args):
 args = []
 for temperature in range(600, 199, -100):
     for dmu in np.arange(-0.6, 0.6, 0.05):
-        args.append({'temperature': temperature,
-                     'dmu': dmu})
+        args.append({'temperature': temperature, 'dmu': dmu})
 
 # step 4: Define a Pool object with the desired number of processes and run
 pool = Pool(processes=4)
