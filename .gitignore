@@ -27,6 +27,7 @@ NOTES*
 *.ce
 *.db
 *.csv
+!tutorial/advanced/mixing_energy.ce
 
 !tests/integration/core/equivalent_structure_pairs.db
 !tests/unittest/core/structure_databases/*.db
