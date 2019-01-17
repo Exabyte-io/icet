@@ -192,6 +192,9 @@ class DataContainer:
                         'fill_forward',
                         'linear_interpolate']
 
+        # should not be a member
+        self._data = pd.DataFrame.from_records(self._data_list)
+
         if len(tags) == 0:
             raise TypeError('Missing tags argument')
 
@@ -203,12 +206,12 @@ class DataContainer:
                                         interval=interval)
 
         for tag in tags:
-            if tag not in self.data:
+            if tag not in self._data:
                 raise ValueError('No observable named {} in data'
                                  ' container'.format(tag))
 
         if start is None and stop is None:
-            data = self.data.loc[::interval, tags]
+            data = self._data.loc[::interval, tags]
         else:
             data = self._data.set_index(self._data.mctrial)
             # slice and pass a copy to avoid slowing down dropna method below
@@ -268,7 +271,7 @@ class DataContainer:
     def data(self) -> pd.DataFrame:
         """ pandas data frame (see :class:`pandas.DataFrame`) """
         if self._data_list:
-            return pd.DataFrame.from_records(self._data_list)
+            return pd.DataFrame.from_records(self._data_list, exclude=['occupations'])
         else:
             return self._data
 
@@ -506,12 +509,12 @@ class DataContainer:
                 tar_file.extractfile('runtime_data').read())
 
             runtime_data_file.seek(0)
-            runtime_data = pd.read_json(runtime_data_file, compression='zip')
-            data = runtime_data.sort_index(ascending=True)
-            data.occupations = \
-                data.occupations.replace({None: np.nan})
-
-            dc._data_list = dc._data.to_dict(orient='records')
+            #runtime_data = pd.read_json(runtime_data_file, compression='zip')
+            #data = runtime_data.sort_index(ascending=True)
+            #dc._data_list = data.to_dict(orient='records')
+            #data.occupations = \
+            #   data.occupations.replace({None: np.nan})
+            dc._data_list = np.load(runtime_data_file)['arr_0'].tolist()
 
         return dc
 
@@ -540,11 +543,15 @@ class DataContainer:
         with open(reference_data_file.name, 'w') as handle:
             json.dump(reference_data, handle)
 
-        # Save pandas DataFrame
+        # Save runtime data
         runtime_data_file = tempfile.NamedTemporaryFile()
-        self.data.to_json(runtime_data_file.name, double_precision=15,
-                          compression='zip')
+        #self._data = pd.DataFrame.from_records(self._data_list)
+        #self._data.to_json(runtime_data_file.name, double_precision=15,
+        #                    compression=compress)
 
+        #np.save(runtime_data_file, self._data_list)
+        np.savez_compressed(runtime_data_file, self._data_list)
+        
         with tarfile.open(outfile, mode='w') as handle:
             handle.add(reference_atoms_file.name, arcname='atoms')
             handle.add(reference_data_file.name, arcname='reference_data')
