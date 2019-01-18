@@ -50,19 +50,6 @@ from scratch for every set of parameter. If equilibration is time consuming,
 it may be advisable to, for example, avoid parallelization over chemical
 potential (but keeping parallelization over temperature).
 
-HPC environments
-----------------
-
-The above described parallelization can usually be used in HPC environments as
-well. If the system requires a job to be launched with `aprun`, some extra
-arguments may be required. The following run command has been used
-successfully on at least one such system:
-
-`aprun -n 1 -cc none python3 run-mc.py`
-
-The job should typically run on only one node. Do not forget to adapt the
-number of processes to the specified number of cores!
-
 Source code
 -----------
 
