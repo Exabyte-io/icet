@@ -7,12 +7,11 @@ import numpy as np
 
 # step 1: Set up structure to simulate as well as calculator
 ce = ClusterExpansion.read('mixing_energy.ce')
-chemical_symbols = ce.cluster_space.chemical_symbols[0]
 atoms = make_supercell(ce.cluster_space.primitive_structure,
                        3 * np.array([[-1, 1, 1],
                                      [1, -1, 1],
                                      [1, 1, -1]]))
-atoms.set_chemical_symbols([chemical_symbols[0]] * len(atoms))
+atoms.set_chemical_symbols(['Ag'] * len(atoms))
 calculator = ClusterExpansionCalculator(atoms, ce)
 
 
@@ -25,8 +24,7 @@ def run_mc(args):
         calculator=calculator,
         temperature=temperature,
         data_container='sgc-T{}-dmu{:+.3f}.dc'.format(temperature, dmu),
-        chemical_potentials={chemical_symbols[0]: 0,
-                             chemical_symbols[1]: dmu})
+        chemical_potentials={'Ag': 0, 'Pd': dmu})
     mc.run(number_of_trial_steps=len(atoms) * 30)
 
 
