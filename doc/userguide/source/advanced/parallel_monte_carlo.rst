@@ -48,7 +48,7 @@ Note that in the above example, an ensemble object will always be initialized
 with the same supercell, which means that the system needs to be equilibrated
 from scratch for every set of parameter. If equilibration is time consuming,
 it may be advisable to, for example, avoid parallelization over chemical
-potential (but keep parallelization over temperature).
+potential (but keeping parallelization over temperature).
 
 HPC environments
 ----------------
