@@ -129,9 +129,9 @@ class TestDataContainer(unittest.TestCase):
 
     def test_property_observables(self):
         """Tests observables property."""
-        self.dc.append(mctrial=100,
-                       record=dict(obs1=13, potential=-0.123))
-        self.assertListEqual(self.dc.observables, ['obs1', 'potential'])
+        self.dc._data_list= [{'mctrial': 100, 'obs1': 13, 'potential': -0.123}]
+        self.assertListEqual(sorted(self.dc.observables),
+                             ['obs1', 'potential'])
 
     def test_property_metadata(self):
         """Tests get metadata method."""
@@ -161,14 +161,19 @@ class TestDataContainer(unittest.TestCase):
         """
         # append data to data container
         data_rows = \
-            {'mctrial': [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100],
-             'acceptance_ratio': [0.0, 0.9, 0.7, 0.7, 0.75, 0.7, 0.6,
-                                  0.65, 0.66, 0.666, 0.7],
-             'obs1': [16, None, 16, None, 14, None, 16, None, 14, None, 16],
-             'obs2': [11, None, None, 13, None, None, 10, None, None, 10, None]
-             }
+            [{'mctrial': 0, 'acceptance_ratio': 0.0, 'obs1': 16, 'obs2': 11},
+             {'mctrial': 10, 'acceptance_ratio': 0.9},
+             {'mctrial': 20, 'acceptance_ratio': 0.7, 'obs1': 16},
+             {'mctrial': 30, 'acceptance_ratio': 0.7, 'obs2': 13},
+             {'mctrial': 40, 'acceptance_ratio': 0.75, 'obs1': 14},
+             {'mctrial': 50, 'acceptance_ratio': 0.7},
+             {'mctrial': 60, 'acceptance_ratio': 0.6, 'obs1': 16, 'obs2': 10},
+             {'mctrial': 70, 'acceptance_ratio': 0.65},
+             {'mctrial': 80, 'acceptance_ratio': 0.66, 'obs1': 14},
+             {'mctrial': 90, 'acceptance_ratio': 0.666, 'obs2': 10},
+             {'mctrial': 100, 'acceptance_ratio': 0.7, 'obs1': 16}]
 
-        self.dc._data = pd.DataFrame(data_rows)
+        self.dc._data_list = data_rows
 
         # assert ValueError if no tags are given.
         with self.assertRaises(TypeError) as context:
@@ -304,21 +309,23 @@ class TestDataContainer(unittest.TestCase):
     def test_get_trajectory(self):
         """Tests get_trajectory functionality."""
         data_rows = \
-            {'mctrial': [0, 10, 20, 30, 40, 50, 60],
-             'potential': [-1.32, -1.35, -1.33, -1.07, -1.02, -1.4, -1.3],
-             'occupations': [[14, 14, 14, 14, 14, 14, 14, 14],
-                             np.nan,
-                             [14, 13, 14, 14, 14, 14, 14, 14],
-                             np.nan,
-                             [14, 13, 13, 14, 14, 13, 14, 14],
-                             np.nan,
-                             [13, 13, 13, 13, 13, 13, 13, 14]]}
+            [{'mctrial': 0, 'potential': -1.32,
+              'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             {'mctrial': 10, 'potential': -1.35},
+             {'mctrial': 20, 'potential': -1.33,
+              'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             {'mctrial': 30, 'potential': -1.07},
+             {'mctrial': 40, 'potential': -1.02,
+              'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             {'mctrial': 50, 'potential': -1.4},
+             {'mctrial': 60, 'potential': -1.3,
+              'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}]
 
-        self.dc._data = pd.DataFrame(data_rows)
+        self.dc._data_list = data_rows
 
         # only trajectory
         occupations = \
-            [occ for occ in data_rows['occupations'] if occ is not np.nan]
+            pd.DataFrame(data_rows).occupations.dropna().tolist()
         atoms_list = self.dc.get_data('trajectory')
         for atoms, occupation in zip(atoms_list, occupations):
             self.assertEqual(atoms.numbers.tolist(), occupation)
@@ -342,17 +349,19 @@ class TestDataContainer(unittest.TestCase):
         """Tests write trajectory functionality."""
         # append data
         data_rows = \
-            {'mctrial': [0, 10, 20, 30, 40, 50, 60],
-             'potential': [-1.32, -1.35, -1.33, -1.07, -1.02, -1.4, -1.3],
-             'occupations': [[14, 14, 14, 14, 14, 14, 14, 14],
-                             np.nan,
-                             [14, 13, 14, 14, 14, 14, 14, 14],
-                             np.nan,
-                             [14, 13, 13, 14, 14, 13, 14, 14],
-                             np.nan,
-                             [13, 13, 13, 13, 13, 13, 13, 14]]}
+            [{'mctrial': 0, 'potential': -1.32,
+              'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             {'mctrial': 10, 'potential': -1.35},
+             {'mctrial': 20, 'potential': -1.33,
+              'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             {'mctrial': 30, 'potential': -1.07},
+             {'mctrial': 40, 'potential': -1.02,
+              'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             {'mctrial': 50, 'potential': -1.4},
+             {'mctrial': 60, 'potential': -1.3,
+              'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}]
 
-        self.dc._data = pd.DataFrame(data_rows)
+        self.dc._data_list = data_rows
 
         temp_file = tempfile.NamedTemporaryFile()
         self.dc.write_trajectory(temp_file.name)
