@@ -293,8 +293,7 @@ class BaseEnsemble(ABC):
                         self.calculator.atoms)
 
         if len(row_dict) > 0:
-            #self._data_container.append(mctrial=step, record=row_dict)
-            self._data_container.append_as_dict(mctrial=step, record=row_dict)
+            self._data_container.append(mctrial=step, record=row_dict)
 
     @abstractmethod
     def _do_trial_step(self):
