@@ -129,7 +129,8 @@ class TestDataContainer(unittest.TestCase):
 
     def test_property_observables(self):
         """Tests observables property."""
-        self.dc._data_list= [{'mctrial': 100, 'obs1': 13, 'potential': -0.123}]
+        self.dc._data_list = [{'mctrial': 100, 'obs1': 13,
+                               'potential': -0.123}]
         self.assertListEqual(sorted(self.dc.observables),
                              ['obs1', 'potential'])
 
