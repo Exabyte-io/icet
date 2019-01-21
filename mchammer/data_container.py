@@ -427,7 +427,7 @@ class DataContainer:
         traj.close()
 
     @staticmethod
-    def read(infile: Union[str, BinaryIO, TextIO]):
+    def read(infile: Union[str, BinaryIO, TextIO], old_format: bool = False):
         """
         Reads DataContainer object from file.
 
@@ -435,6 +435,8 @@ class DataContainer:
         ----------
         infile
             file from which to read
+        old_format
+            If true use old json format to read runtime data; default to false
 
         Raises
         ------
@@ -487,9 +489,14 @@ class DataContainer:
             # add runtime data from file
             runtime_data_file.write(
                 tar_file.extractfile('runtime_data').read())
-
             runtime_data_file.seek(0)
-            dc._data_list = np.load(runtime_data_file)['arr_0'].tolist()
+            if old_format:
+                runtime_data = pd.read_json(runtime_data_file)
+                data = runtime_data.sort_index(ascending=True)
+                dc._data_list = \
+                    data.T.apply(lambda x: x.dropna().to_dict()).tolist()
+            else:
+                dc._data_list = np.load(runtime_data_file)['arr_0'].tolist()
 
         return dc
 
