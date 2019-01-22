@@ -262,8 +262,11 @@ class DataContainer:
     @property
     def observables(self) -> List[str]:
         """ observable names """
-        cols = set([key for data in self._data_list for key in data])
-        return list(cols-set(['mctrial']))
+        if self._data_list:
+            cols = set([key for key in self._data_list[0].keys()])
+            return list(cols-{'mctrial'})
+        else:
+            return []
 
     @property
     def metadata(self) -> dict:
@@ -276,8 +279,8 @@ class DataContainer:
         return self._last_state
 
     def reset(self):
-        """ Resets (clears) data frame of data container. """
-        self._data_list = []
+        """ Resets (clears) internal data list of data container. """
+        self._data_list.clear()
 
     def get_number_of_entries(self, tag: str = None) -> int:
         """
