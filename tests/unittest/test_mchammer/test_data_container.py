@@ -133,6 +133,9 @@ class TestDataContainer(unittest.TestCase):
                             'potential': -0.123})
         self.assertListEqual(sorted(self.dc.observables),
                              ['obs1', 'potential'])
+        self.dc.append(20, {'obs2': 14})
+        self.assertListEqual(sorted(self.dc.observables),
+                             ['obs1', 'obs2', 'potential'])
 
     def test_property_metadata(self):
         """Tests get metadata method."""
