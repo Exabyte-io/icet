@@ -54,6 +54,7 @@ class DataContainer:
         self._add_default_metadata()
         self._last_state = {}
 
+        self._observables = set()
         self._data_list = []
 
     def append(self, mctrial: int,
@@ -90,6 +91,9 @@ class DataContainer:
         if not isinstance(record, dict):
             raise TypeError('record has the wrong type: {}'
                             .format(type(record)))
+
+        for tag in record.keys():
+            self._observables.add(tag)
 
         row_data = OrderedDict()
         row_data['mctrial'] = mctrial
@@ -262,11 +266,7 @@ class DataContainer:
     @property
     def observables(self) -> List[str]:
         """ observable names """
-        if self._data_list:
-            cols = set([key for key in self._data_list[0].keys()])
-            return list(cols-{'mctrial'})
-        else:
-            return []
+        return list(self._observables)
 
     @property
     def metadata(self) -> dict:
@@ -281,6 +281,7 @@ class DataContainer:
     def reset(self):
         """ Resets (clears) internal data list of data container. """
         self._data_list.clear()
+        self._observables.clear()
 
     def get_number_of_entries(self, tag: str = None) -> int:
         """
@@ -500,6 +501,9 @@ class DataContainer:
                     data.T.apply(lambda x: x.dropna().to_dict()).tolist()
             else:
                 dc._data_list = np.load(runtime_data_file)['arr_0'].tolist()
+
+        dc._observables = set([key for data in dc._data_list for key in data])
+        dc._observables = dc._observables - {'mctrial'}
 
         return dc
 

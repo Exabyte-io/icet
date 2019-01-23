@@ -129,8 +129,8 @@ class TestDataContainer(unittest.TestCase):
 
     def test_property_observables(self):
         """Tests observables property."""
-        self.dc._data_list = [{'mctrial': 100, 'obs1': 13,
-                               'potential': -0.123}]
+        self.dc.append(10, {'obs1': 13,
+                            'potential': -0.123})
         self.assertListEqual(sorted(self.dc.observables),
                              ['obs1', 'potential'])
 
@@ -162,19 +162,20 @@ class TestDataContainer(unittest.TestCase):
         """
         # append data to data container
         data_rows = \
-            [{'mctrial': 0, 'acceptance_ratio': 0.0, 'obs1': 16, 'obs2': 11},
-             {'mctrial': 10, 'acceptance_ratio': 0.9},
-             {'mctrial': 20, 'acceptance_ratio': 0.7, 'obs1': 16},
-             {'mctrial': 30, 'acceptance_ratio': 0.7, 'obs2': 13},
-             {'mctrial': 40, 'acceptance_ratio': 0.75, 'obs1': 14},
-             {'mctrial': 50, 'acceptance_ratio': 0.7},
-             {'mctrial': 60, 'acceptance_ratio': 0.6, 'obs1': 16, 'obs2': 10},
-             {'mctrial': 70, 'acceptance_ratio': 0.65},
-             {'mctrial': 80, 'acceptance_ratio': 0.66, 'obs1': 14},
-             {'mctrial': 90, 'acceptance_ratio': 0.666, 'obs2': 10},
-             {'mctrial': 100, 'acceptance_ratio': 0.7, 'obs1': 16}]
+            {0: {'acceptance_ratio': 0.0, 'obs1': 16, 'obs2': 11},
+             10: {'acceptance_ratio': 0.9},
+             20: {'acceptance_ratio': 0.7, 'obs1': 16},
+             30: {'acceptance_ratio': 0.7, 'obs2': 13},
+             40: {'acceptance_ratio': 0.75, 'obs1': 14},
+             50: {'acceptance_ratio': 0.7},
+             60: {'acceptance_ratio': 0.6, 'obs1': 16, 'obs2': 10},
+             70: {'acceptance_ratio': 0.65},
+             80: {'acceptance_ratio': 0.66, 'obs1': 14},
+             90: {'acceptance_ratio': 0.666, 'obs2': 10},
+             100: {'acceptance_ratio': 0.7, 'obs1': 16}}
 
-        self.dc._data_list = data_rows
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
 
         # assert ValueError if no tags are given.
         with self.assertRaises(TypeError) as context:
@@ -310,23 +311,24 @@ class TestDataContainer(unittest.TestCase):
     def test_get_trajectory(self):
         """Tests get_trajectory functionality."""
         data_rows = \
-            [{'mctrial': 0, 'potential': -1.32,
-              'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
-             {'mctrial': 10, 'potential': -1.35},
-             {'mctrial': 20, 'potential': -1.33,
-              'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
-             {'mctrial': 30, 'potential': -1.07},
-             {'mctrial': 40, 'potential': -1.02,
-              'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
-             {'mctrial': 50, 'potential': -1.4},
-             {'mctrial': 60, 'potential': -1.3,
-              'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}]
+            {0: {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             10: {'potential': -1.35},
+             20: {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             30: {'potential': -1.07},
+             40: {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             50: {'potential': -1.4},
+             60: {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
 
-        self.dc._data_list = data_rows
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
 
         # only trajectory
         occupations = \
-            pd.DataFrame(data_rows).occupations.dropna().tolist()
+            pd.DataFrame(data_rows).T.occupations.dropna().tolist()
         atoms_list = self.dc.get_data('trajectory')
         for atoms, occupation in zip(atoms_list, occupations):
             self.assertEqual(atoms.numbers.tolist(), occupation)
@@ -350,19 +352,20 @@ class TestDataContainer(unittest.TestCase):
         """Tests write trajectory functionality."""
         # append data
         data_rows = \
-            [{'mctrial': 0, 'potential': -1.32,
-              'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
-             {'mctrial': 10, 'potential': -1.35},
-             {'mctrial': 20, 'potential': -1.33,
-              'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
-             {'mctrial': 30, 'potential': -1.07},
-             {'mctrial': 40, 'potential': -1.02,
-              'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
-             {'mctrial': 50, 'potential': -1.4},
-             {'mctrial': 60, 'potential': -1.3,
-              'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}]
+            {0: {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             10: {'potential': -1.35},
+             20: {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             30: {'potential': -1.07},
+             40: {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             50: {'potential': -1.4},
+             60: {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
 
-        self.dc._data_list = data_rows
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
 
         temp_file = tempfile.NamedTemporaryFile()
         self.dc.write_trajectory(temp_file.name)
