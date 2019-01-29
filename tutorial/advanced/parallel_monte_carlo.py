@@ -11,7 +11,6 @@ atoms = make_supercell(ce.cluster_space.primitive_structure,
                        3 * np.array([[-1, 1, 1],
                                      [1, -1, 1],
                                      [1, 1, -1]]))
-atoms.set_chemical_symbols(['Ag'] * len(atoms))
 calculator = ClusterExpansionCalculator(atoms, ce)
 
 
