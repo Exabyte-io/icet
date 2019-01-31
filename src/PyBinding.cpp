@@ -10,6 +10,7 @@
 #include "ClusterExpansionCalculator.hpp"
 #include <pybind11/pybind11.h>
 #include "Symmetry.hpp"
+#include "PeriodicTable.hpp"
 #include "Orbit.hpp"
 #include "OrbitList.hpp"
 #include <iostream>
@@ -569,8 +570,8 @@ PYBIND11_MODULE(_icet, m)
          )pbdoc")
         .def("__len__", &ClusterCounts::size)
         .def("reset", &ClusterCounts::reset)
-        .def("setup_cluster_counts_info", &ClusterCounts::setupClusterCountsInfo)
-        .def("get_cluster_counts_info", &ClusterCounts::getClusterCountsInfo)
+        //.def("setup_cluster_counts_info", &ClusterCounts::setupClusterCountsInfo)
+        //.def("get_cluster_counts_info", &ClusterCounts::getClusterCountsInfo)
         .def("get_cluster_counts", [](const ClusterCounts &clusterCounts) {
             //&ClusterCounts::getClusterCounts
             py::dict clusterCountDict;
@@ -579,13 +580,20 @@ PYBIND11_MODULE(_icet, m)
                 py::dict d;
                 for (const auto &vecInt_intPair : mapPair.second)
                 {
-                    d[py::tuple(py::cast(vecInt_intPair.first))] = vecInt_intPair.second;
+                    py::list element_symbols;
+                    for (auto el : vecInt_intPair.first)
+                    {
+                        auto getElementSymbols = PeriodicTable::intStr[el];
+                        element_symbols.append(getElementSymbols);
+                    }
+                    d[py::tuple(element_symbols)] = vecInt_intPair.second;
+                    //d[py::tuple(py::cast(vecInt_intPair.first))] = vecInt_intPair.second;
                 }
                 clusterCountDict[py::cast(mapPair.first)] = d;
             }
             return clusterCountDict;
-        })
-        .def("print", &ClusterCounts::print);
+        });
+        //.def("print", &ClusterCounts::print);
 
     // @todo convert getters to properties
     // @todo document Orbit in pybindings
