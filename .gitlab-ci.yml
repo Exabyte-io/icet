@@ -27,12 +27,25 @@ tests:
     - coverage report -m
     - coverage html -d coverage
     - for f in benchmark/*.py; do python3 "$f"; done
-    - for f in tutorial/advanced/*.py; do python3 "$f">/dev/null; done
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   artifacts:
     expire_in: 14 days
     paths:
       - coverage/
+
+
+test_benchmarks_tutorial:
+  stage: test
+  only:
+    - schedules
+  tags:
+    - linux
+  dependencies:
+    - build_linux
+  script:
+    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
+    - for f in benchmark/*.py; do echo $f ; python3 $f ; done
+    - for f in $(ls tutorial/*/*.py | grep -v __ | grep -v parallel_monte_carlo); do echo $f ; cd `dirname $f` ; python3 `basename $f` ; cd ../../ ; done
 
 
 style_check:

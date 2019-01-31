@@ -8,7 +8,7 @@ Monte Carlo simulations
 
 We are now in a position to carry out a series of Monte Carlo (MC) simulations
 to sample the cluster expansion model that was :ref:`constructed
-<tutorial_construct_cluster_expansion>` and :ref`validated
+<tutorial_construct_cluster_expansion>` and :ref:`validated
 <tutorial_compare_to_target_data>` in the previous steps. To set up the
 simulation we first construct a supercell and initialize an associated
 calculator by combining :ref:`our cluster expansion model
