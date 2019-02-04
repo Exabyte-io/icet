@@ -330,7 +330,11 @@ class ClusterSpace(_ClusterSpace):
         """
         Primitive structure on which the cluster space is based
         """
-        return self._get_primitive_structure().to_atoms()
+        atoms = self._get_primitive_structure().to_atoms()
+        # Decorate with the "real" symbols (instead of H, He, Li etc)
+        for atom, symbols in zip(atoms, self._primitive_chemical_symbols):
+            atom.symbol = min(symbols)
+        return atoms
 
     @property
     def chemical_symbols(self) -> List[List[str]]:
