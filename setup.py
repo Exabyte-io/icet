@@ -145,7 +145,7 @@ if __name__ == '__main__':
                           'scipy',
                           'sklearn',
                           'pandas>=0.23',
-                          'spglib>1.11.0.19'],
+                          'spglib>1.12.0'],
         packages=find_packages(),
         cmdclass={'build_ext': BuildExt},
         zip_safe=False,
