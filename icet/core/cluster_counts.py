@@ -58,27 +58,6 @@ class ClusterCounts(_ClusterCounts):
                 local_orbit_list_generator.generate_local_orbit_list(i),
                 keep_order_intact, permute_sites)
 
-        # self.setup_cluster_counts_info()
-
-        # Put clusters in a list that we can sort according to
-        # (1) multiplet and (2) size of cluster
-        # m = 0
-        # cluster_counts = []
-        # for cluster, cluster_info in self.get_cluster_counts().items():
-        #    cluster_counts.append(
-        #        (len(cluster.distances), cluster.radius, cluster,
-        #         (m, m+len(cluster_info))))
-        #    m += len(cluster_info)
-
-        # Put clusters in a sorted order in an OrderedDict together with their
-        # actual counts
-        # sorted_cluster_counts = OrderedDict()
-        # for cluster_data in sorted(cluster_counts):
-        #    cluster = cluster_data[2]
-        #    sorted_cluster_counts[cluster] = {}
-        #    for m in range(*cluster_data[3]):
-        #       chemical_symbols, count = self.get_cluster_counts_info(m)
-        #       sorted_cluster_counts[cluster][tuple(chemical_symbols)] = count
         sorted_cluster_counts = \
             OrderedDict(sorted(self.get_cluster_counts().items()))
         return sorted_cluster_counts
