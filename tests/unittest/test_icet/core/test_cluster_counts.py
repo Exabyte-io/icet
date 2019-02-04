@@ -168,7 +168,11 @@ Ni  Ni   6
 
     def test_get_cluster_counts(self):
         """Tests get_cluster_counts functionality."""
-        pass
+        counts = self.cluster_counts.get_cluster_counts()
+        for cluster, cluster_info in counts.items():
+            # check size of cluster match the number of elements in counts
+            for elements in cluster_info:
+                self.assertEqual(len(cluster), len(elements))
 
 
 if __name__ == '__main__':
