@@ -30,7 +30,7 @@ import unittest
 
 import numpy as np
 from ase import Atoms
-from ase.build import bulk, fcc111
+from ase.build import bulk
 from ase.db import connect as db_connect
 from icet import ClusterSpace
 from icet.core.cluster_space import (get_singlet_info,
