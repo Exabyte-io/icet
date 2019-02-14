@@ -42,7 +42,7 @@ class ConfigurationManager(object):
                  occupation_constraints: List[List[int]] = None) -> None:
 
         self._atoms = atoms
-        self._occupations = atoms.numbers
+        self._occupations = atoms.numbers.copy()
         self._sites_by_sublattice = sites_by_sublattice
 
         if occupation_constraints is not None:

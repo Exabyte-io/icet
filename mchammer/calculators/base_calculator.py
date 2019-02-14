@@ -14,7 +14,7 @@ class BaseCalculator(ABC):
     """
 
     def __init__(self, atoms, name='BaseCalculator'):
-        self._atoms = atoms
+        self._atoms = atoms.copy()
         self.name = name
 
     @property
