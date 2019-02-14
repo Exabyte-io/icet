@@ -48,14 +48,14 @@ class TestBaseCalculator(unittest.TestCase):
         elements = [6, 1, 2]
 
         # Test first that everything is Al
-        self.assertEqual(self.atoms[0].symbol, 'Al')
-        self.assertEqual(self.atoms[1].symbol, 'Al')
-        self.assertEqual(self.atoms[3].symbol, 'Al')
+        self.assertEqual(self.calculator.atoms[0].symbol, 'Al')
+        self.assertEqual(self.calculator.atoms[1].symbol, 'Al')
+        self.assertEqual(self.calculator.atoms[3].symbol, 'Al')
 
         self.calculator.update_occupations(indices, elements)
-        self.assertEqual(self.atoms[0].symbol, 'C')
-        self.assertEqual(self.atoms[1].symbol, 'H')
-        self.assertEqual(self.atoms[3].symbol, 'He')
+        self.assertEqual(self.calculator.atoms[0].symbol, 'C')
+        self.assertEqual(self.calculator.atoms[1].symbol, 'H')
+        self.assertEqual(self.calculator.atoms[3].symbol, 'He')
 
         # test that correct exceptions are raised
         with self.assertRaises(TypeError) as context:
