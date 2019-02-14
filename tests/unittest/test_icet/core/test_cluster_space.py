@@ -130,7 +130,8 @@ class TestClusterSpace(unittest.TestCase):
         self.assertIsInstance(cs, ClusterSpace)
         self.assertEqual(len(cs), len(self.cs))
 
-        # fail if pbc is false
+    def test_init_fails_for_non_pbc(self):
+        """Tests that initialization fails if pbc is false."""
         atoms_surface = self.atoms_prim.copy()
         atoms_surface.pbc = [1, 1, 0]
         with self.assertRaises(ValueError):
