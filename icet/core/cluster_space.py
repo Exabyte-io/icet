@@ -67,6 +67,15 @@ class ClusterSpace(_ClusterSpace):
         cs = ClusterSpace(atoms=prim, cutoffs=[7.0, 5.0],
                           chemical_symbols=[['Au', 'Cu', 'Pd']])
         print(cs)
+
+
+    Using non-pbc structures
+    ------------------------
+    In icet all ase.Atoms objects must have periodic boundary conditions.
+    When carrying out cluster-expansions for surfaces and nano-particles it is
+    therefore recommended to embed the atoms object in a vacuum and use
+    periodic boundary conditions. This can be done using e.g. atoms.center()
+
     """
 
     def __init__(self, atoms: Atoms, cutoffs: List[float],
