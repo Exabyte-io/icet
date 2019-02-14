@@ -134,8 +134,10 @@ class TestClusterSpace(unittest.TestCase):
         """Tests that initialization fails if pbc is false."""
         atoms_surface = self.atoms_prim.copy()
         atoms_surface.pbc = [1, 1, 0]
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             ClusterSpace(atoms_surface, self.cutoffs, self.chemical_symbols)
+        self.assertTrue('Input structure must have periodic boundary '
+                        'condition' in str(cm.exception))
 
     def test_len(self):
         """Tests length functionality."""
