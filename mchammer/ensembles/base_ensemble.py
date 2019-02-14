@@ -495,3 +495,8 @@ class BaseEnsemble(ABC):
     def ensemble_parameters(self) -> dict:
         """Returns parameters associated with the ensemble."""
         return self._ensemble_parameters.copy()
+
+    @property
+    def last_structure(self) -> Atoms:
+        """Returns atomic structure with the latest configuration."""
+        return self.configuration.atoms.copy()

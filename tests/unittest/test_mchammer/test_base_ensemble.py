@@ -396,6 +396,11 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.data_container_write_period = 1e-2
         self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
 
+    def test_last_structure_property(self):
+        """Tests property last structure."""
+        self.assertEqual(self.ensemble.last_structure,
+                         self.ensemble.configuration.atoms)
+
 
 if __name__ == '__main__':
     unittest.main()
