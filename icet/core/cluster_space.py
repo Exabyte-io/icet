@@ -75,6 +75,8 @@ class ClusterSpace(_ClusterSpace):
         if not isinstance(atoms, Atoms):
             raise TypeError('Input configuration must be an ASE Atoms object'
                             ', not type {}'.format(type(atoms)))
+        if not all(atoms.pbc):
+            raise ValueError('Input structure must have pbc')
 
         self._atoms = atoms.copy()
         self._cutoffs = cutoffs
