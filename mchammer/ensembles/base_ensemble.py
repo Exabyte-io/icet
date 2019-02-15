@@ -498,9 +498,9 @@ class BaseEnsemble(ABC):
         return self._ensemble_parameters.copy()
 
 
-def dicts_equal(dict1, dict2, atol=1e-12):
-    """ Check if two dicts are equal, if float or intergers are in the dicts
-    then atol is used for comparing them. """
+def dicts_equal(dict1: Dict, dict2: Dict, atol: float=1e-12) -> bool:
+    """ Check if two dicts are equal, if float or intergers
+    are in the dicts then atol is used for comparing them. """
     if len(dict1) != len(dict2):
         return False
     for key in dict1.keys():
