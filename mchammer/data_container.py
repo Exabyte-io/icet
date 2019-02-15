@@ -122,7 +122,7 @@ class DataContainer:
         self._last_state['random_state'] = random_state
 
     def update_from_observer(self, observer):
-        """ Add observer data from observer to datacontainer.
+        """ Adds observer data from observer to datacontainer.
 
         The observer will only be run for the mctrials for which the
         trajectory have been saved.
