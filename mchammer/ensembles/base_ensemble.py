@@ -111,7 +111,8 @@ class BaseEnsemble(ABC):
             self._data_container = DataContainer.read(data_container)
 
             dc_ensemble_parameters = self.data_container.ensemble_parameters
-            if not dicts_equals(self.ensemble_parameters, dc_ensemble_parameters):
+            if not dicts_equals(self.ensemble_parameters,
+                                dc_ensemble_parameters):
                 raise ValueError('Ensemble parameters do not match with those'
                                  ' stored in DataContainer file: {}'.format(
                                      set(dc_ensemble_parameters.items()) -
@@ -505,7 +506,8 @@ def dicts_equals(dict1, dict2, atol=1e-12):
     for key in dict1.keys():
         if key not in dict2:
             return False
-        if isinstance(dict1[key], (int, float)) and isinstance(dict2[key], (int, float)):
+        if isinstance(dict1[key], (int, float)) and \
+           isinstance(dict2[key], (int, float)):
             if not np.allclose(dict1[key], dict2[key], rtol=0.0, atol=atol):
                 return False
         else:
