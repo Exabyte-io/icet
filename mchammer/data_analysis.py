@@ -44,8 +44,8 @@ def estimate_correlation_length(data):
 
     Returns
     -------
-    numpy.ndarray
-        calculated autocorrelation function
+    int
+        correlation length
     """
 
     acf = compute_autocorrelation_function(data)
@@ -63,6 +63,15 @@ def estimate_error(data, confidence=0.95):
     where t_factor is the factor corresponding to the confidence interval
     Ns is the number of indepdent measurements
 
+    Parameters
+    ----------
+    data : np.ndarray
+        data series to compute autocorrelation function for
+
+    Returns
+    -------
+    float
+        error
     """
     corr_length = estimate_correlation_length(data)
     t_factor = scipy.stats.t.ppf((1 + confidence) / 2, len(data)-1)

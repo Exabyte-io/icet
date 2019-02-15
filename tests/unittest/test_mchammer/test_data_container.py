@@ -266,8 +266,24 @@ class TestDataContainer(unittest.TestCase):
         self.assertTrue('No observable named xyz'
                         in str(context.exception))
 
+    def test_get_correlation_length(self):
+        """Tests get_correlation_length functionality."""
+
+        # set up a random list of values with a normal distribution
+        n_iter, mu, sigma = 100, 1.0, 0.1
+        np.random.seed(12)
+        for mctrial in range(n_iter):
+            row = {'obs1': np.random.normal(mu, sigma), 'obs2': 4.0}
+            self.dc.append(mctrial, record=row)
+
+        # test correlation length
+        corr_length1 = self.dc.get_correlation_length('obs1')
+        self.assertEqual(corr_length1, 1)
+        corr_length2 = self.dc.get_correlation_length('obs2')
+        self.assertTrue(np.isnan(corr_length2))
+
     def test_get_average_and_standard_deviation(self):
-        """Tests get average functionality."""
+        """Tests get average and get standard deviation functionality."""
         # set up a random list of values with a normal distribution
         n_iter, mu, sigma = 100, 1.0, 0.1
         np.random.seed(12)

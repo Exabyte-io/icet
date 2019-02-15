@@ -14,6 +14,7 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
 from icet import __version__ as icet_version
+from .data_analysis import estimate_correlation_length
 
 
 class Int64Encoder(json.JSONEncoder):
@@ -306,6 +307,45 @@ class DataContainer:
                 raise ValueError('No observable named {}'
                                  ' in data container'.format(tag))
             return data[tag].count()
+
+    def get_correlation_length(self, tag: str, start: int = None,
+                               stop: int = None, max_lag: int = None) -> int:
+        """
+        Returns average of a scalar observable.
+
+        Parameters
+        ----------
+        tag
+            tag of field over which to average
+        start
+            minimum value of trial step to consider; by default the
+            smallest value in the mctrial column will be used.
+        stop
+            maximum value of trial step to consider; by default the
+            largest value in the mctrial column will be used.
+        max_lag
+            maximum lag between two points in data series, by default the
+            largest length of the data series will be used.
+        Raises
+        ------
+        ValueError
+            if observable is requested that is not in data container
+        ValueError
+            if observable is not scalar
+        ValueError
+            if observations is not evenly spaced
+        """
+        if tag in ['trajectory', 'occupations']:
+            raise ValueError('{} is not scalar'.format(tag))
+        steps, data = self.get_data('mctrial', tag, start=start, stop=stop)
+
+        # check that steps are evenly spaced
+        diff = np.diff(steps)
+        if not np.allclose(diff, diff[0]):
+            raise ValueError('data records must be evenly spaced.')
+
+        corr_length = estimate_correlation_length(data)
+        return corr_length
 
     def get_average(self, tag: str,
                     start: int = None, stop: int = None) -> float:
