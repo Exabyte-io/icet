@@ -1,6 +1,8 @@
 import pandas as pd
 from glob import glob
 from mchammer import DataContainer
+from mchammer.data_analysis import estimate_error
+import numpy as np
 
 # step 1: Collect data from SGC and VCSGC simulations
 for ensemble in ['sgc', 'vcsgc']:
@@ -12,10 +14,17 @@ for ensemble in ['sgc', 'vcsgc']:
         n_atoms = data_row['n_atoms']
 
         equilibration = 5 * n_atoms
-        data_row['Pd_concentration'] = \
-            dc.get_average('Pd_count', start=equilibration) / n_atoms
-        data_row['mixing_energy'] = \
-            dc.get_average('potential', start=equilibration) / n_atoms
+
+        Pd_concentration = \
+            dc.get_data('Pd_count', start=equilibration) / n_atoms
+        data_row['Pd_concentration'] = np.average(Pd_concentration)
+        data_row['Pd_concentration_error'] = estimate_error(Pd_concentration)
+
+        mixing_energy = \
+            dc.get_data('potential', start=equilibration) / n_atoms
+        data_row['mixing_energy'] = np.average(mixing_energy)
+        data_row['mixing_energy_error'] = estimate_error(mixing_energy) 
+
         data_row['acceptance_ratio'] = \
             dc.get_average('acceptance_ratio', start=equilibration)
         if ensemble == 'sgc':
