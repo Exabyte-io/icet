@@ -112,7 +112,7 @@ class BaseEnsemble(ABC):
 
             dc_ensemble_parameters = self.data_container.ensemble_parameters
             if not dicts_equal(self.ensemble_parameters,
-                                dc_ensemble_parameters):
+                               dc_ensemble_parameters):
                 raise ValueError('Ensemble parameters do not match with those'
                                  ' stored in DataContainer file: {}'.format(
                                      set(dc_ensemble_parameters.items()) -
