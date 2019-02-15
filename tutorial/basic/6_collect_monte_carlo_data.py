@@ -15,15 +15,13 @@ for ensemble in ['sgc', 'vcsgc']:
 
         equilibration = 5 * n_atoms
 
-        Pd_concentration = \
-            dc.get_data('Pd_count', start=equilibration) / n_atoms
-        data_row['Pd_concentration'] = np.average(Pd_concentration)
-        data_row['Pd_concentration_error'] = estimate_error(Pd_concentration)
+        stats = dc.analyze_data('Pd_count', start=equilibration)
+        data_row['Pd_concentration'] = stats['mean'] / n_atoms
+        data_row['Pd_concentration_error'] = stats['error_estimate'] / n_atoms
 
-        mixing_energy = \
-            dc.get_data('potential', start=equilibration) / n_atoms
-        data_row['mixing_energy'] = np.average(mixing_energy)
-        data_row['mixing_energy_error'] = estimate_error(mixing_energy)
+        stats = dc.analyze_data('potential', start=equilibration)
+        data_row['mixing_energy'] = stats['mean'] / n_atoms
+        data_row['mixing_energy_error'] = stats['error_estimate'] / n_atoms
 
         data_row['acceptance_ratio'] = \
             dc.get_average('acceptance_ratio', start=equilibration)
