@@ -61,7 +61,7 @@ def estimate_error(data, confidence=0.95):
 
     error = t_factor * std(data) / sqrt(Ns)
     where t_factor is the factor corresponding to the confidence interval
-    Ns is the number of indepdent measurements
+    Ns is the number of independent measurements
 
     Parameters
     ----------
