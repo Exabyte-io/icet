@@ -185,7 +185,7 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertEqual(list(self.cm.occupations[indices]), elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
-        # test input atoms remain unchanged
+        # test input atoms remains unchanged
         self.assertEqual(self.atoms, atoms_cpy)
 
         # test that correct exceptions are raised

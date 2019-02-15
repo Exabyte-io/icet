@@ -45,6 +45,7 @@ class TestBaseCalculator(unittest.TestCase):
     def test_update_occupations(self):
         """Tests set elements method."""
         atoms_cpy = self.atoms.copy()
+
         indices = [0, 1, 3]
         elements = [6, 1, 2]
 
@@ -58,7 +59,7 @@ class TestBaseCalculator(unittest.TestCase):
         self.assertEqual(self.calculator.atoms[1].symbol, 'H')
         self.assertEqual(self.calculator.atoms[3].symbol, 'He')
 
-        # test input atoms remains unchaged
+        # test input atoms remains unchanged
         self.assertEqual(self.atoms, atoms_cpy)
 
         # test that correct exceptions are raised
