@@ -118,6 +118,40 @@ class TestDataContainer(unittest.TestCase):
             if key == 'random_state':
                 self.assertIsInstance(value, tuple)
 
+    def test_update_from_observer(self):
+        """ Test update from observer """
+
+        # generate dc with data and occupations
+        data_rows = \
+            {0: {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             10: {'potential': -1.35},
+             20: {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             30: {'potential': -1.07},
+             40: {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             50: {'potential': -1.4},
+             60: {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
+
+        # run new observer on
+        class MyObserver(BaseObserver):
+            def get_observable(self, atoms):
+                Al_count = atoms.numbers.tolist().count(13)
+                return Al_count**2
+
+        new_observer = MyObserver(interval=1, return_type=float, tag='myobs')
+        self.dc.update_from_observer(new_observer)
+
+        for row in self.dc._data_list:
+            if 'occupations' in row:
+                self.assertIn('myobs', row)
+                target_obs = row['occupations'].count(13)**2
+                self.assertEqual(target_obs, row['myobs'])
+
     def test_property_data(self):
         """Tests data property."""
         self.assertIsInstance(self.dc.data, pd.DataFrame)

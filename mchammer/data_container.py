@@ -121,6 +121,27 @@ class DataContainer:
         self._last_state['accepted_trials'] = accepted_trials
         self._last_state['random_state'] = random_state
 
+    def update_from_observer(self, observer):
+        """ Add observer data from observer to datacontainer.
+
+        The observer will only be run for the mctrials for which the
+        trajectory have been saved.
+
+        Observer's interval is ignored.
+
+        Parameters
+        ----------
+        observer
+            observer to be used
+        """
+        for row_data in self._data_list:
+            if 'occupations' in row_data:
+                atoms = self.atoms.copy()
+                atoms.numbers = row_data['occupations']
+                record = {observer.tag: observer.get_observable(atoms)}
+                row_data.update(record)
+                self._observables.add(observer.tag)
+
     def get_data(self, *tags,
                  start: int = None,
                  stop: int = None,
