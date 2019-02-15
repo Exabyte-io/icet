@@ -11,7 +11,7 @@ def analyze_data(data, max_lag=None):
     data : np.ndarray
         data series to compute autocorrelation function for
     max_lag : int
-        maximum lag between two data points
+        maximum lag between two data points, used for computing autocorrelation
 
     Returns
     -------

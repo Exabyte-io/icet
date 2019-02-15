@@ -326,6 +326,7 @@ class DataContainer:
         max_lag
             maximum lag between two points in data series, by default the
             largest length of the data series will be used.
+            Used for computing autocorrelation
         Raises
         ------
         ValueError
