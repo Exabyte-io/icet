@@ -183,7 +183,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble._step, 70)
 
         # Do a number of steps of continuous runs and see that
-        # we get the expected number of parakeet observations.
+        # we get the expected number of observations.
         for i in range(30):
             self.ensemble.reset_data_container()
             run_iters = [1, 50, 100, 200, i]
