@@ -499,7 +499,7 @@ class BaseEnsemble(ABC):
 
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float=1e-12) -> bool:
-    """ Check if two dicts are equal, if float or intergers
+    """ Check if two dicts are equal, if float or integers
     are in the dicts then atol is used for comparing them. """
     if len(dict1) != len(dict2):
         return False
