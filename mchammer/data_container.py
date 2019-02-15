@@ -309,7 +309,7 @@ class DataContainer:
             return data[tag].count()
 
     def analyze_data(self, tag: str, start: int = None,
-                     stop: int = None, max_lag: int = None) -> int:
+                     stop: int = None, max_lag: int = None) -> dict:
         """
         Returns detailed analysis of a scalar observerable.
 
