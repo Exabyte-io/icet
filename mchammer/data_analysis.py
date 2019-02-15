@@ -61,17 +61,18 @@ def estimate_error(data, confidence=0.95):
 
     error = t_factor * std(data) / sqrt(Ns)
     where t_factor is the factor corresponding to the confidence interval
-    Ns is the number of indepdent measurements
+    Ns is the number of indepdent measurements (with correlation taken
+    into account)
 
     Parameters
     ----------
     data : np.ndarray
-        data series to compute autocorrelation function for
+        data series to to estimate error for
 
     Returns
     -------
     float
-        error
+        error estimate
     """
     corr_length = estimate_correlation_length(data)
     t_factor = scipy.stats.t.ppf((1 + confidence) / 2, len(data)-1)
