@@ -266,8 +266,8 @@ class TestDataContainer(unittest.TestCase):
         self.assertTrue('No observable named xyz'
                         in str(context.exception))
 
-    def test_get_correlation_length(self):
-        """Tests get_correlation_length functionality."""
+    def test_analyze_data(self):
+        """Tests analyze_data functionality."""
 
         # set up a random list of values with a normal distribution
         n_iter, mu, sigma = 100, 1.0, 0.1
@@ -276,11 +276,13 @@ class TestDataContainer(unittest.TestCase):
             row = {'obs1': np.random.normal(mu, sigma), 'obs2': 4.0}
             self.dc.append(mctrial, record=row)
 
-        # test correlation length
-        corr_length1 = self.dc.get_correlation_length('obs1')
-        self.assertEqual(corr_length1, 1)
-        corr_length2 = self.dc.get_correlation_length('obs2')
-        self.assertTrue(np.isnan(corr_length2))
+        # check obs1
+        summary1 = self.dc.analyze_data('obs1')
+        self.assertEqual(summary1['correlation_length'], 1)
+
+        # check obs2
+        summary2 = self.dc.analyze_data('obs2')
+        self.assertTrue(np.isnan(summary2['correlation_length']))
 
     def test_get_average_and_standard_deviation(self):
         """Tests get average and get standard deviation functionality."""
@@ -295,25 +297,17 @@ class TestDataContainer(unittest.TestCase):
 
         # get average over all mctrials
         mean = self.dc.get_average('obs1')
-        std = self.dc.get_standard_deviation('obs1')
         self.assertAlmostEqual(mean, 0.9855693, places=7)
-        self.assertAlmostEqual(std, 0.1045950, places=7)
 
         # get average over slice of data
         mean = self.dc.get_average('obs1', start=60)
-        std = self.dc.get_standard_deviation('obs1', start=60)
         self.assertAlmostEqual(mean, 0.9851106, places=7)
-        self.assertAlmostEqual(std, 0.0981344, places=7)
 
         mean = self.dc.get_average('obs1', stop=60)
-        std = self.dc.get_standard_deviation('obs1', stop=60)
         self.assertAlmostEqual(mean, 0.9876534, places=7)
-        self.assertAlmostEqual(std, 0.1086700, places=7)
 
         mean = self.dc.get_average('obs1', start=40, stop=60)
-        std = self.dc.get_standard_deviation('obs1', start=40, stop=60)
         self.assertAlmostEqual(mean, 1.0137074, places=7)
-        self.assertAlmostEqual(std, 0.1124826, places=7)
 
         # test fails for non-existing data
         with self.assertRaises(ValueError) as context:

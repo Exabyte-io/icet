@@ -14,7 +14,7 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
 from icet import __version__ as icet_version
-from .data_analysis import estimate_correlation_length
+from .data_analysis import analyze_data
 
 
 class Int64Encoder(json.JSONEncoder):
@@ -308,10 +308,10 @@ class DataContainer:
                                  ' in data container'.format(tag))
             return data[tag].count()
 
-    def get_correlation_length(self, tag: str, start: int = None,
-                               stop: int = None, max_lag: int = None) -> int:
+    def analyze_data(self, tag: str, start: int = None,
+                     stop: int = None, max_lag: int = None) -> int:
         """
-        Returns correlation length.
+        Returns detailed analysis of a scalar observerable.
 
         Parameters
         ----------
@@ -334,6 +334,10 @@ class DataContainer:
             if observable is not scalar
         ValueError
             if observations is not evenly spaced
+
+        Returns
+        -------
+        dict containing detailed information about data
         """
         if tag in ['trajectory', 'occupations']:
             raise ValueError('{} is not scalar'.format(tag))
@@ -341,11 +345,13 @@ class DataContainer:
 
         # check that steps are evenly spaced
         diff = np.diff(steps)
-        if not np.allclose(diff, diff[0]):
+        step_length = diff[0]
+        if not np.allclose(step_length, diff):
             raise ValueError('data records must be evenly spaced.')
 
-        corr_length = estimate_correlation_length(data)
-        return corr_length
+        summary = analyze_data(data)
+        summary['correlation_length'] *= step_length  # in mc-trials
+        return summary
 
     def get_average(self, tag: str,
                     start: int = None, stop: int = None) -> float:
@@ -374,35 +380,6 @@ class DataContainer:
             raise ValueError('{} is not scalar'.format(tag))
         data = self.get_data(tag, start=start, stop=stop)
         return np.mean(data)
-
-    def get_standard_deviation(self, tag: str, start: int = None,
-                               stop: int = None) -> float:
-        """
-        Returns standard deviation of a scalar observable, calculated using
-        numpy.
-
-        Parameters
-        ----------
-        tag
-            tag of field over which to average
-        start
-            minimum value of trial step to consider; by default the
-            smallest value in the mctrial column will be used.
-        stop
-            maximum value of trial step to consider; by default the
-            largest value in the mctrial column will be used.
-
-        Raises
-        ------
-        ValueError
-            if observable is requested that is not in data container
-        ValueError
-            if observable is not scalar
-        """
-        if tag in ['trajectory', 'occupations']:
-            raise ValueError('{} is not scalar'.format(tag))
-        data = self.get_data(tag, start=start, stop=stop)
-        return np.std(data)
 
     def _get_trajectory(self, *tags, start: int = None, stop: int = None,
                         interval: int = 1) \

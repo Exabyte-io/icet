@@ -3,6 +3,31 @@ import numpy as np
 import scipy
 
 
+def analyze_data(data, max_lag=None):
+    """ Carries out a extensive analysis of the data series.
+
+    Parameters
+    ----------
+    data : np.ndarray
+        data series to compute autocorrelation function for
+    max_lag : int
+        maximum lag between two data points
+
+    Returns
+    -------
+    dict
+        calculated properties of the data
+    """
+    acf = compute_autocorrelation_function(data, max_lag)
+    correlation_length = _estimate_correlation_length_from_acf(acf)
+    error_estimate = _estimate_error(data, correlation_length, confidence=0.95)
+    summary = dict(mean=data.mean(),
+                   std=data.std(),
+                   correlation_length=correlation_length,
+                   error_estimate=error_estimate)
+    return summary
+
+
 def compute_autocorrelation_function(data, max_lag=None):
     """ Returns autocorrelation function.
 
@@ -49,11 +74,8 @@ def estimate_correlation_length(data):
     """
 
     acf = compute_autocorrelation_function(data)
-    lengths = np.where(acf < np.exp(-2))[0]  # ACF < exp(-2)
-    if len(lengths) == 0:
-        return np.nan
-    else:
-        return lengths[0]
+    correlation_length = _estimate_correlation_length_from_acf(acf)
+    return correlation_length
 
 
 def estimate_error(data, confidence=0.95):
@@ -74,7 +96,22 @@ def estimate_error(data, confidence=0.95):
     float
         error estimate
     """
-    corr_length = estimate_correlation_length(data)
+    correlation_length = estimate_correlation_length(data)
+    error_estimate = _estimate_error(data, correlation_length, confidence)
+    return error_estimate
+
+
+def _estimate_correlation_length_from_acf(acf):
+    """ Estimate correlation length from acf """
+    lengths = np.where(acf < np.exp(-2))[0]  # ACF < exp(-2)
+    if len(lengths) == 0:
+        return np.nan
+    else:
+        return lengths[0]
+
+
+def _estimate_error(data, correlation_length, confidence):
+    """ Estimate error using correlation length"""
     t_factor = scipy.stats.t.ppf((1 + confidence) / 2, len(data)-1)
-    error = t_factor * np.std(data) / np.sqrt(len(data)/corr_length)
+    error = t_factor * np.std(data) / np.sqrt(len(data) / correlation_length)
     return error
