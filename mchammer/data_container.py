@@ -337,7 +337,9 @@ class DataContainer:
 
         Returns
         -------
-        dict containing detailed information about data
+        dict
+            calculated properties of the data including, mean,
+            standard deviation, correlation length and a 95% error estimate.
         """
         if tag in ['trajectory', 'occupations']:
             raise ValueError('{} is not scalar'.format(tag))

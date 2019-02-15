@@ -23,7 +23,7 @@ for ensemble in ['sgc', 'vcsgc']:
         mixing_energy = \
             dc.get_data('potential', start=equilibration) / n_atoms
         data_row['mixing_energy'] = np.average(mixing_energy)
-        data_row['mixing_energy_error'] = estimate_error(mixing_energy) 
+        data_row['mixing_energy_error'] = estimate_error(mixing_energy)
 
         data_row['acceptance_ratio'] = \
             dc.get_average('acceptance_ratio', start=equilibration)

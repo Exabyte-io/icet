@@ -4,7 +4,7 @@ import scipy
 
 
 def analyze_data(data, max_lag=None):
-    """ Carries out a extensive analysis of the data series.
+    """ Carries out an extensive analysis of the data series.
 
     Parameters
     ----------
@@ -16,7 +16,8 @@ def analyze_data(data, max_lag=None):
     Returns
     -------
     dict
-        calculated properties of the data
+        calculated properties of the data including, mean, standard deviation,
+        correlation length and a 95% error estimate.
     """
     acf = compute_autocorrelation_function(data, max_lag)
     correlation_length = _estimate_correlation_length_from_acf(acf)
