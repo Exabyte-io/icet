@@ -119,7 +119,7 @@ class TestDataContainer(unittest.TestCase):
                 self.assertIsInstance(value, tuple)
 
     def test_update_from_observer(self):
-        """ Test update from observer """
+        """ Tests update from observer """
 
         # generate dc with data and occupations
         data_rows = \
