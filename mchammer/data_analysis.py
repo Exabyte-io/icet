@@ -4,7 +4,7 @@ import scipy
 
 
 def compute_autocorrelation_function(data, max_lag=None):
-    """ Estimates autocorrelation function.
+    """ Returns autocorrelation function.
 
     The autocorrelation function is computed using Pandas.Series.autocorr
 
@@ -30,7 +30,7 @@ def compute_autocorrelation_function(data, max_lag=None):
 
 
 def estimate_correlation_length(data):
-    """ Estimate the correlation length of data.
+    """ Returns estimate of the correlation length of data.
 
     The correlation length is taken as the first point where the
     autocorrelation functions is less than exp(-2).
@@ -57,7 +57,7 @@ def estimate_correlation_length(data):
 
 
 def estimate_error(data, confidence=0.95):
-    """ Standard error estimate with confidence interval.
+    """ Returns estimate of standard error with confidence interval.
 
     error = t_factor * std(data) / sqrt(Ns)
     where t_factor is the factor corresponding to the confidence interval

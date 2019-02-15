@@ -311,7 +311,7 @@ class DataContainer:
     def get_correlation_length(self, tag: str, start: int = None,
                                stop: int = None, max_lag: int = None) -> int:
         """
-        Returns average of a scalar observable.
+        Returns correlation length.
 
         Parameters
         ----------
