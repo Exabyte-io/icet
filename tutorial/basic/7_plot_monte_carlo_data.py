@@ -34,9 +34,15 @@ df = dfs['sgc']
 fig, ax = plt.subplots(figsize=(4, 3.5))
 for T in sorted(df.temperature.unique()):
     df_T = df.loc[df['temperature'] == T].sort_values('Pd_concentration')
-    ax.plot(df_T['Pd_concentration'], 1e3 * df_T['mixing_energy'],
+    e_mix = 1e3 * df_T['mixing_energy']
+    e_mix_error = 1e3 * df_T['mixing_energy_error']
+    ax.plot(df_T['Pd_concentration'], e_mix,
             marker='o', markersize=2.5, label='{} K'.format(T),
             color=colors[T])
+    # Plot error estimate
+    ax.fill_between(df_T['Pd_concentration'],
+                    e_mix + e_mix_error, e_mix - e_mix_error,
+                    color=colors[T], alpha=0.4)
 ax.set_xlabel('Pd concentration')
 ax.set_ylabel('Mixing energy (meV/atom)')
 ax.set_xlim([-0.02, 1.02])
