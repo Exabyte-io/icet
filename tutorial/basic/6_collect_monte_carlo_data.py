@@ -1,8 +1,6 @@
 import pandas as pd
 from glob import glob
 from mchammer import DataContainer
-from mchammer.data_analysis import estimate_error
-import numpy as np
 
 # step 1: Collect data from SGC and VCSGC simulations
 for ensemble in ['sgc', 'vcsgc']:
