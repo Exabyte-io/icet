@@ -1,9 +1,10 @@
+from typing import Iterable
 import pandas as pd
 import numpy as np
 import scipy
 
 
-def analyze_data(data, max_lag=None):
+def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
     """ Carries out an extensive analysis of the data series.
 
     Parameters
@@ -29,7 +30,8 @@ def analyze_data(data, max_lag=None):
     return summary
 
 
-def compute_autocorrelation_function(data, max_lag=None):
+def compute_autocorrelation_function(
+    data: np.ndarray, max_lag: int =None) -> np.ndarray:
     """ Returns autocorrelation function.
 
     The autocorrelation function is computed using Pandas.Series.autocorr
@@ -55,7 +57,7 @@ def compute_autocorrelation_function(data, max_lag=None):
     return np.array(acf)
 
 
-def estimate_correlation_length(data):
+def estimate_correlation_length(data: np.ndarray) -> int:
     """ Returns estimate of the correlation length of data.
 
     The correlation length is taken as the first point where the
@@ -79,7 +81,7 @@ def estimate_correlation_length(data):
     return correlation_length
 
 
-def estimate_error(data, confidence=0.95):
+def estimate_error(data: np.ndarray, confidence: float=0.95) -> float:
     """ Returns estimate of standard error with confidence interval.
 
     error = t_factor * std(data) / sqrt(Ns)
@@ -102,7 +104,7 @@ def estimate_error(data, confidence=0.95):
     return error_estimate
 
 
-def _estimate_correlation_length_from_acf(acf):
+def _estimate_correlation_length_from_acf(acf: np.ndarray) -> int:
     """ Estimate correlation length from acf """
     lengths = np.where(acf < np.exp(-2))[0]  # ACF < exp(-2)
     if len(lengths) == 0:
@@ -111,7 +113,8 @@ def _estimate_correlation_length_from_acf(acf):
         return lengths[0]
 
 
-def _estimate_error(data, correlation_length, confidence):
+def _estimate_error(data: np.ndarray, correlation_length: int,
+                    confidence: float) -> float:
     """ Estimate error using correlation length"""
     t_factor = scipy.stats.t.ppf((1 + confidence) / 2, len(data)-1)
     error = t_factor * np.std(data) / np.sqrt(len(data) / correlation_length)

@@ -278,6 +278,10 @@ class TestDataContainer(unittest.TestCase):
 
         # check obs1
         summary1 = self.dc.analyze_data('obs1')
+        mean1 = np.mean(self.dc.data.obs1)
+        std1 = np.mean(self.dc.data.obs1)
+        self.assertEqual(summary1['mean'], mean1)
+        self.assertEqual(summary1['std'], std1)
         self.assertEqual(summary1['correlation_length'], 1)
 
         # check obs2
@@ -285,7 +289,7 @@ class TestDataContainer(unittest.TestCase):
         self.assertTrue(np.isnan(summary2['correlation_length']))
 
     def test_get_average_and_standard_deviation(self):
-        """Tests get average and get standard deviation functionality."""
+        """Tests get average functionality."""
         # set up a random list of values with a normal distribution
         n_iter, mu, sigma = 100, 1.0, 0.1
         np.random.seed(12)
