@@ -1,10 +1,9 @@
-from typing import Iterable
 import pandas as pd
 import numpy as np
 import scipy
 
 
-def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
+def analyze_data(data: np.ndarray, max_lag: int = None) -> dict:
     """ Carries out an extensive analysis of the data series.
 
     Parameters
@@ -30,8 +29,8 @@ def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
     return summary
 
 
-def get_autocorrelation_function(
-    data: np.ndarray, max_lag: int =None) -> np.ndarray:
+def get_autocorrelation_function(data: np.ndarray,
+                                 max_lag: int = None) -> np.ndarray:
     """ Returns autocorrelation function.
 
     The autocorrelation function is computed using Pandas.Series.autocorr
@@ -74,12 +73,12 @@ def get_correlation_length(data: np.ndarray) -> int:
         correlation length
     """
 
-    acf = compute_autocorrelation_function(data)
+    acf = get_autocorrelation_function(data)
     correlation_length = _estimate_correlation_length_from_acf(acf)
     return correlation_length
 
 
-def get_error_estimate(data: np.ndarray, confidence: float=0.95) -> float:
+def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> float:
     """ Returns estimate of standard error with confidence interval.
 
     error = t_factor * std(data) / sqrt(Ns)
@@ -96,7 +95,7 @@ def get_error_estimate(data: np.ndarray, confidence: float=0.95) -> float:
     -------
         error estimate
     """
-    correlation_length = estimate_correlation_length(data)
+    correlation_length = get_correlation_length(data)
     error_estimate = _estimate_error(data, correlation_length, confidence)
     return error_estimate
 
