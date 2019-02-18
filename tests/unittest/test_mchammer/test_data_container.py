@@ -278,8 +278,8 @@ class TestDataContainer(unittest.TestCase):
 
         # check obs1
         summary1 = self.dc.analyze_data('obs1')
-        mean1 = np.mean(self.dc.data.obs1)
-        std1 = np.mean(self.dc.data.obs1)
+        mean1 = self.dc.get_data('obs1').mean()
+        std1 = self.dc.get_data('obs1').std()
         self.assertEqual(summary1['mean'], mean1)
         self.assertEqual(summary1['std'], std1)
         self.assertEqual(summary1['correlation_length'], 1)

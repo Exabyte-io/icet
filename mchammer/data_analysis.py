@@ -20,7 +20,7 @@ def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
         calculated properties of the data including, mean, standard deviation,
         correlation length and a 95% error estimate.
     """
-    acf = compute_autocorrelation_function(data, max_lag)
+    acf = get_autocorrelation_function(data, max_lag)
     correlation_length = _estimate_correlation_length_from_acf(acf)
     error_estimate = _estimate_error(data, correlation_length, confidence=0.95)
     summary = dict(mean=data.mean(),
@@ -30,7 +30,7 @@ def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
     return summary
 
 
-def compute_autocorrelation_function(
+def get_autocorrelation_function(
     data: np.ndarray, max_lag: int =None) -> np.ndarray:
     """ Returns autocorrelation function.
 
@@ -57,7 +57,7 @@ def compute_autocorrelation_function(
     return np.array(acf)
 
 
-def estimate_correlation_length(data: np.ndarray) -> int:
+def get_correlation_length(data: np.ndarray) -> int:
     """ Returns estimate of the correlation length of data.
 
     The correlation length is taken as the first point where the
@@ -81,7 +81,7 @@ def estimate_correlation_length(data: np.ndarray) -> int:
     return correlation_length
 
 
-def estimate_error(data: np.ndarray, confidence: float=0.95) -> float:
+def get_error_estimate(data: np.ndarray, confidence: float=0.95) -> float:
     """ Returns estimate of standard error with confidence interval.
 
     error = t_factor * std(data) / sqrt(Ns)
