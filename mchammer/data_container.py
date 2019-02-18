@@ -14,7 +14,7 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
 from icet import __version__ as icet_version
-
+from .observers.base_observer import BaseObserver
 
 class Int64Encoder(json.JSONEncoder):
     def default(self, obj):
@@ -121,13 +121,13 @@ class DataContainer:
         self._last_state['accepted_trials'] = accepted_trials
         self._last_state['random_state'] = random_state
 
-    def update_from_observer(self, observer):
+    def update_from_observer(self, observer: BaseObserver):
         """ Adds observer data from observer to data container.
 
         The observer will only be run for the mctrials for which the
         trajectory have been saved.
 
-        Observer's interval is ignored.
+        The interval of the observer is ignored.
 
         Parameters
         ----------
