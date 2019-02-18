@@ -9,9 +9,9 @@ def analyze_data(data: np.ndarray, max_lag: int =None) -> dict:
 
     Parameters
     ----------
-    data : np.ndarray
+    data
         data series to compute autocorrelation function for
-    max_lag : int
+    max_lag
         maximum lag between two data points, used for computing autocorrelation
 
     Returns
@@ -38,14 +38,13 @@ def get_autocorrelation_function(
 
     Parameters
     ----------
-    data : np.ndarray
+    data
         data series to compute autocorrelation function for
-    max_lag : int
+    max_lag
         maximum lag between two data points
 
     Returns
     -------
-    numpy.ndarray
         calculated autocorrelation function
     """
     if max_lag is None:
@@ -67,12 +66,11 @@ def get_correlation_length(data: np.ndarray) -> int:
 
     Parameters
     ----------
-    data : np.ndarray
+    data
         data series to compute autocorrelation function for
 
     Returns
     -------
-    int
         correlation length
     """
 
@@ -91,12 +89,11 @@ def get_error_estimate(data: np.ndarray, confidence: float=0.95) -> float:
 
     Parameters
     ----------
-    data : np.ndarray
+    data
         data series to to estimate error for
 
     Returns
     -------
-    float
         error estimate
     """
     correlation_length = estimate_correlation_length(data)
