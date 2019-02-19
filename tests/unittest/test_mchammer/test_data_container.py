@@ -118,6 +118,40 @@ class TestDataContainer(unittest.TestCase):
             if key == 'random_state':
                 self.assertIsInstance(value, tuple)
 
+    def test_update_from_observer(self):
+        """ Tests update from observer """
+
+        # generate dc with data and occupations
+        data_rows = \
+            {0: {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
+             10: {'potential': -1.35},
+             20: {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
+             30: {'potential': -1.07},
+             40: {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
+             50: {'potential': -1.4},
+             60: {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
+
+        # run new observer on
+        class MyObserver(BaseObserver):
+            def get_observable(self, atoms):
+                Al_count = atoms.numbers.tolist().count(13)
+                return Al_count**2
+
+        new_observer = MyObserver(interval=1, return_type=float, tag='myobs')
+        self.dc.update_from_observer(new_observer)
+
+        for row in self.dc._data_list:
+            if 'occupations' in row:
+                self.assertIn('myobs', row)
+                target_obs = row['occupations'].count(13)**2
+                self.assertEqual(target_obs, row['myobs'])
+
     def test_property_data(self):
         """Tests data property."""
         self.assertIsInstance(self.dc.data, pd.DataFrame)
@@ -164,18 +198,18 @@ class TestDataContainer(unittest.TestCase):
         the method works as expected.
         """
         # append data to data container
-        data_rows = \
-            {0: {'acceptance_ratio': 0.0, 'obs1': 16, 'obs2': 11},
-             10: {'acceptance_ratio': 0.9},
-             20: {'acceptance_ratio': 0.7, 'obs1': 16},
-             30: {'acceptance_ratio': 0.7, 'obs2': 13},
-             40: {'acceptance_ratio': 0.75, 'obs1': 14},
-             50: {'acceptance_ratio': 0.7},
-             60: {'acceptance_ratio': 0.6, 'obs1': 16, 'obs2': 10},
-             70: {'acceptance_ratio': 0.65},
-             80: {'acceptance_ratio': 0.66, 'obs1': 14},
-             90: {'acceptance_ratio': 0.666, 'obs2': 10},
-             100: {'acceptance_ratio': 0.7, 'obs1': 16}}
+        data_rows = OrderedDict([
+            (0, {'obs1': 16, 'acceptance_ratio': 0.0, 'obs2': 11}),
+            (10, {'acceptance_ratio': 0.9}),
+            (20, {'obs1': 16, 'acceptance_ratio': 0.7}),
+            (30, {'acceptance_ratio': 0.7, 'obs2': 13}),
+            (40, {'obs1': 14, 'acceptance_ratio': 0.75}),
+            (50, {'acceptance_ratio': 0.7}),
+            (60, {'obs1': 16, 'acceptance_ratio': 0.6, 'obs2': 10}),
+            (70, {'acceptance_ratio': 0.65}),
+            (80, {'obs1': 14, 'acceptance_ratio': 0.66}),
+            (90, {'acceptance_ratio': 0.666, 'obs2': 10}),
+            (100, {'obs1': 16, 'acceptance_ratio': 0.7})])
 
         for mctrial in data_rows:
             self.dc.append(mctrial, data_rows[mctrial])
@@ -327,18 +361,18 @@ class TestDataContainer(unittest.TestCase):
 
     def test_get_trajectory(self):
         """Tests get_trajectory functionality."""
-        data_rows = \
-            {0: {'potential': -1.32,
-                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
-             10: {'potential': -1.35},
-             20: {'potential': -1.33,
-                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
-             30: {'potential': -1.07},
-             40: {'potential': -1.02,
-                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
-             50: {'potential': -1.4},
-             60: {'potential': -1.3,
-                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
+        data_rows = OrderedDict([
+            (0, {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
+            (10, {'potential': -1.35}),
+            (20, {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
+            (30, {'potential': -1.07}),
+            (40, {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
+            (50, {'potential': -1.4}),
+            (60, {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
 
         for mctrial in data_rows:
             self.dc.append(mctrial, data_rows[mctrial])
@@ -368,18 +402,18 @@ class TestDataContainer(unittest.TestCase):
     def test_write_trajectory(self):
         """Tests write trajectory functionality."""
         # append data
-        data_rows = \
-            {0: {'potential': -1.32,
-                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]},
-             10: {'potential': -1.35},
-             20: {'potential': -1.33,
-                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]},
-             30: {'potential': -1.07},
-             40: {'potential': -1.02,
-                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]},
-             50: {'potential': -1.4},
-             60: {'potential': -1.3,
-                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]}}
+        data_rows = OrderedDict([
+            (0, {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
+            (10, {'potential': -1.35}),
+            (20, {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
+            (30, {'potential': -1.07}),
+            (40, {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
+            (50, {'potential': -1.4}),
+            (60, {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
 
         for mctrial in data_rows:
             self.dc.append(mctrial, data_rows[mctrial])

@@ -17,8 +17,9 @@ http://scikit-learn.org/stable/modules/linear_model.html
 import numpy as np
 from collections import OrderedDict
 from sklearn.linear_model import (Lasso,
-                                  LinearRegression,
                                   LassoCV,
+                                  Ridge,
+                                  RidgeCV,
                                   ElasticNet,
                                   ElasticNetCV,
                                   BayesianRidge,
@@ -34,7 +35,7 @@ from .split_bregman import fit_split_bregman
 logger = logger.getChild('fit_methods')
 
 
-def fit(X: Union[np.ndarray, List[List[float]]],
+def fit(X: np.ndarray,
         y: np.ndarray,
         fit_method: str,
         standardize: bool = True,
@@ -190,6 +191,41 @@ def _fit_lassoCV(X: np.ndarray,
     return results
 
 
+def _fit_ridge(X, y, alpha=None, fit_intercept=False, **kwargs):
+    if alpha is None:
+        ridge = RidgeCV(fit_intercept=fit_intercept, **kwargs)
+    else:
+        ridge = Ridge(alpha=alpha, fit_intercept=fit_intercept, **kwargs)
+    ridge.fit(X, y)
+    results = dict()
+    results['parameters'] = ridge.coef_
+    return results
+
+
+def _fit_bayesian_ridge(X: np.ndarray, y: np.ndarray,
+                        fit_intercept: bool = False,
+                        **kwargs) -> Dict[str, Any]:
+    """
+    Returns the solution `a` to the linear problem `Xa=y` obtained by using
+    Bayesian ridge regression as implemented in scitkit-learn in the
+    form of a dictionary with a key named `parameters`.
+
+    Parameters
+    -----------
+    X
+        fit matrix
+    y
+        target array
+    fit_intercept
+        center data or not, forwarded to sklearn
+    """
+    brr = BayesianRidge(fit_intercept=fit_intercept, **kwargs)
+    brr.fit(X, y)
+    results = dict()
+    results['parameters'] = brr.coef_
+    return results
+
+
 def _fit_elasticnet(X: np.ndarray, y: np.ndarray,
                     alpha: float = None, fit_intercept: bool = False,
                     **kwargs) -> Dict[str, Any]:
@@ -284,32 +320,10 @@ def _fit_elasticnetCV(X: np.ndarray,
     return results
 
 
-def _fit_bayesian_ridge(X: np.ndarray, y: np.ndarray,
-                        fit_intercept: bool = False,
-                        **kwargs) -> Dict[str, Any]:
-    """
-    Returns the solution `a` to the linear problem `Xa=y` obtained by using
-    Bayesian ridge regression as implemented in scitkit-learn in the
-    form of a dictionary with a key named `parameters`.
-
-    Parameters
-    -----------
-    X
-        fit matrix
-    y
-        target array
-    fit_intercept
-        center data or not, forwarded to sklearn
-    """
-    brr = BayesianRidge(fit_intercept=fit_intercept, **kwargs)
-    brr.fit(X, y)
-    results = dict()
-    results['parameters'] = brr.coef_
-    return results
-
-
-def _fit_ardr(X: np.ndarray, y: np.ndarray,
-              threshold_lambda: float = 1e6, fit_intercept: bool = False,
+def _fit_ardr(X: np.ndarray,
+              y: np.ndarray,
+              threshold_lambda: float = 1e6,
+              fit_intercept: bool = False,
               **kwargs) -> Dict[str, Any]:
     """
     Returns the solution `a` to the linear problem `Xa=y` obtained by
@@ -336,18 +350,43 @@ def _fit_ardr(X: np.ndarray, y: np.ndarray,
     return results
 
 
-def _fit_rfe_l2(X: np.ndarray, y: np.ndarray,
-                n_features: int = None, step: int = None,
-                **kwargs) -> Dict[str, Any]:
+class _Estimator:
+
+    def __init__(self, fit_method, **kwargs):
+        if fit_method == 'rfe':
+            raise ValueError('recursive infinitum')
+        self.fit_method = fit_method
+        self.kwargs = kwargs
+        self.coef_ = None
+
+    def fit(self, X, y):
+        fit_func = fit_methods[self.fit_method]
+        results = fit_func(X, y, **self.kwargs)
+        self.coef_ = results['parameters']
+
+    def get_params(self, deep=True):
+        params = {k: v for k, v in self.kwargs.items()}
+        params['fit_method'] = self.fit_method
+        return params
+
+    def predict(self, A):
+        return np.dot(A, self.coef_)
+
+
+def fit_rfe(X: np.ndarray,
+            y: np.ndarray,
+            n_features: int = None,
+            step: Union[int, float] = 0.04,
+            estimator: str = 'least-squares',
+            final_estimator: str = None,
+            estimator_kwargs: dict = {},
+            final_estimator_kwargs: dict = {},
+            cv_splits: int = 5,
+            n_jobs: int = -1,
+            **rfe_kwargs):
     """
     Returns the solution `a` to the linear problem `Xa=y` obtained by
-    recursive feature elimination (RFE) with least-squares fitting as
-    implemented in scikit-learn. The final model is
-    obtained via a least-square fit using the selected features.
-
-    The solution is returned in the form of a dictionary with a key
-    named `parameters`. The dictionary also contains the selected
-    features.
+    recursive feature elimination (RFE).
 
     Parameters
     -----------
@@ -356,98 +395,68 @@ def _fit_rfe_l2(X: np.ndarray, y: np.ndarray,
     y
         target array
     n_features
-        number of features to select, if None
-        sklearn.feature_selection.RFECV will be used to determine
-        the optimal number of features
+        number of features to select, if None sklearn.feature_selection.RFECV
+        will be used to determine the optimal number of features
     step
-        number of parameters to eliminate in each iteration
-    """
-
-    n_params = X.shape[1]
-    if step is None:
-        step = int(np.ceil(n_params / 25))
-
-    if n_features is None:
-        return _fit_rfe_l2_CV(X, y, step, **kwargs)
-    else:
-        # extract features
-        lr = LinearRegression(fit_intercept=False)
-        rfe = RFE(lr, n_features_to_select=n_features, step=step, **kwargs)
-        rfe.fit(X, y)
-        features = rfe.support_
-
-        # carry out final fit
-        params = np.zeros(n_params)
-        params[features] = _fit_least_squares(X[:, features], y)['parameters']
-
-        # finish up
-        results = dict(parameters=params, features=features)
-        return results
-
-
-def _fit_rfe_l2_CV(X: np.ndarray, y: np.ndarray,
-                   step: np.ndarray = None,
-                   rank: int = 1, n_jobs: int = -1,
-                   **kwargs) -> Dict[str, Any]:
-    """
-    Returns the solution `a` to the linear problem `Xa=y` obtained by
-    recursive feature elimination (RFE) with least-squares fitting and
-    cross-validation (CV) as implemented in scikit-learn. The final
-    model is obtained via a least-square fit using the selected
-    features.
-
-    The solution is returned in the form of a dictionary with a key
-    named `parameters`. The dictionary also contains the selected
-    features.
-
-    Parameters
-    -----------
-    X
-        fit matrix
-    y
-        target array
-    step
-        number of parameters to eliminate in each iteration
-    rank
-        rank to use when selecting features
+        if given as integer then corresponds to number of parameters to
+        eliminate in each iteration. If given as a float then corresponds to
+        the fraction of parameters to remove each iteration.
+    estimator
+        fit method during RFE algorithm
+    final_estimator
+        fit_method to be used in final fit,
+        if None will default to whichever estimator is being used
+    cv_splits
+        number of cv-splits to carry out if finding optimal n_features
     n_jobs
         number of cores to use during the cross validation.
-        None means 1 unless in a joblib.parallel_backend context.
         -1 means using all processors.
-        See sklearn's glossary for more details.
     """
 
-    n_params = X.shape[1]
-    if step is None:
-        step = int(np.ceil(n_params / 25))
+    # handle kwargs
+    if final_estimator is None:
+        final_estimator = estimator
+        if len(final_estimator_kwargs) == 0:
+            final_estimator_kwargs = estimator_kwargs
 
-    # setup
-    cv = ShuffleSplit(train_size=0.9, test_size=0.1, n_splits=5)
-    lr = LinearRegression(fit_intercept=False)
-    rfecv = RFECV(lr, step=step, cv=cv, n_jobs=n_jobs,
-                  scoring='neg_mean_squared_error', **kwargs)
+    estimator_obj = _Estimator(estimator, **estimator_kwargs)
+    if n_features is None:
+        if 'scoring' not in rfe_kwargs:
+            rfe_kwargs['scoring'] = 'neg_mean_squared_error'
+        cv = ShuffleSplit(train_size=0.9, test_size=0.1, n_splits=cv_splits)
+        rfe = RFECV(estimator_obj, step=step, cv=cv, n_jobs=n_jobs,
+                    **rfe_kwargs)
+    else:
+        rfe = RFE(estimator_obj, n_features_to_select=n_features, step=step,
+                  **rfe_kwargs)
 
-    # extract features
-    rfecv.fit(X, y)
-    ranking = rfecv.ranking_
-    features = ranking <= rank
+    # Carry out RFE
+    rfe.fit(X, y)
+    features = rfe.support_
+    ranking = rfe.ranking_
 
     # carry out final fit
+    n_params = X.shape[1]
+    results = fit(X[:, features], y, fit_method=final_estimator,
+                  **final_estimator_kwargs)
     params = np.zeros(n_params)
-    params[features] = _fit_least_squares(X[:, features], y)['parameters']
+    params[features] = results['parameters']
+    results['parameters'] = params
 
     # finish up
-    results = dict(parameters=params, features=features, ranking=ranking)
+    results['features'] = features
+    results['ranking'] = ranking
     return results
 
 
 fit_methods = OrderedDict([
     ('least-squares', _fit_least_squares),
     ('lasso', _fit_lasso),
-    ('elasticnet', _fit_elasticnet),
+    ('ridge', _fit_ridge),
     ('bayesian-ridge', _fit_bayesian_ridge),
+    ('elasticnet', _fit_elasticnet),
+    ('split-bregman', fit_split_bregman),
     ('ardr', _fit_ardr),
-    ('rfe-l2', _fit_rfe_l2),
-    ('split-bregman', fit_split_bregman)
+    ('rfe', fit_rfe),
     ])
 available_fit_methods = list(fit_methods.keys())

@@ -30,7 +30,7 @@ import unittest
 
 import numpy as np
 from ase import Atoms
-from ase.build import bulk, fcc111
+from ase.build import bulk
 from ase.db import connect as db_connect
 from icet import ClusterSpace
 from icet.core.cluster_space import (get_singlet_info,
@@ -129,6 +129,15 @@ class TestClusterSpace(unittest.TestCase):
         cs = ClusterSpace(self.atoms_prim, self.cutoffs, self.chemical_symbols)
         self.assertIsInstance(cs, ClusterSpace)
         self.assertEqual(len(cs), len(self.cs))
+
+    def test_init_fails_for_non_pbc(self):
+        """Tests that initialization fails if pbc is false."""
+        atoms_surface = self.atoms_prim.copy()
+        atoms_surface.pbc = [1, 1, 0]
+        with self.assertRaises(ValueError) as cm:
+            ClusterSpace(atoms_surface, self.cutoffs, self.chemical_symbols)
+        self.assertTrue('Input structure must have periodic boundary '
+                        'condition' in str(cm.exception))
 
     def test_len(self):
         """Tests length functionality."""
@@ -342,72 +351,6 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         prune_indices = [0, 1, 3, 2]
         self.cs._prune_orbit_list(indices=prune_indices)
         self.assertEqual(orig_size-len(prune_indices), len(self.cs.orbit_list))
-
-
-class TestClusterSpaceSurface(unittest.TestCase):
-    """
-    Container for tests of the class functionality for non-periodic structures.
-    """
-
-    def __init__(self, *args, **kwargs):
-        super(TestClusterSpaceSurface, self).__init__(*args, **kwargs)
-        self.chemical_symbols = ['Ag', 'Au']
-        self.cutoffs = [4.0] * 3
-        self.atoms_prim = fcc111('Ag', a=4.09, vacuum=5.0, size=[1, 1, 3])
-        self.atoms_prim.pbc = [True, True, False]
-        self.structure_list = []
-        for k in range(3):
-            atoms = self.atoms_prim.repeat((2, 2, 1))
-            symbols = [self.chemical_symbols[0]] * len(atoms)
-            symbols[:k] = [self.chemical_symbols[1]] * k
-            atoms.set_chemical_symbols(symbols)
-            self.structure_list.append(atoms)
-
-    def setUp(self):
-        """
-        Instantiates class before each test.
-        """
-        self.cs = ClusterSpace(self.atoms_prim, self.cutoffs,
-                               self.chemical_symbols)
-
-    def shortDescription(self):
-        """Silences unittest from printing the docstrings in test cases."""
-        return None
-
-    @unittest.expectedFailure
-    def test_get_cluster_vector(self):
-        """Tests get_cluster_vector functionality."""
-        target_cluster_vectors = np.array([
-            [1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0, -1.0, -1.0,
-             -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0],
-            [1., -0.5, -1., -1., 0., 0.5, 1., 1., 1., 0.5, 0.5,
-             -1., -1., -1., -1., 0., -0.5, -1., -1., -0.5, 0.5, 1.,
-             1.],
-            [1., -0.5, -0.5,
-             -1., 0., 0.3333333333,
-             0., 0.5, 1.,
-             0.5, 0.5, 0.5,
-             0.5, -1., -1.,
-             -0.1666666667, -0.1666666667, 0.,
-             -0.5, 0., 0.,
-             0.5, -0.5]])
-        s = ['Error in test setup;']
-        s += ['number of cluster vectors ({})'.format(
-            len(target_cluster_vectors))]
-        s += ['does not match']
-        s += ['number of structures ({})'.format(len(self.structure_list))]
-        info = ' '.join(s)
-        self.assertEqual(len(target_cluster_vectors), len(self.structure_list),
-                         msg=info)
-        for atoms, target in zip(self.structure_list, target_cluster_vectors):
-            retval = self.cs.get_cluster_vector(atoms)
-            self.assertAlmostEqualList(retval, target, places=9)
-
-    def test_get_number_of_orbits_by_order(self):
-        """Tests get_number_of_orbits_by_order functionality."""
-        retval = self.cs.get_number_of_orbits_by_order()
-        target = OrderedDict([(0, 1), (1, 3), (2, 5), (3, 10), (4, 4)])
-        self.assertEqual(target, retval)
 
 
 class TestClusterSpaceTernary(unittest.TestCase):

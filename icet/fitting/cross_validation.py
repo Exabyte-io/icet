@@ -214,6 +214,14 @@ class CrossValidationEstimator(BaseOptimizer):
         return self._parameters_splits
 
     @property
+    def n_nonzero_parameters_splits(self) -> list:
+        """ number of non-zero parameters for each split """
+        if self.parameters_splits is None:
+            return None
+        else:
+            return [np.count_nonzero(p) for p in self.parameters_splits]
+
+    @property
     def rmse_train_final(self) -> float:
         """
         root mean squared error when using the full set of input data

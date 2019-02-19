@@ -9,7 +9,7 @@ from pandas.testing import assert_frame_equal
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators.cluster_expansion_calculator import \
     ClusterExpansionCalculator
-from mchammer.ensembles.base_ensemble import BaseEnsemble
+from mchammer.ensembles.base_ensemble import BaseEnsemble, dicts_equal
 from mchammer.observers.base_observer import BaseObserver
 from mchammer import DataContainer
 
@@ -183,7 +183,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble._step, 70)
 
         # Do a number of steps of continuous runs and see that
-        # we get the expected number of parakeet observations.
+        # we get the expected number of observations.
         for i in range(30):
             self.ensemble.reset_data_container()
             run_iters = [1, 50, 100, 200, i]
@@ -395,6 +395,22 @@ class TestEnsemble(unittest.TestCase):
 
         self.ensemble.data_container_write_period = 1e-2
         self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
+
+    def test_dicts_equal(self):
+        """Tests dicts_equal function."""
+        d1 = dict(T=300.25, phi=-0.1, kappa=200)
+        d2 = {k: v for k, v in d1.items()}
+
+        # check dicts are equal
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts are equal even with small difference
+        d2['T'] += 1e-16
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts differ when a larger difference is introduced
+        d2['T'] += 1e-10
+        self.assertFalse(dicts_equal(d1, d2))
 
 
 if __name__ == '__main__':

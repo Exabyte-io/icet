@@ -1,13 +1,12 @@
 import numpy as np
 import spglib
-from ase import Atoms
 from typing import Tuple, List, Sequence, TypeVar
-
+from ase import Atoms
+from ase.data import chemical_symbols
 from ase.neighborlist import NeighborList as ase_NeighborList
+from icet.core.lattice_site import LatticeSite
 from icet.core.neighbor_list import NeighborList
 from icet.core.structure import Structure
-from icet.core.lattice_site import LatticeSite
-from ase.data import chemical_symbols
 
 Vector = List[float]
 T = TypeVar('T')
@@ -75,8 +74,10 @@ def add_vacuum_in_non_pbc(configuration: Atoms) -> Atoms:
     return configuration_cpy
 
 
-def get_primitive_structure(atoms: Atoms, no_idealize: bool = True,
-                            to_primitive=True, symprec=1e-5) -> Atoms:
+def get_primitive_structure(atoms: Atoms,
+                            no_idealize: bool = True,
+                            to_primitive: bool = True,
+                            symprec: float = 1e-5) -> Atoms:
     """
     Determines primitive structure using spglib.
 
@@ -85,7 +86,11 @@ def get_primitive_structure(atoms: Atoms, no_idealize: bool = True,
     atoms
         input atomic structure
     no_idealize
-        If True lengths and angles are not idealized
+        if True lengths and angles are not idealized
+    to_primitive
+        convert to primitive structure
+    symprec
+        tolerance imposed when analyzing the symmetry using spglib
 
     Returns
     -------
@@ -281,21 +286,29 @@ def ase_atoms_to_spglib_cell(atoms: Atoms) \
 
 
 def get_decorated_primitive_structure(
-        atoms: Atoms, allowed_species: List[List[str]])-> Tuple[
-        Atoms, List[List[str]]]:
-    """Returns a decorated primitive structure
+        atoms: Atoms,
+        allowed_species: List[List[str]],
+        symprec: float = 1e-5) -> Tuple[Atoms, List[List[str]]]:
+    """Returns a decorated primitive structure.
+    Will put hydrogen on sublattice 1, Helium on sublattice 2 and
+    so on
 
-    Example
-    --------
-        Will put hydrogen on sublattice 1, Helium on sublattice 2 and
-        so on
+    Parameters
+    ----------
+    atoms
+        input structure
+    allowed_species
+        chemical symbols that are allowed on each site
+    symprec
+        tolerance imposed when analyzing the symmetry using spglib
 
-    todo : simplify the revert back to unsorted symbols
+    Todo
+    ----
+    simplify the revert back to unsorted symbols
     """
     if len(atoms) != len(allowed_species):
         raise ValueError(
             'Atoms object and chemical symbols need to be the same size.')
-    symbols = set()
     symbols = sorted({tuple(sorted(s)) for s in allowed_species})
 
     decorated_primitive = atoms.copy()
@@ -303,7 +316,8 @@ def get_decorated_primitive_structure(
         sublattice = symbols.index(tuple(sorted(sym))) + 1
         decorated_primitive[i].symbol = chemical_symbols[sublattice]
 
-    decorated_primitive = get_primitive_structure(decorated_primitive)
+    decorated_primitive = get_primitive_structure(decorated_primitive,
+                                                  symprec=symprec)
     decorated_primitive.wrap()
     primitive_chemical_symbols = []
     for atom in decorated_primitive:

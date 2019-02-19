@@ -41,8 +41,8 @@ class ConfigurationManager(object):
                  sites_by_sublattice: Union[List[List[int]], List[int]],
                  occupation_constraints: List[List[int]] = None) -> None:
 
-        self._atoms = atoms
-        self._occupations = atoms.numbers
+        self._atoms = atoms.copy()
+        self._occupations = self._atoms.numbers
         self._sites_by_sublattice = sites_by_sublattice
 
         if occupation_constraints is not None:

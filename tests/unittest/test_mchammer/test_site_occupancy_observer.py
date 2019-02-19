@@ -18,9 +18,9 @@ def _assertAlmostEqualDict(self, retval, target, places=6):
     self.assertIsInstance(retval, type(target))
     for key, val in target.items():
         self.assertIn(key, retval)
-        s = [f"key: {key} ({type(key)})"]
-        s += [f"retval: {retval[key]} ({type(retval[key])})"]
-        s += [f"target: {val} ({type(val)})"]
+        s = ["key: {}({})".format(key, type(key))]
+        s += ["retval: {} ({})".format(retval[key], type(retval[key]))]
+        s += ["target: {} ({})".format(val, type(val))]
         info = '   '.join(s)
         self.assertAlmostEqual(val, retval[key], places=places, msg=info)
 

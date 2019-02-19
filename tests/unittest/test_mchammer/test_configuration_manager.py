@@ -175,7 +175,7 @@ class TestConfigurationManager(unittest.TestCase):
 
     def test_update_occupations(self):
         """Tests the update occupation method."""
-
+        atoms_cpy = self.atoms.copy()
         indices = [0, 2, 3, 5, 7, 8]
         elements = [13, 13, 47, 47, 13, 47]
 
@@ -184,6 +184,9 @@ class TestConfigurationManager(unittest.TestCase):
         self.cm.update_occupations(indices, elements)
         self.assertEqual(list(self.cm.occupations[indices]), elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
+
+        # test input atoms remains unchanged
+        self.assertEqual(self.atoms, atoms_cpy)
 
         # test that correct exceptions are raised
         with self.assertRaises(ValueError) as context:

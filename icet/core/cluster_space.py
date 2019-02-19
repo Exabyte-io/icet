@@ -14,8 +14,8 @@ from icet.tools.geometry import (add_vacuum_in_non_pbc,
 
 class ClusterSpace(_ClusterSpace):
     """
-    This class provides functionality for generating and maintaining cluster
-    spaces.
+    This class provides functionality for generating and maintaining
+    cluster spaces.
 
     Parameters
     ----------
@@ -67,6 +67,16 @@ class ClusterSpace(_ClusterSpace):
         cs = ClusterSpace(atoms=prim, cutoffs=[7.0, 5.0],
                           chemical_symbols=[['Au', 'Cu', 'Pd']])
         print(cs)
+
+
+    Using non-pbc structures
+    ------------------------
+    In icet all ase.Atoms objects must have periodic boundary
+    conditions. When carrying out cluster-expansions for surfaces and
+    nano-particles it is therefore recommended to embed the atoms
+    object in a vacuum and use periodic boundary conditions. This can
+    be done using e.g. atoms.center()
+
     """
 
     def __init__(self, atoms: Atoms, cutoffs: List[float],
@@ -75,6 +85,9 @@ class ClusterSpace(_ClusterSpace):
         if not isinstance(atoms, Atoms):
             raise TypeError('Input configuration must be an ASE Atoms object'
                             ', not type {}'.format(type(atoms)))
+        if not all(atoms.pbc):
+            raise ValueError('Input structure must have periodic boundary '
+                             'condition')
 
         self._atoms = atoms.copy()
         self._cutoffs = cutoffs

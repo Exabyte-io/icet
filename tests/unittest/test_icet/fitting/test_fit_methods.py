@@ -62,11 +62,13 @@ class TestFitMethods(unittest.TestCase):
         self.assertIsNotNone(res['parameters'])
 
         # rfe-l2 with n_features
-        n_features = int(0.5*self.n_cols)
-        res = fit(self.A, self.y, fit_method='rfe-l2', n_features=n_features)
+        kwargs = dict(n_features=int(0.5*self.n_cols),
+                      step=0.12, estimator='split-bregman',
+                      final_estimator='rfe')
+        res = fit(self.A, self.y, fit_method='rfe', **kwargs)
         self.assertIsNotNone(res['parameters'])
         self.assertEqual(len(res['parameters']), self.n_cols)
-        self.assertEqual(sum(res['features']), n_features)
+        self.assertEqual(sum(res['features']), kwargs['n_features'])
 
     def test_fit_with_invalid_fit_method(self):
         """Tests correct raise with unavailable fit_method."""
