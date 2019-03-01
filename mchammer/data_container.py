@@ -375,7 +375,7 @@ class DataContainer:
         if not np.allclose(step_length, diff):
             raise ValueError('data records must be evenly spaced.')
 
-        summary = analyze_data(data)
+        summary = analyze_data(data, max_lag=max_lag)
         summary['correlation_length'] *= step_length  # in mc-trials
         return summary
 
