@@ -94,17 +94,22 @@ class TestEnsemble(unittest.TestCase):
 
     def test_ensemble_parameters(self):
         """Tests the get ensemble parameters method."""
-        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
-                         len(self.atoms))
-        self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
-                         self.temperature)
 
+        n_atoms = len(self.atoms)
+        n_atoms_Al = self.atoms.get_chemical_symbols().count('Al')
+        n_atoms_Ga = self.atoms.get_chemical_symbols().count('Ga')
+
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'], n_atoms)
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms_Al'], n_atoms_Al)
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms_Ga'], n_atoms_Ga)
+        self.assertEqual(self.ensemble.ensemble_parameters['temperature'], self.temperature)
+
+        # check in ensemble parameters was correctly passed to datacontainer
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms'], n_atoms)
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms_Al'], n_atoms_Al)
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms_Ga'], n_atoms_Ga)
         self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['n_atoms'],
-            len(self.atoms))
-        self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['temperature'],
-            self.temperature)
+            self.ensemble.data_container.ensemble_parameters['temperature'], self.temperature)
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""

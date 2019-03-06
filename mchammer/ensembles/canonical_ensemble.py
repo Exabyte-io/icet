@@ -98,6 +98,10 @@ class CanonicalEnsemble(BaseEnsemble):
                  trajectory_write_interval: int = None) -> None:
 
         self._ensemble_parameters = dict(temperature=temperature)
+        for symbol in set(atoms.get_chemical_symbols()):
+            key = 'n_atoms_{}'.format(symbol)
+            count = atoms.get_chemical_symbols().count(symbol)
+            self._ensemble_parameters[key] = count
 
         self._boltzmann_constant = boltzmann_constant
 
