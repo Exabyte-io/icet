@@ -4,6 +4,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.units import kB
+from ase.data import chemical_symbols
 
 from .. import DataContainer
 from .base_ensemble import BaseEnsemble
@@ -98,12 +99,13 @@ class CanonicalEnsemble(BaseEnsemble):
                  trajectory_write_interval: int = None) -> None:
 
         self._ensemble_parameters = dict(temperature=temperature)
-        for symbol in set(atoms.get_chemical_symbols()):
+        self._boltzmann_constant = boltzmann_constant
+
+        # add species count to ensemble parameters
+        for symbol in np.unique(calculator.occupation_constraints).tolist():
             key = 'n_atoms_{}'.format(symbol)
             count = atoms.get_chemical_symbols().count(symbol)
             self._ensemble_parameters[key] = count
-
-        self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
             atoms=atoms, calculator=calculator, user_tag=user_tag,
