@@ -4,7 +4,6 @@ import numpy as np
 
 from ase import Atoms
 from ase.units import kB
-from ase.data import chemical_symbols
 
 from .. import DataContainer
 from .base_ensemble import BaseEnsemble
