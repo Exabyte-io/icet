@@ -35,6 +35,9 @@ class StructureContainer:
                  list_of_properties: List[dict] = None,
                  allow_duplicate: bool = True):
 
+        if not isinstance(cluster_space, ClusterSpace):
+            raise TypeError('cluster_space must be a ClusterSpace')
+
         self._cluster_space = cluster_space
         self._structure_list = []
 

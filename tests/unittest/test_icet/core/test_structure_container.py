@@ -119,6 +119,10 @@ class TestStructureContainer(unittest.TestCase):
 
         # check whether method raises Exceptions
         with self.assertRaises(TypeError) as cm:
+            StructureContainer('my_sc.sc')
+        self.assertIn('cluster_space must be a ClusterSpace', str(cm.exception))
+
+        with self.assertRaises(TypeError) as cm:
             StructureContainer(self.cs, 'atoms')
         self.assertTrue('atoms must be given as a list' in str(cm.exception))
 
