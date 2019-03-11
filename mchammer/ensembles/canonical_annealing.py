@@ -15,7 +15,7 @@ class CanonicalAnnealing(BaseEnsemble):
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
                  T_start: float, T_stop: float, n_steps: int,
-                 function_tag: str = 'linear',
+                 cooling_function: str = 'linear',
                  user_tag: str = None,
                  boltzmann_constant: float = kB,
                  data_container: DataContainer = None, random_seed: int = None,
@@ -38,8 +38,16 @@ class CanonicalAnnealing(BaseEnsemble):
         self._T_start = T_start
         self._T_stop = T_stop
         self._n_steps = n_steps
-        self._function_tag = function_tag
-        self._function = available_functions[function_tag]
+
+        if isinstance(cooling_function, str):
+            available = sorted(available_cooling_functions.keys())
+            if cooling_function not in available:
+                raise ValueError('Select from the available cooling_functions {}'.format(available))
+            self._cooling_function = available_cooling_functions[cooling_function]
+        elif callable(cooling_function):
+            self._cooling_function = _cooling_function
+        else:
+            raise TypeError('cooling_function must be either str or a function')
 
     @property
     def temperature(self) -> float:
@@ -58,21 +66,20 @@ class CanonicalAnnealing(BaseEnsemble):
         return self._n_steps
 
     @property
-    def function_tag(self) -> str:
-        return self._function_tag
-
-    @property
     def boltzmann_constant(self) -> float:
         """ Boltzmann constant :math:`k_B` (see parameters section above) """
         return self._boltzmann_constant
 
     def run(self):
         """ Runs the ensemble """
-        super().run(self.n_steps)
+        if self.total_trials >= self.n_steps:
+            raise Exception('Annealing has already finished')
+        super().run(self.n_steps - self.total_trials)
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self._temperature = self._function(self.total_trials, self.T_start, self.T_stop, self.n_steps)
+        self._temperature = self._cooling_function(
+            self.total_trials, self.T_start, self.T_stop, self.n_steps)
         self._total_trials += 1
 
         sublattice_index = self.get_random_sublattice_index()
@@ -111,21 +118,13 @@ class CanonicalAnnealing(BaseEnsemble):
         return data
 
 
-def function_linear(step, T_start, T_stop, n_steps):
+def cooling_linear(step, T_start, T_stop, n_steps):
     return T_start + (T_stop-T_start) * step / (n_steps - 1)
 
 
-def function_quadratic(step, T_start, T_stop, n_steps):
-    t = (step - n_steps + 1) / (n_steps - 1)
-    scale = t**2
-    return T_start * scale + T_stop
+def cooling_exponential(step, T_start, T_stop, n_steps):
+    return T_start - (T_start - T_stop) * np.log(step+1) / np.log(n_steps)
 
 
-def function_cos(step, T_start, T_stop, n_steps):
-    scale = (1 + np.cos(np.pi * step/(n_steps-1))) / 2
-    return T_start * scale + T_stop
-
-
-available_functions = dict(linear=function_linear,
-                           quadratic=function_quadratic,
-                           cos=function_cos)
+available_cooling_functions = dict(linear=cooling_linear,
+                                   exponential=cooling_exponential)
