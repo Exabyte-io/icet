@@ -45,7 +45,7 @@ class CanonicalAnnealing(BaseEnsemble):
         number of steps to take in the annealing simulation
     cooling_function : str/function
         to use the predefined cooling functions give a string
-        `linear` or `expoential`, otherwise provide a function
+        `linear` or `exponential`, otherwise provide a function
     boltzmann_constant : float
         Boltzmann constant :math:`k_B` in appropriate
         units, i.e. units that are consistent
