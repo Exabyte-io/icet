@@ -104,5 +104,6 @@ class TestEnsemble(unittest.TestCase):
         """Tests the get ensemble parameters method."""
         self.assertEqual(self.ensemble.ensemble_parameters['n_steps'], self.n_steps)
 
+
 if __name__ == '__main__':
     unittest.main()
