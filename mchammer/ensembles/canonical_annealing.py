@@ -12,16 +12,16 @@ from ..calculators.base_calculator import BaseCalculator
 
 
 class CanonicalAnnealing(BaseEnsemble):
-    """Instances of this class allow one to carry out simulated annealing in
-    the canonical ensemble.
+    """Instances of this class allow one to carry out simulated
+    annealing in the canonical ensemble.
     See canonical ensemble for more information about this ensemble.
 
     This ensemble can be very useful when for example trying to find
     ground-states or generating low energy configurations.
 
-    The cooling scheme to be used can be chosen from the pre-defined cooling
-    functions, or a user-defined function can be used which must then have
-    the following interface
+    The cooling scheme to be used can be chosen from the pre-defined
+    cooling functions, or a user-defined function can be used which
+    must then have the following interface
 
     def cooling_function(step, T_start, T_stop, n_steps):
         T = ...
@@ -176,8 +176,8 @@ class CanonicalAnnealing(BaseEnsemble):
             return p > self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
-        """Returns the data associated with the ensemble. For the CanonicalAnnealing
-        this specifically includes the temperature.
+        """Returns the data associated with the ensemble. For the
+        CanonicalAnnealing this specifically includes the temperature.
         """
         data = super()._get_ensemble_data()
         data['temperature'] = self.temperature
