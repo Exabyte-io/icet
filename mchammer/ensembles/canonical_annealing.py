@@ -78,7 +78,7 @@ class CanonicalAnnealing(BaseEnsemble):
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
                  T_start: float, T_stop: float, n_steps: int,
-                 cooling_function: str = 'linear',
+                 cooling_function: str = 'exponential',
                  user_tag: str = None,
                  boltzmann_constant: float = kB,
                  data_container: DataContainer = None, random_seed: int = None,
