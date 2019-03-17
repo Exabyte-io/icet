@@ -139,6 +139,47 @@ class TestClusterSpace(unittest.TestCase):
         self.assertTrue('Input structure must have periodic boundary '
                         'condition' in str(cm.exception))
 
+    def test_init_fails_for_faulty_chemical_symbols(self):
+        """Tests that initialization fails if chemical_symbols is faulty."""
+        atoms = bulk('Ag', a=4.09).repeat(2)
+        chemical_symbols1 = ['Ag', 'Pd']
+        chemical_symbols2 = [['Ag', 'Pd']] * len(atoms)
+
+        # no problems
+        ClusterSpace(atoms, self.cutoffs, chemical_symbols1)
+        ClusterSpace(atoms, self.cutoffs, chemical_symbols2)
+
+        # bad type
+        chemical_symbols_bad = chemical_symbols2 + ['Ag']
+        with self.assertRaises(TypeError) as cm:
+            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
+        self.assertIn('chemical_symbols must be List[str] or List[List[str]]', str(cm.exception))
+
+        # bad length
+        chemical_symbols_bad = chemical_symbols2 + [['Ag', 'Pd']]
+        with self.assertRaises(ValueError) as cm:
+            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
+        self.assertIn('chemical_symbols must have same length as atoms', str(cm.exception))
+
+        # duplicate symbols for site
+        chemical_symbols_bad = [['Ag', 'Pd']] * len(atoms)
+        chemical_symbols_bad[0] = ['Ag', 'Pd', 'Pd']
+        with self.assertRaises(ValueError) as cm:
+            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
+        self.assertIn('Found duplicates in chemical_symbols', str(cm.exception))
+
+        # no active sites
+        chemical_symbols_bad = [['Ag']] * 4 + [['Pd']] * 4
+        with self.assertRaises(ValueError) as cm:
+            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
+        self.assertIn('No active sites found', str(cm.exception))
+
+        # Symbol on multiple sub lattices
+        chemical_symbols_bad = [['Ag', 'Pd']] * 4 + [['Au', 'Pd']] * 4
+        with self.assertRaises(ValueError) as cm:
+            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
+        self.assertIn('Symbol found on multiple active sublattices', str(cm.exception))
+
     def test_len(self):
         """Tests length functionality."""
         number_orbits = self.cs.__len__()
@@ -336,9 +377,9 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         self.cs.write(f.name)
         f.seek(0)
         cs_read = ClusterSpace.read(f.name)
-        self.assertEqual(self.cs._atoms, cs_read._atoms)
+        self.assertEqual(self.cs._input_atoms, cs_read._input_atoms)
         self.assertEqual(list(self.cs._cutoffs), list(cs_read._cutoffs))
-        self.assertEqual(self.cs._chemical_symbols, cs_read._chemical_symbols)
+        self.assertEqual(self.cs._input_chemical_symbols, cs_read._input_chemical_symbols)
 
     def test_chemical_symbols(self):
         """Tests chemical_symbols property."""

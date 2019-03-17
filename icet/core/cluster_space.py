@@ -2,6 +2,7 @@
 This module provides the ClusterSpace class.
 """
 
+import copy
 import pickle
 from collections import OrderedDict
 from typing import List, Union
@@ -94,30 +95,15 @@ class ClusterSpace(_ClusterSpace):
             raise ValueError('Input structure must have periodic boundary '
                              'condition')
 
-        self._atoms = atoms.copy()
-        self._cutoffs = cutoffs
-        self._chemical_symbols = chemical_symbols.copy()
-        self._input_chemical_symbols = chemical_symbols.copy()
+        self._cutoffs = cutoffs.copy()
+        self._input_atoms = atoms.copy()
+        self._input_chemical_symbols = copy.deepcopy(chemical_symbols)
+        self._setup_chemical_symbols()
 
-        # handle occupations
-        if all(isinstance(i, str) for i in self._chemical_symbols):
-            self._chemical_symbols = [self._chemical_symbols]*len(self._atoms)
-        elif not all(isinstance(i, list) for i in self._chemical_symbols):
-            raise TypeError("chemical_symbols must be"
-                            " List[str] or List[List[str]],"
-                            " not {}".format(type(self._chemical_symbols)))
-
-        # sanity check chemical symbols
-        for symbols in self._chemical_symbols:
-            if len(symbols) != len(set(symbols)):
-                raise ValueError('Found duplicates in chemical_symbols')
-
-        decorated_primitive, primitive_chemical_symbols = \
-            get_decorated_primitive_structure(
-                self._atoms, self._chemical_symbols)
-
+        # set up primtive
+        decorated_primitive, primitive_chemical_symbols = get_decorated_primitive_structure(
+                self._input_atoms, self._input_chemical_symbols)
         self._primitive_chemical_symbols = primitive_chemical_symbols
-
         assert len(decorated_primitive) == len(primitive_chemical_symbols)
 
         # set up orbit list
@@ -125,8 +111,34 @@ class ClusterSpace(_ClusterSpace):
         self._orbit_list.remove_inactive_orbits(primitive_chemical_symbols)
 
         # call (base) C++ constructor
-        _ClusterSpace.__init__(
-            self, primitive_chemical_symbols, self._orbit_list)
+        _ClusterSpace.__init__(self, primitive_chemical_symbols, self._orbit_list)
+
+    def _setup_chemical_symbols(self):
+        """ Set up chemical symbols for input atoms, also carries out multple
+        sanity checks for the chemical symbols format. """
+
+        # setup chemical symbols as List[List[str]]
+        if all(isinstance(i, str) for i in self._input_chemical_symbols):
+            self._input_chemical_symbols = [self._input_chemical_symbols] * len(self._input_atoms)
+        elif not all(isinstance(i, list) for i in self._input_chemical_symbols):
+            raise TypeError("chemical_symbols must be List[str] or List[List[str]], not {}".format(
+                type(self._input_chemical_symbols)))
+
+        # sanity check chemical symbols
+        if len(self._input_chemical_symbols) != len(self._input_atoms):
+            raise ValueError('chemical_symbols must have same length as atoms')
+
+        for symbols in self._input_chemical_symbols:
+            if len(symbols) != len(set(symbols)):
+                raise ValueError('Found duplicates in chemical_symbols')
+
+        sublattices = sorted({tuple(sorted(s)) for s in self._input_chemical_symbols if len(s) > 1})
+        if len(sublattices) == 0:
+            raise ValueError('No active sites found')
+
+        sublattices_flat = [symbol for sub in sublattices for symbol in sub]
+        if len(sublattices_flat) != len(set(sublattices_flat)):
+            raise ValueError('Symbol found on multiple active sublattices')
 
     def _get_chemical_symbol_representation(self):
         """Returns a str version of the chemical symbols that is
@@ -390,7 +402,7 @@ class ClusterSpace(_ClusterSpace):
             name of file to which to write
         """
 
-        parameters = {'atoms': self._atoms.copy(),
+        parameters = {'atoms': self._input_atoms.copy(),
                       'cutoffs': self._cutoffs,
                       'chemical_symbols': self._input_chemical_symbols}
         with open(filename, 'wb') as handle:
