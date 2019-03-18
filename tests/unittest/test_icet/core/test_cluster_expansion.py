@@ -94,10 +94,10 @@ class TestClusterExpansion(unittest.TestCase):
         ce_read = ClusterExpansion.read(temp_file.name)
 
         # check cluster space
-        self.assertEqual(self.cs._atoms, ce_read.cluster_space._atoms)
+        self.assertEqual(self.cs._input_atoms, ce_read.cluster_space._input_atoms)
         self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
-        self.assertEqual(self.cs._chemical_symbols,
-                         ce_read.cluster_space._chemical_symbols)
+        self.assertEqual(
+            self.cs._input_chemical_symbols, ce_read.cluster_space._input_chemical_symbols)
 
         self.assertIsInstance(ce_read.parameters, np.ndarray)
         # check parameters
