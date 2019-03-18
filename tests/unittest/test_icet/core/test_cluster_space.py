@@ -174,12 +174,6 @@ class TestClusterSpace(unittest.TestCase):
             ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
         self.assertIn('No active sites found', str(cm.exception))
 
-        # Symbol on multiple sub lattices
-        chemical_symbols_bad = [['Ag', 'Pd']] * 4 + [['Au', 'Pd']] * 4
-        with self.assertRaises(ValueError) as cm:
-            ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
-        self.assertIn('Symbol found on multiple active sublattices', str(cm.exception))
-
     def test_len(self):
         """Tests length functionality."""
         number_orbits = self.cs.__len__()

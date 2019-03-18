@@ -136,10 +136,6 @@ class ClusterSpace(_ClusterSpace):
         if len(sublattices) == 0:
             raise ValueError('No active sites found')
 
-        sublattices_flat = [symbol for sub in sublattices for symbol in sub]
-        if len(sublattices_flat) != len(set(sublattices_flat)):
-            raise ValueError('Symbol found on multiple active sublattices')
-
     def _get_chemical_symbol_representation(self):
         """Returns a str version of the chemical symbols that is
         easier on the eyes.
