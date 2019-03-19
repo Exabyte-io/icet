@@ -417,9 +417,13 @@ class ClusterSpace(_ClusterSpace):
         filename
             name of file from which to read cluster space
         """
-        with tarfile.open(mode='r', name=filename) as tar_file:
-            items = read_items_from_tarfile(tar_file, 'items')
-            atoms = read_ase_atoms_from_tarfile(tar_file, 'atoms')
+        if isinstance(filename, str):
+            tar_file = tarfile.open(mode='r', name=filename)
+        else:
+            tar_file = tarfile.open(mode='r', fileobj=filename)
+        items = read_items_from_tarfile(tar_file, 'items')
+        atoms = read_ase_atoms_from_tarfile(tar_file, 'atoms')
+        tar_file.close()
         return ClusterSpace(atoms, items['cutoffs'], items['chemical_symbols'])
 
 
