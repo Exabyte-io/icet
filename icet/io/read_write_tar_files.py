@@ -36,6 +36,5 @@ def read_ase_atoms_from_tarfile(tar_file, arcname, format='json'):
 
 def read_items_from_tarfile(tar_file, arcname):
     """ Reads items stored as pickle from tar_file """
-    items = dict()
     items = pickle.load(tar_file.extractfile(arcname))
     return items
