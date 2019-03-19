@@ -4,10 +4,11 @@ This module provides the ClusterSpace class.
 
 import copy
 import pickle
+import tarfile
+import numpy as np
+
 from collections import OrderedDict
 from typing import List, Union
-
-import numpy as np
 
 from _icet import ClusterSpace as _ClusterSpace
 from ase import Atoms
@@ -15,6 +16,8 @@ from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.tools.geometry import (add_vacuum_in_non_pbc,
                                  get_decorated_primitive_structure)
+from icet.io.read_write_tar_files import add_ase_atoms_to_tarfile, read_ase_atoms_from_tarfile,\
+    add_items_to_tarfile, read_items_from_tarfile
 
 
 class ClusterSpace(_ClusterSpace):
@@ -399,12 +402,10 @@ class ClusterSpace(_ClusterSpace):
         filename
             name of file to which to write
         """
-
-        parameters = {'atoms': self._input_atoms.copy(),
-                      'cutoffs': self._cutoffs,
-                      'chemical_symbols': self._input_chemical_symbols}
-        with open(filename, 'wb') as handle:
-            pickle.dump(parameters, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        with tarfile.open(name=filename, mode='w') as tar_file:
+            items = dict(cutoffs=self._cutoffs, chemical_symbols=self._input_chemical_symbols)
+            add_items_to_tarfile(tar_file, items, 'items')
+            add_ase_atoms_to_tarfile(tar_file, self._input_atoms.copy(), 'atoms')
 
     @staticmethod
     def read(filename: str):
@@ -416,15 +417,10 @@ class ClusterSpace(_ClusterSpace):
         filename
             name of file from which to read cluster space
         """
-        if isinstance(filename, str):
-            with open(filename, 'rb') as handle:
-                parameters = pickle.load(handle)
-        else:
-            parameters = pickle.load(filename)
-
-        return ClusterSpace(parameters['atoms'],
-                            parameters['cutoffs'],
-                            parameters['chemical_symbols'])
+        with tarfile.open(mode='r', name=filename) as tar_file:
+            items = read_items_from_tarfile(tar_file, 'items')
+            atoms = read_ase_atoms_from_tarfile(tar_file, 'atoms')
+        return ClusterSpace(atoms, items['cutoffs'], items['chemical_symbols'])
 
 
 def get_singlet_info(atoms: Atoms,
