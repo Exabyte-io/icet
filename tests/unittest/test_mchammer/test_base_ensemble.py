@@ -123,7 +123,7 @@ class TestEnsemble(unittest.TestCase):
         calc = ClusterExpansionCalculator(atoms, ce)
         with self.assertRaises(ValueError) as context:
             ConcreteEnsemble(atoms, calc)
-        self.assertIn('Symbols found on multiple active sublattices', str(context.exception))
+        self.assertIn('found on multiple active sublattices', str(context.exception))
 
     def test_property_user_tag(self):
         """Tests name property."""
