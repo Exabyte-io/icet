@@ -187,6 +187,24 @@ class ClusterExpansion:
         """ string representation """
         return self._get_string_representation(print_threshold=50)
 
+    def print_overview(self,
+                       print_threshold: int = None,
+                       print_minimum: int = 10) -> None:
+        """
+        Print an overview of the cluster expansion in terms of the orbits (order,
+        radius, multiplicity, corresponding ECI etc).
+
+        Parameters
+        ----------
+        print_threshold
+            if the number of orbits exceeds this number print dots
+        print_minimum
+            number of lines printed from the top and the bottom of the orbit
+            list if `print_threshold` is exceeded
+        """
+        print(self._get_string_representation(print_threshold=print_threshold,
+                                              print_minimum=print_minimum))
+
     def prune(self, indices: List[int] = None, tol: float = 0):
         """
         Removes orbits from the cluster expansion (CE), for which the effective
