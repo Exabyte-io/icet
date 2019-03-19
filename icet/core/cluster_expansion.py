@@ -290,8 +290,8 @@ class ClusterExpansion:
             cs_file.write(tar_file.extractfile('cluster_space').read())
             cs_file.seek(0)
             cs = ClusterSpace.read(cs_file.name)
-
             items = read_items_from_tarfile(tar_file, 'items')
+
         parameters = items['parameters']
         pruning_history = items['pruning_history']
         original_parameters = items['original_parameters']
