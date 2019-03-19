@@ -166,7 +166,7 @@ class TestClusterSpace(unittest.TestCase):
         chemical_symbols_bad[0] = ['Ag', 'Pd', 'Pd']
         with self.assertRaises(ValueError) as cm:
             ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
-        self.assertIn('Found duplicates in chemical_symbols', str(cm.exception))
+        self.assertIn('Found duplicate symbols', str(cm.exception))
 
         # no active sites
         chemical_symbols_bad = [['Ag']] * 4 + [['Pd']] * 4

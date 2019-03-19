@@ -98,11 +98,11 @@ class ClusterSpace(_ClusterSpace):
         self._cutoffs = cutoffs.copy()
         self._input_atoms = atoms.copy()
         self._input_chemical_symbols = copy.deepcopy(chemical_symbols)
-        self._setup_chemical_symbols()
+        chemical_symbols = self._get_chemical_symbols()
 
-        # set up primtive
+        # set up primitive
         decorated_primitive, primitive_chemical_symbols = get_decorated_primitive_structure(
-                self._input_atoms, self._input_chemical_symbols)
+                self._input_atoms, chemical_symbols)
         self._primitive_chemical_symbols = primitive_chemical_symbols
         assert len(decorated_primitive) == len(primitive_chemical_symbols)
 
@@ -113,28 +113,30 @@ class ClusterSpace(_ClusterSpace):
         # call (base) C++ constructor
         _ClusterSpace.__init__(self, primitive_chemical_symbols, self._orbit_list)
 
-    def _setup_chemical_symbols(self):
-        """ Set up chemical symbols for input atoms, also carries out multple
-        sanity checks for the chemical symbols format. """
+    def _get_chemical_symbols(self):
+        """ Returns chemical symbols using input atoms and input
+        chemical symbols. Carries out multiple sanity checks. """
 
         # setup chemical symbols as List[List[str]]
         if all(isinstance(i, str) for i in self._input_chemical_symbols):
-            self._input_chemical_symbols = [self._input_chemical_symbols] * len(self._input_atoms)
+            chemical_symbols = [self._input_chemical_symbols] * len(self._input_atoms)
         elif not all(isinstance(i, list) for i in self._input_chemical_symbols):
             raise TypeError("chemical_symbols must be List[str] or List[List[str]], not {}".format(
                 type(self._input_chemical_symbols)))
-
-        # sanity check chemical symbols
-        if len(self._input_chemical_symbols) != len(self._input_atoms):
+        elif len(self._input_chemical_symbols) != len(self._input_atoms):
             raise ValueError('chemical_symbols must have same length as atoms')
+        else:
+            chemical_symbols = copy.deepcopy(self._input_chemical_symbols)
 
-        for symbols in self._input_chemical_symbols:
+        for symbols in chemical_symbols:
             if len(symbols) != len(set(symbols)):
-                raise ValueError('Found duplicates in chemical_symbols')
+                duplicates = [s for s in symbols if symbols.count(s) > 1]
+                raise ValueError('Found duplicate symbols {}  on sublattice'.format(duplicates))
 
-        sublattices = sorted({tuple(sorted(s)) for s in self._input_chemical_symbols if len(s) > 1})
-        if len(sublattices) == 0:
+        if len([tuple(sorted(s)) for s in chemical_symbols if len(s) > 1]) == 0:
             raise ValueError('No active sites found')
+
+        return chemical_symbols
 
     def _get_chemical_symbol_representation(self):
         """Returns a str version of the chemical symbols that is
