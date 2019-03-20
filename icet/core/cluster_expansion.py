@@ -273,7 +273,14 @@ class ClusterExpansion:
             cs_file = tempfile.NamedTemporaryFile()
             self.cluster_space.write(cs_file.name)
             tar_file.add(cs_file.name, arcname='cluster_space')
-            add_items_to_tarfile(tar_file, items, 'items')
+
+            # write items
+            temp_file = tempfile.TemporaryFile()
+            pickle.dump(items, temp_file)
+            temp_file.seek(0)
+            tar_info = tar_file.gettarinfo(arcname='items', fileobj=temp_file)
+            tar_file.addfile(tar_info, temp_file)
+            temp_file.close()
 
     @staticmethod
     def read(filename: str):
@@ -290,7 +297,7 @@ class ClusterExpansion:
             cs_file.write(tar_file.extractfile('cluster_space').read())
             cs_file.seek(0)
             cs = ClusterSpace.read(cs_file.name)
-            items = read_items_from_tarfile(tar_file, 'items')
+            items = pickle.load(tar_file.extractfile('items'))
 
         parameters = items['parameters']
         pruning_history = items['pruning_history']
