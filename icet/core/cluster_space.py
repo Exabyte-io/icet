@@ -424,7 +424,8 @@ class ClusterSpace(_ClusterSpace):
         items = read_items_from_tarfile(tar_file, 'items')
         atoms = read_ase_atoms_from_tarfile(tar_file, 'atoms')
         tar_file.close()
-        return ClusterSpace(atoms, items['cutoffs'], items['chemical_symbols'])
+        return ClusterSpace(
+            atoms=atoms, cutoffs=items['cutoffs'], chemical_symbols=items['chemical_symbols'])
 
 
 def get_singlet_info(atoms: Atoms,
