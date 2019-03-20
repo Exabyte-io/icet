@@ -13,7 +13,6 @@ from icet import ClusterSpace
 from icet.core.structure import Structure
 from typing import List, Union
 from ase import Atoms
-from icet.io.read_write_tar_files import add_items_to_tarfile, read_items_from_tarfile
 
 
 class ClusterExpansion:
