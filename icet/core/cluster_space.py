@@ -4,17 +4,13 @@ This module provides the ClusterSpace class.
 
 import copy
 import pickle
-import tempfile
-import tarfile
-import numpy as np
-
 from collections import OrderedDict
 from typing import List, Union
 
+import numpy as np
+
 from _icet import ClusterSpace as _ClusterSpace
 from ase import Atoms
-from ase.io import write as ase_write
-from ase.io import read as ase_read
 from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.tools.geometry import (add_vacuum_in_non_pbc,
@@ -403,23 +399,12 @@ class ClusterSpace(_ClusterSpace):
         filename
             name of file to which to write
         """
-        with tarfile.open(name=filename, mode='w') as tar_file:
 
-            # write items
-            items = dict(cutoffs=self._cutoffs, chemical_symbols=self._input_chemical_symbols)
-            temp_file = tempfile.TemporaryFile()
-            pickle.dump(items, temp_file)
-            temp_file.seek(0)
-            tar_info = tar_file.gettarinfo(arcname='items', fileobj=temp_file)
-            tar_file.addfile(tar_info, temp_file)
-            temp_file.close()
-
-            # write atoms
-            temp_file = tempfile.NamedTemporaryFile()
-            ase_write(temp_file.name, self._input_atoms, format='json')
-            temp_file.seek(0)
-            tar_info = tar_file.gettarinfo(arcname='atoms', fileobj=temp_file)
-            tar_file.addfile(tar_info, temp_file)
+        parameters = {'atoms': self._input_atoms.copy(),
+                      'cutoffs': self._cutoffs,
+                      'chemical_symbols': self._input_chemical_symbols}
+        with open(filename, 'wb') as handle:
+            pickle.dump(parameters, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     @staticmethod
     def read(filename: str):
@@ -432,22 +417,14 @@ class ClusterSpace(_ClusterSpace):
             name of file from which to read cluster space
         """
         if isinstance(filename, str):
-            tar_file = tarfile.open(mode='r', name=filename)
+            with open(filename, 'rb') as handle:
+                parameters = pickle.load(handle)
         else:
-            tar_file = tarfile.open(mode='r', fileobj=filename)
+            parameters = pickle.load(filename)
 
-        # read items
-        items = pickle.load(tar_file.extractfile('items'))
-
-        # read atoms
-        temp_file = tempfile.NamedTemporaryFile()
-        temp_file.write(tar_file.extractfile('atoms').read())
-        temp_file.seek(0)
-        atoms = ase_read(temp_file.name, format='json')
-
-        tar_file.close()
-        return ClusterSpace(
-            atoms=atoms, cutoffs=items['cutoffs'], chemical_symbols=items['chemical_symbols'])
+        return ClusterSpace(parameters['atoms'],
+                            parameters['cutoffs'],
+                            parameters['chemical_symbols'])
 
 
 def get_singlet_info(atoms: Atoms,
