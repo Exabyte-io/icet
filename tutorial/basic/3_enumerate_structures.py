@@ -10,10 +10,12 @@ ce = ClusterExpansion.read('mixing_energy.ce')
 species = ['Ag', 'Pd']
 data = {'concentration': [], 'mixing_energy': []}
 structures = []
+chemical_symbols = ce.cluster_space.chemical_symbols
+prim = ce.cluster_space.primitive_structure
 for atoms in enumerate_structures(
-        atoms=ce.cluster_space.primitive_structure,
+        atoms=prim,
         sizes=range(1, 13),
-        chemical_symbols=ce.cluster_space.chemical_symbols):
+        chemical_symbols=chemical_symbols):
     conc = atoms.get_chemical_symbols().count('Pd') / len(atoms)
     data['concentration'].append(conc)
     data['mixing_energy'].append(ce.predict(atoms))
