@@ -137,8 +137,9 @@ class ClusterExpansionCalculator(BaseCalculator):
         """ map from site to allowed species """
         allowed_species_prim = \
             self.cluster_expansion._cluster_space.chemical_symbols
+        primitive_structure = self.cluster_expansion.cluster_space.primitive_structure
         indices_in_prim = [find_lattice_site_by_position(
-            self.cluster_expansion.cluster_space.primitive_structure,
+            primitive_structure,
             position=pos).index for pos in self.atoms.positions]
         allowed_species = [allowed_species_prim[i] for i in indices_in_prim]
         return allowed_species
