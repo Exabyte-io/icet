@@ -109,6 +109,33 @@ class TestSublattices(unittest.TestCase):
             else:
                 self.assertEqual(sublattice_index, 1)
 
+    def test_active_sublattices(self):
+        """Tests the active sublattices property."""
+        active_sublattices = self.sublattices.active_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in active_sublattices]
+        target = [('Au', 'Pd'), ('H', 'V')]
+        self.assertEqual(symbols_ret, target)
+
+    def test_inactive_sublattices(self):
+        """Tests the active sublattices property."""
+        inactive_sublattices = self.sublattices.inactive_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in inactive_sublattices]
+        target = []
+        self.assertEqual(symbols_ret, target)
+
+        # Now create something that actually have inactive sublattices
+
+        sublattices = Sublattices(allowed_species=[['Au', 'Pd'], ['H']],
+                                  primitive_structure=self.prim, structure=self.supercell)
+
+        inactive_sublattices = sublattices.inactive_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in inactive_sublattices]
+        target = [('H',)]
+        self.assertEqual(symbols_ret, target)
+
 
 if __name__ == '__main__':
     unittest.main()

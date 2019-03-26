@@ -122,3 +122,13 @@ class Sublattices:
             index of the sublattice
         """
         return self[index].indices
+
+    @property
+    def active_sublattices(self) -> List[Sublattice]:
+        """Lists of the active sublattices."""
+        return [sl for sl in self if len(sl.chemical_symbols) > 1]
+
+    @property
+    def inactive_sublattices(self) -> List[Sublattice]:
+        """Lists of the active sublattices."""
+        return [sl for sl in self if len(sl.chemical_symbols) == 1]
