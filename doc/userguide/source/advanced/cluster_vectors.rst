@@ -6,11 +6,10 @@
 Cluster vectors
 ===============
 
-Although the calculation of cluster vectors is usually handled
-internally in :program:`icet`, it is sometimes advantageous to
-explicitly look at the cluster vector for various structures of
-interest. This tutorial demonstrates how this can be carried out in
-practice.
+Although the calculation of cluster vectors is usually handled internally in
+:program:`icet`, it is sometimes advantageous to explicitly look at the
+cluster vector for structures of interest. This tutorial demonstrates how this
+can be carried out in practice.
 
 Import modules
 --------------

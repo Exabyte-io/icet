@@ -6,17 +6,16 @@
 Structure enumeration
 =====================
 
-To train a cluster expansion, one needs a set of symmetrically
-inequivalent structures and their corresponding energy (or another
-property of interest). It is sometimes possible to generate such
-structures by random decoration of a supercell. In many systems,
-however, a much better approach is to generate *all* symmetrically
-inequivalent decorations up to a certain supercell size. This process
-is usually referred to as structure enumeration. Enumeration is useful
-both to generate a set of small supercells without duplicates and to
-systematically search for ground states once a cluster expansion is
-fitted. The present tutorial demonstrates the use of the structure
-enumeration tool in :program:`icet`.
+To train a cluster expansion, one needs a set of symmetrically inequivalent
+structures and their corresponding energy (or another property of interest).
+It is sometimes possible to generate such structures by random decoration of a
+supercell. In many systems, however, a much better approach is to generate
+*all* symmetrically inequivalent decorations up to a certain supercell size.
+This process is usually referred to as structure enumeration. Enumeration is
+useful both for generating a set of small supercells without duplicates and
+for systematically searching for ground states once a cluster expansion is
+fitted. The present tutorial demonstrates the use of the structure enumeration
+tool in :program:`icet`.
 
 Import modules
 --------------
