@@ -329,3 +329,31 @@ def get_decorated_primitive_structure(
             index = primitive_chemical_symbols.index(tuple(sorted(symbols)))
             primitive_chemical_symbols[index] = symbols
     return decorated_primitive, primitive_chemical_symbols
+
+
+def atomic_number_to_chemical_symbol(numbers: List[int]) -> List[str]:
+    """Returns the chemical symbols equivalent to the input atomic
+    numbers.
+
+    Parameters
+    ----------
+    numbers
+        atomic numbers
+    """
+
+    symbols = [chemical_symbols[number] for number in numbers]
+    return symbols
+
+
+def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
+    """Returns the atomic numbers equivalent to the input chemical
+    symbols.
+
+    Parameters
+    ----------
+    symbols
+        chemical symbols
+    """
+
+    numbers = [chemical_symbols.index(symbols) for symbols in symbols]
+    return numbers

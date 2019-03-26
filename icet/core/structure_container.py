@@ -5,7 +5,7 @@ This module provides the StructureContainer class.
 import tarfile
 import tempfile
 
-from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
+from typing import BinaryIO, List, TextIO, Tuple, Union
 
 import numpy as np
 import ase.db
@@ -34,41 +34,13 @@ class StructureContainer:
         list of properties, which are provided in dicts
     """
 
-    def __init__(self, cluster_space: ClusterSpace,
-                 list_of_atoms: Union[list, tuple] = None,
-                 list_of_properties: List[dict] = None,
-                 allow_duplicate: bool = True):
+    def __init__(self, cluster_space: ClusterSpace):
 
         if not isinstance(cluster_space, ClusterSpace):
             raise TypeError('cluster_space must be a ClusterSpace object')
 
         self._cluster_space = cluster_space
         self._structure_list = []
-
-        # Add atomic structures
-        if list_of_atoms is not None:
-            if not isinstance(list_of_atoms, (list, tuple)):
-                raise TypeError('atoms must be given as a list or a tuple')
-
-            if list_of_properties is not None:
-                if not len(list_of_properties) == len(list_of_atoms):
-                    raise ValueError('list of atoms and list of properties'
-                                     ' must have the same length')
-            else:
-                list_of_properties = [None] * len(list_of_atoms)
-
-            if not all(isinstance(x, tuple) for x in list_of_atoms):
-                list_of_atoms = [(atoms, None) for atoms in list_of_atoms]
-
-            for (atoms, user_tag), properties in zip(list_of_atoms,
-                                                     list_of_properties):
-                try:
-                    self.add_structure(atoms=atoms, user_tag=user_tag,
-                                       properties=properties,
-                                       allow_duplicate=allow_duplicate)
-                except (TypeError, ValueError):
-                    logger.exception('Skipping structure {}; '.format(
-                        list_of_atoms.index((atoms, user_tag))))
 
     def __len__(self) -> int:
         return len(self._structure_list)
@@ -90,8 +62,7 @@ class StructureContainer:
         list of integers
             List of structure's indices
         """
-        return [i for i, s in enumerate(self)
-                if user_tag is None or s.user_tag == user_tag]
+        return [i for i, s in enumerate(self) if user_tag is None or s.user_tag == user_tag]
 
     def _get_string_representation(self, print_threshold: int = None,
                                    print_minimum: int = 10) -> str:
@@ -243,9 +214,8 @@ class StructureContainer:
                     msg += " at index {}".format(i)
                     raise ValueError(msg)
 
-        structure = FitStructure(atoms_copy, user_tag)
-        structure.set_properties(properties)
-        structure._set_cluster_vector(cv)
+        # add structure
+        structure = FitStructure(atoms_copy, user_tag, cv, properties)
         self._structure_list.append(structure)
 
     def get_condition_number(self, structure_indices: List[int] = None,
@@ -302,104 +272,10 @@ class StructureContainer:
 
         return np.array(cv_list), np.array(prop_list)
 
-    def add_properties(self, structure_indices: List[int] = None,
-                       properties: List[dict] = None):
-        """
-        This method allows you to add properties and/or modify
-        the values of existing properties
-
-        Parameters
-        ----------
-        structure_indices
-            list of structure indices. By default (``None``) the
-            method will add the properties to all structures.
-
-        properties
-            list of scalar properties
-        """
-        if structure_indices is None:
-            msg = 'len of properties does not equal len of fit structures'
-            assert len(properties) == len(self), msg
-            for s, prop in zip(self._structure_list, properties):
-                s.set_properties(prop)
-        else:
-            for i, prop in zip(structure_indices, properties):
-                self._structure_list[i].set_properties(prop)
-
-    def get_properties(self, structure_indices: List[int] = None,
-                       key: str = 'energy') -> List[float]:
-        """
-        Returns a list with the value of properties with key='key'
-        for a desired set of structures
-
-        Parameters
-        ----------
-        structures_indices
-            list of structure indices. Default to
-            None and in that case returns properties of all structures
-
-        key
-            key of properties dictionary. Default to 'energy'
-        """
-        if structure_indices is None:
-            prop_list = [s.properties[key]
-                         for s in self._structure_list]
-        else:
-            prop_list = []
-            for i in structure_indices:
-                prop_list.append(self._structure_list[i].properties[key])
-
-        return prop_list
-
-    def get_structures(self,
-                       structure_indices: List[int] = None) -> List[Atoms]:
-        """
-        Returns a list of structures in the form of ASE Atoms
-
-        Parameters
-        ----------
-        structure_indices
-            list of structure indices. By default (``None``) the
-            method will return all structures listed in the container
-        """
-        if structure_indices is None:
-            s_list = [s.atoms for s in self._structure_list]
-        else:
-            s_list = []
-            for i in structure_indices:
-                s_list.append(self._structure_list[i].atoms)
-
-        return s_list
-
-    def get_user_tags(self, structure_indices: List[int] = None) -> List[str]:
-        """
-        Return a list of user tags for the structures in the structure
-        container
-
-        Parameters
-        ----------
-        structure_indices
-            list of structure indices. By default (``None``) the
-            method will return all user tags listed in the container
-        """
-        if structure_indices is None:
-            tag_list = [s.user_tag for s in self._structure_list]
-        else:
-            tag_list = []
-            for i in structure_indices:
-                tag_list.append(self._structure_list[i].user_tag)
-
-        return tag_list
-
     @property
     def cluster_space(self) -> ClusterSpace:
         """Cluster space used to calculate the cluster vectors."""
         return self._cluster_space
-
-    @property
-    def fit_structures(self):
-        """List of the fit structures."""
-        return self._structure_list
 
     @property
     def available_properties(self) -> List[str]:
@@ -421,10 +297,10 @@ class StructureContainer:
 
         # Write fit structures as an ASE db in tempfile
         temp_db_file = tempfile.NamedTemporaryFile()
-        if self.fit_structures:
+        if self._structure_list:
             db = ase.db.connect(temp_db_file.name, type='db', append=False)
 
-        for fit_structure in self.fit_structures:
+        for fit_structure in self._structure_list:
             data_dict = {'user_tag': fit_structure.user_tag,
                          'properties': fit_structure.properties,
                          'cluster_vector': fit_structure.cluster_vector}
@@ -493,12 +369,11 @@ class FitStructure:
     """
 
     def __init__(self, atoms: Atoms, user_tag: str,
-                 cv: np.ndarray = None, properties: dict = None):
+                 cv: np.ndarray, properties: dict = {}):
         self._atoms = atoms
         self._user_tag = user_tag
-        self._properties = {}
-        self._set_cluster_vector(cv)
-        self.set_properties(properties)
+        self._cluster_vector = cv
+        self.properties = properties
 
     @property
     def cluster_vector(self) -> np.ndarray:
@@ -515,28 +390,11 @@ class FitStructure:
         """structure label"""
         return str(self._user_tag)
 
-    @property
-    def properties(self) -> Dict[str, Union[float, int]]:
-        """scalar properties of structure"""
-        return self._properties
-
     def __getattr__(self, key):
         """Accesses properties if possible and returns value"""
         if key not in self.properties.keys():
             return super().__getattribute__(key)
         return self.properties[key]
-
-    def _set_cluster_vector(self, cv: np.ndarray):
-        """ Sets the cluster vectors of the structure. """
-        if cv is not None:
-            self._cluster_vector = cv
-        else:
-            self._cluster_vector = None
-
-    def set_properties(self, properties: Dict[str, float]):
-        """ Sets properties associated with the structure. """
-        if properties is not None:
-            self._properties.update(properties)
 
     def __len__(self) -> int:
         """ Number of sites in the structure. """
