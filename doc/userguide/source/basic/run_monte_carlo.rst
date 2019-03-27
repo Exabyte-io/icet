@@ -27,9 +27,10 @@ We carry out a rather long MC run, anticipating that the analysis will only
 include the latter part of the simulation after equilibration. After the run
 the results are stored on disk in the form of a :ref:`DataContainer
 <data_container>` object. The latter will be used in the next step to analyze
-the runs. Note that the ensemble object is only initialized once. Thereby the
-configuration evolves gradually and the period needed for equilibration is
-shortened.
+the runs. At the end of each iteration we save the last state of the system
+and provide it as input to the ensemble object in the next iteration.
+Thereby the configuration evolves gradually and the period needed for
+equilibration is shortened.
 
 .. literalinclude:: ../../../../tutorial/basic/5a_run_monte_carlo_sgc.py
    :start-after: # step 2
