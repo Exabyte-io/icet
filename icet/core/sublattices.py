@@ -91,7 +91,7 @@ class Sublattices:
         for species, indices in zip(self._allowed_species, sublattice_to_indices):
             try:
                 symbol = symbol_list[len(self._sublattices)]
-            except IndexError as e:
+            except IndexError:
                 if len(self._sublattices) >= len(symbol_list):
                     raise Exception("Tried to create more than {} sublattices which is currently"
                                     " not possible.")
