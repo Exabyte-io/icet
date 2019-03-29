@@ -3,6 +3,8 @@ from icet.core.structure import Structure
 from typing import List
 from ase import Atoms
 import copy
+from itertools import product
+from string import ascii_uppercase
 
 
 class Sublattice:
@@ -20,9 +22,10 @@ class Sublattice:
 
     """
 
-    def __init__(self, chemical_symbols: List[str], indices: List[int]):
+    def __init__(self, chemical_symbols: List[str], indices: List[int], symbol: str):
         self._chemical_symbols = chemical_symbols
         self._indices = indices
+        self._symbol = symbol
 
     @property
     def chemical_symbols(self):
@@ -31,6 +34,11 @@ class Sublattice:
     @property
     def indices(self):
         return self._indices.copy()
+
+    @property
+    def symbol(self):
+        """Symbol representation of sublattice, i.e. A, B, C, etc.."""
+        return self._symbol
 
 
 class Sublattices:
@@ -55,6 +63,8 @@ class Sublattices:
                  structure: Atoms):
 
         # sorted unique sites, this basically decides A, B, C... sublattices
+        symbol_list = list(ascii_uppercase) + [''.join(p)
+                                               for p in product(ascii_uppercase, ascii_uppercase)]
 
         active_lattices = sorted(set([tuple(sorted(symbols))
                                       for symbols in allowed_species if len(symbols) > 1]))
@@ -79,7 +89,9 @@ class Sublattices:
             sublattice_to_indices[sublattice].append(index)
 
         for species, indices in zip(self._allowed_species, sublattice_to_indices):
-            sublattice = Sublattice(chemical_symbols=species, indices=indices)
+            symbol = symbol_list[len(self._sublattices)]
+            sublattice = Sublattice(
+                chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
         # Map lattice index to sublattice index
@@ -106,6 +118,16 @@ class Sublattices:
             index of site in the structure
         """
         return self._index_to_sublattice[index]
+
+    def get_sublattice_symbol(self, index: int) -> str:
+        """Returns the sublattice symbol for the sublattice with a
+        particular index.
+
+        Parameters
+        -----------
+        index
+            index of sublattice
+        """
 
     @property
     def allowed_species(self) -> List[List[str]]:

@@ -8,7 +8,6 @@ import pickle
 import tarfile
 import tempfile
 from collections import OrderedDict
-from string import ascii_uppercase
 from typing import List, Union
 
 import numpy as np
@@ -158,11 +157,11 @@ class ClusterSpace(_ClusterSpace):
         active_sublattices = [
             sl.chemical_symbols for sl in sublattices.active_sublattices]
         nice_str = []
-        for k, symbols in enumerate(active_sublattices):
-            sublattice_symbol = ascii_uppercase[k]
+        for sublattice in sublattices.active_sublattices:
+            sublattice_symbol = sublattice.symbol
 
             nice_str.append('{} (sublattice {})'.format(
-                list(symbols), sublattice_symbol))
+                list(sublattice.chemical_symbols), sublattice_symbol))
         return ', '.join(nice_str)
 
     def _get_string_representation(self,
@@ -286,7 +285,7 @@ class ClusterSpace(_ClusterSpace):
             orbit = self.get_orbit(orbit_index)
             rep_sites = orbit.get_representative_sites()
             orbit_sublattices = '-'.join(
-                [ascii_uppercase[sublattices.get_sublattice_index(ls.index)]
+                [sublattices[sublattices.get_sublattice_index(ls.index)].symbol
                  for ls in rep_sites])
             local_Mi = self.get_number_of_allowed_species_by_site(
                 self._get_primitive_structure(), orbit.representative_sites)

@@ -14,6 +14,7 @@ class TestSublattice(unittest.TestCase):
 
         self.chemical_symbols = ['Al', 'Ge', 'Si']
         self.indices = [1, 2, 3, 4, 5, 6, 7]
+        self.symbol = 'A'
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -22,7 +23,7 @@ class TestSublattice(unittest.TestCase):
     def setUp(self):
         """Set up sublattice before each test."""
         self.sublattice = Sublattice(
-            chemical_symbols=self.chemical_symbols, indices=self.indices)
+            chemical_symbols=self.chemical_symbols, indices=self.indices, symbol=self.symbol)
 
     def test_indices(self):
         """Tests indices property."""
@@ -44,6 +45,10 @@ class TestSublattice(unittest.TestCase):
         symbols[0] = 'H'
         symbols.append('Pt')
         self.assertEqual(self.sublattice.chemical_symbols, ['Al', 'Ge', 'Si'])
+
+    def test_symbol(self):
+        """Tests symbol property."""
+        self.assertEqual('A', self.sublattice.symbol)
 
 
 class TestSublattices(unittest.TestCase):
