@@ -89,7 +89,12 @@ class Sublattices:
             sublattice_to_indices[sublattice].append(index)
 
         for species, indices in zip(self._allowed_species, sublattice_to_indices):
-            symbol = symbol_list[len(self._sublattices)]
+            try:
+                symbol = symbol_list[len(self._sublattices)]
+            except IndexError as e:
+                if len(self._sublattices) >= len(symbol_list):
+                    raise Exception("Tried to create more than {} sublattices which is currently"
+                                    " not possible.")
             sublattice = Sublattice(
                 chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
