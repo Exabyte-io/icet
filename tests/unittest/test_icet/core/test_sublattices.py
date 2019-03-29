@@ -2,6 +2,7 @@ import unittest
 
 from ase.build import bulk
 from icet.core.sublattices import Sublattices, Sublattice
+from icet import ClusterSpace
 
 
 class TestSublattice(unittest.TestCase):
@@ -135,6 +136,20 @@ class TestSublattices(unittest.TestCase):
         symbols_ret = [sl.chemical_symbols for sl in inactive_sublattices]
         target = [('H',)]
         self.assertEqual(symbols_ret, target)
+
+    def test_sublattice_uniqueness(self):
+        """Tests that the number of sublattices are correct
+        in the case of the allowed species have duplicates in them.
+        """
+        atoms = bulk("Al").repeat(2)
+
+        chemical_symbols = [['H']] + [['Al', 'Ge']]*(len(atoms)-1)
+        cs = ClusterSpace(
+            atoms=atoms, chemical_symbols=chemical_symbols, cutoffs=[5])
+        sublattices = cs.get_sublattices(atoms)
+
+        self.assertEqual(len(sublattices), 2)
+        self.assertEqual(sublattices.allowed_species, [('Al', 'Ge'), ('H',)])
 
 
 if __name__ == '__main__':
