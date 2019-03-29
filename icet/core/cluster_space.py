@@ -154,8 +154,6 @@ class ClusterSpace(_ClusterSpace):
         easier on the eyes.
         """
         sublattices = self.get_sublattices(self.primitive_structure)
-        active_sublattices = [
-            sl.chemical_symbols for sl in sublattices.active_sublattices]
         nice_str = []
         for sublattice in sublattices.active_sublattices:
             sublattice_symbol = sublattice.symbol
