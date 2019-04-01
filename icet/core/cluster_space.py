@@ -20,6 +20,8 @@ from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.core.sublattices import Sublattices
 from icet.tools.geometry import (add_vacuum_in_non_pbc,
+                                 check_volume_compatibility,
+                                 check_structure_occupation_compatibility_with_clusterspace,
                                  get_decorated_primitive_structure)
 
 
@@ -336,11 +338,15 @@ class ClusterSpace(_ClusterSpace):
         -------
         the cluster vector
         """
-        assert isinstance(atoms, Atoms), \
-            'input configuration must be an ASE Atoms object'
-        if not atoms.pbc.all():
-            add_vacuum_in_non_pbc(atoms)
-        return _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
+        if not isinstance(atoms, Atoms):
+            raise TypeError('input structure must be an ASE Atoms object')
+
+        try:
+            cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
+        except Exception as e:
+            self.assert_structure_compatability(atoms)
+            raise(e)
+        return cv
 
     def _prune_orbit_list(self, indices: List[int]) -> None:
         """
@@ -422,6 +428,23 @@ class ClusterSpace(_ClusterSpace):
         sl = Sublattices(self.chemical_symbols,
                          self.primitive_structure, structure)
         return sl
+
+    def assert_structure_compatability(self, structure: Atoms):
+        """ Raises if structure is not compatible with ClusterSpace.
+
+        TODO: Added check for if structure is relaxed
+
+        Parameters
+        ----------
+        structure
+            structure to check if compatible with ClusterSpace
+        """
+
+        if not check_volume_compatibility(structure, self.primitive_structure):
+            raise ValueError('Volume of structure not compatible with ClusterSpace')
+
+        if not check_structure_occupation_compatibility_with_clusterspace(self, structure):
+            raise ValueError('Occupations of structure not compatible with ClusterSpace')
 
     def write(self, filename: str) -> None:
         """

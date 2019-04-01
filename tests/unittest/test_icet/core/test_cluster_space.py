@@ -391,9 +391,32 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         self.assertEqual(orig_size-len(prune_indices), len(self.cs.orbit_list))
 
     def test_copy(self):
-        """ Test copy function. """
+        """ Tests copy function. """
         cs_copy = self.cs.copy()
         self.assertEqual(str(cs_copy), str(self.cs))
+
+    def test_assert_structure_compatability(self):
+        """ Tests assert_structure_compatability functionality """
+        supercell = self.atoms_prim.repeat((2, 3, 4))
+
+        # real supercell works
+        self.cs.assert_structure_compatability(supercell)
+
+        # faulty volume
+        supercell_tmp = supercell.copy()
+        supercell_tmp.cell *= 1.01
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatability(supercell_tmp)
+        self.assertIn('Volume of structure not compatible', str(cm.exception))
+
+        # faulty occupations
+        supercell_tmp = supercell.copy()
+        symbols = supercell_tmp.get_chemical_symbols()
+        symbols[0] = 'W'
+        supercell_tmp.set_chemical_symbols(symbols)
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatability(supercell_tmp)
+        self.assertIn('Occupations of structure not compatible', str(cm.exception))
 
     def test_get_possible_orbit_decorations(self):
         """Tests get possible orbit decorations."""
