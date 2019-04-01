@@ -120,7 +120,8 @@ class Sublattices:
 
     @property
     def allowed_species(self) -> List[List[str]]:
-        """Lists of the allowed species on each sublattice, in order."""
+        """Lists of the allowed species on each sublattice, in order.
+        """
         return deepcopy(self._allowed_species)
 
     def get_sublattice_sites(self, index: int) -> List[int]:
