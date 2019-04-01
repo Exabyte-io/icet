@@ -78,7 +78,6 @@ class Sublattices:
         self._sublattices = []
         sublattice_to_indices = [[] for _ in range(len(self._allowed_species))]
         for index, position in enumerate(structure.get_positions()):
-
             lattice_site = cpp_prim_structure.find_lattice_site_by_position(
                 position)
 
