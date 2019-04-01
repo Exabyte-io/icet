@@ -5,6 +5,7 @@ from ase import Atoms
 import copy
 from itertools import product
 from string import ascii_uppercase
+import numpy as np
 
 
 class Sublattice:
@@ -62,15 +63,16 @@ class Sublattices:
     def __init__(self, allowed_species: List[List[str]], primitive_structure: Atoms,
                  structure: Atoms):
 
-        # sorted unique sites, this basically decides A, B, C... sublattices
-        symbol_list = list(ascii_uppercase) + [''.join(p)
-                                               for p in product(ascii_uppercase, ascii_uppercase)]
-
+        # sorted unique sites, this basically decides A, B, C... sublattices        
         active_lattices = sorted(set([tuple(sorted(symbols))
                                       for symbols in allowed_species if len(symbols) > 1]))
         inactive_lattices = sorted(
             set([tuple(sorted(symbols)) for symbols in allowed_species if len(symbols) == 1]))
         self._allowed_species = active_lattices + inactive_lattices
+
+        n = int(np.sqrt(len(self._allowed_species))) + 1
+        symbol_list = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
+
 
         cpp_prim_structure = Structure.from_atoms(primitive_structure)
         self._sublattices = []
@@ -88,15 +90,8 @@ class Sublattices:
 
             sublattice_to_indices[sublattice].append(index)
 
-        for species, indices in zip(self._allowed_species, sublattice_to_indices):
-            try:
-                symbol = symbol_list[len(self._sublattices)]
-            except IndexError:
-                if len(self._sublattices) >= len(symbol_list):
-                    raise Exception("Tried to create more than {} sublattices which is currently"
-                                    " not possible.")
-            sublattice = Sublattice(
-                chemical_symbols=species, indices=indices, symbol=symbol)
+        for symbol, species, indices in zip(symbol_list, self._allowed_species, sublattice_to_indices):            
+            sublattice = Sublattice(chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
         # Map lattice index to sublattice index
@@ -123,16 +118,6 @@ class Sublattices:
             index of site in the structure
         """
         return self._index_to_sublattice[index]
-
-    def get_sublattice_symbol(self, index: int) -> str:
-        """Returns the sublattice symbol for the sublattice with a
-        particular index.
-
-        Parameters
-        -----------
-        index
-            index of sublattice
-        """
 
     @property
     def allowed_species(self) -> List[List[str]]:
