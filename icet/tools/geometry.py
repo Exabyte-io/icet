@@ -357,22 +357,3 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
 
     numbers = [chemical_symbols.index(symbols) for symbols in symbols]
     return numbers
-
-
-def check_structure_occupation_compatibility_with_clusterspace(cs, structure: Atoms) -> bool:
-    """ Checks if the structure occupation of a structure is compatible with
-    a ClusterSpace. """
-    symbols = structure.get_chemical_symbols()
-    sublattices = cs.get_sublattices(structure)
-    for sl in sublattices:
-        if not all(symbols[i] in sl.chemical_symbols for i in sl.indices):
-            return False
-    return True
-
-
-def check_volume_compatibility(structure1: Atoms, structure2: Atoms, vol_tol: float=1e-5) -> bool:
-    """ Checks if the volume of two structures are compatible,
-    i.e. that volume per atom is within vol_tol """
-    vol1 = structure1.get_volume() / len(structure1)
-    vol2 = structure2.get_volume() / len(structure2)
-    return abs(vol1 - vol2) < vol_tol

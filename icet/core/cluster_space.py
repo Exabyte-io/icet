@@ -20,8 +20,6 @@ from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.core.sublattices import Sublattices
 from icet.tools.geometry import (add_vacuum_in_non_pbc,
-                                 check_volume_compatibility,
-                                 check_structure_occupation_compatibility_with_clusterspace,
                                  get_decorated_primitive_structure)
 
 
@@ -425,11 +423,10 @@ class ClusterSpace(_ClusterSpace):
         structure
             structure the sublattices are based on
         """
-        sl = Sublattices(self.chemical_symbols,
-                         self.primitive_structure, structure)
+        sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
         return sl
 
-    def assert_structure_compatability(self, structure: Atoms):
+    def assert_structure_compatability(self, structure: Atoms, vol_tol: float=1e-5) -> None:
         """ Raises if structure is not compatible with ClusterSpace.
 
         TODO: Add check for if structure is relaxed
@@ -439,13 +436,24 @@ class ClusterSpace(_ClusterSpace):
         structure
             structure to check if compatible with ClusterSpace
         """
-
-        if not check_volume_compatibility(structure, self.primitive_structure):
+        # check volume
+        prim = self.primitive_structure
+        vol1 = prim.get_volume() / len(prim)
+        vol2 = structure.get_volume() / len(structure)
+        if abs(vol1 - vol2) > vol_tol:
             raise ValueError('Volume per atom of structure does not match the volume of'
                              'ClusterSpace.primitive_structure')
 
-        if not check_structure_occupation_compatibility_with_clusterspace(self, structure):
-            raise ValueError('Occupations of structure not compatible with ClusterSpace')
+        # check occupations
+        symbols = structure.get_chemical_symbols()
+        sublattices = self.get_sublattices(structure)
+        for sl in sublattices:
+            for i in sl.indices:
+                if not symbols[i] in sl.chemical_symbols:
+                    msg = 'Occupations of structure not compatible with ClusterSpace. '
+                    msg += 'Site {} with occupation {} not allowed on sublattice {}'.format(
+                        i, symbols[i], sl.chemical_symbols)
+                    raise ValueError(msg)
 
     def write(self, filename: str) -> None:
         """
