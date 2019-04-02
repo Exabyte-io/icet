@@ -426,7 +426,7 @@ class ClusterSpace(_ClusterSpace):
         sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
         return sl
 
-    def assert_structure_compatability(self, structure: Atoms, vol_tol: float=1e-5) -> None:
+    def assert_structure_compatability(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
         """ Raises if structure is not compatible with ClusterSpace.
 
         TODO: Add check for if structure is relaxed

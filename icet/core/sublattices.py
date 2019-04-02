@@ -63,7 +63,7 @@ class Sublattices:
     def __init__(self, allowed_species: List[List[str]], primitive_structure: Atoms,
                  structure: Atoms):
 
-        # sorted unique sites, this basically decides A, B, C... sublattices        
+        # sorted unique sites, this basically decides A, B, C... sublattices
         active_lattices = sorted(set([tuple(sorted(symbols))
                                       for symbols in allowed_species if len(symbols) > 1]))
         inactive_lattices = sorted(
@@ -71,15 +71,13 @@ class Sublattices:
         self._allowed_species = active_lattices + inactive_lattices
 
         n = int(np.sqrt(len(self._allowed_species))) + 1
-        symbol_list = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
-
+        symbols = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
 
         cpp_prim_structure = Structure.from_atoms(primitive_structure)
         self._sublattices = []
         sublattice_to_indices = [[] for _ in range(len(self._allowed_species))]
         for index, position in enumerate(structure.get_positions()):
-            lattice_site = cpp_prim_structure.find_lattice_site_by_position(
-                position)
+            lattice_site = cpp_prim_structure.find_lattice_site_by_position(position)
 
             # Get allowed species on this site
             species = allowed_species[lattice_site.index]
@@ -89,7 +87,7 @@ class Sublattices:
 
             sublattice_to_indices[sublattice].append(index)
 
-        for symbol, species, indices in zip(symbol_list, self._allowed_species, sublattice_to_indices):            
+        for symbol, species, indices in zip(symbols, self._allowed_species, sublattice_to_indices):
             sublattice = Sublattice(chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
