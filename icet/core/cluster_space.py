@@ -432,7 +432,7 @@ class ClusterSpace(_ClusterSpace):
     def assert_structure_compatability(self, structure: Atoms):
         """ Raises if structure is not compatible with ClusterSpace.
 
-        TODO: Added check for if structure is relaxed
+        TODO: Add check for if structure is relaxed
 
         Parameters
         ----------
@@ -441,7 +441,8 @@ class ClusterSpace(_ClusterSpace):
         """
 
         if not check_volume_compatibility(structure, self.primitive_structure):
-            raise ValueError('Volume of structure not compatible with ClusterSpace')
+            raise ValueError('Volume per atom of structure does not match the volume of'
+                             'ClusterSpace.primitive_structure')
 
         if not check_structure_occupation_compatibility_with_clusterspace(self, structure):
             raise ValueError('Occupations of structure not compatible with ClusterSpace')

@@ -404,10 +404,10 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 
         # faulty volume
         supercell_tmp = supercell.copy()
-        supercell_tmp.cell *= 1.01
+        supercell_tmp.set_cell(1.01 * supercell_tmp.cell, scale_atoms=True)
         with self.assertRaises(ValueError) as cm:
             self.cs.assert_structure_compatability(supercell_tmp)
-        self.assertIn('Volume of structure not compatible', str(cm.exception))
+        self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
 
         # faulty occupations
         supercell_tmp = supercell.copy()
