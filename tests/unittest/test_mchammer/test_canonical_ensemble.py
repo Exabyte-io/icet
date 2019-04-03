@@ -138,5 +138,6 @@ class TestEnsemble(unittest.TestCase):
         mc = CanonicalEnsemble(supercell, calc, 300)
         mc.run(50)
 
+
 if __name__ == '__main__':
     unittest.main()
