@@ -199,6 +199,27 @@ class CanonicalAnnealing(BaseEnsemble):
         data['temperature'] = self.temperature
         return data
 
+    def get_random_sublattice_index(self) -> int:
+        """Returns a random sublattice index based on the weights of the
+        sublattice.
+
+        Todo
+        ----
+        * fix this method
+        * add unit test
+        """
+        probability_distribution = []
+        for sub in self._sublattices:
+            if len(set(self.configuration.occupations[sub])) <= 1:
+                p = 0
+            else:
+                p = len(sub)
+            probability_distribution.append(p)
+        norm = sum(probability_distribution)
+        probability_distribution = [p/norm for p in probability_distribution]
+        pick = np.random.choice(range(0, len(self._sublattices)), p=probability_distribution)
+        return pick
+
 
 def _cooling_linear(step, T_start, T_stop, n_steps):
     return T_start + (T_stop-T_start) * step / (n_steps - 1)

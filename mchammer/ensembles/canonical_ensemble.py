@@ -154,3 +154,24 @@ class CanonicalEnsemble(BaseEnsemble):
             return np.exp(-potential_diff / (
                 self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
+
+    def get_random_sublattice_index(self) -> int:
+        """Returns a random sublattice index based on the weights of the
+        sublattice.
+
+        Todo
+        ----
+        * fix this method
+        * add unit test
+        """
+        probability_distribution = []
+        for sub in self._sublattices:
+            if len(set(self.configuration.occupations[sub])) <= 1:
+                p = 0
+            else:
+                p = len(sub)
+            probability_distribution.append(p)
+        norm = sum(probability_distribution)
+        probability_distribution = [p/norm for p in probability_distribution]
+        pick = np.random.choice(range(0, len(self._sublattices)), p=probability_distribution)
+        return pick
