@@ -3,10 +3,11 @@ from itertools import product
 import numpy as np
 
 from ase import Atoms
+from ase.build import make_supercell
 from spglib import get_symmetry
 from spglib import niggli_reduce as spg_nigg_red
 from .structure_enumeration_support.hermite_normal_form \
-    import get_reduced_hnfs, HermiteNormalForm
+    import yield_reduced_hnfs, HermiteNormalForm
 from .structure_enumeration_support.smith_normal_form \
     import get_unique_snfs, SmithNormalForm
 from .structure_enumeration_support.labeling_generation \
@@ -446,7 +447,7 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
         if ncells == 0:
             continue
 
-        hnfs = get_reduced_hnfs(ncells, symmetries, atoms.pbc)
+        hnfs = list(yield_reduced_hnfs(ncells, symmetries, atoms.pbc))
         snfs = get_unique_snfs(hnfs)
 
         for snf in snfs:
@@ -461,3 +462,58 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
                     yield _labeling_to_atoms(labeling, hnf, atoms.cell,
                                              new_cell, basis, elements,
                                              atoms.pbc)
+
+
+def enumerate_supercells(atoms: Atoms, sizes: List[int],
+                         niggli_reduce: bool = None) -> Atoms:
+    """Yields a sequence of enumerated supercells. The function generates
+    *all* inequivalent supercells that are permissible given a certain
+    lattice. Any supercell can be reduced to one of the supercells generated.
+
+    The function is sensitive to the boundary conditions of the input
+    structure. An enumeration of, for example, a surface can thus be performed
+    by setting ``atoms.pbc = [True, True, False]``.
+
+    The algorithm is based on Gus L. W. Hart and
+    Rodney W. Forcade in Phys. Rev. B **77**, 224115 (2008)
+    [HarFor08]_ and Phys. Rev. B **80**, 014120 (2009) [HarFor09]_.
+
+    Parameters
+    ----------
+    atoms
+        primitive structure from which supercells should be
+        generated
+    sizes
+        number of sites (included in the enumeration)
+    niggli_reduction
+        if True perform a Niggli reduction with spglib for each supercell;
+        the default is ``True`` if ``atoms`` is periodic in all directions,
+        ``False`` otherwise.
+
+    Examples
+    --------
+
+    The following code snippet illustrates how to enumerate supercells
+    with up to 6 atoms in the unit cell::
+
+        from ase.build import bulk
+        prim = bulk('Ag')
+        enumerate_supercells(atoms=prim, sizes=range(1, 7))
+    """
+
+    # Niggli reduce by default if all directions have
+    # periodic boundary conditions
+    if niggli_reduce is None:
+        niggli_reduce = (sum(atoms.pbc) == 3)
+
+    symmetries = get_symmetry_operations(atoms)
+
+    for ncells in sizes:
+        for hnf in yield_reduced_hnfs(ncells, symmetries, atoms.pbc):
+            supercell = make_supercell(atoms, hnf.H)
+            if niggli_reduce:
+                new_cell = spg_nigg_red(np.dot(atoms.cell.T, hnf.H).T)
+                Pprim = np.dot(new_cell, np.linalg.inv(atoms.cell))
+                yield make_supercell(atoms, Pprim)
+            else:
+                yield supercell
