@@ -6,10 +6,16 @@
 Structure enumeration
 =====================
 
-The purpose of this example is to demonstrate how to enumerate structures. In
-the present context, this structural enumeration means the generation of all
-inequivalent structures derived from a primitive structure up to a certain
-size.
+To train a cluster expansion, one needs a set of symmetrically inequivalent
+structures and their corresponding energy (or another property of interest).
+It is sometimes possible to generate such structures by random decoration of a
+supercell. In many systems, however, a much better approach is to generate
+*all* symmetrically inequivalent decorations up to a certain supercell size.
+This process is usually referred to as structure enumeration. Enumeration is
+useful both for generating a set of small supercells without duplicates and
+for systematically searching for ground states once a cluster expansion is
+fitted. The present tutorial demonstrates the use of the structure enumeration
+tool in :program:`icet`.
 
 Import modules
 --------------

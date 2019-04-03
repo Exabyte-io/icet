@@ -6,8 +6,10 @@
 Cluster vectors
 ===============
 
-The purpose of this example is to demonstrate the construction of
-cluster vectors.
+Although the calculation of cluster vectors is usually handled internally in
+:program:`icet`, it is sometimes advantageous to explicitly look at the
+cluster vector for structures of interest. This tutorial demonstrates how this
+can be carried out in practice.
 
 Import modules
 --------------

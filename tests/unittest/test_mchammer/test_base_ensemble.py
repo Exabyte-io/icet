@@ -112,6 +112,19 @@ class TestEnsemble(unittest.TestCase):
         self.assertTrue('Path to data container file does not exist:'
                         ' path/to/nowhere' in str(context.exception))
 
+    def test_init_fails_for_faulty_chemical_symbols(self):
+        """Tests that initialization fails if species exists  on
+        mutliple sublattices"""
+        atoms = bulk('Al').repeat(2)
+        cutoffs = [4.0]
+        elements = [['Al', 'Ga']] * 4 + [['Al', 'Ge']] * 4
+        cs = ClusterSpace(atoms, cutoffs, elements)
+        ce = ClusterExpansion(cs, np.arange(0, len(cs)))
+        calc = ClusterExpansionCalculator(atoms, ce)
+        with self.assertRaises(ValueError) as context:
+            ConcreteEnsemble(atoms, calc)
+        self.assertIn('found on multiple active sublattices', str(context.exception))
+
     def test_property_user_tag(self):
         """Tests name property."""
         self.assertEqual('test-ensemble', self.ensemble.user_tag)

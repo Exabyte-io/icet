@@ -70,8 +70,12 @@ class BaseEnsemble(ABC):
         self._calculator = calculator
         self._user_tag = user_tag
         strict_constraints_symbol = self.calculator.occupation_constraints
-        symbols = list({tuple(sym)
-                        for sym in strict_constraints_symbol if len(sym) > 1})
+        symbols = list(set(tuple(sym) for sym in strict_constraints_symbol if len(sym) > 1))
+        symbols_flat = [s for sub in symbols for s in sub]
+        if len(symbols_flat) != len(set(symbols_flat)):
+            bad_symbols = set([s for s in symbols_flat if symbols_flat.count(s) > 1])
+            raise ValueError('Symbols {} found on multiple active sublattices'.format(bad_symbols))
+
         sublattices = [[] for _ in symbols]
         for i, constraint in enumerate(strict_constraints_symbol):
             for j, sym in enumerate(symbols):
@@ -131,16 +135,16 @@ class BaseEnsemble(ABC):
                               metadata=metadata)
 
         # interval for writing data and further preparation of data container
-        default_interval = max(1, 10 * round(len(atoms) / 10))
+        self._default_interval = len(atoms)
 
         if ensemble_data_write_interval is None:
-            self._ensemble_data_write_interval = default_interval
+            self._ensemble_data_write_interval = self._default_interval
         else:
             self._ensemble_data_write_interval = ensemble_data_write_interval
 
         # Handle trajectory writing
         if trajectory_write_interval is None:
-            self._trajectory_write_interval = default_interval
+            self._trajectory_write_interval = self._default_interval
         else:
             self._trajectory_write_interval = trajectory_write_interval
 
@@ -362,8 +366,10 @@ class BaseEnsemble(ABC):
             name used in data container
         """
         if not isinstance(observer, BaseObserver):
-            raise TypeError('observer has the wrong type: {}'
-                            .format(type(observer)))
+            raise TypeError('observer has the wrong type: {}'.format(type(observer)))
+
+        if observer.interval is None:
+            observer.interval = self._default_interval
 
         if tag is not None:
             observer.tag = tag

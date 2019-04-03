@@ -12,7 +12,7 @@ from mchammer.observers.base_observer import BaseObserver
 class ConcreteObserver(BaseObserver):
     """Child class of BaseObserver created for testing."""
     def __init__(self, interval, tag='ConcreteObserver'):
-        super().__init__(interval, return_type=int, tag=tag)
+        super().__init__(interval=interval, return_type=int, tag=tag)
 
     def get_observable(self, atoms):
         """Returns number of Al atoms."""

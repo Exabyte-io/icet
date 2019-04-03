@@ -41,7 +41,7 @@ class SiteOccupancyObserver(BaseObserver):
     def __init__(self, cluster_space: ClusterSpace,
                  sites: Dict[str, List[int]],
                  super_cell: Atoms,
-                 interval: int) -> None:
+                 interval: int = None) -> None:
         super().__init__(interval=interval, return_type=dict,
                          tag='SiteOccupancyObserver')
 

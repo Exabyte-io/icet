@@ -13,6 +13,8 @@ from icet.tools.geometry import get_position_from_lattice_site
 from icet.tools.geometry import fractional_to_cartesian
 from icet.tools.geometry import get_permutation
 from icet.tools.geometry import ase_atoms_to_spglib_cell
+from icet.tools.geometry import atomic_number_to_chemical_symbol
+from icet.tools.geometry import chemical_symbols_to_numbers
 
 
 class TestGeometry(unittest.TestCase):
@@ -220,6 +222,22 @@ class TestGeometry(unittest.TestCase):
             (positions == self.atoms.get_scaled_positions()).all())
         self.assertTrue(
             (species == self.atoms.get_atomic_numbers()).all())
+
+    def test_chemical_symbols_to_numbers(self):
+        """Tests chemical_symbols_to_numbers method."""
+
+        symbols = ['Al', 'H', 'He']
+        expected_numbers = [13, 1, 2]
+        retval = chemical_symbols_to_numbers(symbols)
+        self.assertEqual(expected_numbers, retval)
+
+    def test_atomic_number_to_chemical_symbol(self):
+        """Tests chemical_symbols_to_numbers method."""
+
+        numbers = [13, 1, 2]
+        expected_symbols = ['Al', 'H', 'He']
+        retval = atomic_number_to_chemical_symbol(numbers)
+        self.assertEqual(expected_symbols, retval)
 
 
 if __name__ == '__main__':
