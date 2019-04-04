@@ -1,149 +1,115 @@
-import random
-from typing import Dict, List, Tuple
-
-import numpy as np
-from ase import Atoms
-from ase.build import make_supercell
-from spglib import niggli_reduce as spg_nigg_red
-
+from mchammer.ensembles.structure_annealing import TargetClusterVectorAnnealing
+from mchammer.calculators.target_vector_calculator import TargetVectorCalculator
+from icet.tools import enumerate_supercells
 from icet import ClusterSpace
-from ..io.logging import logger
-from .structure_enumeration import get_symmetry_operations
-from .structure_enumeration_support.hermite_normal_form \
-    import get_reduced_hnfs
-from .structure_enumeration_support.smith_normal_form \
-    import get_unique_snfs
-
-logger = logger.getChild('structure_generation')
+from ase.build import bulk
+import numpy as np
+import random
 
 
-def generate_sqs_cell(prim: Atoms, target_conc: Dict[str, float],
-                      cutoffs: list, maxsize: int, seed: int = 42,
-                      T_start: float = 0.5, T_stop: float = 0.001,
-                      n_steps: int = 10000) \
-        -> Tuple[Atoms, float]:
-    """
-    Generate a special quasi-random structure (SQS) using a simulated
-    annealing procedure that samples all cell shapes that are
-    compatible with the maximum cell size.
+def generate_target_structure(cluster_space: ClusterSpace, maxsize: int,
+                              target_concentrations: dict,
+                              target_cluster_vector: List[float],
+                              T_start: float = 0.5, T_stop: float = 0.001,
+                              n_steps: float = None,
+                              random_seed: int = None,
+                              tol: float = 1e-5):
 
-    Parameters
-    ----------
-    prim
-        primitive structure
-    target_conc
-        dictionary with target concentrations, where the keys
-        represent chemical species
-    cutoffs
-        cutoffs for pairs, triplets, etc to consider for correlation
-        analysis
-    maxsize
-        maximum size of supercell in multiples of the primitive structure
-    seed
-        seed for random number generator
-    T_start
-        initial temperature for annealing procedure (dimensionless)
-    T_final
-        final temperature for annealing procedure (dimensionless)
-    n_steps
-        number of steps for annealing procedure
+    if abs(sum(list(target_concentrations.values())) - 1.0) > tol:
+        raise ValueError('Target concentration must be specified for all values '
+                         'and they must sum up to 1')
 
-    Returns
-    -------
-    structure with lowest score and lowest score
+    supercells = []
+    calculators = []
+    for size in range(1, maxsize + 1):
+        # Check that the current size is commensurate
+        # with all concentration (example: {'Au': 0.5, 'Pd': 0.5}
+        # would not be commensurate with a supercell with 3 atoms
+        natoms = size * len(cluster_space.primitive_structure)
+        ok_size = True
+        for symbol, conc in target_concentrations.items():
+            n_symbol = conc * natoms
+            if abs(int(round(n_symbol)) - n_symbol) > tol:
+                ok_size = False
+        if not ok_size:
+            continue
 
+        # Loop over all inequivalent supercells and intialize
+        # them with a "random" occupation of symbols that
+        # fulfill the target concentrations
+        for supercell in enumerate_supercells(atoms, [size]):
+            n_atoms = len(supercell)
+            # Will hold chemical_symbols of all sublattices
+            symbols_all = [0] * len(supercell)
+            for sublattice in cs.get_sublattices(supercell):
+                symbols = []  # chemical_symbols in one sublattice
+                for chemical_symbol in sublattice.chemical_symbols:
+                    n_symbol = int(
+                        round(n_atoms * target_concentrations[chemical_symbol]))
+                    symbols += [chemical_symbol] * n_symbol
 
-    Examples
-    --------
-    The following code snippet illustrates the use of this function.
-    ```python
-    from ase.build import bulk
-    from icet.tools import generate_sqs_cell
+                # If any concentration was not commensurate with
+                if len(symbols) != len(sublattice.indices):
+                    raise ValueError('target_concentrations {} do not match '
+                                     'sublattice sizes'.format(target_concentrations))
 
-    prim = bulk('Au')
-    target_conc = {'Au': 0.5, 'Ag': 0.5}
-    atoms, score = generate_sqs_cell(prim, target_conc,
-                                     cutoffs=[8.0], maxsize=12)
-    ```
+                # Shuffle because it will probably make it more SQS-like
+                random.shuffle(symbols)
 
-    To see a more verbose output of the annealing procedure turn the
-    logging level to 'INFO'.
+                # Assign symbols to the right indices
+                for symbol, lattice_site in zip(symbols, sublattice.indices):
+                    symbols_all[lattice_site] = symbol
 
-    ```python
-    from icet.io.logging import set_log_config
-    set_log_config(level='INFO')
-    ```
-    """
+            assert symbols_all.count(0) == 0
+            supercell.set_chemical_symbols(symbols_all)
+            supercells.append(supercell)
+            calculators.append(TargetVectorCalculator(supercell, cluster_space,
+                                                      target_cluster_vector))
 
-    logger.debug('Setting up cluster space...')
-    cs = ClusterSpace(prim, cutoffs, list(target_conc.keys()))
-    orbit_list = cs.orbit_data
-
-    logger.debug('Getting target cluster vector...')
-    target_cv = _get_sqs_cluster_vector(cs, target_conc)
-
-    # Get all possible supercells
-    logger.debug('Enumerating cell metrices...')
-    P_matrices = list(_enumerate_cells(prim, range(maxsize + 1)))
-
-    # Initialize a decoration for each supercell
-    structures = []
-    for P in P_matrices:
-        structure = make_supercell(prim, P)
-        elems, conc = list(target_conc.keys()), list(target_conc.values())
-        structure.set_chemical_symbols(np.random.choice(
-            elems, len(structure), p=conc))
-        structures.append(structure)
-
-    random.seed(seed)
-    np.random.seed(seed)
-
-    logger.debug('Starting simulated annealing...')
-    logger.info('temperature   new-score     current    minimum')
-    min_score, min_structure = 1e4, None
-    cur_score = 1e4
-    for step in range(n_steps):
-
-        T = T_start - (T_start - T_stop) * np.log(step + 1) / np.log(n_steps)
-
-        P = random.choice(P_matrices)
-        structure = make_supercell(prim, P)
-        elems, conc = list(target_conc.keys()), list(target_conc.values())
-        structure.set_chemical_symbols(np.random.choice(
-            elems, len(structure), p=conc))
-
-        cv = cs.get_cluster_vector(structure)
-        score = np.linalg.norm(cv - target_cv)
-        logger.info('{:11.5f}  {:11.5f}  {:11.5f}  {:11.5f}'
-                    .format(T, score, cur_score, min_score))
-        if cur_score is None \
-           or score < cur_score \
-           or np.exp((cur_score - score) / T) > np.random.uniform(0, 1, 1):
-            cur_score = score
-            if min_score is None or score < min_score:
-                logger.info('Found new optimal structure with {} sites'.
-                            format(len(structure)))
-                min_score = score
-                min_structure = structure.copy()
-
-    return min_structure, min_score
+    ens = TargetClusterVectorAnnealing(atoms=supercells, calculators=calculators,
+                                       T_start=T_start, T_stop=T_stop,
+                                       random_seed=random_seed)
+    return ens.generate_structure(number_of_trial_steps=n_steps)
 
 
-def _get_score(cv, target_cv, weights):
-    score = sum(abs(np.dot(cv - target_cv), weights))
+def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
+                 target_concentrations: dict,
+                 T_start: float = 0.5, T_stop: float = 0.001,
+                 n_steps: float = None,
+                 random_seed: int = None,
+                 tol: float = 1e-5):
+
+    sqs_vector = get_sqs_vector(cluster_space=cluster_space,
+                                cluster_space=target_concentrations)
+
+    return generate_target_structure(cluster_space=cluster_space,
+                                     maxsize=maxsize,
+                                     target_concentrations=target_concentrations,
+                                     target_vector=sqs_vector,
+                                     T_start=T_start, T_stop=T_stop,
+                                     n_steps=n_steps,
+                                     random_seed=random_seed,
+                                     tol=tol)
 
 
-def _get_sqs_cluster_vector(cs: ClusterSpace,
-                            target_conc: Dict[str, float]) \
-        -> np.ndarray:
-    """
-    Returns the cluster vector that corresponds to an ideal random
-    distribution.
+#def get_sqs_vector(cluster_space: ClusterSpace,
+#                   target_concentrations: dict):
+    
 
-    Todo
-    ----
-    * adapt this function for arbitrary concentrations (currently
-      limited to 50%) and number of components (currently limited to
-      binary systems)
-    """
-    return [1] + (len(cs) - 1) * [0]
+
+
+if __name__ == '__main__':
+    from ase import Atom
+    atoms = bulk('Au', a=4.0)
+
+    target_cluster_vector = [1.0] + [0.0] * (len(cs) - 1)
+    #atoms.append(Atom('H', position=(2, 2, 2)))
+    cs = ClusterSpace(atoms, [8.0], [['Au', 'Pd']])
+    maxsize = 10
+    target_concentrations = {'Au': 0.5,
+                             'Pd': 0.5, }  # 'H': 0.1 / 2, 'V': 0.9 / 2}
+    sqs = generate_sqs(cluster_space=cs,
+                       maxsize=maxsize,
+                       target_concentrations=target_concentrations)
+    print(sqs)
+    print(cs.get_cluster_vector(sqs))
