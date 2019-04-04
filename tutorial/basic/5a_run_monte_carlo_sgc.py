@@ -33,3 +33,4 @@ for temperature in [900, 300]:
             chemical_potentials={'Ag': 0, 'Pd': dmu})
 
         mc.run(number_of_trial_steps=len(atoms) * 30)
+        atoms = mc.atoms

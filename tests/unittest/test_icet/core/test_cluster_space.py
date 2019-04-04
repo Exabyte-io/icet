@@ -153,13 +153,15 @@ class TestClusterSpace(unittest.TestCase):
         chemical_symbols_bad = chemical_symbols2 + ['Ag']
         with self.assertRaises(TypeError) as cm:
             ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
-        self.assertIn('chemical_symbols must be List[str] or List[List[str]]', str(cm.exception))
+        self.assertIn(
+            'chemical_symbols must be List[str] or List[List[str]]', str(cm.exception))
 
         # bad length
         chemical_symbols_bad = chemical_symbols2 + [['Ag', 'Pd']]
         with self.assertRaises(ValueError) as cm:
             ClusterSpace(atoms, self.cutoffs, chemical_symbols_bad)
-        self.assertIn('chemical_symbols must have same length as atoms', str(cm.exception))
+        self.assertIn(
+            'chemical_symbols must have same length as atoms', str(cm.exception))
 
         # duplicate symbols for site
         chemical_symbols_bad = [['Ag', 'Pd']] * len(atoms)
@@ -212,20 +214,20 @@ class TestClusterSpace(unittest.TestCase):
         """Tests string representation functionality."""
         retval = self.cs.__repr__()
         target = """
-=============================== Cluster Space ================================
- chemical species: ['Ag', 'Au']
+====================================== Cluster Space =======================================
+ chemical species: ['Ag', 'Au'] (sublattice A)
  cutoffs: 4.0000 4.0000 4.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector
-------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .
-   1  |   1   |   0.0000 |        1     |       0     |          [0]
-   2  |   2   |   1.4460 |        6     |       1     |         [0, 0]
-   3  |   3   |   1.6697 |        8     |       2     |       [0, 0, 0]
-   4  |   4   |   1.7710 |        2     |       3     |      [0, 0, 0, 0]
-==============================================================================
+--------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices
+--------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .
+   1  |   1   |   0.0000 |        1     |       0     |          [0]           |      A
+   2  |   2   |   1.4460 |        6     |       1     |         [0, 0]         |     A-A
+   3  |   3   |   1.6697 |        8     |       2     |       [0, 0, 0]        |    A-A-A
+   4  |   4   |   1.7710 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A
+============================================================================================
 """
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
@@ -235,18 +237,18 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         retval = self.cs._get_string_representation(print_threshold=2,
                                                     print_minimum=1)
         target = """
-=============================== Cluster Space ================================
- chemical species: ['Ag', 'Au']
+====================================== Cluster Space =======================================
+ chemical species: ['Ag', 'Au'] (sublattice A)
  cutoffs: 4.0000 4.0000 4.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector
-------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .
+--------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices
+--------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .
  ...
-   4  |   4   |   1.7710 |        2     |       3     |      [0, 0, 0, 0]
-==============================================================================
+   4  |   4   |   1.7710 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A
+============================================================================================
 """
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
@@ -373,7 +375,8 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         cs_read = ClusterSpace.read(f.name)
         self.assertEqual(self.cs._input_atoms, cs_read._input_atoms)
         self.assertEqual(list(self.cs._cutoffs), list(cs_read._cutoffs))
-        self.assertEqual(self.cs._input_chemical_symbols, cs_read._input_chemical_symbols)
+        self.assertEqual(self.cs._input_chemical_symbols,
+                         cs_read._input_chemical_symbols)
 
     def test_chemical_symbols(self):
         """Tests chemical_symbols property."""
@@ -388,9 +391,32 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector
         self.assertEqual(orig_size-len(prune_indices), len(self.cs.orbit_list))
 
     def test_copy(self):
-        """ Test copy function. """
+        """ Tests copy function. """
         cs_copy = self.cs.copy()
         self.assertEqual(str(cs_copy), str(self.cs))
+
+    def test_assert_structure_compatability(self):
+        """ Tests assert_structure_compatability functionality """
+        supercell = self.atoms_prim.repeat((2, 3, 4))
+
+        # real supercell works
+        self.cs.assert_structure_compatability(supercell)
+
+        # faulty volume
+        supercell_tmp = supercell.copy()
+        supercell_tmp.set_cell(1.01 * supercell_tmp.cell, scale_atoms=True)
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatability(supercell_tmp)
+        self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
+
+        # faulty occupations
+        supercell_tmp = supercell.copy()
+        symbols = supercell_tmp.get_chemical_symbols()
+        symbols[0] = 'W'
+        supercell_tmp.set_chemical_symbols(symbols)
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatability(supercell_tmp)
+        self.assertIn('Occupations of structure not compatible', str(cm.exception))
 
     def test_get_possible_orbit_decorations(self):
         """Tests get possible orbit decorations."""

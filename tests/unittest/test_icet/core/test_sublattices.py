@@ -2,6 +2,7 @@ import unittest
 
 from ase.build import bulk
 from icet.core.sublattices import Sublattices, Sublattice
+from icet import ClusterSpace
 
 
 class TestSublattice(unittest.TestCase):
@@ -13,6 +14,7 @@ class TestSublattice(unittest.TestCase):
 
         self.chemical_symbols = ['Al', 'Ge', 'Si']
         self.indices = [1, 2, 3, 4, 5, 6, 7]
+        self.symbol = 'A'
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -21,7 +23,7 @@ class TestSublattice(unittest.TestCase):
     def setUp(self):
         """Set up sublattice before each test."""
         self.sublattice = Sublattice(
-            chemical_symbols=self.chemical_symbols, indices=self.indices)
+            chemical_symbols=self.chemical_symbols, indices=self.indices, symbol=self.symbol)
 
     def test_indices(self):
         """Tests indices property."""
@@ -43,6 +45,10 @@ class TestSublattice(unittest.TestCase):
         symbols[0] = 'H'
         symbols.append('Pt')
         self.assertEqual(self.sublattice.chemical_symbols, ['Al', 'Ge', 'Si'])
+
+    def test_symbol(self):
+        """Tests symbol property."""
+        self.assertEqual('A', self.sublattice.symbol)
 
 
 class TestSublattices(unittest.TestCase):
@@ -66,6 +72,18 @@ class TestSublattices(unittest.TestCase):
         """Set up sublattices before each test."""
         self.sublattices = Sublattices(allowed_species=self.allowed_species,
                                        primitive_structure=self.prim, structure=self.supercell)
+
+    def test_sublattice_ordering(self):
+        """Tests ordering of sublattices."""
+        allowed_species = [('H'), ['He'], ('Pd', 'Au'), ('H', 'V')]
+        prim = self.prim.repeat([2, 1, 1])
+        supercell = prim.repeat(3)
+        sublattices = Sublattices(allowed_species=allowed_species,
+                                  primitive_structure=prim, structure=supercell)
+
+        ret = sublattices.allowed_species
+        target = [('Au', 'Pd'), ('H', 'V'), ('H',), ('He',)]
+        self.assertEqual(ret, target)
 
     def test_allowed_species(self):
         """Tests the allowed species property."""
@@ -96,6 +114,47 @@ class TestSublattices(unittest.TestCase):
                 self.assertEqual(sublattice_index, 0)
             else:
                 self.assertEqual(sublattice_index, 1)
+
+    def test_active_sublattices(self):
+        """Tests the active sublattices property."""
+        active_sublattices = self.sublattices.active_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in active_sublattices]
+        target = [('Au', 'Pd'), ('H', 'V')]
+        self.assertEqual(symbols_ret, target)
+
+    def test_inactive_sublattices(self):
+        """Tests the active sublattices property."""
+        inactive_sublattices = self.sublattices.inactive_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in inactive_sublattices]
+        target = []
+        self.assertEqual(symbols_ret, target)
+
+        # Now create something that actually have inactive sublattices
+
+        sublattices = Sublattices(allowed_species=[['Au', 'Pd'], ['H']],
+                                  primitive_structure=self.prim, structure=self.supercell)
+
+        inactive_sublattices = sublattices.inactive_sublattices
+
+        symbols_ret = [sl.chemical_symbols for sl in inactive_sublattices]
+        target = [('H',)]
+        self.assertEqual(symbols_ret, target)
+
+    def test_sublattice_uniqueness(self):
+        """Tests that the number of sublattices are correct
+        in the case of the allowed species have duplicates in them.
+        """
+        atoms = bulk("Al").repeat(2)
+
+        chemical_symbols = [['H']] + [['Al', 'Ge']]*(len(atoms)-1)
+        cs = ClusterSpace(
+            atoms=atoms, chemical_symbols=chemical_symbols, cutoffs=[5])
+        sublattices = cs.get_sublattices(atoms)
+
+        self.assertEqual(len(sublattices), 2)
+        self.assertEqual(sublattices.allowed_species, [('Al', 'Ge'), ('H',)])
 
 
 if __name__ == '__main__':

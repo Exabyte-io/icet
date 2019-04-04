@@ -164,9 +164,8 @@ class StructureContainer:
         print(self._get_string_representation(print_threshold=print_threshold,
                                               print_minimum=print_minimum))
 
-    def add_structure(self, atoms: Atoms, user_tag: str = None,
-                      properties: dict = None,
-                      allow_duplicate: bool = True):
+    def add_structure(self, atoms: Atoms, user_tag: str = None, properties: dict = None,
+                      allow_duplicate: bool = True, sanity_check: bool = True):
         """
         Adds a structure to the structure container.
 
@@ -183,18 +182,21 @@ class StructureContainer:
         allow_duplicate
              whether or not to add the structure if there already exists a
              structure with identical cluster-vector
+         sanity_check
+            whether or not to carry out a sanity check before adding the
+            structure. This includes checking occupations and volume.
         """
+
         # atoms must have a proper format and label
         if not isinstance(atoms, Atoms):
-            raise TypeError('atoms must be an ASE Atoms object.'
-                            ' Not {}'.format(type(atoms)))
+            raise TypeError('atoms must be an ASE Atoms object. Not {}'.format(type(atoms)))
 
         if user_tag is not None:
             if not isinstance(user_tag, str):
-                raise TypeError('user_tag must be a string.'
-                                ' Not {}.'.format(type(user_tag)))
+                raise TypeError('user_tag must be a string. Not {}.'.format(type(user_tag)))
 
-        atoms_copy = atoms.copy()
+        if sanity_check:
+            self._cluster_space.assert_structure_compatability(atoms)
 
         # check for properties in attached calculator
         if properties is None and atoms.calc:
@@ -204,6 +206,7 @@ class StructureContainer:
                 properties['energy'] = energy / len(atoms)
 
         # check if there exists structures with identical cluster vector
+        atoms_copy = atoms.copy()
         cv = self._cluster_space.get_cluster_vector(atoms_copy)
         if not allow_duplicate:
             for i, fs in enumerate(self):

@@ -314,6 +314,29 @@ class TestEnsemble(unittest.TestCase):
                       " DataContainer file: {('temperature', 1000)}",
                       str(context.exception))
 
+    def test_restart_with_inactive_sites(self):
+        """ Tests restart works with inactive sites """
+
+        chemical_symbols = [['C', 'Be'], ['W']]
+        prim = bulk('W', 'bcc', cubic=True, )
+        cs = ClusterSpace(atoms=prim, chemical_symbols=chemical_symbols, cutoffs=[5])
+        parameters = [1] * len(cs)
+        ce = ClusterExpansion(cs, parameters)
+
+        size = 4
+        atoms = ce.cluster_space.primitive_structure.repeat(size)
+        calculator = ClusterExpansionCalculator(atoms, ce)
+
+        # Carry out Monte Carlo simulations
+        dc_file = tempfile.NamedTemporaryFile()
+        mc = ConcreteEnsemble(atoms=atoms, calculator=calculator)
+        mc.write_data_container(dc_file.name)
+        mc.run(10)
+
+        # and now restart
+        mc = ConcreteEnsemble(atoms=atoms, calculator=calculator, data_container=dc_file.name)
+        mc.run(10)
+
     def test_internal_run(self):
         """Tests the _run method."""
         pass

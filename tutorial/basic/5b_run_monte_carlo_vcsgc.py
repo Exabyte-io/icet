@@ -34,3 +34,4 @@ for temperature in [900, 300]:
             kappa=200)
 
         mc.run(number_of_trial_steps=len(atoms) * 100)
+        atoms = mc.atoms

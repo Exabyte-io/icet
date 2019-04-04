@@ -470,8 +470,9 @@ class BaseEnsemble(ABC):
 
         # Update configuration
         occupations = self.data_container.last_state['occupations']
-        sites = list(range(len(self.configuration.atoms)))
-        self.update_occupations(sites, occupations)
+        active_sites = [s for sub in self.configuration.sublattices for s in sub]
+        active_occupations = [occupations[s] for s in active_sites]
+        self.update_occupations(active_sites, active_occupations)
 
         # Restart number of total and accepted trial steps
         self._total_trials = self._step

@@ -3,6 +3,9 @@ from icet.core.structure import Structure
 from typing import List
 from ase import Atoms
 import copy
+from itertools import product
+from string import ascii_uppercase
+import numpy as np
 
 
 class Sublattice:
@@ -20,9 +23,10 @@ class Sublattice:
 
     """
 
-    def __init__(self, chemical_symbols: List[str], indices: List[int]):
+    def __init__(self, chemical_symbols: List[str], indices: List[int], symbol: str):
         self._chemical_symbols = chemical_symbols
         self._indices = indices
+        self._symbol = symbol
 
     @property
     def chemical_symbols(self):
@@ -31,6 +35,11 @@ class Sublattice:
     @property
     def indices(self):
         return self._indices.copy()
+
+    @property
+    def symbol(self):
+        """Symbol representation of sublattice, i.e. A, B, C, etc.."""
+        return self._symbol
 
 
 class Sublattices:
@@ -55,16 +64,20 @@ class Sublattices:
                  structure: Atoms):
 
         # sorted unique sites, this basically decides A, B, C... sublattices
-        self._allowed_species = sorted(
-            set(tuple(sorted(symbols)) for symbols in allowed_species))
+        active_lattices = sorted(set([tuple(sorted(symbols))
+                                      for symbols in allowed_species if len(symbols) > 1]))
+        inactive_lattices = sorted(
+            set([tuple(sorted(symbols)) for symbols in allowed_species if len(symbols) == 1]))
+        self._allowed_species = active_lattices + inactive_lattices
+
+        n = int(np.sqrt(len(self._allowed_species))) + 1
+        symbols = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
 
         cpp_prim_structure = Structure.from_atoms(primitive_structure)
         self._sublattices = []
         sublattice_to_indices = [[] for _ in range(len(self._allowed_species))]
         for index, position in enumerate(structure.get_positions()):
-
-            lattice_site = cpp_prim_structure.find_lattice_site_by_position(
-                position)
+            lattice_site = cpp_prim_structure.find_lattice_site_by_position(position)
 
             # Get allowed species on this site
             species = allowed_species[lattice_site.index]
@@ -74,8 +87,8 @@ class Sublattices:
 
             sublattice_to_indices[sublattice].append(index)
 
-        for species, indices in zip(self._allowed_species, sublattice_to_indices):
-            sublattice = Sublattice(chemical_symbols=species, indices=indices)
+        for symbol, species, indices in zip(symbols, self._allowed_species, sublattice_to_indices):
+            sublattice = Sublattice(chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
         # Map lattice index to sublattice index
@@ -105,7 +118,8 @@ class Sublattices:
 
     @property
     def allowed_species(self) -> List[List[str]]:
-        """Lists of the allowed species on each sublattice, in order."""
+        """Lists of the allowed species on each sublattice, in order.
+        """
         return deepcopy(self._allowed_species)
 
     def get_sublattice_sites(self, index: int) -> List[int]:
@@ -118,3 +132,13 @@ class Sublattices:
             index of the sublattice
         """
         return self[index].indices
+
+    @property
+    def active_sublattices(self) -> List[Sublattice]:
+        """Lists of the active sublattices."""
+        return [sl for sl in self if len(sl.chemical_symbols) > 1]
+
+    @property
+    def inactive_sublattices(self) -> List[Sublattice]:
+        """Lists of the active sublattices."""
+        return [sl for sl in self if len(sl.chemical_symbols) == 1]

@@ -117,6 +117,27 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
 
+    def test_mc_with_one_filled_sublattice(self):
+        """ Tests if canonical ensemble works with two sublattices
+        where one sublattice is filled/empty. """
+
+        # setup two sublattices
+        prim = bulk('W', 'bcc', a=3.0, cubic=True)
+        cs = ClusterSpace(prim, [4.0], [['W', 'Ti'], ['C', 'Be']])
+        ce = ClusterExpansion(cs, np.arange(0, len(cs)))
+
+        # setup supercell with one filled sublattice
+        supercell = prim.copy()
+        supercell[1].symbol = 'C'
+        supercell = supercell.repeat(4)
+        supercell[2].symbol = 'Ti'
+
+        # run mc
+        calc = ClusterExpansionCalculator(supercell, ce)
+
+        mc = CanonicalEnsemble(supercell, calc, 300)
+        mc.run(50)
+
 
 if __name__ == '__main__':
     unittest.main()

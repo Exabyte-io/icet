@@ -153,29 +153,14 @@ class ClusterSpace(_ClusterSpace):
         """Returns a str version of the chemical symbols that is
         easier on the eyes.
         """
-        nice_str = ''
-        if len(self.chemical_symbols) > 4:
-            last_symbol = self.chemical_symbols[0]
-            count = 1
-            for i in range(1, len(self.chemical_symbols)):
-                if self.chemical_symbols[i] == last_symbol:
-                    count += 1
-                    if i == len(self.chemical_symbols)-1:
-                        if count == 1:
-                            nice_str += '{} '.format(last_symbol)
-                        else:
-                            nice_str += '{}*{} '.format(count, last_symbol)
-                else:
-                    if count == 1:
-                        nice_str += '{} '.format(last_symbol)
-                    else:
-                        nice_str += '{}*{} '.format(count, last_symbol)
-                    count = 1
-                    last_symbol = self.chemical_symbols[i]
-        else:
-            for s in self.chemical_symbols:
-                nice_str += '{} '.format(s)
-        return nice_str
+        sublattices = self.get_sublattices(self.primitive_structure)
+        nice_str = []
+        for sublattice in sublattices.active_sublattices:
+            sublattice_symbol = sublattice.symbol
+
+            nice_str.append('{} (sublattice {})'.format(
+                list(sublattice.chemical_symbols), sublattice_symbol))
+        return ', '.join(nice_str)
 
     def _get_string_representation(self,
                                    print_threshold: int = None,
@@ -204,7 +189,8 @@ class ClusterSpace(_ClusterSpace):
                        'multiplicity': '{:4}',
                        'index': '{:4}',
                        'orbit_index': '{:4}',
-                       'multi_component_vector': '{:}'}
+                       'multi_component_vector': '{:}',
+                       'sublattices': '{:}'}
             s = []
             for name, value in orbit.items():
                 str_repr = formats[name].format(value)
@@ -285,8 +271,9 @@ class ClusterSpace(_ClusterSpace):
                                ('radius', 0),
                                ('multiplicity', 1),
                                ('orbit_index', -1),
-                               ('multi_component_vector', '.')])
-
+                               ('multi_component_vector', '.'),
+                               ('sublattices', '.')])
+        sublattices = self.get_sublattices(self.primitive_structure)
         data.append(zerolet)
         index = 1
         while index < len(self):
@@ -294,6 +281,10 @@ class ClusterSpace(_ClusterSpace):
             orbit_index = cluster_space_info[0]
             mc_vector = cluster_space_info[1]
             orbit = self.get_orbit(orbit_index)
+            rep_sites = orbit.get_representative_sites()
+            orbit_sublattices = '-'.join(
+                [sublattices[sublattices.get_sublattice_index(ls.index)].symbol
+                 for ls in rep_sites])
             local_Mi = self.get_number_of_allowed_species_by_site(
                 self._get_primitive_structure(), orbit.representative_sites)
             mc_vectors = orbit.get_mc_vectors(local_Mi)
@@ -302,6 +293,7 @@ class ClusterSpace(_ClusterSpace):
             mc_index = mc_vectors.index(mc_vector)
             mc_permutations_multiplicity = len(mc_permutations[mc_index])
             cluster = self.get_orbit(orbit_index).get_representative_cluster()
+
             multiplicity = len(self.get_orbit(
                 orbit_index).get_equivalent_sites())
             record = OrderedDict([('index', index),
@@ -311,6 +303,7 @@ class ClusterSpace(_ClusterSpace):
                                    mc_permutations_multiplicity),
                                   ('orbit_index', orbit_index)])
             record['multi_component_vector'] = mc_vector
+            record['sublattices'] = orbit_sublattices
             data.append(record)
             index += 1
         return data
@@ -343,11 +336,15 @@ class ClusterSpace(_ClusterSpace):
         -------
         the cluster vector
         """
-        assert isinstance(atoms, Atoms), \
-            'input configuration must be an ASE Atoms object'
-        if not atoms.pbc.all():
-            add_vacuum_in_non_pbc(atoms)
-        return _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
+        if not isinstance(atoms, Atoms):
+            raise TypeError('input structure must be an ASE Atoms object')
+
+        try:
+            cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
+        except Exception as e:
+            self.assert_structure_compatability(atoms)
+            raise(e)
+        return cv
 
     def _prune_orbit_list(self, indices: List[int]) -> None:
         """
@@ -428,6 +425,35 @@ class ClusterSpace(_ClusterSpace):
         """
         sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
         return sl
+
+    def assert_structure_compatability(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
+        """ Raises if structure is not compatible with ClusterSpace.
+
+        TODO: Add check for if structure is relaxed
+
+        Parameters
+        ----------
+        structure
+            structure to check if compatible with ClusterSpace
+        """
+        # check volume
+        prim = self.primitive_structure
+        vol1 = prim.get_volume() / len(prim)
+        vol2 = structure.get_volume() / len(structure)
+        if abs(vol1 - vol2) > vol_tol:
+            raise ValueError('Volume per atom of structure does not match the volume of'
+                             'ClusterSpace.primitive_structure')
+
+        # check occupations
+        symbols = structure.get_chemical_symbols()
+        sublattices = self.get_sublattices(structure)
+        for sl in sublattices:
+            for i in sl.indices:
+                if not symbols[i] in sl.chemical_symbols:
+                    msg = 'Occupations of structure not compatible with ClusterSpace. '
+                    msg += 'Site {} with occupation {} not allowed on sublattice {}'.format(
+                        i, symbols[i], sl.chemical_symbols)
+                    raise ValueError(msg)
 
     def write(self, filename: str) -> None:
         """

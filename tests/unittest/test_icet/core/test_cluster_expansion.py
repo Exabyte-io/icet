@@ -95,7 +95,8 @@ class TestClusterExpansion(unittest.TestCase):
         ce_read = ClusterExpansion.read(temp_file.name)
 
         # check cluster space
-        self.assertEqual(self.cs._input_atoms, ce_read.cluster_space._input_atoms)
+        self.assertEqual(self.cs._input_atoms,
+                         ce_read.cluster_space._input_atoms)
         self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
         self.assertEqual(
             self.cs._input_chemical_symbols, ce_read.cluster_space._input_chemical_symbols)
@@ -177,20 +178,20 @@ class TestClusterExpansion(unittest.TestCase):
 
         retval = self.ce.__repr__()
         target = """
-=================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+========================================== Cluster Expansion ===========================================
+ chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
-------------------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
-   1  |   1   |   0.0000 |        1     |       0     |          [0]           |         1
-   2  |   2   |   1.4425 |        6     |       1     |         [0, 0]         |         2
-   3  |   3   |   1.6657 |        8     |       2     |       [0, 0, 0]        |         3
-   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |         4
-==========================================================================================
+--------------------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
+--------------------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .      |         0
+   1  |   1   |   0.0000 |        1     |       0     |          [0]           |      A      |         1
+   2  |   2   |   1.4425 |        6     |       1     |         [0, 0]         |     A-A     |         2
+   3  |   3   |   1.6657 |        8     |       2     |       [0, 0, 0]        |    A-A-A    |         3
+   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
+========================================================================================================
 """  # noqa
 
         self.assertEqual(strip_surrounding_spaces(target),
@@ -201,19 +202,20 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 
         retval = self.ce._get_string_representation(print_threshold=2,
                                                     print_minimum=1)
+
         target = """
-=================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+========================================== Cluster Expansion ===========================================
+ chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
-------------------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
+--------------------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
+--------------------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .      |         0
  ...
-   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |         4
-==========================================================================================
+   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
+========================================================================================================
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))

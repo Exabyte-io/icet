@@ -98,6 +98,12 @@ class CanonicalAnnealing(BaseEnsemble):
 
         self._ensemble_parameters = dict(n_steps=n_steps)
 
+        # add species count to ensemble parameters
+        for symbol in np.unique(calculator.occupation_constraints).tolist():
+            key = 'n_atoms_{}'.format(symbol)
+            count = atoms.get_chemical_symbols().count(symbol)
+            self._ensemble_parameters[key] = count
+
         super().__init__(
             atoms=atoms, calculator=calculator, user_tag=user_tag,
             data_container=data_container,
@@ -192,6 +198,27 @@ class CanonicalAnnealing(BaseEnsemble):
         data = super()._get_ensemble_data()
         data['temperature'] = self.temperature
         return data
+
+    def get_random_sublattice_index(self) -> int:
+        """Returns a random sublattice index based on the weights of the
+        sublattice.
+
+        Todo
+        ----
+        * fix this method
+        * add unit test
+        """
+        probability_distribution = []
+        for sub in self._sublattices:
+            if len(set(self.configuration.occupations[sub])) <= 1:
+                p = 0
+            else:
+                p = len(sub)
+            probability_distribution.append(p)
+        norm = sum(probability_distribution)
+        probability_distribution = [p/norm for p in probability_distribution]
+        pick = np.random.choice(range(0, len(self._sublattices)), p=probability_distribution)
+        return pick
 
 
 def _cooling_linear(step, T_start, T_stop, n_steps):
