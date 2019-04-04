@@ -21,7 +21,7 @@ def generate_sqs_cell(prim: Atoms, target_conc: Dict[str, float],
                       cutoffs: list, maxsize: int, seed: int = 42,
                       T_start: float = 0.5, T_stop: float = 0.001,
                       n_steps: int = 10000) \
-                      -> Tuple[Atoms, float]:
+        -> Tuple[Atoms, float]:
     """
     Generate a special quasi-random structure (SQS) using a simulated
     annealing procedure that samples all cell shapes that are
@@ -77,10 +77,23 @@ def generate_sqs_cell(prim: Atoms, target_conc: Dict[str, float],
 
     logger.debug('Setting up cluster space...')
     cs = ClusterSpace(prim, cutoffs, list(target_conc.keys()))
+    orbit_list = cs.orbit_data
+
     logger.debug('Getting target cluster vector...')
     target_cv = _get_sqs_cluster_vector(cs, target_conc)
+
+    # Get all possible supercells
     logger.debug('Enumerating cell metrices...')
-    P_matrices = list(_enumerate_cells(prim, range(maxsize+1)))
+    P_matrices = list(_enumerate_cells(prim, range(maxsize + 1)))
+
+    # Initialize a decoration for each supercell
+    structures = []
+    for P in P_matrices:
+        structure = make_supercell(prim, P)
+        elems, conc = list(target_conc.keys()), list(target_conc.values())
+        structure.set_chemical_symbols(np.random.choice(
+            elems, len(structure), p=conc))
+        structures.append(structure)
 
     random.seed(seed)
     np.random.seed(seed)
@@ -91,7 +104,7 @@ def generate_sqs_cell(prim: Atoms, target_conc: Dict[str, float],
     cur_score = 1e4
     for step in range(n_steps):
 
-        T = T_start - (T_start - T_stop) * np.log(step+1) / np.log(n_steps)
+        T = T_start - (T_start - T_stop) * np.log(step + 1) / np.log(n_steps)
 
         P = random.choice(P_matrices)
         structure = make_supercell(prim, P)
@@ -116,57 +129,13 @@ def generate_sqs_cell(prim: Atoms, target_conc: Dict[str, float],
     return min_structure, min_score
 
 
-def _enumerate_cells(atoms: Atoms,
-                     sizes: List[int],
-                     niggli_reduce: bool = None) -> Tuple[np.ndarray, np.ndarray]:
-    """Generates all supercell cell metrices that are possible up to the
-    specified sizes based on the primitive structure provided.
-
-    Parameters
-    ----------
-    atoms
-        primitive structure to consider
-    sizes
-        supercell sizes to consider
-    niggli_reduction
-        if True perform a Niggli reduction with spglib for each structure;
-        the default is ``True`` if ``atoms`` is periodic in all directions,
-        ``False`` otherwise.
-
-    Returns
-    ------
-    the permutation matrix :math:`\boldsymbol{P}` which relates the
-    supercell metric :math:`\boldsymbol{h}` to the primitive cell
-    metric :math:`\boldsymbol{h}_p` according to
-    :math:`\boldsymbol{h_p P} = \boldsymbol{h}`
-    """
-
-    # Niggli reduce by default if all directions have
-    # periodic boundary conditions
-    if niggli_reduce is None:
-        niggli_reduce = all(atoms.pbc)
-
-    symmetries = get_symmetry_operations(atoms)
-
-    # Loop over each cell size
-    for ncells in sizes:
-        if ncells == 0:
-            continue
-
-        hnfs = get_reduced_hnfs(ncells, symmetries, atoms.pbc)
-        snfs = get_unique_snfs(hnfs)
-
-        for snf in snfs:
-            for hnf in snf.hnfs:
-                new_cell = np.dot(atoms.cell.T, hnf.H).T
-                if niggli_reduce:
-                    new_cell = spg_nigg_red(new_cell)
-                yield hnf.H
+def _get_score(cv, target_cv, weights):
+    score = sum(abs(np.dot(cv - target_cv), weights))
 
 
 def _get_sqs_cluster_vector(cs: ClusterSpace,
                             target_conc: Dict[str, float]) \
-                            -> np.ndarray:
+        -> np.ndarray:
     """
     Returns the cluster vector that corresponds to an ideal random
     distribution.
