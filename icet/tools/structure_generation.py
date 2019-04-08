@@ -112,7 +112,7 @@ def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                  n_steps: float = None,
                  optimality_weight: float = 1.0,
                  random_seed: int = None,
-                 tol: float = 1e-5):
+                 tol: float = 1e-5) -> Atoms:
     """
     Given a ``cluster_space`` and a ``target_cluster_vector``, generate
     a special quasirandom structure (SQS), i.e., a structure that for a
