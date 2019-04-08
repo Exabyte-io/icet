@@ -8,22 +8,24 @@ import numpy as np
 
 
 class TargetVectorCalculator(BaseCalculator):
-    """A TargetVectorCalculator enables evaluating similarity between
+    """
+    A ``TargetVectorCalculator`` enables evaluationg of similarity between
     a structure and a target cluster vector. Such a comparison can
     be carried out in many ways, and this implementation follows the
-    measure proposed by A. van de Walle et al. in CALPHAD **42**,
+    measure proposed by A. van de Walle et al. in Calphad **42**,
     13-18 (2013) [WalTiwJon13]_. Specifically, the objective function
     :math:`Q` is calculated as
 
     .. math::
-        Q = - \omega L + \sum_\alpha
-        \left| \Gamma_\alpha - \Gamma^\text{target}_\alpha |
+        Q = - \omega L + \sum_{\\alpha}
+         \\left| \Gamma_{\\alpha} - \Gamma^{\\text{target}}_{\\alpha} 
+         \\right|.
 
-    Here, :math:`\Gamma_\alpha` are components in the cluster vector
-    and :math:`\Gamma^\text{target}_\alpha` the corresponding target
+    Here, :math:`\Gamma_{\\alpha}` are components in the cluster vector
+    and :math:`\Gamma^\\text{target}_{\\alpha}` the corresponding target
     values. The factor :math:`\omega` is the radius of the largest
     pair cluster such that all clusters with the same or smaller radii
-    have :math`\Gamma_\alpha - \Gamma^\text{target}_\alpha = 0`.
+    have :math:`\Gamma_{\\alpha} - \Gamma^\\text{target}_{\\alpha} = 0`.
 
     Parameters
     ----------
@@ -37,9 +39,9 @@ class TargetVectorCalculator(BaseCalculator):
         weighting of each component in cluster vector
         comparison, by default 1.0 for all components
     optimality_weight
-        factor :math:`L` a high value of which effectively
+        factor :math:`L`, a high value of which effectively
         favors a complete series of optimal cluster correlations
-        for the smallest pairs (see above), by default 0.5
+        for the smallest pairs (see above)
     optimality_tol
         tolerance for determining whether a perfect match
         has been achieved (used in conjunction with :math:`L`)
@@ -50,7 +52,7 @@ class TargetVectorCalculator(BaseCalculator):
     def __init__(self, atoms: Atoms, cluster_space: ClusterSpace,
                  target_vector: List[float],
                  weights: List[float] = None,
-                 optimality_weight: float = 0.1,
+                 optimality_weight: float = 0.5,
                  optimality_tol: float = 1e-5,
                  name: str = 'Target vector calculator') -> None:
         super().__init__(atoms=atoms, name=name)
@@ -80,8 +82,8 @@ class TargetVectorCalculator(BaseCalculator):
 
     def calculate_total(self, occupations: List[int]) -> float:
         """
-        Calculates and returns the total property value of the current
-        configuration.
+        Calculates and returns the similarity value :math:`Q`
+        of the current configuration.
 
         Parameters
         ----------

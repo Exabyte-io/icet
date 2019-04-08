@@ -1,14 +1,14 @@
-from mchammer.ensembles.structure_annealing import TargetClusterVectorAnnealing
-from mchammer.calculators.target_vector_calculator import TargetVectorCalculator
-from icet.tools import enumerate_supercells
-from icet import ClusterSpace
-from ase.build import bulk
-from ase.data import chemical_symbols as periodic_table
-import numpy as np
+import itertools
 import random
 from typing import List
+import numpy as np
+from mchammer.ensembles import TargetClusterVectorAnnealing
+from mchammer.calculators import TargetVectorCalculator
+from icet.tools import enumerate_supercells
+from icet import ClusterSpace
 from ase import Atoms
-import itertools
+from ase.build import bulk
+from ase.data import chemical_symbols as periodic_table
 
 
 def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
@@ -17,6 +17,7 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
                               include_smaller_cells: bool = True,
                               T_start: float = 0.5, T_stop: float = 0.001,
                               n_steps: float = None,
+                              optimality_weight: float = 0.5,
                               random_seed: int = None,
                               tol: float = 1e-5) -> Atoms:
     """
@@ -27,8 +28,8 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
 
     Internally the function uses a simulated annealing algorithm and the
     difference between two cluster vectors is calculated with the measure
-    suggested by A. van de Walle et al. in CALPHAD **42**, 13-18 (2013)
-    [WalTiwJon13]_(for more information, see
+    suggested by A. van de Walle et al. in Calphad **42**, 13-18 (2013)
+    [WalTiwJon13]_ (for more information, see
     :class:`mchammer.calculators.TargetVectorCalculator`).
 
     Parameters
@@ -39,35 +40,33 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
         maximum supercell size
     target_concentrations
         concentration of each species in the target structure (for example
-        `{'Ag': 0.5, 'Pd': 0.5}`
+        ``{'Ag': 0.5, 'Pd': 0.5}``
 
         Concentrations are always expressed with respect to all atoms
         in the supercell, which implies that the sum of all concentrations
         should always be 1. In the case of multiple sublattices,
         a valid specification would thus be
-        `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}`.
+        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
     target_cluster_vector
         cluster vector that the generated structure should match as closely
         as possible
     include_smaller_cells
         if True, search among all supercell sizes including ``max_size``,
-        else search only among those exactly matching ``max_size`
+        else search only among those exactly matching ``max_size``
     T_start
         artificial temperature at which the simulated annealing starts
     T_stop
         artifical temperature at which the simulated annealing stops
     n_steps
         total number of Monte Carlo steps in the simulation
+    optimality_weight
+        controls weighting :math:`L` of perfect correlations, see 
+        :class:`mchammer.calculators.TargetVectorCalculator`
     random_seed
         seed for the random number generator used in the
         Monte Carlo simulation
     tol
         Numerical tolerance
-
-    Returns
-    -------
-    ASE Atoms
-        A structure that matches the specified target cluster vector
     """
 
     if abs(sum(list(target_concentrations.values())) - 1.0) > tol:
@@ -100,7 +99,9 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
 
     ens = TargetClusterVectorAnnealing(atoms=supercells, calculators=calculators,
                                        T_start=T_start, T_stop=T_stop,
-                                       random_seed=random_seed)
+                                       random_seed=random_seed,
+                                       optimality_weight=optimality_weight,
+                                       optimality_tol=tol)
     return ens.generate_structure(number_of_trial_steps=n_steps)
 
 
@@ -109,11 +110,12 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
                  include_smaller_cells: bool = True,
                  T_start: float = 0.5, T_stop: float = 0.001,
                  n_steps: float = None,
+                 optimality_weight: float = 0.5,
                  random_seed: int = None,
                  tol: float = 1e-5):
     """
     Given a ``cluster_space`` and a ``target_cluster_vector``, generate
-    a Special Quasirandom Structure (SQS), i.e., a structure that for a
+    a special quasirandom structure (SQS), i.e., a structure that for a
     given supercell size provides the best possible approximation to a
     random alloy [ZunWeiFer90]_.
 
@@ -122,7 +124,7 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
     vector of an infintely large randomly decorated supercell. Internally the
     function uses a simulated annealing algorithm and the difference between
     two cluster vectors is calculated with the measure suggested by A. van de
-    Walle et al. in CALPHAD **42**, 13-18 (2013) [WalTiwJon13]_(for more
+    Walle et al. in Calphad **42**, 13-18 (2013) [WalTiwJon13]_ (for more
     information, see :class:`mchammer.calculators.TargetVectorCalculator`).
 
     Parameters
@@ -133,32 +135,30 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
         maximum supercell size
     target_concentrations
         concentration of each species in the target structure (for example
-        `{'Ag': 0.5, 'Pd': 0.5}`
+        ``{'Ag': 0.5, 'Pd': 0.5}``
 
         Concentrations are always expressed with respect to all atoms
         in the supercell, which implies that the sum of all concentrations
         should always be 1. In the case of multiple sublattices,
         a valid specification would thus be
-        `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}`.
+        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
     include_smaller_cells
         if True, search among all supercell sizes including ``max_size``,
-        else search only among those exactly matching ``max_size`
+        else search only among those exactly matching ``max_size``
     T_start
         artificial temperature at which the simulated annealing starts
     T_stop
         artifical temperature at which the simulated annealing stops
     n_steps
         total number of Monte Carlo steps in the simulation
+    optimality_weight
+        controls weighting :math:`L` of perfect correlations, see 
+        :class:`mchammer.calculators.TargetVectorCalculator`
     random_seed
         seed for the random number generator used in the
         Monte Carlo simulation
     tol
         Numerical tolerance
-
-    Returns
-    -------
-    ASE Atoms
-        A special quasirandom structure
     """
 
     sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
@@ -170,6 +170,7 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
                                      include_smaller_cells=include_smaller_cells,
                                      T_start=T_start, T_stop=T_stop,
                                      n_steps=n_steps,
+                                     optimality_weight=optimality_weight,
                                      random_seed=random_seed,
                                      tol=tol)
 
@@ -381,7 +382,6 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
         # Calculate contribtion from every possible combination of symbols
         # weighted with their probability
         cluster_product_average = 0
-        count = 0
         for symbols in itertools.product(*symbol_groups):
             cluster_product = 1
             for i, symbol in enumerate(symbols):

@@ -2,12 +2,33 @@ from ase import Atoms
 from mchammer.calculators.target_vector_calculator import TargetVectorCalculator
 from .canonical_ensemble import CanonicalEnsemble
 import numpy as np
-from typing import List
+from typing import Union, List
 import random
 
 
 class TargetClusterVectorAnnealing():
+    """
+    Instances of this class allow one to carry out simulated annealing
+    towards a target cluster vector. Because it is impossible
+    to *a priori* know which supercell shape accomodates the best
+    match, this ensemble allows the annealing to be done for multiple
+    atoms objects at the same time.
 
+    Parameters
+    ----------
+    atoms
+        atomic configurations to be used in the Monte Carlo simulation;
+        also defines the initial occupation vectors
+    calculators
+        calculators corresopnding to each atoms object
+    T_start
+        artificial temperature at which the annealing is started
+    T_stop : float
+        artificial temperature at which the annealing is stopped
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
+    """
     def __init__(self, atoms: List[Atoms], calculators: List[TargetVectorCalculator],
                  T_start: float = 0.5, T_stop: float = 0.001,
                  random_seed: int = None) -> None:
@@ -16,7 +37,7 @@ class TargetClusterVectorAnnealing():
             raise ValueError(
                 'A list of ASE Atoms (supercells) must be provided')
         if len(atoms) != len(calculators):
-            raise ValueError('There must be as many supercells as there'
+            raise ValueError('There must be as many supercells as there '
                              'are calculators ({} != {})'.format(len(atoms, len(calculators))))
 
         # random number generator
@@ -41,6 +62,7 @@ class TargetClusterVectorAnnealing():
         self._sub_ensembles = sub_ensembles
         self._current_score = self.sub_ensembles[0].calculator.calculate_total(
             self.sub_ensembles[0].configuration.occupations)
+        self._best_score = self._current_score
         self._best_atoms = atoms[0]
         self._temperature = T_start
         self._T_start = T_start
@@ -91,19 +113,18 @@ class TargetClusterVectorAnnealing():
 
         if self._acceptance_condition(new_score - self.current_score):
             self._current_score = new_score
-            self._best_atoms = ensemble.atoms
             self._accepted_trials += 1
+
+            # Since we are looking for the best structures we want to
+            # keep track of the best one we have found as yet (the current
+            # one may have a worse score)
+            if self._current_score < self._best_score:
+                self._best_atoms = ensemble.atoms
+                self._best_score = self._current_score
         else:
             ensemble.configuration.update_occupations(
                 sites, list(reversed(species)))
 
-        print('{:12s}: {:7.4f} {:7.4f} {:7.4f} {:5d} {:5d}'.format(
-                                                     ensemble.user_tag,
-                                                     self.temperature,
-                                                     self.current_score,
-                                                     new_score,
-                                                     self.total_trials,
-                                                     self.accepted_trials))
 
     def get_random_sublattice_index(self) -> int:
         """Returns a random sublattice index based on the weights of the
@@ -173,13 +194,24 @@ class TargetClusterVectorAnnealing():
 
     @property
     def current_score(self) -> float:
-        """ Best target vector score found yet """
+        """ Current target vector score """
         return self._current_score
+
+    @property
+    def best_score(self) -> float:
+        """ Best target vector score found yet """
+        return self._best_score
 
     @property
     def best_atoms(self) -> float:
         """ Structure most closely matching target vector yet """
         return self._best_atoms
 
-def _cooling_exponential(step, T_start, T_stop, n_steps):
+def _cooling_exponential(step: int,
+                         T_start: Union[float, int],
+                         T_stop: Union[float, int],
+                         n_steps: int) -> float:
+    """
+    Keeps track of the current temperature.
+    """
     return T_start - (T_start - T_stop) * np.log(step + 1) / np.log(n_steps)

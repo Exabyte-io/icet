@@ -63,10 +63,25 @@ Bibliography
    | J. M. Sanchez
    | *Cluster expansion and the configurational theory of alloys*
    | Phys. Rev. B **81**, 224202 (2010)
-   | `doi: <http://dx.doi.org/>`_
+   | `doi: 10.1103/PhysRevB.81.224202 <http://dx.doi.org/10.1103/PhysRevB.81.224202>`_
 
 .. [Wal09]
    | A. van de Walle
    | *Multicomponent multisublattice alloys, nonconfigurational entropy and other additions to the Alloy Theoretic Automated Toolkit*
    | Calphad **33**, 266 (2009)
    | `doi: 10.1016/j.calphad.2008.12.005 <http://dx.doi.org/10.1016/j.calphad.2008.12.005>`_
+
+.. [WalTiwJon13]
+   | A. van de Walle, P. Tiwary, M. de Jong, D.L. Olmsted, M. Asta, A. Dick, D. Shin, Y. Wang, L.-Q. Chen, and Z.-K. Liu
+   | *Efficient stochastic generation of special quasirandom structures*
+   | Calphad **42**, 13 (2013)
+   | `doi: 10.1016/j.calphad.2013.06.006 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+
+.. [ZunWeiFer90]
+   | A. Zunger, S.-H. Wei, L. G. Ferreira, and J. E. Bernard.
+   | *Special quasirandom structures*
+   | Phys. Rev. Lett. **65**, 353 (1990)
+   | `doi: 10.1103/PhysRevLett.65.353 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+
+
+
