@@ -68,10 +68,7 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
     tol
         Numerical tolerance
     """
-
-    if abs(sum(list(target_concentrations.values())) - 1.0) > tol:
-        raise ValueError('Target concentration must be specified for all values '
-                         'and they must sum up to 1')
+    _validate_concentrations(target_concentrations, cluster_space)
 
     supercells = []
     calculators = []
@@ -81,9 +78,11 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
         sizes = [max_size]
 
     for size in sizes:
-        # Check that the current size is commensurate
-        # with all concentration (example: {'Au': 0.5, 'Pd': 0.5}
-        # would not be commensurate with a supercell with 3 atoms
+        # For efficiency, make a first check that the current size is
+        # commensurate with all concentrations (example: {'Au': 0.5, 'Pd':
+        # 0.5} would not be commensurate with a supercell with 3 atoms). This
+        # step does *not* ensure that the concentrations are commensurate with
+        # all sublattices (that is checked internally later on).
         natoms = size * len(cluster_space.primitive_structure)
         if not _concentrations_fit_atom_count(natoms, target_concentrations):
             continue
@@ -175,7 +174,8 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
                                      tol=tol)
 
 
-def _decorate_atoms_randomly(atoms: Atoms, target_concentrations: dict):
+def _decorate_atoms_randomly(atoms: Atoms, cluster_space: ClusterSpace,
+                             target_concentrations: dict):
     """
     Decorate an ``atoms`` object with "random" order but fulfilling
     ``target_concentrations``.
@@ -194,22 +194,22 @@ def _decorate_atoms_randomly(atoms: Atoms, target_concentrations: dict):
         a valid specification would thus be
         `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}`.         
     """
-    n_atoms = len(atoms)
+    if not _concentrations_fit_atoms(atoms, cluster_space, target_concentrations):
+        raise ValueError('Atoms object with {} atoms cannot accomodate '
+                         'target concentrations {}'.format(len(atoms),
+                                                           target_concentrations))
 
     # symbols_all will hold chemical_symbols of all sublattices
     symbols_all = [0] * len(atoms)
-    for sublattice in cs.get_sublattices(atoms):
+    for sublattice in cluster_space.get_sublattices(atoms):
         symbols = []  # chemical_symbols in one sublattice
         for chemical_symbol in sublattice.chemical_symbols:
             n_symbol = int(
-                round(n_atoms * target_concentrations[chemical_symbol]))
+                round(len(atoms) * target_concentrations[chemical_symbol]))
             symbols += [chemical_symbol] * n_symbol
 
-        # If any concentration was not commensurate with the sublattice,
-        # raise an exception
-        if len(symbols) != len(sublattice.indices):
-            raise ValueError('target_concentrations {} do not match '
-                             'sublattice sizes'.format(target_concentrations))
+        # Should not happen but you never know
+        assert len(symbols) == len(sublattice.indices)
 
         # Shuffle to introduce some randomness
         random.shuffle(symbols)
@@ -222,9 +222,29 @@ def _decorate_atoms_randomly(atoms: Atoms, target_concentrations: dict):
     atoms.set_chemical_symbols(symbols_all)
 
 
+def _validate_concentrations(concentrations: List[float],
+                             cluster_space: ClusterSpace,
+                             tol: float = 1e-5):
+    # Concentrations should sum to 1
+    conc_sum = sum(list(concentrations.values()))
+    if abs(conc_sum - 1.0) > tol:
+        raise ValueError('Concentrations must sum up '
+                         'to 1 (not {})'.format(conc_sum))
+
+    # Symbols need to match
+    # Flatten chemical symbols from cluster space
+    chemical_symbols = [
+        sym for syms in cluster_space.chemical_symbols for sym in syms]
+    if tuple(sorted(chemical_symbols)) != tuple(sorted(concentrations.keys())):
+        raise ValueError('Chemical symbols in cluster space ({}) are '
+                         'not the same as those in the specified '
+                         'concentrations ({})'.format(cluster_space.chemical_symbols,
+                                                      list(concentrations.keys())))
+
+
 def _concentrations_fit_atom_count(atom_count: int,
                                    concentrations: dict,
-                                   tol: float = 1e-5):
+                                   tol: float = 1e-5) -> bool:
     """
     Check if specified concentrations are commensurate with a
     certain number of atoms.
@@ -235,16 +255,43 @@ def _concentrations_fit_atom_count(atom_count: int,
         How many atoms?
     concentrations
         What concentrations? Example: ``{'Ag': 0.3, 'Au': 0.7}``
-
-
-    Returns
-    -------
-    bool
-        If True, the concenrations fit with this number of atoms.
+    tol
+        Numerical tolerance
     """
-    for symbol, conc in target_concentrations.items():
+    for symbol, conc in concentrations.items():
         n_symbol = conc * atom_count
         if abs(int(round(n_symbol)) - n_symbol) > tol:
+            return False
+    return True
+
+
+def _concentrations_fit_atoms(atoms: Atoms,
+                              cluster_space: ClusterSpace,
+                              concentrations: dict,
+                              tol: float = 1e-5) -> bool:
+    """
+    Check if specified concentrations are commensurate with a
+    certain supercell (including sublattices)
+
+    Parameters
+    ----------
+    atoms
+        atoms object to be checked
+    cluster_space
+        corresponding cluster space
+    concentrations
+        What concentrations? Example: ``{'Ag': 0.3, 'Au': 0.7}``
+    tol
+        Numerical tolerance
+    """
+    # Check that concentrations are OK in each sublattice
+    for sublattice in cluster_space.get_sublattices(atoms):
+        # Since concentrations are specified relative to all atoms,
+        # we must rescale when we check against the size of a sublattice
+        scaling = len(atoms) / len(sublattice.indices)
+        concentrations_sub = {elem: scaling * concentrations[elem]
+                              for elem in sublattice.chemical_symbols}
+        if not _concentrations_fit_atom_count(len(sublattice.indices), concentrations_sub):
             return False
     return True
 
@@ -297,10 +344,9 @@ def _get_random_vector(cluster_space: ClusterSpace,
     # vector
     cv = np.zeros(len(cluster_space))
     for _ in range(number_of_averages):
-        # print(supercell)
-        _decorate_atoms_randomly(supercell, target_concentrations)
-        # print(cs.get_cluster_vector(supercell))
-        cv += cs.get_cluster_vector(supercell)
+        _decorate_atoms_randomly(supercell, cluster_space,
+                                 target_concentrations)
+        cv += cluster_space.get_cluster_vector(supercell)
 
     cv /= number_of_averages
     return cv
@@ -331,9 +377,12 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
     -------
     SQS cluster vector
     """
+    _validate_concentrations(target_concentrations, cluster_space)
+
     sublattice_to_index = {letter: index for index,
                            letter in enumerate('ABCDEFGHIJKLMNOPQRSTVUWWXYZ')}
-    all_sublattices = cluster_space.get_sublattices(cs.primitive_structure)
+    all_sublattices = cluster_space.get_sublattices(
+        cluster_space.primitive_structure)
 
     # Make a map from chemical symbol to integer, later on used
     # for evaluating cluster functions.
@@ -387,9 +436,9 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
             for i, symbol in enumerate(symbols):
                 mc_vector_component = orbit['multi_component_vector'][i]
                 species_i = symbol_to_integer_map[symbol]
-                prod = cs.evaluate_cluster_function(nbr_of_allowed_species[i],
-                                                    mc_vector_component,
-                                                    species_i)
+                prod = cluster_space.evaluate_cluster_function(nbr_of_allowed_species[i],
+                                                               mc_vector_component,
+                                                               species_i)
                 cluster_product *= probabilities[symbol] * prod
             cluster_product_average += cluster_product
         cv.append(cluster_product_average)
@@ -402,13 +451,14 @@ if __name__ == '__main__':
 
     #atoms.append(Atom('H', position=(2, 2, 2)))
     cs = ClusterSpace(atoms, [6.0], [['Au', 'Pd', 'Cu'], ['H', 'V']])
+    print(cs.chemical_symbols)
 
     maxsize = 10
     target_concentrations = {'Au': 0.6666666667 / 6,
                              'Pd': 1.333333333 / 6,
                              'Cu': 1 / 6,
                              'H': 2.5 / 6,
-                             'V': 0.5 / 6,
+                             'V': 0.5 / 6
                              }  # 'H': 1 / 4, 'V': 1 / 4}
     cv = _get_sqs_cluster_vector(cs, target_concentrations)
     print(cv)
