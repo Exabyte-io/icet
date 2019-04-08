@@ -20,7 +20,7 @@ class TargetClusterVectorAnnealing():
         atomic configurations to be used in the Monte Carlo simulation;
         also defines the initial occupation vectors
     calculators
-        calculators corresopnding to each atoms object
+        calculators correspnding to each atoms object
     T_start
         artificial temperature at which the annealing is started
     T_stop : float
@@ -29,7 +29,8 @@ class TargetClusterVectorAnnealing():
         seed for the random number generator used in the Monte Carlo
         simulation
     """
-    def __init__(self, atoms: List[Atoms], calculators: List[TargetVectorCalculator],
+    def __init__(self, atoms: List[Atoms],
+                 calculators: List[TargetVectorCalculator],
                  T_start: float = 0.5, T_stop: float = 0.001,
                  random_seed: int = None) -> None:
 
@@ -67,6 +68,9 @@ class TargetClusterVectorAnnealing():
         self._temperature = T_start
         self._T_start = T_start
         self._T_stop = T_stop
+        self._total_trials = 0
+        self._accepted_trials = 0
+        self._n_steps = 1000
 
 
     def generate_structure(self, number_of_trial_steps: int = None) -> Atoms:

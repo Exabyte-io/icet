@@ -58,7 +58,7 @@ class TargetVectorCalculator(BaseCalculator):
         super().__init__(atoms=atoms, name=name)
 
         if len(target_vector) != len(cluster_space):
-            raise ValueError('Cluster space and target vector'
+            raise ValueError('Cluster space and target vector '
                              'must have the same length')
         self.cluster_space = cluster_space
         self.target_vector = target_vector
@@ -67,7 +67,7 @@ class TargetVectorCalculator(BaseCalculator):
             weights = np.array([1.0] * len(cluster_space))
         else:
             if len(target_vector) != len(cluster_space):
-                raise ValueError('Cluster space and weights'
+                raise ValueError('Cluster space and weights '
                                  'must have the same length')
         self.weights = np.array(weights)
 

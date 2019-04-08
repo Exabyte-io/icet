@@ -90,21 +90,23 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
         # Loop over all inequivalent supercells and intialize
         # them with a "random" occupation of symbols that
         # fulfill the target concentrations
-        for supercell in enumerate_supercells(atoms, [size]):
-            _decorate_atoms_randomly(supercell, target_concentrations)
+        for supercell in enumerate_supercells(cluster_space.primitive_structure,
+                                              [size]):
+            _decorate_atoms_randomly(supercell, cluster_space,
+                                     target_concentrations)
             supercells.append(supercell)
             calculators.append(TargetVectorCalculator(supercell, cluster_space,
-                                                      target_cluster_vector))
+                                                      target_cluster_vector,
+                                                      optimality_weight=optimality_weight,
+                                                      optimality_tol=tol))
 
     ens = TargetClusterVectorAnnealing(atoms=supercells, calculators=calculators,
                                        T_start=T_start, T_stop=T_stop,
-                                       random_seed=random_seed,
-                                       optimality_weight=optimality_weight,
-                                       optimality_tol=tol)
+                                       random_seed=random_seed)
     return ens.generate_structure(number_of_trial_steps=n_steps)
 
 
-def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
+def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                  target_concentrations: dict,
                  include_smaller_cells: bool = True,
                  T_start: float = 0.5, T_stop: float = 0.001,
@@ -163,9 +165,9 @@ def generate_sqs(cluster_space: ClusterSpace, maxsize: int,
     sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
                                          target_concentrations=target_concentrations)
     return generate_target_structure(cluster_space=cluster_space,
-                                     maxsize=maxsize,
+                                     max_size=max_size,
                                      target_concentrations=target_concentrations,
-                                     target_vector=sqs_vector,
+                                     target_cluster_vector=sqs_vector,
                                      include_smaller_cells=include_smaller_cells,
                                      T_start=T_start, T_stop=T_stop,
                                      n_steps=n_steps,
@@ -222,7 +224,7 @@ def _decorate_atoms_randomly(atoms: Atoms, cluster_space: ClusterSpace,
     atoms.set_chemical_symbols(symbols_all)
 
 
-def _validate_concentrations(concentrations: List[float],
+def _validate_concentrations(concentrations: dict,
                              cluster_space: ClusterSpace,
                              tol: float = 1e-5):
     # Concentrations should sum to 1
@@ -241,6 +243,20 @@ def _validate_concentrations(concentrations: List[float],
                          'concentrations ({})'.format(cluster_space.chemical_symbols,
                                                       list(concentrations.keys())))
 
+    # Concentrations for each sublattice need to sum up to
+    # its proportion of the total structure
+    for sublattice in cluster_space.get_sublattices(cluster_space.primitive_structure):
+        part = len(sublattice.indices) / len(cluster_space.primitive_structure)
+        conc = sum([concentrations[sym] for sym in sublattice.chemical_symbols])
+        if abs(conc - part) > tol:
+            raise ValueError('Concentrations must be specified such that '
+                             'concentrations per element and per sublattice '
+                             'match, sublattice with species {} contains a '
+                             'fraction {:.2f} of all atoms, but the sum of '
+                             'the concentrations of those symbols is '
+                             '{:.2f}.'.format(sublattice.chemical_symbols,
+                                              part,
+                                              conc))
 
 def _concentrations_fit_atom_count(atom_count: int,
                                    concentrations: dict,
