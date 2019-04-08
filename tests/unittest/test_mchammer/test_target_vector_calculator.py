@@ -3,7 +3,6 @@ import unittest
 import numpy as np
 from ase.build import bulk
 from icet import ClusterSpace
-from icet import Structure
 from mchammer.calculators import TargetVectorCalculator
 
 
@@ -50,7 +49,8 @@ class TestTVCalculatorBinary(unittest.TestCase):
                 occupations.append(13)
             else:
                 occupations.append(32)
-        self.assertAlmostEqual(self.calculator.calculate_total(occupations), 7.6363636)
+        self.assertAlmostEqual(
+            self.calculator.calculate_total(occupations), 7.6363636)
 
 
 class TestTVCalculatorBinaryHCP(unittest.TestCase):
@@ -92,9 +92,8 @@ class TestTVCalculatorBinaryHCP(unittest.TestCase):
                 occupations.append(32)
             else:
                 occupations.append(13)
-        self.assertAlmostEqual(self.calculator.calculate_total(occupations), 7.0)
-
-
+        self.assertAlmostEqual(
+            self.calculator.calculate_total(occupations), 7.0)
 
 
 class TestTVCalculatorTernary(unittest.TestCase):
@@ -144,8 +143,8 @@ class TestTVCalculatorTernary(unittest.TestCase):
                     occupations.append(32)
                 else:
                     occupations.append(31)
-        self.assertAlmostEqual(self.calculator.calculate_total(occupations), 26.9446875)
-
+        self.assertAlmostEqual(
+            self.calculator.calculate_total(occupations), 26.9446875)
 
 
 if __name__ == '__main__':

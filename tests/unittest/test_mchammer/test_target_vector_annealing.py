@@ -33,7 +33,6 @@ class TestEnsemble(unittest.TestCase):
         cutoffs = [5, 5, 4]
         elements = ['Al', 'Ga']
         cs = ClusterSpace(self.prim, cutoffs, elements)
-        parameters = parameters = np.array([1.2] * len(cs))
 
         target_vector = np.linspace(-1, 1, len(cs))
 

@@ -17,12 +17,12 @@ class TargetVectorCalculator(BaseCalculator):
 
     .. math::
         Q = - \\omega L + \\sum_{\\alpha}
-         \\left| \Gamma_{\\alpha} - \\Gamma^{\\text{target}}_{\\alpha} 
+         \\left| \\Gamma_{\\alpha} - \\Gamma^{\\text{target}}_{\\alpha}
          \\right|.
 
     Here, :math:`\\Gamma_{\\alpha}` are components in the cluster vector
     and :math:`\\Gamma^\\text{target}_{\\alpha}` the corresponding target
-    values. The factor :math:`\omega` is the radius of the largest
+    values. The factor :math:`\\omega` is the radius of the largest
     pair cluster such that all clusters with the same or smaller radii
     have :math:`\\Gamma_{\\alpha} - \\Gamma^\\text{target}_{\\alpha} = 0`.
 
