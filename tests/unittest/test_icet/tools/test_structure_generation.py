@@ -118,7 +118,8 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
                                               target_concentrations=target_conc,
                                               target_cluster_vector=target_cv,
                                               n_steps=500,
-                                              random_seed=42)
+                                              random_seed=42,
+                                              optimality_weight=0.3)
         self.assertTrue(np.allclose(
             self.cs.get_cluster_vector(structure), target_cv))
 
@@ -133,7 +134,7 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
                                  target_concentrations=target_conc,
                                  n_steps=500,
                                  random_seed=42,
-                                 optimality_weight=2.0)
+                                 optimality_weight=0.0)
 
         target_cv = [1., 0., -0.16666667, 0., 0., 0.,
                      0., 0., 0., 0., 0., 0., 0.]
