@@ -29,6 +29,7 @@ class TargetClusterVectorAnnealing():
         seed for the random number generator used in the Monte Carlo
         simulation
     """
+
     def __init__(self, atoms: List[Atoms],
                  calculators: List[TargetVectorCalculator],
                  T_start: float = 0.5, T_stop: float = 0.001,
@@ -57,7 +58,8 @@ class TargetClusterVectorAnnealing():
                                                    calculator=calculator,
                                                    random_seed=random.randint(
                                                        0, 1e16),
-                                                   user_tag='ensemble_{}'.format(ensemble_id),
+                                                   user_tag='ensemble_{}'.format(
+                                                       ensemble_id),
                                                    temperature=T_start,
                                                    data_container=None))
         self._sub_ensembles = sub_ensembles
@@ -71,7 +73,6 @@ class TargetClusterVectorAnnealing():
         self._total_trials = 0
         self._accepted_trials = 0
         self._n_steps = 1000
-
 
     def generate_structure(self, number_of_trial_steps: int = None) -> Atoms:
         """
@@ -128,7 +129,6 @@ class TargetClusterVectorAnnealing():
         else:
             ensemble.configuration.update_occupations(
                 sites, list(reversed(species)))
-
 
     def get_random_sublattice_index(self) -> int:
         """Returns a random sublattice index based on the weights of the
@@ -210,6 +210,7 @@ class TargetClusterVectorAnnealing():
     def best_atoms(self) -> float:
         """ Structure most closely matching target vector yet """
         return self._best_atoms
+
 
 def _cooling_exponential(step: int,
                          T_start: Union[float, int],

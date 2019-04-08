@@ -29,6 +29,7 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         return None
 
     def test_get_sqs_cluster_vector(self):
+        """Test SQS cluster vector generation."""
         target_concentrations = {'Au': 0.5, 'Pd': 0.5}
         target_vector = np.array([1.0] + [0.0] * (len(self.cs) - 1))
         cv = _get_sqs_cluster_vector(self.cs, target_concentrations)
@@ -42,6 +43,7 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         self.assertTrue(np.allclose(cv, target_vector))
 
     def test_validate_concentrations(self):
+        """Tests validation of conecntrations against cluster space."""
         concentrations = {'Au': 0.5, 'Pd': 0.5}
         _validate_concentrations(concentrations, self.cs)
 
@@ -63,6 +65,7 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
             'not the same as those in the specified' in str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
+        """Tests check of concentrations againt a certain number of atoms."""
         atom_count = 10
         concentrations = {'Au': 0.5, 'Pd': 0.5}
         self.assertTrue(_concentrations_fit_atom_count(
@@ -73,6 +76,10 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
             atom_count, concentrations))
 
     def test_concentrations_fit_atoms(self):
+        """
+        Tests check of concentrations against an atoms object
+        belonging to a cluster space
+        """
         concentrations = {'Au': 1 / 3, 'Pd': 2 / 3}
         self.assertTrue(_concentrations_fit_atoms(
             self.supercell, self.cs, concentrations))
@@ -82,6 +89,7 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
             self.supercell, self.cs, concentrations))
 
     def test_decorate_atoms_randomly(self):
+        """Tests random decoration of atoms object"""
         atoms = self.prim.repeat(2)
         target_concentrations = {'Au': 0.5, 'Pd': 0.5}
         _decorate_atoms_randomly(atoms, self.cs,
@@ -98,15 +106,11 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         self.assertEqual(syms.count('Pd'), 2 * len(atoms) // 3)
 
     def test_generate_target_structure(self):
-
-        from icet.tools import enumerate_structures
+        """Test generation of a structure based on a target cluste vector"""
         # Exact target vector from 2 atoms cell
         target_cv = np.array([1., 0., 0., -1., 0., 1.,
                               0., 0., 0., 0., 0., 0., 0.])
         target_conc = {'Au': 0.5, 'Pd': 0.5}
-        # for structure in enumerate_structures(self.prim, [2], ['Au', 'Pd']):
-        #    print(self.cs.get_cluster_vector(structure))
-        # target_cv =
 
         # This should be simple enough to always work
         structure = generate_target_structure(cluster_space=self.cs,
@@ -118,14 +122,10 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         self.assertTrue(np.allclose(
             self.cs.get_cluster_vector(structure), target_cv))
 
-    def test_generate_target_structure(self):
+    def test_generate_sqs(self):
+        """Test generation of SQS structure"""
 
-        from icet.tools import enumerate_structures
-        # Exact target vector from 2 atoms cell
         target_conc = {'Au': 0.5, 'Pd': 0.5}
-        # for structure in enumerate_structures(self.prim, [2], ['Au', 'Pd']):
-        #    print(self.cs.get_cluster_vector(structure))
-        # target_cv =
 
         # This should be simple enough to always work
         structure = generate_sqs(cluster_space=self.cs,
@@ -158,6 +158,7 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         return None
 
     def test_get_sqs_cluster_vector(self):
+        """Test SQS cluster vector generation."""
         target_concentrations = {'Au': 0.5, 'Pd': 0.3, 'Cu': 0.2}
         cv = _get_sqs_cluster_vector(self.cs, target_concentrations)
         target_vector = [1., 0.2, 0.17320508, 0.04, 0.03464102, 0.03,
@@ -167,6 +168,7 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         self.assertTrue(np.allclose(cv, target_vector))
 
     def test_validate_concentrations(self):
+        """Tests validation of conecntrations against cluster space."""
         concentrations = {'Au': 0.1, 'Pd': 0.8, 'Cu': 0.1}
         _validate_concentrations(concentrations, self.cs)
 
@@ -182,6 +184,7 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
             'not the same as those in the specified' in str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
+        """Tests check of concentrations againt a certain number of atoms."""
         atom_count = 10
         concentrations = {'Au': 0.5, 'Pd': 0.5, 'Cu': 0.0}
         self.assertTrue(_concentrations_fit_atom_count(
@@ -192,6 +195,10 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
             atom_count, concentrations))
 
     def test_concentrations_fit_atoms(self):
+        """
+        Tests check of concentrations against an atoms object
+        belonging to a cluster space
+        """
         concentrations = {'Au': 1 / 3, 'Pd': 1 / 3, 'Cu': 1 / 3}
         self.assertTrue(_concentrations_fit_atoms(
             self.supercell, self.cs, concentrations))
@@ -201,6 +208,7 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
             self.supercell, self.cs, concentrations))
 
     def test_decorate_atoms_randomly(self):
+        """Tests random decoration of atoms object"""
         atoms = self.prim.repeat(2)
         target_concentrations = {'Cu': 0.25, 'Au': 0.25, 'Pd': 0.5}
         _decorate_atoms_randomly(atoms, self.cs,
@@ -230,6 +238,7 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
         return None
 
     def test_get_sqs_cluster_vector(self):
+        """Test SQS cluster vector generation."""
         target_concentrations = {'Au': 0.2, 'Pd': 0.1,
                                  'Cu': 0.2, 'H': 0.25, 'V': 0.25}
         cv = _get_sqs_cluster_vector(self.cs, target_concentrations)
@@ -245,6 +254,7 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
         self.assertTrue(np.allclose(cv, target_vector))
 
     def test_validate_concentrations(self):
+        """Tests validation of conecntrations against cluster space."""
         concentrations = {'Au': 0.1, 'Pd': 0.3, 'Cu': 0.1, 'H': 0.4, 'V': 0.1}
         _validate_concentrations(concentrations, self.cs)
 
@@ -267,6 +277,7 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
             'that concentrations per element and per sublattice match' in str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
+        """Tests check of concentrations againt a certain number of atoms."""
         atom_count = 10
         concentrations = {'Au': 0.2, 'Pd': 0.1,
                           'Cu': 0.2, 'H': 0.3, 'V': 0.2}
@@ -279,12 +290,17 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
             atom_count, concentrations))
 
     def test_concentrations_fit_atoms(self):
+        """
+        Tests check of concentrations against an atoms object
+        belonging to a cluster space
+        """
         concentrations = {'Au': 1 / 6, 'Pd': 1 /
                           6, 'Cu': 1 / 6, 'H': 2 / 6, 'V': 1 / 6}
         self.assertTrue(_concentrations_fit_atoms(
             self.supercell, self.cs, concentrations))
 
     def test_decorate_atoms_randomly(self):
+        """Tests random decoration of atoms object"""
         atoms = self.prim.repeat(2)
         target_concentrations = {'Cu': 1 / 8, 'Au': 2 / 8, 'Pd': 1 / 8,
                                  'H': 3 / 8, 'V': 1 / 8}

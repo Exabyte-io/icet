@@ -1,7 +1,6 @@
 """Definition of the canonical ensemble class."""
 
 import numpy as np
-from typing import List
 
 from ase import Atoms
 from ase.units import kB

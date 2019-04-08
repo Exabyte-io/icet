@@ -132,7 +132,7 @@ def yield_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
     translations = symmetries['translations']
     basis_shifts = symmetries['basis_shifts']
     hnfs = []
-    
+
     for hnf in yield_hermite_normal_forms(ncells, pbc):
 
         # Throw away HNF:s that yield equivalent supercells

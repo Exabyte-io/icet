@@ -1,8 +1,7 @@
 from ase import Atoms
 from icet import ClusterSpace
 from mchammer.calculators.base_calculator import BaseCalculator
-from typing import Union, List
-from icet import Structure
+from typing import List
 from icet.tools.geometry import find_lattice_site_by_position
 import numpy as np
 
@@ -17,15 +16,15 @@ class TargetVectorCalculator(BaseCalculator):
     :math:`Q` is calculated as
 
     .. math::
-        Q = - \omega L + \sum_{\\alpha}
-         \\left| \Gamma_{\\alpha} - \Gamma^{\\text{target}}_{\\alpha} 
+        Q = - \\omega L + \\sum_{\\alpha}
+         \\left| \Gamma_{\\alpha} - \\Gamma^{\\text{target}}_{\\alpha} 
          \\right|.
 
-    Here, :math:`\Gamma_{\\alpha}` are components in the cluster vector
-    and :math:`\Gamma^\\text{target}_{\\alpha}` the corresponding target
+    Here, :math:`\\Gamma_{\\alpha}` are components in the cluster vector
+    and :math:`\\Gamma^\\text{target}_{\\alpha}` the corresponding target
     values. The factor :math:`\omega` is the radius of the largest
     pair cluster such that all clusters with the same or smaller radii
-    have :math:`\Gamma_{\\alpha} - \Gamma^\\text{target}_{\\alpha} = 0`.
+    have :math:`\\Gamma_{\\alpha} - \\Gamma^\\text{target}_{\\alpha} = 0`.
 
     Parameters
     ----------
@@ -98,13 +97,12 @@ class TargetVectorCalculator(BaseCalculator):
             longest_optimal_radius = 0
             for orbit_index, d in enumerate(diff):
                 orbit = self.orbit_data[orbit_index]
-                if d < self.optimality_tol and orbit['order'] < 3:                    
+                if d < self.optimality_tol and orbit['order'] < 3:
                     longest_optimal_radius = orbit['radius']
                 else:
                     break
                 score -= self.optimality_weight * longest_optimal_radius
         return score
-
 
     def calculate_local_contribution(self):
         raise NotImplementedError()
