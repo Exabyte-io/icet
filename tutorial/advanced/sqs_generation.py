@@ -28,7 +28,7 @@ atoms = bulk('Au', a=4.0)
 atoms.append(Atom('H', position=(2.0, 2.0, 2.0)))
 cutoffs = [7.0]
 cs = ClusterSpace(atoms, cutoffs, [['Au', 'Cu', 'Pd'], ['H', 'V']])
-target_concentrations = {'Au': 6 / 16, 'Pd': 1 / 16, 'Cu': 1 / 16,
+target_concentrations = {'Au': 6 / 16, 'Cu': 1 / 16, 'Pd': 1 / 16,
                          'H': 2 / 16, 'V': 6 / 16}
 sqs = generate_sqs(cluster_space=cs,
                    max_size=16,

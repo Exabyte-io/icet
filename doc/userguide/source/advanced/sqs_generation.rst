@@ -32,9 +32,10 @@ calculated as
 
 Here, :math:`\Gamma_{\alpha}` are components in the cluster vector and
 :math:`\Gamma^\text{target}_{\alpha}` the corresponding target values. The
-factor :math:`\omega` is the radius of the largest pair cluster such that all
-clusters with the same or smaller radii have :math:`\Gamma_{\alpha} -
-\Gamma^\text{target}_{\alpha} = 0`.
+factor :math:`\omega` is the radius (in Ångström) of the largest pair cluster
+such that all clusters with the same or smaller radii have
+:math:`\Gamma_{\alpha} - \Gamma^\text{target}_{\alpha} = 0`. The parameter
+:math:`L`, by default ``1.0``, can be specified by the user.
 
 The functionality for generating SQS is just a special case of a more general
 algorithm to generate a structure with a cluster vector similar to *any*
@@ -48,9 +49,9 @@ The :func:`generate_sqs <icet.tools.structure_generation.generate_sqs>` and/or
 :func:`generate_target_structure
 <icet.tools.structure_generation.generate_target_structure>` functions needs
 to be imported together with some additional functions from `ASE
-<https://wiki.fysik.dtu.dk/ase>`_ and :program:`icet`. Since the SQS
-generation may otherwise run quietly for a few minutes, it is advisable to
-turn on logging.
+<https://wiki.fysik.dtu.dk/ase>`_ and :program:`icet`. It is advisable to turn
+on logging, since the SQS generation may otherwise run quietly for a few
+minutes.
 
 .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
    :start-after: # Import modules
@@ -61,12 +62,12 @@ Generate binary structures
 
 In the following example, a binary FCC SQS with 8 atoms will be generated. To
 this end, a :class:`icet.ClusterSpace` and target concentrations need to be
-defined. The cutoffs in the cluster space are important, since they define
-determine how many elements are to be included when cluster vectors are
-compared. It is usually sufficient to use cutoffs such that the length of the
-cluster vector is on the order of 10. Target concentrations are specified via
-a dict, which should contain all the involved elements and their fractions of
-the total concentrations.
+defined. The cutoffs in the cluster space are important, since they determine
+how many elements are to be included when cluster vectors are compared. It is
+usually sufficient to use cutoffs such that the length of the cluster vector
+is on the order of 10. Target concentrations are specified via a dict, which
+should contain all the involved elements and their fractions of the total
+concentrations.
 
 .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
    :start-after: # Generate SQS for binary fcc
@@ -82,7 +83,7 @@ Generate SQS for a system with sublattices
 ------------------------------------------
 
 It is possible to generate SQS also for systems with sublattices. In the below
-example, an SQS is generated for a system with two sublattices; one FCC
+example, a SQS is generated for a system with two sublattices; one FCC
 sublattice on which Au, Cu, and Pd are allowed, and another FCC sublattice on
 which H and vacancies (V) are allowed. Note that target concentrations are
 specified with respect to *all* atoms, which means that the concentrations
@@ -107,11 +108,13 @@ Generate a structure matching an arbitrary cluster vector
 ---------------------------------------------------------
 
 The SQS generation approach can be utilized to generate the structure that
-most closely resemble *any* cluster vector. To do so, the syntax is identic
+most closely resembles *any* cluster vector. To do so, the syntax is identic
 except that the target cluster vector must be specified manually. Note that
-there are no restrictions on what target vector can be specified (except their
-length, which must match the cluster space length), but the space of cluster
+there are no restrictions on what target vectors can be specified (except their
+lengths, which must match the cluster space length), but the space of cluster
 vectors that can be realized by structures is restricted in multiple ways.
+The similarity between the target cluster vector and the cluster vector of
+the generated structure may thus appear poor.
 
 .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
    :start-after: # Generate structure with a specified cluster vector
