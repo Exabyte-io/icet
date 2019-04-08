@@ -4,6 +4,9 @@ from .canonical_ensemble import CanonicalEnsemble
 import numpy as np
 from typing import Union, List
 import random
+from icet.io.logging import logger
+
+logger = logger.getChild('target_cluster_vector_annealing')
 
 
 class TargetClusterVectorAnnealing():
@@ -32,7 +35,7 @@ class TargetClusterVectorAnnealing():
 
     def __init__(self, atoms: List[Atoms],
                  calculators: List[TargetVectorCalculator],
-                 T_start: float = 0.5, T_stop: float = 0.001,
+                 T_start: float = 5.0, T_stop: float = 0.001,
                  random_seed: int = None) -> None:
 
         if type(atoms) == Atoms:
@@ -41,6 +44,9 @@ class TargetClusterVectorAnnealing():
         if len(atoms) != len(calculators):
             raise ValueError('There must be as many supercells as there '
                              'are calculators ({} != {})'.format(len(atoms, len(calculators))))
+
+        logger.info('Initializing target cluster vector annealing '
+                    'with {} supercells'.format(len(atoms)))
 
         # random number generator
         if random_seed is None:
@@ -85,7 +91,7 @@ class TargetClusterVectorAnnealing():
             run (on average) 1000 steps per supercell
         """
         if number_of_trial_steps is None:
-            self._n_steps = 1000 * len(self.sub_ensembles)
+            self._n_steps = 3000 * len(self.sub_ensembles)
         else:
             self._n_steps = number_of_trial_steps
 
@@ -93,6 +99,14 @@ class TargetClusterVectorAnnealing():
         self._total_trials = 0
         self._accepted_trials = 0
         while self.total_trials < self.n_steps:
+            if self._total_trials % 1000 == 0:
+                logger.info('MC step {}/{} ({} accepted trials, '
+                            'temperature {:.3f}), '
+                            'best score: {:.3f}'.format(self.total_trials,
+                                                        self.n_steps,
+                                                        self.accepted_trials,
+                                                        self.temperature,
+                                                        self.best_score))
             self._do_trial_step()
         return self.best_atoms
 

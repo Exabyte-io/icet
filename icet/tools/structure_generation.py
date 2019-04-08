@@ -14,9 +14,9 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
                               target_concentrations: dict,
                               target_cluster_vector: List[float],
                               include_smaller_cells: bool = True,
-                              T_start: float = 0.5, T_stop: float = 0.001,
+                              T_start: float = 5.0, T_stop: float = 0.001,
                               n_steps: float = None,
-                              optimality_weight: float = 0.5,
+                              optimality_weight: float = 1.0,
                               random_seed: int = None,
                               tol: float = 1e-5) -> Atoms:
     """
@@ -108,9 +108,9 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
 def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                  target_concentrations: dict,
                  include_smaller_cells: bool = True,
-                 T_start: float = 0.5, T_stop: float = 0.001,
+                 T_start: float = 5.0, T_stop: float = 0.001,
                  n_steps: float = None,
-                 optimality_weight: float = 0.5,
+                 optimality_weight: float = 1.0,
                  random_seed: int = None,
                  tol: float = 1e-5):
     """

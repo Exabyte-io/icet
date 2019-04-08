@@ -51,7 +51,7 @@ class TargetVectorCalculator(BaseCalculator):
     def __init__(self, atoms: Atoms, cluster_space: ClusterSpace,
                  target_vector: List[float],
                  weights: List[float] = None,
-                 optimality_weight: float = 0.5,
+                 optimality_weight: float = 1.0,
                  optimality_tol: float = 1e-5,
                  name: str = 'Target vector calculator') -> None:
         super().__init__(atoms=atoms, name=name)
@@ -91,13 +91,15 @@ class TargetVectorCalculator(BaseCalculator):
         """
         self.atoms.set_atomic_numbers(occupations)
         cv = self.cluster_space.get_cluster_vector(self.atoms)
-        diff = cv - self.target_vector
-        score = sum(abs(diff))
+        diff = abs(cv - self.target_vector)
+        score = sum(diff)
         if self.optimality_weight:
             longest_optimal_radius = 0
             for orbit_index, d in enumerate(diff):
                 orbit = self.orbit_data[orbit_index]
-                if d < self.optimality_tol and orbit['order'] < 3:
+                if orbit['order'] != 2:
+                    continue
+                if d < self.optimality_tol:
                     longest_optimal_radius = orbit['radius']
                 else:
                     break
