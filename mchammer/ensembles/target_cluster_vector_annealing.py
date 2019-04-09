@@ -1,6 +1,7 @@
 from ase import Atoms
 from mchammer.calculators.target_vector_calculator import TargetVectorCalculator
 from .canonical_ensemble import CanonicalEnsemble
+from .canonical_annealing import _cooling_exponential
 import numpy as np
 from typing import Union, List
 import random
@@ -70,8 +71,8 @@ class TargetClusterVectorAnnealing():
                                                    temperature=T_start,
                                                    data_container=None))
         self._sub_ensembles = sub_ensembles
-        self._current_score = self.sub_ensembles[0].calculator.calculate_total(
-            self.sub_ensembles[0].configuration.occupations)
+        self._current_score = self._sub_ensembles[0].calculator.calculate_total(
+            self._sub_ensembles[0].configuration.occupations)
         self._best_score = self._current_score
         self._best_atoms = atoms[0]
         self._temperature = T_start
@@ -92,7 +93,7 @@ class TargetClusterVectorAnnealing():
             run (on average) 1000 steps per supercell
         """
         if number_of_trial_steps is None:
-            self._n_steps = 3000 * len(self.sub_ensembles)
+            self._n_steps = 3000 * len(self._sub_ensembles)
         else:
             self._n_steps = number_of_trial_steps
 
@@ -118,7 +119,7 @@ class TargetClusterVectorAnnealing():
         self._total_trials += 1
 
         # Choose a supercell
-        ensemble = random.choice(self.sub_ensembles)
+        ensemble = random.choice(self._sub_ensembles)
 
         # Choose a site and flip
         sublattice_index = ensemble.get_random_sublattice_index()
@@ -154,11 +155,16 @@ class TargetClusterVectorAnnealing():
         * fix this method
         * add unit test
         """
-        total_active_sites = sum([len(sub) for sub in self._sublattices])
-        probability_distribution = [
-            len(sub) / total_active_sites for sub in self._sublattices]
-        pick = np.random.choice(
-            range(0, len(self._sublattices)), p=probability_distribution)
+        probability_distribution = []
+        for sub in self._sublattices:
+            if len(set(self.configuration.occupations[sub])) <= 1:
+                p = 0
+            else:
+                p = len(sub)
+            probability_distribution.append(p)
+        norm = sum(probability_distribution)
+        probability_distribution = [p/norm for p in probability_distribution]
+        pick = np.random.choice(range(0, len(self._sublattices)), p=probability_distribution)
         return pick
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
@@ -207,11 +213,6 @@ class TargetClusterVectorAnnealing():
         return self._accepted_trials
 
     @property
-    def sub_ensembles(self) -> int:
-        """ List of canonical ensembles """
-        return self._sub_ensembles
-
-    @property
     def current_score(self) -> float:
         """ Current target vector score """
         return self._current_score
@@ -225,13 +226,3 @@ class TargetClusterVectorAnnealing():
     def best_atoms(self) -> float:
         """ Structure most closely matching target vector so far """
         return self._best_atoms
-
-
-def _cooling_exponential(step: int,
-                         T_start: Union[float, int],
-                         T_stop: Union[float, int],
-                         n_steps: int) -> float:
-    """
-    Keeps track of the current temperature.
-    """
-    return T_start - (T_start - T_stop) * np.log(step + 1) / np.log(n_steps)
