@@ -69,29 +69,27 @@ class BaseEnsemble(ABC):
         # calculator and configuration
         self._calculator = calculator
         self._user_tag = user_tag
-        strict_constraints_symbol = self.calculator.occupation_constraints
-        symbols = list(set(tuple(sym) for sym in strict_constraints_symbol if len(sym) > 1))
-        symbols_flat = [s for sub in symbols for s in sub]
-        if len(symbols_flat) != len(set(symbols_flat)):
-            bad_symbols = set([s for s in symbols_flat if symbols_flat.count(s) > 1])
-            raise ValueError('Symbols {} found on multiple active sublattices'.format(bad_symbols))
+        sublattices = self.calculator.sublattices
 
-        sublattices = [[] for _ in symbols]
-        for i, constraint in enumerate(strict_constraints_symbol):
-            for j, sym in enumerate(symbols):
-                if len(sym) < 2:
-                    continue
-                if sorted(constraint) == sorted(sym):
-                    sublattices[j].append(i)
+        symbols = atoms.get_chemical_symbols()
+        for sl in sublattices:
+            for i in sl.indices:
+                if not symbols[i] in sl.chemical_symbols:
+                    msg = 'Occupations of structure not compatible with the sublattice'
+                    msg += ' of the calculator. Site {} with occupation {} not allowed on'
+                    msg += ' sublattice {}'.format(i, symbols[i], sl.chemical_symbols)
+                    raise ValueError(msg)
+        #item for sublist in l for item in sublist
+        symbols_flat = [symbol for sl in sublattices for symbol in sl.chemical_symbols]
+        if len(symbols_flat) != len(set(symbols_flat)):
+            bad_symbols = set(
+                [s for s in symbols_flat if symbols_flat.count(s) > 1])
+            raise ValueError(
+                'Symbols {} found on multiple active sublattices'.format(bad_symbols))
+
         self._sublattices = sublattices
-        strict_constraints = []
-        for symbols in strict_constraints_symbol:
-            numbers = []
-            for symbol in symbols:
-                numbers.append(chemical_symbols.index(symbol))
-            strict_constraints.append(numbers)
         self.configuration = ConfigurationManager(
-            atoms, strict_constraints, sublattices)
+            atoms, sublattices)
 
         # random number generator
         if random_seed is None:
@@ -366,7 +364,8 @@ class BaseEnsemble(ABC):
             name used in data container
         """
         if not isinstance(observer, BaseObserver):
-            raise TypeError('observer has the wrong type: {}'.format(type(observer)))
+            raise TypeError(
+                'observer has the wrong type: {}'.format(type(observer)))
 
         if observer.interval is None:
             observer.interval = self._default_interval
@@ -454,9 +453,9 @@ class BaseEnsemble(ABC):
         * fix this method
         * add unit test
         """
-        total_active_sites = sum([len(sub) for sub in self._sublattices])
+        total_active_sites = sum([len(sub.indices) for sub in self._sublattices.active_sublattices])
         probability_distribution = [
-            len(sub) / total_active_sites for sub in self._sublattices]
+            len(sub.indices) / total_active_sites for sub in self._sublattices]
         pick = np.random.choice(
             range(0, len(self._sublattices)), p=probability_distribution)
         return pick
@@ -470,7 +469,10 @@ class BaseEnsemble(ABC):
 
         # Update configuration
         occupations = self.data_container.last_state['occupations']
-        active_sites = [s for sub in self.configuration.sublattices for s in sub]
+        active_sites = []
+        for sl in self.configuration.sublattices:
+            if len(sl.chemical_symbols) > 1:
+                active_sites.extend(sl.indices)
         active_occupations = [occupations[s] for s in active_sites]
         self.update_occupations(active_sites, active_occupations)
 

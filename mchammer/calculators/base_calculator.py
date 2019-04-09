@@ -48,5 +48,5 @@ class BaseCalculator(ABC):
         self._atoms.numbers[indices] = species
 
     @property
-    def occupation_constraints(self):
+    def sublattices(self):
         raise NotImplementedError()

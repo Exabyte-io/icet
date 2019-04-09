@@ -3,6 +3,8 @@ import random
 from numpy import array
 from typing import Dict, List, Tuple, Union
 from ase import Atoms
+from icet.core.sublattices import Sublattices
+from icet.tools.geometry import chemical_symbols_to_numbers, atomic_number_to_chemical_symbol
 
 
 class SwapNotPossibleError(Exception):
@@ -36,30 +38,24 @@ class ConfigurationManager(object):
       the OccupationConstraints class should help here
     """
 
-    def __init__(self, atoms: Atoms,
-                 strict_constraints: Union[List[List[int]], List[int]],
-                 sites_by_sublattice: Union[List[List[int]], List[int]],
-                 occupation_constraints: List[List[int]] = None) -> None:
+    def __init__(self, atoms: Atoms, sublattices: Sublattices) -> None:
 
         self._atoms = atoms.copy()
         self._occupations = self._atoms.numbers
-        self._sites_by_sublattice = sites_by_sublattice
+        self._sublattices = sublattices
 
-        if occupation_constraints is not None:
-            self._check_occupation_constraint(
-                strict_constraints, occupation_constraints)
-        else:
-            occupation_constraints = strict_constraints
-        self._occupation_constraints = occupation_constraints
         self._allowed_species = self._set_up_allowed_species()
         self._sites_by_species = self._get_sites_by_species()
 
     def _set_up_allowed_species(self) -> List[int]:
         """ Returns a list of allowed species. """
         allowed_species = set()
-        for occ in self._occupation_constraints:
-            for species in occ:
-                allowed_species.add(species)
+        self._occupation_constraints = [[]]*len(self._occupations)
+        for sl in self._sublattices:
+            for index in sl.indices:
+                self._occupation_constraints[index] = chemical_symbols_to_numbers(sl.chemical_symbols)
+            for atomic_number in chemical_symbols_to_numbers(sl.chemical_symbols):
+                allowed_species.add(atomic_number)
         return list(allowed_species)
 
     def _get_sites_by_species(self) -> List[Dict[int, List[int]]]:
@@ -69,16 +65,16 @@ class ConfigurationManager(object):
         occupied by said species in the respective sublattice.
         """
         sites_by_species = []
-        for sublattice in self._sites_by_sublattice:
-            species_dict = {key: [] for key in self._allowed_species}
-            for site in sublattice:
+        for sl in self._sublattices:
+            species_dict = {key: []
+                            for key in chemical_symbols_to_numbers(sl.chemical_symbols)}
+            for site in sl.indices:
                 species_dict[self._occupations[site]].append(site)
             sites_by_species.append(species_dict)
         return sites_by_species
 
     def _check_occupation_constraint(self,
-                                     strict_constraints: Union[List[List[int]],
-                                                               List[int]],
+                                     sublattices: Sublattices,
                                      occupation_constraints: List[List[int]]):
         """Checks that the user defined occupation constraints are stricter or
         as strict as the strict constraints.
@@ -115,17 +111,9 @@ class ConfigurationManager(object):
         return self._occupations.copy()
 
     @property
-    def occupation_constraints(self) -> List[List[int]]:
-        """occupation constraints associated with configuration manager
-        (copy); the outer list runs over sites with each inner list
-        representing the species allowed on this site.
-        """
-        return copy.deepcopy(self._occupation_constraints)
-
-    @property
     def sublattices(self) -> List[List[int]]:
         """ sites belonging to each sublattice of the configuration (copy) """
-        return copy.deepcopy(self._sites_by_sublattice)
+        return self._sublattices
 
     @property
     def atoms(self) -> Atoms:
@@ -155,7 +143,7 @@ class ConfigurationManager(object):
         """
         # pick the first site
         try:
-            site1 = random.choice(self._sites_by_sublattice[sublattice])
+            site1 = random.choice(self.sublattices[sublattice].indices)
         except IndexError:
             raise SwapNotPossibleError('Sublattice {} is empty.'
                                        .format(sublattice))
@@ -188,9 +176,9 @@ class ConfigurationManager(object):
             index of sublattice from which to pick a site
         """
 
-        site = random.choice(self._sites_by_sublattice[sublattice])
+        site = random.choice(self._sublattices[sublattice].indices)
         species = random.choice(list(
-            set(self._occupation_constraints[site]) -
+            set(chemical_symbols_to_numbers(self._sublattices[sublattice].chemical_symbols)) -
             set([self._occupations[site]])))
         return site, species
 
@@ -211,8 +199,9 @@ class ConfigurationManager(object):
         # Update _sites_by_sublattice
         for site, new_Z in zip(sites, species):
             old_Z = self._occupations[site]
-            for isub, sublattice_sites in enumerate(self._sites_by_sublattice):
-                if site in sublattice_sites:
+            for isub, sl in enumerate(self.sublattices):
+                if site in sl.indices and \
+                        atomic_number_to_chemical_symbol([new_Z])[0] in sl.chemical_symbols:
                     break
             else:
                 raise ValueError(
