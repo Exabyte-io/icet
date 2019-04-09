@@ -32,7 +32,7 @@ ClusterExpansionCalculator
 TargetVectorCalculator
 --------------------------
 
-.. autoclass:: TargetVectorCalculator
+.. automodule:: mchammer.calculators.target_vector_calculator
    :members:
    :undoc-members:
    :inherited-members:

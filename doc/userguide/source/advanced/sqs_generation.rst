@@ -72,7 +72,7 @@ trial swaps and can be expected to run for a minute or so.
 
 .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
    :start-after: # Generate SQS for binary fcc
-   :end-before: # Unse enumeration
+   :end-before: # Use enumeration
 
 In this simple case, in which the target structure size is very small, it is
 more efficient to generate the best SQS cell by exhaustive enumeration of all
