@@ -350,7 +350,7 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
         primitive structure from which derivative superstructures should be
         generated
     sizes
-        number of sites (included in the enumeration)
+        number of sites (included in enumeration)
     chemical_symbols
         chemical species with which to decorate the structure, e.g., ``['Au',
         'Ag']``; see below for more examples
@@ -484,7 +484,7 @@ def enumerate_supercells(atoms: Atoms, sizes: List[int],
         primitive structure from which supercells should be
         generated
     sizes
-        number of sites (included in the enumeration)
+        number of sites (included in enumeration)
     niggli_reduction
         if True perform a Niggli reduction with spglib for each supercell;
         the default is ``True`` if ``atoms`` is periodic in all directions,

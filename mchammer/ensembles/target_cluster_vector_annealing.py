@@ -13,9 +13,9 @@ class TargetClusterVectorAnnealing():
     """
     Instances of this class allow one to carry out simulated annealing
     towards a target cluster vector. Because it is impossible
-    to *a priori* know which supercell shape accomodates the best
+    to know *a priori* which supercell shape accomodates the best
     match, this ensemble allows the annealing to be done for multiple
-    atoms objects at the same time.
+    :class:`ase.Atoms` objects at the same time.
 
     Parameters
     ----------
@@ -23,13 +23,14 @@ class TargetClusterVectorAnnealing():
         atomic configurations to be used in the Monte Carlo simulation;
         also defines the initial occupation vectors
     calculators
-        calculators correspnding to each atoms object
+        calculators corresponding to each :class:`Atoms <ase.Atoms>`
+        object
     T_start
-        artificial temperature at which the annealing is started
+        artificial temperature at which annealing is started
     T_stop : float
-        artificial temperature at which the annealing is stopped
+        artificial temperature at which annealing is stopped
     random_seed : int
-        seed for the random number generator used in the Monte Carlo
+        seed for random number generator used in the Monte Carlo
         simulation
     """
 
@@ -187,7 +188,7 @@ class TargetClusterVectorAnnealing():
 
     @property
     def T_stop(self) -> float:
-        """ Starting temperature """
+        """ Stop temperature """
         return self._T_stop
 
     @property
@@ -197,12 +198,12 @@ class TargetClusterVectorAnnealing():
 
     @property
     def total_trials(self) -> int:
-        """ Number of steps carried out yet """
+        """ Number of steps carried out so far """
         return self._total_trials
 
     @property
     def accepted_trials(self) -> int:
-        """ Number of accepted trials carried out yet """
+        """ Number of accepted trials carried out so far """
         return self._accepted_trials
 
     @property
@@ -217,12 +218,12 @@ class TargetClusterVectorAnnealing():
 
     @property
     def best_score(self) -> float:
-        """ Best target vector score found yet """
+        """ Best target vector score found so far """
         return self._best_score
 
     @property
     def best_atoms(self) -> float:
-        """ Structure most closely matching target vector yet """
+        """ Structure most closely matching target vector so far """
         return self._best_atoms
 
 

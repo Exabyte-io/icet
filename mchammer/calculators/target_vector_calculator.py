@@ -8,12 +8,11 @@ import numpy as np
 
 class TargetVectorCalculator(BaseCalculator):
     """
-    A ``TargetVectorCalculator`` enables evaluationg of similarity between
-    a structure and a target cluster vector. Such a comparison can
-    be carried out in many ways, and this implementation follows the
-    measure proposed by A. van de Walle et al. in Calphad **42**,
-    13-18 (2013) [WalTiwJon13]_. Specifically, the objective function
-    :math:`Q` is calculated as
+    A ``TargetVectorCalculator`` enables evaluation of the similarity between
+    a structure and a target cluster vector. Such a comparison can be carried
+    out in many ways, and this implementation follows the measure proposed by
+    van de Walle *et al.* in Calphad **42**, 13 (2013) [WalTiwJon13]_.
+    Specifically, the objective function :math:`Q` is calculated as
 
     .. math::
         Q = - \\omega L + \\sum_{\\alpha}
@@ -29,7 +28,7 @@ class TargetVectorCalculator(BaseCalculator):
     Parameters
     ----------
     atoms
-        structure for which to set up the calculator
+        structure for which to set up calculator
     cluster_space
         cluster space from which to build calculator
     target_vector
