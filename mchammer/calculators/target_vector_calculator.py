@@ -94,9 +94,9 @@ class TargetVectorCalculator(BaseCalculator):
         self.atoms.set_atomic_numbers(occupations)
         cv = self.cluster_space.get_cluster_vector(self.atoms)
         return compare_cluster_vectors(cv, self.target_vector,
-                                        self.orbit_data,
-                                        optimality_weight=self.optimality_weight,
-                                        tol=self.optimality_tol)
+                                       self.orbit_data,
+                                       optimality_weight=self.optimality_weight,
+                                       tol=self.optimality_tol)
 
     def calculate_local_contribution(self):
         raise NotImplementedError()
@@ -121,7 +121,7 @@ def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
     """
     Calculate a quantity that measures similarity between two cluster
     vecors.
-    
+
     Parameters
     ----------
     cv_1

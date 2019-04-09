@@ -3,7 +3,7 @@ from mchammer.calculators.target_vector_calculator import TargetVectorCalculator
 from .canonical_ensemble import CanonicalEnsemble
 from .canonical_annealing import _cooling_exponential
 import numpy as np
-from typing import Union, List
+from typing import List
 import random
 from icet.io.logging import logger
 
@@ -163,7 +163,6 @@ class TargetClusterVectorAnnealing():
         else:
             p = np.exp(-potential_diff / self.temperature)
             return p > random.random()
-
 
     @property
     def temperature(self) -> float:
