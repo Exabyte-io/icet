@@ -179,8 +179,12 @@ class TargetClusterVectorAnnealing():
         """
         if potential_diff < 0:
             return True
+        elif abs(self.temperature) < 1e-6:  # temperature is numerically zero
+            return False
         else:
-            return np.exp(-potential_diff / self.temperature) > random.random()
+            p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
+            return p > self._next_random_number()
+
 
     @property
     def temperature(self) -> float:
