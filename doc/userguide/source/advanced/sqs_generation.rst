@@ -67,16 +67,25 @@ cluster vectors are compared. It is usually sufficient to use cutoffs such
 that the length of the cluster vector is on the order of 10. Target
 concentrations are specified via a dictionary, which should contain all the
 involved elements and their fractions of the total number of atoms.
+Internally, the function carries out simulated annealing with Monte Carlo
+trial swaps and can be expected to run for a minute or so.
 
 .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
    :start-after: # Generate SQS for binary fcc
+   :end-before: # Unse enumeration
+
+In this simple case, in which the target structure size is very small, it is
+more efficient to generate the best SQS cell by exhaustive enumeration of all
+binary :term:`FCC` structures having up to 8 atoms in the supercell:
+
+.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+   :start-after: # Use enumeration
    :end-before: # Generate SQS for
 
-Note that in this simple case, in which the target structure size is very
-small, it would have been possible and probably faster to find the best
-structure by exhaustive enumeration of all binary :term:`FCC` structure having
-up to 8 atoms in the supercell (using :func:`enumerate_structures
-<icet.tools.structure_enumeration.enumerate_structures>`).
+Generation of SQS cells by enumeration is preferable over the Monte Carlo
+approach if the size of the system permits, because with enumeration there is
+no risk that the optimal SQS cell is missed.
+
 
 Generate SQS cells for a system with sublattices
 ------------------------------------------------

@@ -7,6 +7,7 @@ from ase import Atom
 from ase.build import bulk
 from icet import ClusterSpace
 from icet.tools.structure_generation import (generate_sqs,
+                                             generate_sqs_by_enumeration,
                                              generate_target_structure)
 
 from icet.io.logging import set_log_config
@@ -19,6 +20,12 @@ target_concentrations = {'Au': 0.5, 'Pd': 0.5}
 sqs = generate_sqs(cluster_space=cs,
                    max_size=8,
                    target_concentrations=target_concentrations)
+print('Cluster vector of generated structure:', cs.get_cluster_vector(sqs))
+
+# Use enumeration to generate SQS for binary fcc, 50 % concentration
+sqs = generate_sqs_by_enumeration(cluster_space=cs,
+                                  max_size=8,
+                                  target_concentrations=target_concentrations)
 print('Cluster vector of generated structure:', cs.get_cluster_vector(sqs))
 
 # Generate SQS for a system with two sublattices,

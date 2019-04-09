@@ -146,8 +146,6 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         """Test generation of SQS structure"""
 
         target_conc = {'Au': 0.5, 'Pd': 0.5}
-
-        # This should be simple enough to always work
         structure = generate_sqs_by_enumeration(cluster_space=self.cs,
                                                 max_size=4,
                                                 target_concentrations=target_conc,
@@ -330,6 +328,33 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
         self.assertEqual(syms.count('Pd'), len(atoms) // 8)
         self.assertEqual(syms.count('H'), 3 * len(atoms) // 8)
         self.assertEqual(syms.count('V'), len(atoms) // 8)
+
+    def test_generate_sqs_by_enumeration(self):
+        """Test generation of SQS structure"""
+
+        target_conc = {'Cu': 1 / 8, 'Au': 2 / 8, 'Pd': 1 / 8,
+                       'H': 3 / 8, 'V': 1 / 8}
+        structure = generate_sqs_by_enumeration(cluster_space=self.cs,
+                                                max_size=4,
+                                                include_smaller_cells=False,
+                                                target_concentrations=target_conc,
+                                                optimality_weight=1.0)
+        target_cv = [1.00000000e+00,  1.25000000e-01,  2.16506351e-01, -5.00000000e-01,
+                     -1.25000000e-01, -7.21687836e-02, -3.12500000e-02, -1.85037171e-17,
+                     -3.12500000e-02,  1.66666667e-01,  3.12500000e-02, -1.62379763e-01,
+                     -1.25000000e-01,  1.08253175e-01, -3.70074342e-17,  0.00000000e+00,
+                     -6.25000000e-02, -1.08253175e-01,  1.56250000e-02,  2.70632939e-02,
+                     4.68750000e-02,  2.50000000e-01, -9.25185854e-18,  1.80421959e-02,
+                     6.25000000e-02,  8.33333333e-02, -3.70074342e-17, -2.22044605e-16,
+                     -2.52590743e-01, -1.25000000e-01,  1.25000000e-01, -7.21687836e-02,
+                     -1.56250000e-02,  4.51054898e-02, -8.11898816e-02,  4.68750000e-02,
+                     5.20833333e-02,  1.80421959e-02, -1.56250000e-02, -1.35316469e-02,
+                     -1.56250000e-02, -4.05949408e-02,  0.00000000e+00, -6.25000000e-02,
+                     2.54426110e-17, -5.41265877e-02,  3.12500000e-02, -3.23815049e-17,
+                     -5.41265877e-02,  1.66666667e-01,  1.56250000e-01, -8.78926561e-17,
+                     -9.37500000e-02, -1.87500000e-01,  1.08253175e-01]
+        self.assertTrue(np.allclose(
+            self.cs.get_cluster_vector(structure), target_cv))
 
 
 if __name__ == '__main__':
