@@ -1,5 +1,7 @@
 from .cluster_expansion_calculator import ClusterExpansionCalculator
-from .target_vector_calculator import TargetVectorCalculator
+from .target_vector_calculator import (TargetVectorCalculator,
+                                       compare_cluster_vectors)
 
 __all__ = ['ClusterExpansionCalculator',
-           'TargetVectorCalculator']
+           'TargetVectorCalculator',
+           'compare_cluster_vectors']

@@ -7,7 +7,8 @@ from icet.tools.structure_generation import (_get_sqs_cluster_vector,
                                              _concentrations_fit_atoms,
                                              _decorate_atoms_randomly,
                                              generate_target_structure,
-                                             generate_sqs)
+                                             generate_sqs,
+                                             generate_sqs_by_enumeration)
 from icet import ClusterSpace
 from ase.build import bulk
 from ase import Atom
@@ -135,6 +136,22 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
                                  n_steps=500,
                                  random_seed=42,
                                  optimality_weight=0.0)
+
+        target_cv = [1., 0., -0.16666667, 0., 0., 0.,
+                     0., 0., 0., 0., 0., 0., 0.]
+        self.assertTrue(np.allclose(
+            self.cs.get_cluster_vector(structure), target_cv))
+
+    def test_generate_sqs_by_enumeration(self):
+        """Test generation of SQS structure"""
+
+        target_conc = {'Au': 0.5, 'Pd': 0.5}
+
+        # This should be simple enough to always work
+        structure = generate_sqs_by_enumeration(cluster_space=self.cs,
+                                                max_size=4,
+                                                target_concentrations=target_conc,
+                                                optimality_weight=0.0)
 
         target_cv = [1., 0., -0.16666667, 0., 0., 0.,
                      0., 0., 0., 0., 0., 0., 0.]

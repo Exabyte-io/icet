@@ -1,9 +1,10 @@
+from typing import List
+from collections import OrderedDict
+import numpy as np
 from ase import Atoms
 from icet import ClusterSpace
 from mchammer.calculators.base_calculator import BaseCalculator
-from typing import List
 from icet.tools.geometry import find_lattice_site_by_position
-import numpy as np
 
 
 class TargetVectorCalculator(BaseCalculator):
@@ -75,6 +76,8 @@ class TargetVectorCalculator(BaseCalculator):
             self.orbit_data = self.cluster_space.orbit_data
         else:
             self.optimality_weight = None
+            self.optimality_tol = None
+            self.orbit_data = None
 
         self._cluster_space = cluster_space
 
@@ -90,20 +93,10 @@ class TargetVectorCalculator(BaseCalculator):
         """
         self.atoms.set_atomic_numbers(occupations)
         cv = self.cluster_space.get_cluster_vector(self.atoms)
-        diff = abs(cv - self.target_vector)
-        score = sum(diff)
-        if self.optimality_weight:
-            longest_optimal_radius = 0
-            for orbit_index, d in enumerate(diff):
-                orbit = self.orbit_data[orbit_index]
-                if orbit['order'] != 2:
-                    continue
-                if d < self.optimality_tol:
-                    longest_optimal_radius = orbit['radius']
-                else:
-                    break
-                score -= self.optimality_weight * longest_optimal_radius
-        return score
+        return compare_cluster_vectors(cv, self.target_vector,
+                                        self.orbit_data,
+                                        optimality_weight=self.optimality_weight,
+                                        tol=self.optimality_tol)
 
     def calculate_local_contribution(self):
         raise NotImplementedError()
@@ -119,3 +112,42 @@ class TargetVectorCalculator(BaseCalculator):
             position=pos).index for pos in self.atoms.positions]
         allowed_species = [allowed_species_prim[i] for i in indices_in_prim]
         return allowed_species
+
+
+def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
+                            orbit_data: OrderedDict,
+                            optimality_weight: float = 1.0,
+                            tol: float = 1e-5) -> float:
+    """
+    Calculate a quantity that measures similarity between two cluster
+    vecors.
+    
+    Parameters
+    ----------
+    cv_1
+        cluster vector 1
+    cv_2
+        cluster vector 2
+    orbio_data
+        orbit data as obtained by ``ClusterSpace.orbit_data``
+    optimality_weight
+        quantity :math:`L` in [WalTiwJon13]_
+        (see :class:`mchammer.calculators.TargetVectorCalculator`)
+    tol
+        numerical tolerance for determining whether two elements are
+        exactly equal
+    """
+    diff = abs(cv_1 - cv_2)
+    score = sum(diff)
+    if optimality_weight:
+        longest_optimal_radius = 0
+        for orbit_index, d in enumerate(diff):
+            orbit = orbit_data[orbit_index]
+            if orbit['order'] != 2:
+                continue
+            if d < tol:
+                longest_optimal_radius = orbit['radius']
+            else:
+                break
+        score -= optimality_weight * longest_optimal_radius
+    return score

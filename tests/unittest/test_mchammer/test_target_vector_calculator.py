@@ -3,7 +3,8 @@ import unittest
 import numpy as np
 from ase.build import bulk
 from icet import ClusterSpace
-from mchammer.calculators import TargetVectorCalculator
+from mchammer.calculators import (TargetVectorCalculator,
+                                  compare_cluster_vectors)
 
 
 class TestTVCalculatorBinary(unittest.TestCase):
@@ -94,6 +95,32 @@ class TestTVCalculatorBinaryHCP(unittest.TestCase):
                 occupations.append(13)
         self.assertAlmostEqual(
             self.calculator.calculate_total(occupations), 7.0)
+
+    def test_compare_cluster_vectors(self):
+        """Test compare_cluster_vector function."""
+        orbit_data = self.cs.orbit_data
+        cv_1 = np.array(range(0, len(self.cs)))
+        cv_2 = cv_1
+        optimality_weight = 3.0
+        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+                                        optimality_weight=optimality_weight)
+        self.assertAlmostEqual(score, - 2.0 * optimality_weight)
+
+        orbit_data = self.cs.orbit_data
+        cv_1 = np.array(range(0, len(self.cs)))
+        cv_2 = cv_1
+        optimality_weight = None
+        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+                                        optimality_weight=optimality_weight)
+        self.assertAlmostEqual(score, 0)
+
+        orbit_data = self.cs.orbit_data
+        cv_1 = np.array(range(0, len(self.cs)))
+        cv_2 = cv_1 + 1.0
+        optimality_weight = 2.5
+        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+                                        optimality_weight=optimality_weight)
+        self.assertAlmostEqual(score, len(self.cs))
 
 
 class TestTVCalculatorTernary(unittest.TestCase):

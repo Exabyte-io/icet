@@ -3,8 +3,10 @@ import random
 from typing import List
 import numpy as np
 from mchammer.ensembles import TargetClusterVectorAnnealing
-from mchammer.calculators import TargetVectorCalculator
-from icet.tools import enumerate_supercells
+from mchammer.calculators import (TargetVectorCalculator,
+                                  compare_cluster_vectors)
+from icet.tools import (enumerate_structures,
+                        enumerate_supercells)
 from icet import ClusterSpace
 from ase import Atoms
 from ase.data import chemical_symbols as periodic_table
@@ -114,10 +116,9 @@ def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                  random_seed: int = None,
                  tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space`` and a ``target_cluster_vector``, generate
-    a special quasirandom structure (SQS), i.e., a structure that for a
-    given supercell size provides the best possible approximation to a
-    random alloy [ZunWeiFer90]_.
+    Given a ``cluster_space``, generate a special quasirandom structure (SQS),
+    i.e., a structure that for a given supercell size provides the best
+    possible approximation to a random alloy [ZunWeiFer90]_.
 
     In the present case, this means that the generated structure will have a
     cluster vector that as closely as possible matches the cluster
@@ -173,6 +174,82 @@ def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                                      optimality_weight=optimality_weight,
                                      random_seed=random_seed,
                                      tol=tol)
+
+
+def generate_sqs_by_enumeration(cluster_space: ClusterSpace, max_size: int,
+                                target_concentrations: dict,
+                                include_smaller_cells: bool = True,
+                                optimality_weight: float = 1.0,
+                                tol: float = 1e-5) -> Atoms:
+    """
+    Given a ``cluster_space``, generate a special quasirandom structure (SQS),
+    i.e., a structure that for a given supercell size provides the best
+    possible approximation to a random alloy [ZunWeiFer90]_.
+
+    In the present case, this means that the generated structure will have a
+    cluster vector that as closely as possible matches the cluster
+    vector of an infintely large randomly decorated supercell. Internally the
+    function uses a simulated annealing algorithm and the difference between
+    two cluster vectors is calculated with the measure suggested by A. van de
+    Walle et al. in Calphad **42**, 13-18 (2013) [WalTiwJon13]_ (for more
+    information, see :class:`mchammer.calculators.TargetVectorCalculator`).
+
+    This functions generates SQS cells by exhaustive enumeration, which means
+    that the generated SQS cell is guaranteed to be optimal with regard to the
+    specified measure and cell size.
+
+    Parameters
+    ----------
+    cluster_space
+        a cluster space defining the lattice to be decorated.
+    max_size
+        maximum supercell size
+    target_concentrations
+        concentration of each species in the target structure (for example
+        ``{'Ag': 0.5, 'Pd': 0.5}``
+
+        Concentrations are always expressed with respect to all atoms
+        in the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices,
+        a valid specification would thus be
+        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
+    include_smaller_cells
+        if True, search among all supercell sizes including ``max_size``,
+        else search only among those exactly matching ``max_size``
+    optimality_weight
+        controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`
+    tol
+        Numerical tolerance
+    """
+    _validate_concentrations(target_concentrations, cluster_space)
+    sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
+                                         target_concentrations=target_concentrations)
+    # Translate concentrations to the format required for concentration
+    # restricted enumeration
+    cr = {key: (value, value) for key, value in target_concentrations.items()}
+
+    orbit_data = cluster_space.orbit_data
+    best_score = 1e9
+
+    if include_smaller_cells:
+        sizes = range(1, max_size + 1)
+    else:
+        sizes = [max_size]
+
+    # Enumerate and calculate score for each structuer
+    for structure in enumerate_structures(cluster_space.primitive_structure,
+                                          sizes,
+                                          cluster_space.chemical_symbols,
+                                          concentration_restrictions=cr):
+        cv = cluster_space.get_cluster_vector(structure)
+        score = compare_cluster_vectors(cv, sqs_vector, orbit_data,
+                                        optimality_weight, tol)
+
+        if score < best_score:
+            best_score = score
+            best_structure = structure
+    return best_structure
 
 
 def _decorate_atoms_randomly(atoms: Atoms, cluster_space: ClusterSpace,
