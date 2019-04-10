@@ -6,7 +6,7 @@ import copy
 from itertools import product
 from string import ascii_uppercase
 import numpy as np
-
+from icet.tools.geometry import chemical_symbols_to_numbers
 
 class Sublattice:
     """
@@ -27,10 +27,15 @@ class Sublattice:
         self._chemical_symbols = chemical_symbols
         self._indices = indices
         self._symbol = symbol
+        self._numbers = chemical_symbols_to_numbers(chemical_symbols)
 
     @property
     def chemical_symbols(self):
         return copy.deepcopy(self._chemical_symbols)
+
+    @property
+    def atomic_numbers(self):
+        return copy.deepcopy(self._numbers)
 
     @property
     def indices(self):
@@ -132,6 +137,27 @@ class Sublattices:
             index of the sublattice
         """
         return self[index].indices
+
+    def get_allowed_symbols_on_site(self, index) -> List[str]:
+        """Returns the allowed symbols on the site.
+        
+        Parameters
+        -----------
+        index
+            lattice site index
+        """
+        return self[self._index_to_sublattice[index]].chemical_symbols
+
+    def get_allowed_numbers_on_site(self, index) -> List[str]:
+        """Returns the allowed symbols on the site.
+        
+        Parameters
+        -----------
+        index
+            lattice site index
+        """
+        return self[self._index_to_sublattice[index]].atomic_numbers
+
 
     @property
     def active_sublattices(self) -> List[Sublattice]:

@@ -229,9 +229,10 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         # species counts
         atoms = self.configuration.atoms
         unique, counts = np.unique(atoms.numbers, return_counts=True)
-        # TODO: avoid accessing a protected member of a client class
-        for atnum in self.configuration._allowed_species:
-            data['{}_count'.format(chemical_symbols[atnum])] = 0
+
+        for sl in self.configuration.sublattices:
+            for symbol in sl.chemical_symbols:
+                data['{}_count'.format(symbol)] = 0
         for atnum, count in zip(unique, counts):
             data['{}_count'.format(chemical_symbols[atnum])] = count
 

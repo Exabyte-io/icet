@@ -33,20 +33,7 @@ class ConfigurationManager(object):
         self._occupations = self._atoms.numbers
         self._sublattices = sublattices
 
-        self._allowed_species = self._set_up_allowed_species()
         self._sites_by_species = self._get_sites_by_species()
-
-    def _set_up_allowed_species(self) -> List[int]:
-        """ Returns a list of allowed species. """
-        allowed_species = set()
-        self._occupation_constraints = [[]]*len(self._occupations)
-        for sl in self._sublattices:
-            for index in sl.indices:
-                self._occupation_constraints[index] = chemical_symbols_to_numbers(
-                    sl.chemical_symbols)
-            for atomic_number in chemical_symbols_to_numbers(sl.chemical_symbols):
-                allowed_species.add(atomic_number)
-        return list(allowed_species)
 
     def _get_sites_by_species(self) -> List[Dict[int, List[int]]]:
         """Returns the sites that are occupied for each species.  Each
@@ -57,7 +44,7 @@ class ConfigurationManager(object):
         sites_by_species = []
         for sl in self._sublattices:
             species_dict = {key: []
-                            for key in chemical_symbols_to_numbers(sl.chemical_symbols)}
+                            for key in sl.atomic_numbers}
             for site in sl.indices:
                 species_dict[self._occupations[site]].append(site)
             sites_by_species.append(species_dict)
@@ -101,7 +88,7 @@ class ConfigurationManager(object):
 
         # pick the second site
         possible_swap_species = \
-            set(self._occupation_constraints[site1]) - \
+            set(self._sublattices.get_allowed_numbers_on_site(site1)) - \
             set([self._occupations[site1]])
         possible_swap_sites = []
         for Z in possible_swap_species:
@@ -132,7 +119,7 @@ class ConfigurationManager(object):
 
         site = random.choice(self._sublattices[sublattice].indices)
         species = random.choice(list(
-            set(chemical_symbols_to_numbers(self._sublattices[sublattice].chemical_symbols)) -
+            set(self._sublattices[sublattice].atomic_numbers) -
             set([self._occupations[site]])))
         return site, species
 

@@ -153,13 +153,15 @@ class VCSGCEnsemble(BaseEnsemble):
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        if len(self.configuration._allowed_species) > 2:
+        if any([len(sl.chemical_symbols) >2 for sl in self.configuration.sublattices]):        
             raise NotImplementedError('VCSGCEnsemble does not yet support '
                                       'cluster spaces with more than two '
                                       'species.')
 
-        if set(self.configuration._allowed_species) != set(self.phis.keys()):
-            raise ValueError('phis were not set for all species')
+        for sl in self.configuration.sublattices.active_sublattices:
+            for number in sl.atomic_numbers:
+                if number not in self.phis.keys():        
+                    raise ValueError('phis were not set for {}'.format(chemical_symbols[number]))
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
@@ -266,9 +268,10 @@ class VCSGCEnsemble(BaseEnsemble):
         # species counts
         atoms = self.configuration.atoms
         unique, counts = np.unique(atoms.numbers, return_counts=True)
-        # TODO: avoid accessing a protected member of a client class
-        for atnum in self.configuration._allowed_species:
-            data['{}_count'.format(chemical_symbols[atnum])] = 0
+
+        for sl in self.configuration.sublattices:
+            for symbol in sl.chemical_symbols:
+                data['{}_count'.format(symbol)] = 0        
         for atnum, count in zip(unique, counts):
             data['{}_count'.format(chemical_symbols[atnum])] = count
 
