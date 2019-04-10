@@ -20,22 +20,12 @@ class ConfigurationManager(object):
     ----------
     atoms : ASE Atoms
         configuration to be handled
-    strict_constraints : list of list of int
-        strictest form of the allowed occupations
-    sites_by_sublattice : list of list of int
-        sites (inner list) that belong to each sublattice (outer list)
-    occupation_constraints : list of list of int
-        optional occupation constraint to enfore a more stricter species
-        occupation than what is allowed from the Calculator
+    sublattices : Sublattices
+        sublattices class used to define allowed occupations and so on
 
     Todo
     ----
-    * occupation constraint not implemented
-    * add check that all sites in the different sublattices all have the same
-      occupation constraint.
     * revise docstrings
-    * clarify "occupation_constraints" vs "strict_constraints";
-      the OccupationConstraints class should help here
     """
 
     def __init__(self, atoms: Atoms, sublattices: Sublattices) -> None:
@@ -79,8 +69,8 @@ class ConfigurationManager(object):
         return self._occupations.copy()
 
     @property
-    def sublattices(self) -> List[List[int]]:
-        """ sites belonging to each sublattice of the configuration (copy) """
+    def sublattices(self) -> Sublattices:
+        """sublattices of the configuration"""
         return self._sublattices
 
     @property
@@ -101,13 +91,6 @@ class ConfigurationManager(object):
         ----------
         sublattice
             sublattice from which to pick sites
-
-        Todo
-        ----
-        * profile this method as it is called frequently
-        * look for speed up opportunities
-        * The current implementation assumes all sites in this sublattice to
-          have the same allowed occupations.
         """
         # pick the first site
         try:
