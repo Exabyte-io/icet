@@ -8,7 +8,6 @@ from typing import Dict, List, Union, BinaryIO, TextIO
 import numpy as np
 
 from ase import Atoms
-from ase.data import chemical_symbols
 from collections import OrderedDict
 
 from ..calculators.base_calculator import BaseCalculator
@@ -79,7 +78,7 @@ class BaseEnsemble(ABC):
                     msg += ' of the calculator. Site {} with occupation {} not allowed on'
                     msg += ' sublattice {}'.format(i, symbols[i], sl.chemical_symbols)
                     raise ValueError(msg)
-        #item for sublist in l for item in sublist
+        # item for sublist in l for item in sublist
         symbols_flat = [symbol for sl in sublattices for symbol in sl.chemical_symbols]
         if len(symbols_flat) != len(set(symbols_flat)):
             bad_symbols = set(

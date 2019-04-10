@@ -122,12 +122,14 @@ class CanonicalAnnealing(BaseEnsemble):
         if isinstance(cooling_function, str):
             available = sorted(available_cooling_functions.keys())
             if cooling_function not in available:
-                raise ValueError('Select from the available cooling_functions {}'.format(available))
+                raise ValueError(
+                    'Select from the available cooling_functions {}'.format(available))
             self._cooling_function = available_cooling_functions[cooling_function]
         elif callable(cooling_function):
             self._cooling_function = cooling_function
         else:
-            raise TypeError('cooling_function must be either str or a function')
+            raise TypeError(
+                'cooling_function must be either str or a function')
 
     @property
     def temperature(self) -> float:
@@ -189,7 +191,8 @@ class CanonicalAnnealing(BaseEnsemble):
         elif abs(self.temperature) < 1e-6:  # temperature is numerically zero
             return False
         else:
-            p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
+            p = np.exp(-potential_diff /
+                       (self.boltzmann_constant * self.temperature))
             return p > self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
@@ -218,7 +221,8 @@ class CanonicalAnnealing(BaseEnsemble):
             probability_distribution.append(p)
         norm = sum(probability_distribution)
         probability_distribution = [p/norm for p in probability_distribution]
-        pick = np.random.choice(range(0, len(self._sublattices.active_sublattices)), p=probability_distribution)
+        pick = np.random.choice(range(0, len(self._sublattices.active_sublattices)),
+                                p=probability_distribution)
         return pick
 
 

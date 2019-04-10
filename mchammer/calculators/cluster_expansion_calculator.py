@@ -4,7 +4,6 @@ from icet import ClusterExpansion
 from mchammer.calculators.base_calculator import BaseCalculator
 from typing import Union, List
 from icet import Structure
-from icet.tools.geometry import find_lattice_site_by_position
 import numpy as np
 
 
