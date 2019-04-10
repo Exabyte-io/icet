@@ -110,7 +110,7 @@ class TargetVectorCalculator(BaseCalculator):
 
     @property
     def occupation_constraints(self) -> List[List[int]]:
-        """Map from site to allowed species."""
+        """ map from site to allowed species """
         allowed_species_prim = \
             self.cluster_space.chemical_symbols
         primitive_structure = self.cluster_space.primitive_structure
