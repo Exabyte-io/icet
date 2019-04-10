@@ -249,8 +249,10 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace, max_size: int,
                                           cluster_space.chemical_symbols,
                                           concentration_restrictions=cr):
         cv = cluster_space.get_cluster_vector(structure)
-        score = compare_cluster_vectors(cv, sqs_vector, orbit_data,
-                                        optimality_weight, tol)
+        score = compare_cluster_vectors(cv_1=cv, cv_2=sqs_vector,
+                                        orbit_data=orbit_data,
+                                        optimality_weight=optimality_weight,
+                                        tol=tol)
 
         if score < best_score:
             best_score = score
