@@ -43,7 +43,8 @@ class ConfigurationManager(object):
         self._occupation_constraints = [[]]*len(self._occupations)
         for sl in self._sublattices:
             for index in sl.indices:
-                self._occupation_constraints[index] = chemical_symbols_to_numbers(sl.chemical_symbols)
+                self._occupation_constraints[index] = chemical_symbols_to_numbers(
+                    sl.chemical_symbols)
             for atomic_number in chemical_symbols_to_numbers(sl.chemical_symbols):
                 allowed_species.add(atomic_number)
         return list(allowed_species)
@@ -112,7 +113,10 @@ class ConfigurationManager(object):
         try:
             site2 = random.choice(possible_swap_sites)
         except IndexError:
-            raise SwapNotPossibleError
+            raise SwapNotPossibleError(
+                'Cannot swap on sublattice {} since it is full of {} species .'
+                .format(sublattice,
+                        atomic_number_to_chemical_symbol([self._occupations[site1]])[0]))
 
         return ([site1, site2],
                 [self._occupations[site2], self._occupations[site1]])
@@ -149,7 +153,7 @@ class ConfigurationManager(object):
 
         # Update _sites_by_sublattice
         for site, new_Z in zip(sites, species):
-            if new_Z <=0 or new_Z >118:
+            if new_Z <= 0 or new_Z > 118:
                 raise ValueError('Invalid new species {} on site {}'
                                  .format(new_Z, site))
             old_Z = self._occupations[site]

@@ -91,6 +91,8 @@ class TestConfigurationManager(unittest.TestCase):
 
         with self.assertRaises(SwapNotPossibleError) as context:
             indices, elements = self.cm.get_swapped_state(0)
+        self.assertTrue("Cannot swap on sublattice" in str(context.exception))
+        self.assertTrue("since it is full of" in str(context.exception))
 
     def test_get_flip_index(self):
         """Tests the getting flip indices method."""
