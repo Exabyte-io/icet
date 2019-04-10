@@ -1,7 +1,7 @@
 import unittest
 from mchammer.configuration_manager import ConfigurationManager
 from ase.build import bulk
-
+from icet import ClusterSpace
 from mchammer.configuration_manager import SwapNotPossibleError
 
 
@@ -14,8 +14,11 @@ class TestConfigurationManager(unittest.TestCase):
         self.atoms[1].symbol = 'Ag'
         self.atoms = self.atoms.repeat(3)
         self.constraints = [[13, 47] for _ in range(len(self.atoms))]
+        cs = ClusterSpace(self.atoms, cutoffs=[
+                          0], chemical_symbols=['Ag', 'Al'])
+
         self.strict_constraints = self.constraints
-        self.sublattices = [list(range(len(self.atoms)))]
+        self.sublattices = cs.get_sublattices(self.atoms)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -23,50 +26,11 @@ class TestConfigurationManager(unittest.TestCase):
 
     def setUp(self):
         self.cm = ConfigurationManager(
-            self.atoms, self.strict_constraints, self.sublattices,
-            self.constraints)
+            self.atoms, self.sublattices)
 
     def test_type(self):
         """Tests cm type."""
         self.assertIsInstance(self.cm, ConfigurationManager)
-
-    def test_init_alternative_constructors(self):
-        """Tests alternative initialization."""
-        cm = ConfigurationManager(
-            self.atoms, self.strict_constraints, self.sublattices, None)
-        self.assertTrue(cm.occupation_constraints == self.strict_constraints)
-
-        constraints = [[13, 47] if i < 5 else [13]
-                       for i in range(len(self.atoms))]
-        cm = ConfigurationManager(
-            self.atoms, constraints, self.sublattices, None)
-        self.assertTrue(cm.occupation_constraints == constraints)
-
-    def test_check_occupation_constraint(self):
-        """Tests the check occupation constraint method."""
-
-        # Check that equal constraint is allowed
-        constraint = [[1, 2], [1, 2], [1], [2]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        # Check that a more accepting constraint throws ValueError
-        constraint = [[1, 2], [1, 2], [1], [2, 3]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        with self.assertRaises(Exception) as context:
-            self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        self.assertTrue('User defined occupation_constraints must be stricter'
-                        in str(context.exception))
-
-        # Check that the length of the constraints throw a value error
-        constraint = [[1, 2], [1, 2], [1]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        with self.assertRaises(Exception) as context:
-            self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        self.assertTrue('strict_occupations and occupation_constraints'
-                        ' must be equal length' in str(context.exception))
 
     def test_property_atoms(self):
         """Tests atoms property."""
@@ -92,46 +56,19 @@ class TestConfigurationManager(unittest.TestCase):
         occupations[0] = occupations[0] + 1
         self.assertNotEqual(list(occupations), list(self.cm.occupations))
 
-    def test_property_occupation_constraints(self):
-        """
-        Tests that the occupation_constraints property returns expected result
-        and that it cannot be modified.
-        """
-
-        self.assertListEqual(list(self.cm.occupation_constraints),
-                             list(self.constraints))
-
-        # Tests that the property can not be set.
-        with self.assertRaises(AttributeError) as context:
-            self.cm.occupation_constraints = []
-        self.assertTrue("can't set attribute" in str(context.exception))
-
-        # Tests that the property can't be set by modifying the
-        # returned occupations
-        occupation_constraints = self.cm.occupation_constraints
-        occupation_constraints[0][0] = occupation_constraints[0][0] + 1
-        self.assertNotEqual(list(occupation_constraints),
-                            list(self.cm.occupation_constraints))
-
     def test_property_sublattices(self):
         """
         Tests that the occupation_constraints property returns expected result
         and that it cannot be modified.
         """
 
-        self.assertListEqual(list(self.cm.sublattices),
-                             list(self.sublattices))
+        self.assertEqual(self.cm.sublattices,
+                         self.sublattices)
 
         # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
             self.cm.sublattices = []
         self.assertTrue("can't set attribute" in str(context.exception))
-
-        # Tests that the property can't be set by modifying the
-        # returned occupations
-        sublattices = self.cm.sublattices
-        sublattices[0][0] = sublattices[0][0] + 1
-        self.assertNotEqual(list(sublattices), list(self.cm.sublattices))
 
     def test_get_swapped_state(self):
         """Tests the getting swap indices method."""
@@ -154,17 +91,6 @@ class TestConfigurationManager(unittest.TestCase):
 
         with self.assertRaises(SwapNotPossibleError) as context:
             indices, elements = self.cm.get_swapped_state(0)
-
-        # try swapping in an empty sublattice
-        sublattices = [indices, []]
-
-        cm_two_sublattices = ConfigurationManager(
-            self.atoms, self.strict_constraints, sublattices,
-            self.constraints)
-        with self.assertRaises(SwapNotPossibleError) as context:
-            indices, elements = cm_two_sublattices.get_swapped_state(1)
-
-        self.assertTrue("Sublattice 1 is empty" in str(context.exception))
 
     def test_get_flip_index(self):
         """Tests the getting flip indices method."""
@@ -190,7 +116,7 @@ class TestConfigurationManager(unittest.TestCase):
 
         # test that correct exceptions are raised
         with self.assertRaises(ValueError) as context:
-            self.cm.update_occupations([-1], [0])
+            self.cm.update_occupations([-1], [1])
         self.assertTrue('Site -1 is not present' in str(context.exception))
         with self.assertRaises(ValueError) as context:
             self.cm.update_occupations([0], [-1])

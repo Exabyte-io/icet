@@ -73,38 +73,6 @@ class ConfigurationManager(object):
             sites_by_species.append(species_dict)
         return sites_by_species
 
-    def _check_occupation_constraint(self,
-                                     sublattices: Sublattices,
-                                     occupation_constraints: List[List[int]]):
-        """Checks that the user defined occupation constraints are stricter or
-        as strict as the strict constraints.
-
-        Parameters
-        ----------
-        strict_constraints
-            additional (stricter) constraints specified for this
-            configuration manager instance
-        occupation_constraints
-            "default" constraints
-
-        Todo
-        ----
-        This method should be revised and rewritten once the
-        OccupationConstraints class is available. At least some of
-        this functionality should probably be moved into said class.
-        """
-
-        if not len(strict_constraints) == len(occupation_constraints):
-            raise ValueError(
-                'strict_occupations and occupation_constraints'
-                ' must be equal length')
-
-        for strict_occ, occ in zip(strict_constraints, occupation_constraints):
-            if not set(occ).issubset(strict_occ):
-                raise ValueError(
-                    'User defined occupation_constraints must be '
-                    'stricter or as strict as strict_occupations constraints.')
-
     @property
     def occupations(self) -> List[int]:
         """ occupation vector of the configuration (copy) """
@@ -198,6 +166,9 @@ class ConfigurationManager(object):
 
         # Update _sites_by_sublattice
         for site, new_Z in zip(sites, species):
+            if new_Z <=0 or new_Z >118:
+                raise ValueError('Invalid new species {} on site {}'
+                                 .format(new_Z, site))
             old_Z = self._occupations[site]
             for isub, sl in enumerate(self.sublattices):
                 if site in sl.indices and \

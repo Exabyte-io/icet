@@ -134,15 +134,19 @@ class ClusterSpace(_ClusterSpace):
             raise TypeError("chemical_symbols must be List[str] or List[List[str]], not {}".format(
                 type(self._input_chemical_symbols)))
         elif len(self._input_chemical_symbols) != len(self._input_atoms):
-            raise ValueError('chemical_symbols must have same length as atoms')
+            msg = 'chemical_symbols must have same length as atoms. '
+            msg += 'len(chemical_symbols = {}, len(atoms)= {}'.format(
+                len(self._input_chemical_symbols), len(self._input_atoms))
+            raise ValueError(msg)
         else:
             chemical_symbols = copy.deepcopy(self._input_chemical_symbols)
 
-        for symbols in chemical_symbols:
+        for i, symbols in enumerate(chemical_symbols):
             if len(symbols) != len(set(symbols)):
                 duplicates = [s for s in symbols if symbols.count(s) > 1]
                 raise ValueError(
-                    'Found duplicate symbols {}  on sublattice'.format(duplicates))
+                    'Found duplicates of allowed chemical symbols on site {}.'
+                    ' allowed species on  site {}= {}'.format(i, i, symbols))
 
         if len([tuple(sorted(s)) for s in chemical_symbols if len(s) > 1]) == 0:
             raise ValueError('No active sites found')
@@ -163,8 +167,8 @@ class ClusterSpace(_ClusterSpace):
         return ', '.join(nice_str)
 
     def _get_string_representation(self,
-                                   print_threshold: int = None,
-                                   print_minimum: int = 10) -> str:
+                                   print_threshold: int=None,
+                                   print_minimum: int=10) -> str:
         """
         String representation of the cluster space that provides an overview of
         the orbits (order, radius, multiplicity etc) that constitute the space.
@@ -242,8 +246,8 @@ class ClusterSpace(_ClusterSpace):
         return self._get_string_representation(print_threshold=50)
 
     def print_overview(self,
-                       print_threshold: int = None,
-                       print_minimum: int = 10) -> None:
+                       print_threshold: int=None,
+                       print_minimum: int=10) -> None:
         """
         Print an overview of the cluster space in terms of the orbits (order,
         radius, multiplicity etc).
@@ -340,7 +344,8 @@ class ClusterSpace(_ClusterSpace):
             raise TypeError('input structure must be an ASE Atoms object')
 
         try:
-            cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
+            cv = _ClusterSpace.get_cluster_vector(
+                self, Structure.from_atoms(atoms))
         except Exception as e:
             self.assert_structure_compatability(atoms)
             raise(e)
@@ -423,10 +428,11 @@ class ClusterSpace(_ClusterSpace):
         structure
             structure the sublattices are based on
         """
-        sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
+        sl = Sublattices(self.chemical_symbols,
+                         self.primitive_structure, structure)
         return sl
 
-    def assert_structure_compatability(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
+    def assert_structure_compatability(self, structure: Atoms, vol_tol: float=1e-5) -> None:
         """ Raises if structure is not compatible with ClusterSpace.
 
         TODO: Add check for if structure is relaxed
@@ -527,7 +533,7 @@ class ClusterSpace(_ClusterSpace):
 
 
 def get_singlet_info(atoms: Atoms,
-                     return_cluster_space: bool = False):
+                     return_cluster_space: bool=False):
     """
     Retrieves information concerning the singlets in the input structure.
 
@@ -579,7 +585,7 @@ def get_singlet_info(atoms: Atoms,
 
 
 def get_singlet_configuration(atoms: Atoms,
-                              to_primitive: bool = False) -> Atoms:
+                              to_primitive: bool=False) -> Atoms:
     """
     Returns the atomic configuration decorated with a different species for
     each Wyckoff site. This is useful for visualization and analysis.
@@ -628,7 +634,7 @@ def get_singlet_configuration(atoms: Atoms,
     return singlet_configuration
 
 
-def view_singlets(atoms: Atoms, to_primitive: bool = False):
+def view_singlets(atoms: Atoms, to_primitive: bool=False):
     """
     Visualize singlets in a structure using the ASE graphical user interface.
 
