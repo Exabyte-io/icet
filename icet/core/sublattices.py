@@ -8,6 +8,7 @@ from string import ascii_uppercase
 import numpy as np
 from icet.tools.geometry import chemical_symbols_to_numbers
 
+
 class Sublattice:
     """
     This class stores and provides information about a specific
@@ -76,13 +77,15 @@ class Sublattices:
         self._allowed_species = active_lattices + inactive_lattices
 
         n = int(np.sqrt(len(self._allowed_species))) + 1
-        symbols = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
+        symbols = [''.join(p) for r in range(1, n+1)
+                   for p in product(ascii_uppercase, repeat=r)]
 
         cpp_prim_structure = Structure.from_atoms(primitive_structure)
         self._sublattices = []
         sublattice_to_indices = [[] for _ in range(len(self._allowed_species))]
         for index, position in enumerate(structure.get_positions()):
-            lattice_site = cpp_prim_structure.find_lattice_site_by_position(position)
+            lattice_site = cpp_prim_structure.find_lattice_site_by_position(
+                position)
 
             # Get allowed species on this site
             species = allowed_species[lattice_site.index]
@@ -93,7 +96,8 @@ class Sublattices:
             sublattice_to_indices[sublattice].append(index)
 
         for symbol, species, indices in zip(symbols, self._allowed_species, sublattice_to_indices):
-            sublattice = Sublattice(chemical_symbols=species, indices=indices, symbol=symbol)
+            sublattice = Sublattice(
+                chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
         # Map lattice index to sublattice index
@@ -140,7 +144,7 @@ class Sublattices:
 
     def get_allowed_symbols_on_site(self, index) -> List[str]:
         """Returns the allowed symbols on the site.
-        
+
         Parameters
         -----------
         index
@@ -150,14 +154,13 @@ class Sublattices:
 
     def get_allowed_numbers_on_site(self, index) -> List[str]:
         """Returns the allowed symbols on the site.
-        
+
         Parameters
         -----------
         index
             lattice site index
         """
         return self[self._index_to_sublattice[index]].atomic_numbers
-
 
     @property
     def active_sublattices(self) -> List[Sublattice]:

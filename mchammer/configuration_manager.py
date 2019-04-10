@@ -3,7 +3,7 @@ from numpy import array
 from typing import Dict, List, Tuple
 from ase import Atoms
 from icet.core.sublattices import Sublattices
-from icet.tools.geometry import chemical_symbols_to_numbers, atomic_number_to_chemical_symbol
+from icet.tools.geometry import atomic_number_to_chemical_symbol
 
 
 class SwapNotPossibleError(Exception):
