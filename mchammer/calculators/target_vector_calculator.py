@@ -123,7 +123,7 @@ class TargetVectorCalculator(BaseCalculator):
 
 def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
                             orbit_data: OrderedDict,
-                            weights: List[float]=None,
+                            weights: List[float] = None,
                             optimality_weight: float = 1.0,
                             tol: float = 1e-5) -> float:
     """
