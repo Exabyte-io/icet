@@ -60,15 +60,13 @@ class TargetClusterVectorAnnealing():
 
         # Initialize an ensemble for each supercell
         sub_ensembles = []
-        ensemble_id = 0
-        for supercell, calculator in zip(atoms, calculators):
-            ensemble_id += 1
+        for ens_id, (supercell, calculator) in enumerate(zip(atoms, calculators)):
             sub_ensembles.append(CanonicalEnsemble(atoms=supercell,
                                                    calculator=calculator,
                                                    random_seed=random.randint(
                                                        0, 1e16),
                                                    user_tag='ensemble_{}'.format(
-                                                       ensemble_id),
+                                                       ens_id),
                                                    temperature=T_start,
                                                    data_container=None))
         self._sub_ensembles = sub_ensembles
@@ -81,7 +79,7 @@ class TargetClusterVectorAnnealing():
         self._T_stop = T_stop
         self._total_trials = 0
         self._accepted_trials = 0
-        self._n_steps = 1000
+        self._n_steps = 42
 
     def generate_structure(self, number_of_trial_steps: int = None) -> Atoms:
         """
@@ -91,7 +89,7 @@ class TargetClusterVectorAnnealing():
         ----------
         number_of_trial_steps
             Total number of trial steps to perform. If None,
-            run (on average) 1000 steps per supercell
+            run (on average) 3000 steps per supercell
         """
         if number_of_trial_steps is None:
             self._n_steps = 3000 * len(self._sub_ensembles)
@@ -122,7 +120,7 @@ class TargetClusterVectorAnnealing():
         # Choose a supercell
         ensemble = random.choice(self._sub_ensembles)
 
-        # Choose a site and flip
+        # Choose two sites and swap
         sublattice_index = ensemble.get_random_sublattice_index()
         sites, species = ensemble.configuration.get_swapped_state(
             sublattice_index)
@@ -138,8 +136,8 @@ class TargetClusterVectorAnnealing():
             self._accepted_trials += 1
 
             # Since we are looking for the best structures we want to
-            # keep track of the best one we have found as yet (the current
-            # one may have a worse score)
+            # keep track of the best one we have found as yet (the
+            # current one may have a worse score)
             if self._current_score < self._best_score:
                 self._best_atoms = ensemble.atoms
                 self._best_score = self._current_score

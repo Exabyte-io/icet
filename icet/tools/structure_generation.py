@@ -28,9 +28,9 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
     to a certain size.
 
     Internally the function uses a simulated annealing algorithm and the
-    difference between two cluster vectors is calculated with the measure
-    suggested by A. van de Walle et al. in Calphad **42**, 13-18 (2013)
-    [WalTiwJon13]_ (for more information, see
+    difference between two cluster vectors is calculated with the
+    measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
+    (2013) [WalTiwJon13]_ (for more information, see
     :class:`mchammer.calculators.TargetVectorCalculator`).
 
     Parameters
@@ -40,20 +40,21 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
     max_size
         maximum supercell size
     target_concentrations
-        concentration of each species in the target structure (for example
-        ``{'Ag': 0.5, 'Pd': 0.5}``
+        concentration of each species in the target structure (for
+        example ``{'Ag': 0.5, 'Pd': 0.5}``
 
-        Concentrations are always expressed with respect to all atoms
-        in the supercell, which implies that the sum of all concentrations
-        should always be 1. In the case of multiple sublattices,
-        a valid specification would thus be
-        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
+        Concentrations are always expressed with respect to all atoms in
+        the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices, a valid
+        specification would thus be ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
+        'V': 0.4}``.
     target_cluster_vector
-        cluster vector that the generated structure should match as closely
-        as possible
+        cluster vector that the generated structure should match as
+        closely as possible
     include_smaller_cells
-        if True, search among all supercell sizes including ``max_size``,
-        else search only among those exactly matching ``max_size``
+        if True, search among all supercell sizes including
+        ``max_size``, else search only among those exactly matching
+        ``max_size``
     T_start
         artificial temperature at which the simulated annealing starts
     T_stop
@@ -80,10 +81,11 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
 
     for size in sizes:
         # For efficiency, make a first check that the current size is
-        # commensurate with all concentrations (example: {'Au': 0.5, 'Pd':
-        # 0.5} would not be commensurate with a supercell with 3 atoms). This
-        # step does *not* ensure that the concentrations are commensurate with
-        # all sublattices (that is checked internally later on).
+        # commensurate with all concentrations (example: {'Au': 0.5,
+        # 'Pd': 0.5} would not be commensurate with a supercell with 3
+        # atoms). This step does *not* ensure that the concentrations
+        # are commensurate with all sublattices (that is checked
+        # internally later on).
         natoms = size * len(cluster_space.primitive_structure)
         if not _concentrations_fit_atom_count(natoms, target_concentrations):
             continue
@@ -116,17 +118,18 @@ def generate_sqs(cluster_space: ClusterSpace, max_size: int,
                  random_seed: int = None,
                  tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space``, generate a special quasirandom structure (SQS),
-    i.e., a structure that for a given supercell size provides the best
-    possible approximation to a random alloy [ZunWeiFer90]_.
+    Given a ``cluster_space``, generate a special quasirandom structure
+    (SQS), i.e., a structure that for a given supercell size provides
+    the best possible approximation to a random alloy [ZunWeiFer90]_.
 
-    In the present case, this means that the generated structure will have a
-    cluster vector that as closely as possible matches the cluster
-    vector of an infintely large randomly decorated supercell. Internally the
-    function uses a simulated annealing algorithm and the difference between
-    two cluster vectors is calculated with the measure suggested by A. van de
-    Walle et al. in Calphad **42**, 13-18 (2013) [WalTiwJon13]_ (for more
-    information, see :class:`mchammer.calculators.TargetVectorCalculator`).
+    In the present case, this means that the generated structure will
+    have a cluster vector that as closely as possible matches the
+    cluster vector of an infintely large randomly decorated supercell.
+    Internally the function uses a simulated annealing algorithm and the
+    difference between two cluster vectors is calculated with the
+    measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
+    (2013) [WalTiwJon13]_ (for more information, see
+    :class:`mchammer.calculators.TargetVectorCalculator`).
 
     Parameters
     ----------
@@ -135,17 +138,18 @@ def generate_sqs(cluster_space: ClusterSpace, max_size: int,
     max_size
         maximum supercell size
     target_concentrations
-        concentration of each species in the target structure (for example
-        ``{'Ag': 0.5, 'Pd': 0.5}``
+        concentration of each species in the target structure (for
+        example ``{'Ag': 0.5, 'Pd': 0.5}``
 
-        Concentrations are always expressed with respect to all atoms
-        in the supercell, which implies that the sum of all concentrations
-        should always be 1. In the case of multiple sublattices,
-        a valid specification would thus be
-        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
+        Concentrations are always expressed with respect to all atoms in
+        the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices, a valid
+        specification would thus be ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
+        'V': 0.4}``.
     include_smaller_cells
-        if True, search among all supercell sizes including ``max_size``,
-        else search only among those exactly matching ``max_size``
+        if True, search among all supercell sizes including
+        ``max_size``, else search only among those exactly matching
+        ``max_size``
     T_start
         artificial temperature at which the simulated annealing starts
     T_stop
@@ -182,21 +186,22 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace, max_size: int,
                                 optimality_weight: float = 1.0,
                                 tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space``, generate a special quasirandom structure (SQS),
-    i.e., a structure that for a given supercell size provides the best
-    possible approximation to a random alloy [ZunWeiFer90]_.
+    Given a ``cluster_space``, generate a special quasirandom structure
+    (SQS), i.e., a structure that for a given supercell size provides
+    the best possible approximation to a random alloy [ZunWeiFer90]_.
 
-    In the present case, this means that the generated structure will have a
-    cluster vector that as closely as possible matches the cluster
-    vector of an infintely large randomly decorated supercell. Internally the
-    function uses a simulated annealing algorithm and the difference between
-    two cluster vectors is calculated with the measure suggested by A. van de
-    Walle et al. in Calphad **42**, 13-18 (2013) [WalTiwJon13]_ (for more
-    information, see :class:`mchammer.calculators.TargetVectorCalculator`).
+    In the present case, this means that the generated structure will
+    have a cluster vector that as closely as possible matches the
+    cluster vector of an infintely large randomly decorated supercell.
+    Internally the function uses a simulated annealing algorithm and the
+    difference between two cluster vectors is calculated with the
+    measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
+    (2013) [WalTiwJon13]_ (for more information, see
+    :class:`mchammer.calculators.TargetVectorCalculator`).
 
-    This functions generates SQS cells by exhaustive enumeration, which means
-    that the generated SQS cell is guaranteed to be optimal with regard to the
-    specified measure and cell size.
+    This functions generates SQS cells by exhaustive enumeration, which
+    means that the generated SQS cell is guaranteed to be optimal with
+    regard to the specified measure and cell size.
 
     Parameters
     ----------
@@ -205,17 +210,18 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace, max_size: int,
     max_size
         maximum supercell size
     target_concentrations
-        concentration of each species in the target structure (for example
-        ``{'Ag': 0.5, 'Pd': 0.5}``
+        concentration of each species in the target structure (for
+        example ``{'Ag': 0.5, 'Pd': 0.5}``
 
-        Concentrations are always expressed with respect to all atoms
-        in the supercell, which implies that the sum of all concentrations
-        should always be 1. In the case of multiple sublattices,
-        a valid specification would thus be
-        ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}``.
+        Concentrations are always expressed with respect to all atoms in
+        the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices, a valid
+        specification would thus be ``{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
+        'V': 0.4}``.
     include_smaller_cells
-        if True, search among all supercell sizes including ``max_size``,
-        else search only among those exactly matching ``max_size``
+        if True, search among all supercell sizes including
+        ``max_size``, else search only among those exactly matching
+        ``max_size``
     optimality_weight
         controls weighting :math:`L` of perfect correlations, see
         :class:`mchammer.calculators.TargetVectorCalculator`
@@ -263,16 +269,17 @@ def _decorate_atoms_randomly(atoms: Atoms, cluster_space: ClusterSpace,
     atoms
         Atoms object that will be decorated randomly
     cluster_space
-        cluster space (becuse it carries information about sublattices etc)
+        cluster space (becuse it carries information about sublattices
+        etc)
     target_concentrations
-        concentration of each species in the target structure (for example
-        `{'Ag': 0.5, 'Pd': 0.5}`
+        concentration of each species in the target structure (for
+        example `{'Ag': 0.5, 'Pd': 0.5}`
 
-        Concentrations are always expressed with respect to all atoms
-        in the supercell, which implies that the sum of all concentrations
-        should always be 1. In the case of multiple sublattices,
-        a valid specification would thus be
-        `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}`.
+        Concentrations are always expressed with respect to all atoms in
+        the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices, a valid
+        specification would thus be `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
+        'V': 0.4}`.
     """
     if not _concentrations_fit_atoms(atoms, cluster_space, target_concentrations):
         raise ValueError('Atoms object with {} atoms cannot accomodate '
@@ -410,23 +417,23 @@ def _concentrations_fit_atoms(atoms: Atoms,
 def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
                             target_concentrations: dict) -> np.ndarray:
     """
-    Get the SQS vector for a certain cluster space and certain concentration.
-    Here SQS vector refers to the cluster vector of an infintely large supercell
-    with random decoration.
+    Get the SQS vector for a certain cluster space and certain
+    concentration. Here SQS vector refers to the cluster vector of an
+    infintely large supercell with random decoration.
 
     Parameters
     ----------
     cluster_space
         The kind of lattice to be decorated
     target_concentrations
-        concentration of each species in the target structure (for example
-        `{'Ag': 0.5, 'Pd': 0.5}`
+        concentration of each species in the target structure (for
+        example `{'Ag': 0.5, 'Pd': 0.5}`
 
-        Concentrations are always expressed with respect to all atoms
-        in the supercell, which implies that the sum of all concentrations
-        should always be 1. In the case of multiple sublattices,
-        a valid specification would thus be
-        `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1, 'V': 0.4}`.
+        Concentrations are always expressed with respect to all atoms in
+        the supercell, which implies that the sum of all concentrations
+        should always be 1. In the case of multiple sublattices, a valid
+        specification would thus be `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
+        'V': 0.4}`.
     """
     _validate_concentrations(target_concentrations, cluster_space)
 
@@ -479,8 +486,8 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
         nbr_of_allowed_species = [len(symbol_group)
                                   for symbol_group in symbol_groups]
 
-        # Calculate contribtion from every possible combination of symbols
-        # weighted with their probability
+        # Calculate contribtion from every possible combination of
+        # symbols weighted with their probability
         cluster_product_average = 0
         for symbols in itertools.product(*symbol_groups):
             cluster_product = 1

@@ -61,7 +61,7 @@ class TestEnsemble(unittest.TestCase):
     def test_init_raises_if_wrong_type(self):
         """Test that ensemble cannot be initialized with ASE Atoms."""
         with self.assertRaises(ValueError) as cm:
-            ensemble = TargetClusterVectorAnnealing(
+            TargetClusterVectorAnnealing(
                 atoms=bulk('Al'),
                 calculators=self.calculators,
                 T_start=self.T_start,
@@ -72,7 +72,7 @@ class TestEnsemble(unittest.TestCase):
     def test_init_raises_if_not_equal_list_lengths(self):
         """Test that ensemble cannot be init with unequal length lists."""
         with self.assertRaises(ValueError) as cm:
-            ensemble = TargetClusterVectorAnnealing(
+            TargetClusterVectorAnnealing(
                 self.atoms,
                 calculators=self.calculators[:-1],
                 T_start=self.T_start,
