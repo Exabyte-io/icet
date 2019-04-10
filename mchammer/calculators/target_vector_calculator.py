@@ -67,7 +67,7 @@ class TargetVectorCalculator(BaseCalculator):
         if weights is None:
             weights = np.array([1.0] * len(cluster_space))
         else:
-            if len(target_vector) != len(cluster_space):
+            if len(weights) != len(cluster_space):
                 raise ValueError('Cluster space and weights '
                                  'must have the same length')
         self.weights = np.array(weights)
@@ -97,6 +97,7 @@ class TargetVectorCalculator(BaseCalculator):
         cv = self.cluster_space.get_cluster_vector(self.atoms)
         return compare_cluster_vectors(cv, self.target_vector,
                                        self.orbit_data,
+                                       weights=self.weights,
                                        optimality_weight=self.optimality_weight,
                                        tol=self.optimality_tol)
 
@@ -122,6 +123,7 @@ class TargetVectorCalculator(BaseCalculator):
 
 def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
                             orbit_data: OrderedDict,
+                            weights: List[float]=None,
                             optimality_weight: float = 1.0,
                             tol: float = 1e-5) -> float:
     """
@@ -134,8 +136,10 @@ def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
         cluster vector 1
     cv_2
         cluster vector 2
-    orbio_data
+    orbit_data
         orbit data as obtained by ``ClusterSpace.orbit_data``
+    weights
+        Weight assigned to each cluster vector element
     optimality_weight
         quantity :math:`L` in [WalTiwJon13]_
         (see :class:`mchammer.calculators.TargetVectorCalculator`)
@@ -143,8 +147,10 @@ def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
         numerical tolerance for determining whether two elements are
         exactly equal
     """
+    if weights is None:
+        weights = np.ones(len(cv_1))
     diff = abs(cv_1 - cv_2)
-    score = sum(diff)
+    score = np.dot(diff, weights)
     if optimality_weight:
         longest_optimal_radius = 0
         for orbit_index, d in enumerate(diff):

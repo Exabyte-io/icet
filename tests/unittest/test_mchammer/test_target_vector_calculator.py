@@ -37,11 +37,12 @@ class TestTVCalculatorBinary(unittest.TestCase):
             target_vector=self.target_vector,
             name='Tests target vector calc')
 
-    def test_init_with_optimality_weight(self):
-        """Test init with optimality weight."""
+    def test_init_with_weights(self):
+        """Test init with weights."""
         calculator = TargetVectorCalculator(
             atoms=self.atoms, cluster_space=self.cs,
             target_vector=self.target_vector,
+            weights=np.linspace(3, 1, len(self.cs)),
             optimality_weight=3.0,
             optimality_tol=1e-5,
             name='Tests target vector calc')
@@ -57,6 +58,18 @@ class TestTVCalculatorBinary(unittest.TestCase):
             name='Tests target vector calc')
         self.assertEqual(type(calculator), TargetVectorCalculator)
         self.assertEqual(calculator.optimality_weight, None)
+
+    def test_init_with_erroneous_weights(self):
+        """Test init without weights of wrong length."""
+        with self.assertRaises(ValueError) as cm:
+            TargetVectorCalculator(
+                atoms=self.atoms, cluster_space=self.cs,
+                target_vector=self.target_vector,
+                weights=[1.0],
+                optimality_weight=None,
+                name='Tests target vector calc')
+        self.assertTrue(
+            'Cluster space and weights' in str(cm.exception))
 
     def test_property_cluster_space(self):
         """Tests the cluster space property."""
@@ -132,6 +145,7 @@ class TestTVCalculatorBinaryHCP(unittest.TestCase):
         cv_2 = cv_1
         optimality_weight = None
         score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+                                        weights=np.linspace(3, 5, len(cv_1)),
                                         optimality_weight=optimality_weight)
         self.assertAlmostEqual(score, 0)
 
@@ -192,7 +206,7 @@ class TestTVCalculatorTernary(unittest.TestCase):
                 else:
                     occupations.append(31)
         self.assertAlmostEqual(
-            self.calculator.calculate_total(occupations), 26.9446875)
+            self.calculator.calculate_total(occupations), 58.486900169)
 
 
 if __name__ == '__main__':
