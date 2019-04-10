@@ -37,8 +37,29 @@ class TestTVCalculatorBinary(unittest.TestCase):
             target_vector=self.target_vector,
             name='Tests target vector calc')
 
+    def test_init_with_optimality_weight(self):
+        """Test init with optimality weight."""
+        calculator = TargetVectorCalculator(
+            atoms=self.atoms, cluster_space=self.cs,
+            target_vector=self.target_vector,
+            optimality_weight=3.0,
+            optimality_tol=1e-5,
+            name='Tests target vector calc')
+        self.assertEqual(type(calculator), TargetVectorCalculator)
+        self.assertEqual(calculator.optimality_weight, 3.0)
+
+    def test_init_without_optimality_weight(self):
+        """Test init without optimality weight."""
+        calculator = TargetVectorCalculator(
+            atoms=self.atoms, cluster_space=self.cs,
+            target_vector=self.target_vector,
+            optimality_weight=None,
+            name='Tests target vector calc')
+        self.assertEqual(type(calculator), TargetVectorCalculator)
+        self.assertEqual(calculator.optimality_weight, None)
+
     def test_property_cluster_space(self):
-        """Tests the cluster expansion property."""
+        """Tests the cluster space property."""
         self.assertIsInstance(
             self.calculator.cluster_space, ClusterSpace)
 

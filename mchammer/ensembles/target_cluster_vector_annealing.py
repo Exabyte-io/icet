@@ -45,7 +45,8 @@ class TargetClusterVectorAnnealing():
                 'A list of ASE Atoms (supercells) must be provided')
         if len(atoms) != len(calculators):
             raise ValueError('There must be as many supercells as there '
-                             'are calculators ({} != {})'.format(len(atoms, len(calculators))))
+                             'are calculators ({} != {})'.format(len(atoms),
+                                                                 len(calculators)))
 
         logger.info('Initializing target cluster vector annealing '
                     'with {} supercells'.format(len(atoms)))

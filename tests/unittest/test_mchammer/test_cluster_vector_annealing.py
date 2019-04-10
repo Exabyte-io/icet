@@ -58,6 +58,37 @@ class TestEnsemble(unittest.TestCase):
             T_stop=self.T_stop,
             random_seed=42)
 
+    def test_init_raises_if_wrong_type(self):
+        """Test that ensemble cannot be initialized with ASE Atoms."""
+        with self.assertRaises(ValueError) as cm:
+            ensemble = TargetClusterVectorAnnealing(
+                atoms=bulk('Al'),
+                calculators=self.calculators,
+                T_start=self.T_start,
+                T_stop=self.T_stop)
+        self.assertTrue(
+            'A list of ASE Atoms (supercells)' in str(cm.exception))
+
+    def test_init_raises_if_not_equal_list_lengths(self):
+        """Test that ensemble cannot be init with unequal length lists."""
+        with self.assertRaises(ValueError) as cm:
+            ensemble = TargetClusterVectorAnnealing(
+                self.atoms,
+                calculators=self.calculators[:-1],
+                T_start=self.T_start,
+                T_stop=self.T_stop)
+        self.assertTrue(
+            'There must be as many supercells' in str(cm.exception))
+
+    def test_init_without_random_seed(self):
+        """Test that init without random seed specification works."""
+        ensemble = TargetClusterVectorAnnealing(
+            atoms=self.atoms,
+            calculators=self.calculators,
+            T_start=self.T_start,
+            T_stop=self.T_stop)
+        self.assertEqual(type(ensemble._random_seed), int)
+
     def test_generate_structure(self):
         """ Tests that run works and raises if annealing is finished """
         structure = self.ensemble.generate_structure(number_of_trial_steps=13)
