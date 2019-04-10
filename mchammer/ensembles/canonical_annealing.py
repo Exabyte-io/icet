@@ -99,10 +99,11 @@ class CanonicalAnnealing(BaseEnsemble):
         self._ensemble_parameters = dict(n_steps=n_steps)
 
         # add species count to ensemble parameters
-        for symbol in np.unique(calculator.occupation_constraints).tolist():
-            key = 'n_atoms_{}'.format(symbol)
-            count = atoms.get_chemical_symbols().count(symbol)
-            self._ensemble_parameters[key] = count
+        for sl in calculator.sublattices:
+            for symbol in sl.chemical_symbols:
+                key = 'n_atoms_{}'.format(symbol)
+                count = atoms.get_chemical_symbols().count(symbol)
+                self._ensemble_parameters[key] = count
 
         super().__init__(
             atoms=atoms, calculator=calculator, user_tag=user_tag,
@@ -209,15 +210,15 @@ class CanonicalAnnealing(BaseEnsemble):
         * add unit test
         """
         probability_distribution = []
-        for sub in self._sublattices:
-            if len(set(self.configuration.occupations[sub])) <= 1:
+        for sl in self._sublattices.active_sublattices:
+            if len(set(self.configuration.occupations[sl.indices])) <= 1:
                 p = 0
             else:
-                p = len(sub)
+                p = len(sl.indices)
             probability_distribution.append(p)
         norm = sum(probability_distribution)
         probability_distribution = [p/norm for p in probability_distribution]
-        pick = np.random.choice(range(0, len(self._sublattices)), p=probability_distribution)
+        pick = np.random.choice(range(0, len(self._sublattices.active_sublattices)), p=probability_distribution)
         return pick
 
 
