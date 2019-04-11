@@ -1,10 +1,12 @@
-from typing import List
 from collections import OrderedDict
+from typing import List
+
 import numpy as np
+
 from ase import Atoms
 from icet import ClusterSpace
+from icet.core.sublattices import Sublattices
 from mchammer.calculators.base_calculator import BaseCalculator
-from icet.tools.geometry import find_lattice_site_by_position
 
 
 class TargetVectorCalculator(BaseCalculator):
