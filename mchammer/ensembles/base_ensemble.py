@@ -451,9 +451,8 @@ class BaseEnsemble(ABC):
         # Update configuration
         occupations = self.data_container.last_state['occupations']
         active_sites = []
-        for sl in self.sublattices:
-            if len(sl.chemical_symbols) > 1:
-                active_sites.extend(sl.indices)
+        for sl in self.sublattices.active_sublattices:
+            active_sites.extend(sl.indices)
         active_occupations = [occupations[s] for s in active_sites]
         self.update_occupations(active_sites, active_occupations)
 
