@@ -141,7 +141,7 @@ class ConfigurationManager(object):
             old_Z = self._occupations[site]
             sublattice_index = self.sublattices.get_sublattice_index(site)
 
-            if new_Z is not in self.sublattices[sublattice_index].atomic_numbers:
+            if new_Z not in self.sublattices[sublattice_index].atomic_numbers:
                 raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
 
             # Remove site from list of sites for old species

@@ -182,6 +182,26 @@ class TestSublattices(unittest.TestCase):
         self.assertEqual(len(sublattices), 2)
         self.assertEqual(sublattices.allowed_species, [('Al', 'Ge'), ('H',)])
 
+    def test_sublattice_assert_occupation(self):
+        """Tests the assert occupation method of sublattices."""
+
+        # Should work out of the box
+        self.sublattices.assert_occupation_is_allowed(self.supercell.get_chemical_symbols())
+
+        # This should not work...
+        chemical_symbols = self.supercell.get_chemical_symbols()
+        chemical_symbols[0] = 'Si'
+
+        with self.assertRaises(ValueError) as context:
+            self.sublattices.assert_occupation_is_allowed(chemical_symbols)
+        self.assertTrue(
+            'Occupations of structure not compatible with the sublattice' in str(context.exception))
+
+        # wrong length of chemical symbols should not work either
+        with self.assertRaises(ValueError) as context:
+            self.sublattices.assert_occupation_is_allowed(['Al', 'Ge'])
+        self.assertTrue('len of input chemical symbols (2)' in str(context.exception))
+
 
 if __name__ == '__main__':
     unittest.main()

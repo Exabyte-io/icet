@@ -71,9 +71,8 @@ class BaseEnsemble(ABC):
         self._user_tag = user_tag
         sublattices = self.calculator.sublattices
 
-        symbols = atoms.get_chemical_symbols()
-        sublattices.assert_occupation_is_allowed(atoms)
-        
+        sublattices.assert_occupation_is_allowed(atoms.get_chemical_symbols)
+
         # item for sublist in l for item in sublist
         symbols_flat = [symbol for sl in sublattices for symbol in sl.chemical_symbols]
         if len(symbols_flat) != len(set(symbols_flat)):

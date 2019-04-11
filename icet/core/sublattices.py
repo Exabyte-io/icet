@@ -169,11 +169,11 @@ class Sublattices:
         """Lists of the active sublattices."""
         return [sl for sl in self if len(sl.chemical_symbols) == 1]
 
-
-    def assert_occupation_is_allowed(self, chemical_symbols : List[str]):
+    def assert_occupation_is_allowed(self, chemical_symbols: List[str]):
         """Asserts that the current occupation obeys the sublattices."""
         if len(chemical_symbols) != len(self._structure):
-            raise ValueError("len of input chemical symbols ({}) do not match len of supercell ({})".format(len(chemical_symbols), len(self._structure)))
+            raise ValueError("len of input chemical symbols ({}) do not match len of supercell"
+                             " ({})".format(len(chemical_symbols), len(self._structure)))
         for sl in self:
             for i in sl.indices:
                 if not chemical_symbols[i] in sl.chemical_symbols:
