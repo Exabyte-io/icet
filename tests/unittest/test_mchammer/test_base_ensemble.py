@@ -388,6 +388,10 @@ class TestEnsemble(unittest.TestCase):
         target = 5
         self.assertEqual(self.ensemble._get_gcd(input), target)
 
+        input = [1]
+        target = 1
+        self.assertEqual(self.ensemble._get_gcd(input), target)
+
     def test_get_property_change(self):
         """Tests the get property change method."""
 
