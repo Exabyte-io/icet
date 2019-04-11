@@ -456,15 +456,8 @@ class ClusterSpace(_ClusterSpace):
                              'ClusterSpace.primitive_structure')
 
         # check occupations
-        symbols = structure.get_chemical_symbols()
         sublattices = self.get_sublattices(structure)
-        for sl in sublattices:
-            for i in sl.indices:
-                if not symbols[i] in sl.chemical_symbols:
-                    msg = 'Occupations of structure not compatible with ClusterSpace. '
-                    msg += 'Site {} with occupation {} not allowed on sublattice {}'.format(
-                        i, symbols[i], sl.chemical_symbols)
-                    raise ValueError(msg)
+        sublattices.assert_occupation_is_allowed(structure.get_chemical_symbols())
 
     def write(self, filename: str) -> None:
         """

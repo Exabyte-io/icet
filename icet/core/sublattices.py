@@ -68,7 +68,7 @@ class Sublattices:
 
     def __init__(self, allowed_species: List[List[str]], primitive_structure: Atoms,
                  structure: Atoms):
-
+        self._structure = structure
         # sorted unique sites, this basically decides A, B, C... sublattices
         active_lattices = sorted(set([tuple(sorted(symbols))
                                       for symbols in allowed_species if len(symbols) > 1]))
@@ -168,3 +168,16 @@ class Sublattices:
     def inactive_sublattices(self) -> List[Sublattice]:
         """Lists of the active sublattices."""
         return [sl for sl in self if len(sl.chemical_symbols) == 1]
+
+
+    def assert_occupation_is_allowed(self, chemical_symbols : List[str]):
+        """Asserts that the current occupation obeys the sublattices."""
+        if len(chemical_symbols) != len(self._structure):
+            raise ValueError("len of input chemical symbols ({}) do not match len of supercell ({})".format(len(chemical_symbols), len(self._structure)))
+        for sl in self:
+            for i in sl.indices:
+                if not chemical_symbols[i] in sl.chemical_symbols:
+                    msg = 'Occupations of structure not compatible with the sublattice.'
+                    msg += ' Site {} with occupation {} not allowed on'
+                    msg += ' sublattice {}'.format(i, chemical_symbols[i], sl.chemical_symbols)
+                    raise ValueError(msg)

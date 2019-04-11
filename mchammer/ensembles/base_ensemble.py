@@ -72,13 +72,8 @@ class BaseEnsemble(ABC):
         sublattices = self.calculator.sublattices
 
         symbols = atoms.get_chemical_symbols()
-        for sl in sublattices:
-            for i in sl.indices:
-                if not symbols[i] in sl.chemical_symbols:
-                    msg = 'Occupations of structure not compatible with the sublattice'
-                    msg += ' of the calculator. Site {} with occupation {} not allowed on'
-                    msg += ' sublattice {}'.format(i, symbols[i], sl.chemical_symbols)
-                    raise ValueError(msg)
+        sublattices.assert_occupation_is_allowed(atoms)
+        
         # item for sublist in l for item in sublist
         symbols_flat = [symbol for sl in sublattices for symbol in sl.chemical_symbols]
         if len(symbols_flat) != len(set(symbols_flat)):
