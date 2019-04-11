@@ -1,10 +1,12 @@
+from typing import List, Union
+
+import numpy as np
+
 from _icet import _ClusterExpansionCalculator
 from ase import Atoms
-from icet import ClusterExpansion
+from icet import ClusterExpansion, Structure
+from icet.core.sublattices import Sublattices
 from mchammer.calculators.base_calculator import BaseCalculator
-from typing import Union, List
-from icet import Structure
-import numpy as np
 
 
 class ClusterExpansionCalculator(BaseCalculator):
@@ -112,8 +114,7 @@ class ClusterExpansionCalculator(BaseCalculator):
 
         return local_contribution * self._property_scaling
 
-    def _calculate_local_contribution(self, index: int,
-                                      exclude_indices: List[int] = []):
+    def _calculate_local_contribution(self, index: int, exclude_indices: List[int] = []):
         """
         Internal method to calculate the local contribution for one
         index.
@@ -132,7 +133,7 @@ class ClusterExpansionCalculator(BaseCalculator):
         return np.dot(local_cv, self.cluster_expansion.parameters)
 
     @property
-    def sublattices(self) -> List[List[int]]:
+    def sublattices(self) -> Sublattices:
         """Sublattices of the calculators structure."""
         sl = self.cluster_expansion._cluster_space.get_sublattices(self.atoms)
         return sl
