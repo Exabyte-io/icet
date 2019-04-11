@@ -43,8 +43,7 @@ class ConfigurationManager(object):
         """
         sites_by_species = []
         for sl in self._sublattices:
-            species_dict = {key: []
-                            for key in sl.atomic_numbers}
+            species_dict = {key: [] for key in sl.atomic_numbers}
             for site in sl.indices:
                 species_dict[self._occupations[site]].append(site)
             sites_by_species.append(species_dict)
@@ -67,8 +66,7 @@ class ConfigurationManager(object):
         atoms.set_atomic_numbers(self.occupations)
         return atoms
 
-    def get_swapped_state(self, sublattice: int) -> Tuple[List[int],
-                                                          List[int]]:
+    def get_swapped_state(self, sublattice: int) -> Tuple[List[int], List[int]]:
         """Returns two random sites (first element of tuple) and their
         occupation after a swap (second element of tuple).  The new
         configuration will obey the occupation constraints associated
@@ -83,8 +81,8 @@ class ConfigurationManager(object):
         try:
             site1 = random.choice(self.sublattices[sublattice].indices)
         except IndexError:
-            raise SwapNotPossibleError('Sublattice {} is empty.'
-                                       .format(sublattice))
+            raise SwapNotPossibleError(
+                'Sublattice {} is empty.'.format(sublattice))
 
         # pick the second site
         possible_swap_species = \
@@ -104,8 +102,7 @@ class ConfigurationManager(object):
                 .format(sublattice,
                         atomic_number_to_chemical_symbol([self._occupations[site1]])[0]))
 
-        return ([site1, site2],
-                [self._occupations[site2], self._occupations[site1]])
+        return ([site1, site2], [self._occupations[site2], self._occupations[site1]])
 
     def get_flip_state(self, sublattice: int) -> Tuple[int, int]:
         """
@@ -119,8 +116,7 @@ class ConfigurationManager(object):
 
         site = random.choice(self._sublattices[sublattice].indices)
         species = random.choice(list(
-            set(self._sublattices[sublattice].atomic_numbers) -
-            set([self._occupations[site]])))
+            set(self._sublattices[sublattice].atomic_numbers) - set([self._occupations[site]])))
         return site, species
 
     def update_occupations(self, sites: List[int], species: List[int]):
@@ -140,8 +136,7 @@ class ConfigurationManager(object):
         # Update _sites_by_sublattice
         for site, new_Z in zip(sites, species):
             if new_Z <= 0 or new_Z > 118:
-                raise ValueError('Invalid new species {} on site {}'
-                                 .format(new_Z, site))
+                raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
             old_Z = self._occupations[site]
             for isub, sl in enumerate(self.sublattices):
                 if site in sl.indices and \
@@ -157,8 +152,7 @@ class ConfigurationManager(object):
             try:
                 self._sites_by_species[isub][new_Z].append(site)
             except KeyError:
-                raise ValueError('Invalid new species {} on site {}'
-                                 .format(new_Z, site))
+                raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
 
         # Update occupation vector itself
         self._occupations[sites] = species

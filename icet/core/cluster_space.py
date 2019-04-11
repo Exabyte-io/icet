@@ -343,8 +343,7 @@ class ClusterSpace(_ClusterSpace):
             raise TypeError('input structure must be an ASE Atoms object')
 
         try:
-            cv = _ClusterSpace.get_cluster_vector(
-                self, Structure.from_atoms(atoms))
+            cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(atoms))
         except Exception as e:
             self.assert_structure_compatability(atoms)
             raise(e)
@@ -427,8 +426,7 @@ class ClusterSpace(_ClusterSpace):
         structure
             structure the sublattices are based on
         """
-        sl = Sublattices(self.chemical_symbols,
-                         self.primitive_structure, structure)
+        sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
         return sl
 
     def assert_structure_compatability(self, structure: Atoms, vol_tol: float = 1e-5) -> None:

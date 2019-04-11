@@ -153,12 +153,12 @@ class VCSGCEnsemble(BaseEnsemble):
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval)
 
-        if any([len(sl.chemical_symbols) > 2 for sl in self.configuration.sublattices]):
+        if any([len(sl.chemical_symbols) > 2 for sl in self.sublattices]):
             raise NotImplementedError('VCSGCEnsemble does not yet support '
                                       'cluster spaces with more than two '
                                       'species.')
 
-        for sl in self.configuration.sublattices.active_sublattices:
+        for sl in self.sublattices.active_sublattices:
             for number in sl.atomic_numbers:
                 if number not in self.phis.keys():
                     raise ValueError('phis were not set for {}'.format(
@@ -270,7 +270,7 @@ class VCSGCEnsemble(BaseEnsemble):
         atoms = self.configuration.atoms
         unique, counts = np.unique(atoms.numbers, return_counts=True)
 
-        for sl in self.configuration.sublattices:
+        for sl in self.sublattices:
             for symbol in sl.chemical_symbols:
                 data['{}_count'.format(symbol)] = 0
         for atnum, count in zip(unique, counts):

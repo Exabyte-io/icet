@@ -230,7 +230,7 @@ class SemiGrandCanonicalEnsemble(BaseEnsemble):
         atoms = self.configuration.atoms
         unique, counts = np.unique(atoms.numbers, return_counts=True)
 
-        for sl in self.configuration.sublattices:
+        for sl in self.sublattices:
             for symbol in sl.chemical_symbols:
                 data['{}_count'.format(symbol)] = 0
         for atnum, count in zip(unique, counts):

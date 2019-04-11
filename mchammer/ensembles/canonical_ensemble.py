@@ -131,8 +131,7 @@ class CanonicalEnsemble(BaseEnsemble):
         self._total_trials += 1
 
         sublattice_index = self.get_random_sublattice_index()
-        sites, species = \
-            self.configuration.get_swapped_state(sublattice_index)
+        sites, species = self.configuration.get_swapped_state(sublattice_index)
 
         potential_diff = self._get_property_change(sites, species)
 
@@ -153,8 +152,7 @@ class CanonicalEnsemble(BaseEnsemble):
         if potential_diff < 0:
             return True
         else:
-            return np.exp(-potential_diff / (
-                self.boltzmann_constant * self.temperature)) > \
+            return np.exp(-potential_diff / (self.boltzmann_constant * self.temperature)) > \
                 self._next_random_number()
 
     def get_random_sublattice_index(self) -> int:
@@ -163,12 +161,12 @@ class CanonicalEnsemble(BaseEnsemble):
 
         Todo
         ----
-        * fix this method
         * add unit test
         """
         probability_distribution = []
-        for sl in self._sublattices:
-            if len(set(self.configuration.occupations[sl.indices])) <= 1:
+        for sl in self.sublattices:
+            if len(set(self.configuration.occupations[sl.indices])) <= 1 or \
+                    len(sl.chemical_symbols) == 1:
                 p = 0
             else:
                 p = len(sl.indices)
@@ -176,5 +174,5 @@ class CanonicalEnsemble(BaseEnsemble):
         norm = sum(probability_distribution)
         probability_distribution = [p/norm for p in probability_distribution]
         pick = np.random.choice(
-            range(0, len(self._sublattices)), p=probability_distribution)
+            range(0, len(self.sublattices)), p=probability_distribution)
         return pick

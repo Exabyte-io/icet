@@ -36,7 +36,7 @@ class Sublattice:
 
     @property
     def atomic_numbers(self):
-        return copy.deepcopy(self._numbers)
+        return self._numbers.copy()
 
     @property
     def indices(self):
@@ -77,15 +77,13 @@ class Sublattices:
         self._allowed_species = active_lattices + inactive_lattices
 
         n = int(np.sqrt(len(self._allowed_species))) + 1
-        symbols = [''.join(p) for r in range(1, n+1)
-                   for p in product(ascii_uppercase, repeat=r)]
+        symbols = [''.join(p) for r in range(1, n+1) for p in product(ascii_uppercase, repeat=r)]
 
         cpp_prim_structure = Structure.from_atoms(primitive_structure)
         self._sublattices = []
         sublattice_to_indices = [[] for _ in range(len(self._allowed_species))]
         for index, position in enumerate(structure.get_positions()):
-            lattice_site = cpp_prim_structure.find_lattice_site_by_position(
-                position)
+            lattice_site = cpp_prim_structure.find_lattice_site_by_position(position)
 
             # Get allowed species on this site
             species = allowed_species[lattice_site.index]

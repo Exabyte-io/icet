@@ -191,8 +191,7 @@ class CanonicalAnnealing(BaseEnsemble):
         elif abs(self.temperature) < 1e-6:  # temperature is numerically zero
             return False
         else:
-            p = np.exp(-potential_diff /
-                       (self.boltzmann_constant * self.temperature))
+            p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
             return p > self._next_random_number()
 
     def _get_ensemble_data(self) -> Dict:
@@ -213,16 +212,16 @@ class CanonicalAnnealing(BaseEnsemble):
         * add unit test
         """
         probability_distribution = []
-        for sl in self._sublattices.active_sublattices:
-            if len(set(self.configuration.occupations[sl.indices])) <= 1:
+        for sl in self.sublattices:
+            if len(set(self.configuration.occupations[sl.indices])) <= 1 or \
+                 len(sl.chemical_symbols) == 1:
                 p = 0
             else:
                 p = len(sl.indices)
             probability_distribution.append(p)
         norm = sum(probability_distribution)
         probability_distribution = [p/norm for p in probability_distribution]
-        pick = np.random.choice(range(0, len(self._sublattices.active_sublattices)),
-                                p=probability_distribution)
+        pick = np.random.choice(range(0, len(self.sublattices)), p=probability_distribution)
         return pick
 
 
@@ -234,5 +233,4 @@ def _cooling_exponential(step, T_start, T_stop, n_steps):
     return T_start - (T_start - T_stop) * np.log(step+1) / np.log(n_steps)
 
 
-available_cooling_functions = dict(linear=_cooling_linear,
-                                   exponential=_cooling_exponential)
+available_cooling_functions = dict(linear=_cooling_linear, exponential=_cooling_exponential)
