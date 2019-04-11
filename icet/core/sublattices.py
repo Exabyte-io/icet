@@ -94,8 +94,7 @@ class Sublattices:
             sublattice_to_indices[sublattice].append(index)
 
         for symbol, species, indices in zip(symbols, self._allowed_species, sublattice_to_indices):
-            sublattice = Sublattice(
-                chemical_symbols=species, indices=indices, symbol=symbol)
+            sublattice = Sublattice(chemical_symbols=species, indices=indices, symbol=symbol)
             self._sublattices.append(sublattice)
 
         # Map lattice index to sublattice index

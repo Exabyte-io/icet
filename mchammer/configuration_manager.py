@@ -66,7 +66,7 @@ class ConfigurationManager(object):
         atoms.set_atomic_numbers(self.occupations)
         return atoms
 
-    def get_swapped_state(self, sublattice: int) -> Tuple[List[int], List[int]]:
+    def get_swapped_state(self, sublattice_index: int) -> Tuple[List[int], List[int]]:
         """Returns two random sites (first element of tuple) and their
         occupation after a swap (second element of tuple).  The new
         configuration will obey the occupation constraints associated
@@ -74,15 +74,15 @@ class ConfigurationManager(object):
 
         Parameters
         ----------
-        sublattice
+        sublattice_index
             sublattice from which to pick sites
         """
         # pick the first site
         try:
-            site1 = random.choice(self.sublattices[sublattice].indices)
+            site1 = random.choice(self.sublattices[sublattice_index].indices)
         except IndexError:
             raise SwapNotPossibleError(
-                'Sublattice {} is empty.'.format(sublattice))
+                'Sublattice {} is empty.'.format(sublattice_index))
 
         # pick the second site
         possible_swap_species = \
@@ -90,7 +90,7 @@ class ConfigurationManager(object):
             set([self._occupations[site1]])
         possible_swap_sites = []
         for Z in possible_swap_species:
-            possible_swap_sites.extend(self._sites_by_species[sublattice][Z])
+            possible_swap_sites.extend(self._sites_by_species[sublattice_index][Z])
 
         possible_swap_sites = array(possible_swap_sites)
 
@@ -99,24 +99,25 @@ class ConfigurationManager(object):
         except IndexError:
             raise SwapNotPossibleError(
                 'Cannot swap on sublattice {} since it is full of {} species .'
-                .format(sublattice,
+                .format(sublattice_index,
                         atomic_number_to_chemical_symbol([self._occupations[site1]])[0]))
 
         return ([site1, site2], [self._occupations[site2], self._occupations[site1]])
 
-    def get_flip_state(self, sublattice: int) -> Tuple[int, int]:
+    def get_flip_state(self, sublattice_index: int) -> Tuple[int, int]:
         """
         Returns a site index and a new species for the site.
 
         Parameters
         ----------
-        sublattice
+        sublattice_index
             index of sublattice from which to pick a site
         """
 
-        site = random.choice(self._sublattices[sublattice].indices)
+        site = random.choice(self._sublattices[sublattice_index].indices)
         species = random.choice(list(
-            set(self._sublattices[sublattice].atomic_numbers) - set([self._occupations[site]])))
+            set(self._sublattices[sublattice_index].atomic_numbers) -
+            set([self._occupations[site]])))
         return site, species
 
     def update_occupations(self, sites: List[int], species: List[int]):
@@ -135,22 +136,19 @@ class ConfigurationManager(object):
 
         # Update _sites_by_sublattice
         for site, new_Z in zip(sites, species):
-            if new_Z <= 0 or new_Z > 118:
+            if 0 < new_Z < 118:
                 raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
             old_Z = self._occupations[site]
-            for isub, sl in enumerate(self.sublattices):
-                if site in sl.indices and \
-                        atomic_number_to_chemical_symbol([new_Z])[0] in sl.chemical_symbols:
-                    break
-            else:
-                raise ValueError(
-                    'Site {} is not present in any sublattice.'.format(site))
+            sublattice_index = self.sublattices.get_sublattice_index(site)
+
+            if new_Z is not in self.sublattices[sublattice_index].atomic_numbers:
+                raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
 
             # Remove site from list of sites for old species
-            self._sites_by_species[isub][old_Z].remove(site)
+            self._sites_by_species[sublattice_index][old_Z].remove(site)
             # Add site to list of sites for new species
             try:
-                self._sites_by_species[isub][new_Z].append(site)
+                self._sites_by_species[sublattice_index][new_Z].append(site)
             except KeyError:
                 raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
 
