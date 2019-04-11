@@ -158,6 +158,9 @@ class VCSGCEnsemble(BaseEnsemble):
                                       'cluster spaces with more than two '
                                       'species.')
 
+        if len(self.sublattices.active_sublattices) > 1:
+            raise NotImplementedError('VCSGCEnsemble does not yet support '
+                                      'cluster spaces more than one active sublattices ')
         for sl in self.sublattices.active_sublattices:
             for number in sl.atomic_numbers:
                 if number not in self.phis.keys():
