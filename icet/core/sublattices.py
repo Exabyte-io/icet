@@ -140,7 +140,7 @@ class Sublattices:
         """
         return self[index].indices
 
-    def get_allowed_symbols_on_site(self, index) -> List[str]:
+    def get_allowed_symbols_on_site(self, index : int) -> List[str]:
         """Returns the allowed symbols on the site.
 
         Parameters
@@ -150,8 +150,8 @@ class Sublattices:
         """
         return self[self._index_to_sublattice[index]].chemical_symbols
 
-    def get_allowed_numbers_on_site(self, index) -> List[str]:
-        """Returns the allowed symbols on the site.
+    def get_allowed_numbers_on_site(self, index : int) -> List[str]:
+        """Returns the allowed atomic numbers on the site.
 
         Parameters
         -----------
