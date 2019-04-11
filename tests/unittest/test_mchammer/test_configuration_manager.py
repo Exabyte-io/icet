@@ -119,7 +119,7 @@ class TestConfigurationManager(unittest.TestCase):
         # test that correct exceptions are raised
         with self.assertRaises(ValueError) as context:
             self.cm.update_occupations([-1], [1])
-        self.assertTrue('Site -1 is not present' in str(context.exception))
+        self.assertTrue('Site -1 is not a valid site index' in str(context.exception))
         with self.assertRaises(ValueError) as context:
             self.cm.update_occupations([0], [-1])
         self.assertTrue('Invalid new species' in str(context.exception))

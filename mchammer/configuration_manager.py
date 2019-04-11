@@ -138,6 +138,8 @@ class ConfigurationManager(object):
         for site, new_Z in zip(sites, species):
             if 0 > new_Z > 118:
                 raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))
+            if len(self._occupations) >= site < 0:
+                raise ValueError('Site {} is not a valid site index'.format(site))
             old_Z = self._occupations[site]
             sublattice_index = self.sublattices.get_sublattice_index(site)
 
