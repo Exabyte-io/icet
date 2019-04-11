@@ -41,3 +41,11 @@ Structure enumeration
    :members:
    :undoc-members:
    :inherited-members:
+
+Structure generation and SQS
+----------------------------
+
+.. automodule:: icet.tools.structure_generation
+   :members:
+   :undoc-members:
+   :inherited-members:

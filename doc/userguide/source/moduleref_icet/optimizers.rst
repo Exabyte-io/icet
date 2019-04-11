@@ -209,8 +209,6 @@ Optimizer
    :members:
    :undoc-members:
    :inherited-members:
-   :noindex:
-
 
 .. index::
    single: Class reference; EnsembleOptimizer
@@ -222,7 +220,6 @@ EnsembleOptimizer
    :members:
    :undoc-members:
    :inherited-members:
-   :noindex:
 
 
 .. index::
@@ -235,4 +232,3 @@ CrossValidationEstimator
    :members:
    :undoc-members:
    :inherited-members:
-   :noindex:

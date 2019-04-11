@@ -932,6 +932,7 @@ PYBIND11_MODULE(_icet, m)
         .def("get_number_of_allowed_species_by_site", &ClusterSpace::getNumberOfAllowedSpeciesBySite)
         .def("_precompute_multi_component_vectors", &ClusterSpace::precomputeMultiComponentVectors, "Precompute the multi-component vectors (internal).")
         .def("_prune_orbit_list_cpp", &ClusterSpace::pruneOrbitList)
+        .def("evaluate_cluster_function", &ClusterSpace::evaluateClusterFunction, "Evaluates value of a cluster function.")
         .def("__len__", &ClusterSpace::getClusterSpaceSize);
 
 

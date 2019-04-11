@@ -26,7 +26,7 @@ __authors__ = ['Mattias Ångqvist',
                'Paul Erhart']
 __copyright__ = '2019'
 __license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
-__version__ = '0.3'
+__version__ = '0.4'
 __all__ = ['ClusterSpace',
            'ClusterExpansion',
            'Structure',

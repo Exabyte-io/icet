@@ -24,5 +24,6 @@ installed.
    structure_enumeration
    mapping_structures
    parallel_monte_carlo
+   sqs_generation
    cluster_counts
    cluster_vectors

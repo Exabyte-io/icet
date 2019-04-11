@@ -41,6 +41,14 @@ class ClusterSpace(_ClusterSpace):
         atomic configuration
     cutoffs : list(float)
         cutoff radii per order that define the cluster space
+
+        Cutoffs are specified in units of Angstrom and refer to the
+        longest distance between two atoms in the cluster. The first
+        element refers to pairs, the second to triplets, the third
+        to quadruplets, and so on. ``cutoffs=[7.0, 4.5]`` thus implies
+        that all pairs distanced 7 A or less will be included,
+        as well as all triplets among which the longest distance is no
+        longer than 4.5 A.
     chemical_symbols : list(str) or list(list(str))
         list of chemical symbols, each of which must map to an element
         of the periodic table

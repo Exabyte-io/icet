@@ -31,5 +31,5 @@ print(opt)
 
 # step 5: Construct cluster expansion and write it to file
 ce = ClusterExpansion(cluster_space=cs, parameters=opt.parameters)
-ce.write('mixing_energy.ce')
 print(ce)
+ce.write('mixing_energy.ce')
