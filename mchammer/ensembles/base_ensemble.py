@@ -74,7 +74,7 @@ class BaseEnsemble(ABC):
         sublattices.assert_occupation_is_allowed(atoms.get_chemical_symbols())
 
         # item for sublist in l for item in sublist
-        symbols_flat = [symbol for sl in sublattices for symbol in sl.chemical_symbols]
+        symbols_flat = [s for sl in sublattices.active_sublattices for s in sl.chemical_symbols]
         if len(symbols_flat) != len(set(symbols_flat)):
             bad_symbols = set([s for s in symbols_flat if symbols_flat.count(s) > 1])
             raise ValueError('Symbols {} found on multiple active sublattices'.format(bad_symbols))
