@@ -17,7 +17,7 @@ to be parallelized. Here, the :ref:`Monte Carlo simulation in the basic
 tutorial <tutorial_monte_carlo_simulations>` is reproduced. The initialization
 is identic:
 
-.. literalinclude:: ../../../../tutorial/advanced/parallel_monte_carlo.py
+.. literalinclude:: ../../../../examples/advanced_topics/parallel_monte_carlo.py
    :start-after: # step 1
    :end-before: # step 2
 
@@ -25,13 +25,13 @@ A non-parallel simulation would now run in a nested loop over all parameters.
 In a parallel simulation, the content of the loop is instead wrapped in a
 function:
 
-.. literalinclude:: ../../../../tutorial/advanced/parallel_monte_carlo.py
+.. literalinclude:: ../../../../examples/advanced_topics/parallel_monte_carlo.py
    :start-after: # step 2
    :end-before: # step 3
 
 Next, all sets of parameters to be run are stored in a list:
 
-.. literalinclude:: ../../../../tutorial/advanced/parallel_monte_carlo.py
+.. literalinclude:: ../../../../examples/advanced_topics/parallel_monte_carlo.py
    :start-after: # step 3
    :end-before: # step 4
 
@@ -41,7 +41,7 @@ number of processes is specified. It is typically advisable to use the same
 number of processes as available cores. The simulation is started by
 mapping the sets of parameters to the run function:
 
-.. literalinclude:: ../../../../tutorial/advanced/parallel_monte_carlo.py
+.. literalinclude:: ../../../../examples/advanced_topics/parallel_monte_carlo.py
    :start-after: # step 4
 
 Note that in the above example, an ensemble object will always be initialized
@@ -58,6 +58,6 @@ Source code
     .. container:: header
 
        The complete source code is available in
-       ``tutorial/advanced/parallel_monte_carlo.py``
+       ``examples/advanced_topics/parallel_monte_carlo.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/parallel_monte_carlo.py
+    .. literalinclude:: ../../../../examples/advanced_topics/parallel_monte_carlo.py

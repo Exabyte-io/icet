@@ -34,7 +34,7 @@ tests:
       - coverage/
 
 
-test_benchmarks_tutorial:
+test_benchmarks_examples:
   stage: test
   only:
     - schedules
@@ -45,7 +45,7 @@ test_benchmarks_tutorial:
   script:
     - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - for f in benchmark/*.py; do echo $f ; python3 $f ; done
-    - for f in $(ls tutorial/*/*.py | grep -v __ | grep -v parallel_monte_carlo); do echo $f ; cd `dirname $f` ; python3 `basename $f` ; cd ../../ ; done
+    - for f in $(ls examples/*/*.py | grep -v __ | grep -v parallel_monte_carlo); do echo $f ; cd `dirname $f` ; python3 `basename $f` ; cd ../../ ; done
 
 
 style_check:
@@ -79,11 +79,14 @@ pages:
     # user guide (sphinx)
     - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - sphinx-build doc/userguide/source/ public/
-    # make tests and tutorial downloadable
+    # make tests and examples downloadable
     - for tag in `git tag | tail -3` ; do
         echo "tag= ${tag}" ;
         git checkout $tag ;
-        find tutorial/ -print | zip public/tutorial_${tag}.zip -@ ;
+        cd examples ;
+        find tutorial/ -print | zip ../public/tutorial_${tag}.zip -@ ;
+        find advanced_topics/ -print | zip ../public/advanced_topics_${tag}.zip -@ ;
+        cd .. ;
         find tests/ -print | zip public/tests_${tag}.zip tests/structure_databases/*.db -@ ;
       done
     # clean up

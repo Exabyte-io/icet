@@ -1,19 +1,14 @@
-.. _background:
-.. index:: Background
-
-Background
-**********
-
-(expand and add more references; some references to topics such as cluster
-functions are intentionally left broken as a reminder to cover these things)
-[AngLinErh16]_, [CanWak08]_, [NelOzoRee13]_
-
-.. _cluster-expansions:
-.. index::
-   single: Cluster expansion; Formalism
+.. _cluster_expansions:
 
 Cluster expansions
 ==================
+
+
+.. index::
+   single: Cluster expansion; Formalism
+
+Formalism
+---------
 
 In the following, we are concerned with configurations corresponding to a
 distribution of :math:`M` different species over :math:`N` sites that can be
@@ -58,7 +53,7 @@ cluster functions.
    single: Cluster expansion; Construction
 
 CE construction
-===============
+---------------
 
 The task of training a :term:`CE` can be formally written as a linear problem
 
@@ -91,3 +86,5 @@ Common algorithms [Wal09]_ then proceed by generating a series of :term:`CEs`
 corresponding to different basis set choices, i.e. different values of
 :math:`n_{\boldsymbol{J}}`. By comparing the performance of each :term:`CE` by
 means of a cross validation (CV) score the best performing :term:`CE` is selected.
+
+

@@ -20,7 +20,7 @@ space. Additionally, the `ASE <https://wiki.fysik.dtu.dk/ase>`_
 function :func:`~ase.build.bulk` will be needed to generate the
 structures.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py
    :start-after: # Import modules
    :end-before: # Create a prototype
 
@@ -32,7 +32,7 @@ It is furthermore decided that the cluster vectors will be created by
 populating the sites with either silicon or germanium. Also, the cutoffs for
 pairs, triplets and quadruplets are all set to 5 Å.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py
    :start-after: # and quadruplets (5.0
    :end-before: # Initiate and print
 
@@ -45,7 +45,7 @@ structure, cutoffs and list elements defined previously as
 arguments. Next, we print all relevant information regarding the
 cluster space in tabular format.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py
    :start-after: # Initiate and print
    :end-before: # Generate and print the cluster vector for a pure Si
 
@@ -78,7 +78,7 @@ instance of the :class:`~icet.ClusterSpace` class that was initiated
 in the previous section. The cluster vectors are printed, as a
 sequence of tables, as follows:
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py
    :start-after: # Generate and print the cluster vector for a pure Si
    :end-before: # Generate and print the cluster vector for a mixed Si-Ge
 
@@ -92,7 +92,7 @@ Cluster vector for alloy supercell
 Finally, the steps described in the previous section are repeated after
 substituting one of the Si atoms in the supercell with Ge.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py
    :start-after: # Generate and print the cluster vector for a mixed Si-Ge
 
 In this case the output should be::
@@ -113,4 +113,4 @@ Source code
        The complete source code is available in
        ``examples/get_cluster_vectors.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/get_cluster_vectors.py
+    .. literalinclude:: ../../../../examples/advanced_topics/get_cluster_vectors.py

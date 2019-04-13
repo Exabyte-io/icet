@@ -20,7 +20,7 @@ structure, respectively. Additionally, the `ASE
 <https://wiki.fysik.dtu.dk/ase/ase/db/db.html#ase.db.core.connect>` will be
 used to extract structures from a previously prepared database.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # Import modules
    :end-before: # Function for generating random
 
@@ -40,7 +40,7 @@ The first function, :func:`generate_random_structure`, takes an
 dimensions, and populates it randomly with the allowed chemical
 elements. In the end, a new :class:`~ase.Atoms` object is returned.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # Function for generating random
    :end-before: # Function for generating cluster
 
@@ -58,7 +58,7 @@ subsequently converted to a :class:`~icet.Structure` object using the
 argument to the :func:`~icet.ClusterSpace.get_cluster_vector` method to extract
 the cluster vector.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # Function for generating cluster
    :end-before: # Function for calculating
 
@@ -68,7 +68,7 @@ Column correlation
 The third function, :func:`get_column_correlation`, calculates the correlation
 between columns ``i`` and ``j`` in ``cv_matrix``.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # Function for calculating
    :end-before: # Function for asserting
 
@@ -83,7 +83,7 @@ correlation between all pairs of columns with help of the
 smaller than the tolerance, the number of the columns and the
 correlation is written to stdout.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # Function for asserting
    :end-before: # Create a list
 
@@ -97,7 +97,7 @@ vacancies, is defined. Also, the cutoff for pairs is set to 2.0 Å and
 it is decided that the cluster vectors be calculated for
 :math:`8\times8\times8` supercells.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # cutoff distance for
    :end-before: # Test the correlation
 
@@ -115,7 +115,7 @@ of cluster vectors is fed into the :func:`assert_no_correlation`
 function to check if correlations between the columns are smaller than
 the tolerance specified previously.
 
-.. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
    :start-after: # previously generated database.
 
 The script produces the following output::
@@ -151,4 +151,4 @@ Source code
        The complete source code is available in
        ``examples/test_cluster_vector_correlation.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/test_cluster_vector_correlation.py
+    .. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py

@@ -52,7 +52,7 @@ be imported together with some additional functions from `ASE
 on logging, since the SQS cell generation may otherwise run quietly for a few
 minutes.
 
-.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+.. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py
    :start-after: # Import modules
    :end-before: # Generate SQS for binary
 
@@ -70,7 +70,7 @@ involved elements and their fractions of the total number of atoms.
 Internally, the function carries out simulated annealing with Monte Carlo
 trial swaps and can be expected to run for a minute or so.
 
-.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+.. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py
    :start-after: # Generate SQS for binary fcc
    :end-before: # Use enumeration
 
@@ -78,7 +78,7 @@ In this simple case, in which the target structure size is very small, it is
 more efficient to generate the best SQS cell by exhaustive enumeration of all
 binary :term:`FCC` structures having up to 8 atoms in the supercell:
 
-.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+.. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py
    :start-after: # Use enumeration
    :end-before: # Generate SQS for
 
@@ -108,7 +108,7 @@ cell, albeit perhaps not *the* best one. The default number of trial steps is
 increases quickly with the size of the supercell.
 
 
-.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+.. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py
    :start-after: # fcc lattices with Au, Cu, Pd on one lattice and H, V on another
    :end-before: # Generate structure with a specified cluster vector
 
@@ -124,7 +124,7 @@ cluster vectors that can be realized by structures is restricted in multiple
 ways. The similarity between the target cluster vector and the cluster vector
 of the generated structure may thus appear poor.
 
-.. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+.. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py
    :start-after: # Generate structure with a specified cluster vector
 
 Source code
@@ -137,4 +137,4 @@ Source code
        The complete source code is available in
        ``examples/sqs_generation.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/sqs_generation.py
+    .. literalinclude:: ../../../../examples/advanced_topics/sqs_generation.py

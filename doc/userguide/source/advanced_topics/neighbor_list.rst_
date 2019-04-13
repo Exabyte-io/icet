@@ -18,7 +18,7 @@ for the :func:`~icet.core.neighbor_list.get_neighbor_lists` function. Additional
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`~ase.build.bulk` will be
 needed to generate the structures.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_neighbor_list.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_neighbor_list.py
    :start-after: # Import modules
    :end-before: # Generate an icet
 
@@ -28,7 +28,7 @@ Generate prototype supercell
 The next step is to build a prototype structure, in the form of a
 aluminum :math:`2\times2\times2` supercell.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_neighbor_list.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_neighbor_list.py
    :start-after: # Generate an icet
    :end-before: # Construct a list
 
@@ -42,7 +42,7 @@ defined above, and a list of cutoffs as input arguments. The output
 from this functions is a list that contains one
 :class:`~_icet.NeighborList` object per cutoff.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_neighbor_list.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_neighbor_list.py
    :start-after: # Construct a list
    :end-before: # Loop over all
 
@@ -63,7 +63,7 @@ reason, it is calculated using the
 :meth:`~_icet.Structure.get_distance` method, which takes the indices
 and offsets of the atom and the neighbor as input arguments.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_neighbor_list.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_neighbor_list.py
    :start-after: # Loop over all
 
 These lines should give the following (partial) output::
@@ -108,4 +108,4 @@ Source code
        The complete source code is available in
        ``examples/get_neighbor_list.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/get_neighbor_list.py
+    .. literalinclude:: ../../../../examples/advanced_topics/get_neighbor_list.py

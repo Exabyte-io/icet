@@ -25,7 +25,7 @@ The :func:`enumerate_structures
 be imported together with some additional functions from `ASE
 <https://wiki.fysik.dtu.dk/ase>`_.
 
-.. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+.. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # Import modules
    :end-before: # Generate all binary
 
@@ -39,7 +39,7 @@ object is created using the :func:`~ase.build.bulk` function. Then a database
 stored. All possible binary Au/Pd structures with up to 6 atoms per unit cell
 are subsequently generated and stored in this database.
 
-.. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+.. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # and save them
    :end-before: # Generate fcc structures
 
@@ -61,7 +61,7 @@ note that for very large systems, concentration restricted enumeration may
 still be prohibitively time or memory consuming even if the number of
 structures in the specified concentration regime is small.
 
-.. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+.. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # Generate fcc structures
    :end-before: # Enumerate all palladium
 
@@ -74,7 +74,7 @@ based on up to four primitive cells, which contain up to 4 Pd atoms and between
 results in a ternary system. The structures thus obtained are stored in a
 database named ``PdHVac-fcc.db``.
 
-.. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+.. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # either a hydrogen
    :end-before: # Enumerate a copper surface
 
@@ -90,7 +90,7 @@ conditions are *not* periodic in the direction of the normal to the surface.
 This is the default behavior with ASE:s surface building functions, but is in
 the below example enforced for clarity.
 
-.. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+.. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # fcc and hcp hollow sites
 
 Source code
@@ -103,4 +103,4 @@ Source code
        The complete source code is available in
        ``examples/enumerate_structures.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/enumerate_structures.py
+    .. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py

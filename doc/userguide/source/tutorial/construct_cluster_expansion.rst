@@ -27,14 +27,14 @@ used, :ref:`in sequence <workflow>`, during preparation, compilation and
 training of the cluster expansion followed by the extraction of information in
 the form of predicted energies from the latter.
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :end-before: # step 1
 
 Then we open a connection to the reference database and use the first structure
 in the database as the primitive structure as we happen to have prepared the
 database in this way.
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :start-after: # step 1
    :end-before: # step 2
 
@@ -67,7 +67,7 @@ site. Examples for this approach can be found in the :class:`ClusterSpace`
 documentation.
 
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :start-after: # step 2
    :end-before: # step 3
 
@@ -133,7 +133,7 @@ this end, we first initialize an empty :class:`StructureContainer
 prepared previously including for each structure the mixing energy in the
 property dictionary.
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :start-after: # step 3
    :end-before: # step 4
 
@@ -193,7 +193,7 @@ with a list of target properties produced by the :func:`get_fit_data()
 <icet.StructureContainer.get_fit_data>` method of the
 :class:`StructureContainer <icet.StructureContainer>` as input argument.
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :start-after: # step 4
    :end-before: # step 5
 
@@ -268,7 +268,7 @@ the previously created :class:`ClusterSpace <icet.ClusterSpace>` instance and
 the list of parameters, available via the :class:`parameters
 <icet.fitting.Optimizer.parameters>` attribute of the optimizer, as input arguments.
 
-.. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+.. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py
    :start-after: # step 5
 
 Information regarding the parameters and associated cluster space
@@ -318,6 +318,6 @@ Source code
     .. container:: header
 
        The complete source code is available in
-       ``tutorial/basic/1_construct_cluster_expansion.py``
+       ``examples/tutorial/1_construct_cluster_expansion.py``
 
-    .. literalinclude:: ../../../../tutorial/basic/1_construct_cluster_expansion.py
+    .. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py

@@ -40,12 +40,10 @@ team can also be reached by email via icet@materialsmodeling.org.
    :maxdepth: 2
    :caption: Main
 
-   overview
-   background
-   workflow
+   background/index
    installation
-   basic/index
-   advanced/index
+   tutorial/index
+   advanced_topics/index
 
 .. toctree::
    :maxdepth: 2

@@ -19,8 +19,8 @@ Workflow
 
     This page provides an overview of the :program:`icet` workflow. For detailed
     instructions on how to use :program:`icet`, please see the :ref:`tutorial
-    section <tutorial_basics>`. Further applications are discussed in the
-    :ref:`advanced topics <tutorial_advanced_topics>` section.
+    section <tutorial>`. Further applications are discussed in the
+    :ref:`advanced topics <advanced_topics>` section.
 
 Overview
 ========

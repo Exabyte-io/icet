@@ -22,7 +22,7 @@ and :class:`~icet.core.orbit_list.OrbitList` classes, we also use the
 `ASE <https://wiki.fysik.dtu.dk/ase>`_ function :func:`~ase.build.bulk`
 to generate a prototype structure.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py
    :start-after: # Start import
    :end-before: # End import
 
@@ -34,7 +34,7 @@ structure based on Ti and W decorating a simple cubic :math:`2\times1\times1`
 cell. Moreover, we define a cutoff for pairs at 5 Å. We also keep the
 primitive cell, i.e., the :math:`1\times1\times1` simple cubic cell.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py
    :start-after: # Start setup
    :end-before: # End setup
 
@@ -47,7 +47,7 @@ and cutoff. To this end, we use the
 the orbits that are included in the cluster count (every cluster
 corresponds to an orbit).
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py
    :start-after: # pair clusters within the
    :end-before: # Use the primitive
 
@@ -59,7 +59,7 @@ We are now ready to create a
 :class:`~icet.core.cluster_counts.ClusterCounts` object based on the
 orbit list and the above created supercell.
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py
    :start-after: # Use the primitive
    :end-before: # Print all of
 
@@ -68,7 +68,7 @@ Print cluster counts
 
 The cluster counts can conveniently be printed like so:
 
-.. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+.. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py
    :start-after: # Print all of
 
 The resulting output should be similar to the following::
@@ -107,4 +107,4 @@ Source code
        The complete source code is available in
        ``examples/get_cluster_counts.py``
 
-    .. literalinclude:: ../../../../tutorial/advanced/get_cluster_counts.py
+    .. literalinclude:: ../../../../examples/advanced_topics/get_cluster_counts.py

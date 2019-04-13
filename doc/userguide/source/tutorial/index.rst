@@ -1,8 +1,8 @@
-.. _tutorial_basics:
-.. index:: Tutorial, basics
+.. _tutorial:
+.. index:: Tutorial
 
-Basic tutorial
-**************
+Tutorial
+********
 
 This tutorial serves as a hands-on introduction to :program:`icet` and provides
 an overview of its key features. The objective is to predict the phase diagram

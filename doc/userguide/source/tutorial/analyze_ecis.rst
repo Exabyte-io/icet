@@ -12,13 +12,13 @@ loading the cluster expansion constructed :ref:`previously
 <tutorial_construct_cluster_expansion>` from file, we first organize the ECIs
 into a dictionary.
 
-.. literalinclude:: ../../../../tutorial/basic/4_analyze_ecis.py
+.. literalinclude:: ../../../../examples/tutorial/4_analyze_ecis.py
    :start-after: # step 1
    :end-before: # step 2
 
 Subsequently, the ECIs can be plotted.
 
-.. literalinclude:: ../../../../tutorial/basic/4_analyze_ecis.py
+.. literalinclude:: ../../../../examples/tutorial/4_analyze_ecis.py
    :start-after: # step 2
 
 .. figure:: _static/ecis.png
@@ -35,6 +35,6 @@ Source code
     .. container:: header
 
        The complete source code is available in
-       ``tutorial/basic/4_analyze_ecis.py``
+       ``examples/tutorial/4_analyze_ecis.py``
 
-    .. literalinclude:: ../../../../tutorial/basic/4_analyze_ecis.py
+    .. literalinclude:: ../../../../examples/tutorial/4_analyze_ecis.py

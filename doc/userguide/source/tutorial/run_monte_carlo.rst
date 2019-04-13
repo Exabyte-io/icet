@@ -14,7 +14,7 @@ simulation we first construct a supercell and initialize an associated
 calculator by combining :ref:`our cluster expansion model
 <tutorial_construct_cluster_expansion>` with the supercell.
 
-.. literalinclude:: ../../../../tutorial/basic/5a_run_monte_carlo_sgc.py
+.. literalinclude:: ../../../../examples/tutorial/5a_run_monte_carlo_sgc.py
    :start-after: # step 1
    :end-before: # step 2
 
@@ -32,7 +32,7 @@ and provide it as input to the ensemble object in the next iteration.
 Thereby the configuration evolves gradually and the period needed for
 equilibration is shortened.
 
-.. literalinclude:: ../../../../tutorial/basic/5a_run_monte_carlo_sgc.py
+.. literalinclude:: ../../../../examples/tutorial/5a_run_monte_carlo_sgc.py
    :start-after: # step 2
 
 On an Intel i5-6400 CPU the set up of the calculator takes about 1 second,
@@ -45,7 +45,7 @@ The VCSGC ensemble
 
 A simulation in the VCSGC ensemble can be carried on an analogous fashion.
 
-.. literalinclude:: ../../../../tutorial/basic/5b_run_monte_carlo_vcsgc.py
+.. literalinclude:: ../../../../examples/tutorial/5b_run_monte_carlo_vcsgc.py
    :start-after: # step 2
 
 Here, we chose :math:`\kappa=200`, which usually provides a good compromise
@@ -59,8 +59,8 @@ Source code
     .. container:: header
 
        The complete source code is available in
-       ``tutorial/basic/5a_run_monte_carlo_sgc.py`` and
-       ``tutorial/basic/5b_run_monte_carlo_vcsgc.py``
+       ``examples/tutorial/5a_run_monte_carlo_sgc.py`` and
+       ``examples/tutorial/5b_run_monte_carlo_vcsgc.py``
 
-    .. literalinclude:: ../../../../tutorial/basic/5a_run_monte_carlo_sgc.py
-    .. literalinclude:: ../../../../tutorial/basic/5b_run_monte_carlo_vcsgc.py
+    .. literalinclude:: ../../../../examples/tutorial/5a_run_monte_carlo_sgc.py
+    .. literalinclude:: ../../../../examples/tutorial/5b_run_monte_carlo_vcsgc.py

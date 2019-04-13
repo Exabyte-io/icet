@@ -14,7 +14,7 @@ and take averages but discard data collected during the first five MC cycles
 to allow for equilibration (please be aware that in general five MC cycles
 may be insufficient).
 
-.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+.. literalinclude:: ../../../../examples/tutorial/6_collect_monte_carlo_data.py
    :start-after: # step 1
    :end-before: # step 2
 
@@ -22,13 +22,13 @@ Next, we create a `pandas DataFrame object <https://pandas.pydata.org
 /pandas-docs/stable/generated/pandas.DataFrame.html>`_ which we store as
 a csv-file for future access.
 
-.. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+.. literalinclude:: ../../../../examples/tutorial/6_collect_monte_carlo_data.py
    :start-after: # step 2
 
 Now, we can easily and quickly load the aggregated data and inspect properties
 of interest, such as the free energy derivative as a function of concentration.
 
-.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+.. literalinclude:: ../../../../examples/tutorial/7_plot_monte_carlo_data.py
    :start-after: # step 1
    :end-before: # step 2
 
@@ -50,7 +50,7 @@ to obtain well converged data.
 
 It can also be instructive to plot the mixing energy.
 
-.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+.. literalinclude:: ../../../../examples/tutorial/7_plot_monte_carlo_data.py
    :start-after: # step 2
    :end-before: # step 3
 
@@ -61,7 +61,7 @@ It can also be instructive to plot the mixing energy.
 
 Furthermore one might want to consider for example the acceptance ratio.
 
-.. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+.. literalinclude:: ../../../../examples/tutorial/7_plot_monte_carlo_data.py
    :start-after: # step 3
 
 .. figure:: _static/acceptance_ratio_sgc.png
@@ -80,15 +80,15 @@ Source code
     .. container:: header
 
        The source code for data aggregation is available in
-       ``tutorial/basic/6_analyze_monte_carlo.py``.
+       ``examples/tutorial/6_analyze_monte_carlo.py``.
 
-    .. literalinclude:: ../../../../tutorial/basic/6_collect_monte_carlo_data.py
+    .. literalinclude:: ../../../../examples/tutorial/6_collect_monte_carlo_data.py
 
 .. container:: toggle
 
     .. container:: header
 
        The source code for generating the figures is available in
-       ``tutorial/basic/7_plot_monte_carlo_data.py``.
+       ``examples/tutorial/7_plot_monte_carlo_data.py``.
 
-    .. literalinclude:: ../../../../tutorial/basic/7_plot_monte_carlo_data.py
+    .. literalinclude:: ../../../../examples/tutorial/7_plot_monte_carlo_data.py
