@@ -87,6 +87,38 @@ class CanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+
+    Example
+    -------
+    The following snippet illustrate how to carry out a simple Monte Carlo
+    simulation in the canonical ensemble. Here, the parameters of the cluster
+    expansion are set to emulate a simple Ising model in order to obtain an
+    example that can be run without modification. In practice, one should of
+    course use a proper cluster expansion::
+
+        from ase.build import bulk
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import CanonicalEnsemble
+
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # prepare initial configuration
+        atoms = prim.repeat(3)
+        for k in range(5):
+            atoms[k].symbol = 'Ag'
+
+        # set up and run MC simulation
+        calc = ClusterExpansionCalculator(atoms, ce)
+        mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                               data_container='myrun_canonical.dc')
+        mc.run(100)  # carry out 100 trial swaps
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,

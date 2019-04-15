@@ -36,6 +36,60 @@ class SiteOccupancyObserver(BaseObserver):
 
     interval : int
         observation interval
+
+    Example
+    -------
+    The following snippet illustrate how to use the site occupancy factor (SOF)
+    observer in a Monte Carlo simulation of a surface slab. Here, the SOF
+    observer is used to monitor the concentrations of different species at the
+    surface, the first subsurface layer, and the remaining "bulk". A minimal
+    cluster expansion is used with slightly modified surface interactions in
+    order to obtain an example that can be run without much ado. In practice,
+    one should of course use a proper cluster expansion::
+
+        from ase.build import fcc111
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import CanonicalEnsemble
+        from mchammer.observers import SiteOccupancyObserver
+
+        # prepare reference structure
+        prim = fcc111('Au', size=(1, 1, 10), vacuum=10.0)
+        prim.translate((0.1, 0.1, 0.0))
+        prim.wrap()
+        prim.pbc = True  # icet requires pbc in all directions
+
+        # prepare cluster expansion
+        cs = ClusterSpace(prim, cutoffs=[3.7], chemical_symbols=['Ag', 'Au'])
+        params = [0] + 5 * [0] + 10 * [0.1]
+        params[1] = 0.01
+        params[6] = 0.12
+        ce = ClusterExpansion(cs, params)
+        print(ce)
+
+        # prepare initial configuration based on a 2x2 supercell
+        atoms = prim.repeat((2, 2, 1))
+        for k in range(20):
+            atoms[k].symbol = 'Ag'
+
+        # set up MC simulation
+        calc = ClusterExpansionCalculator(atoms, ce)
+        mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                               data_container='myrun_sof.dc')
+
+        # set up observer and attach it to the MC simulation
+        sites = {'surface': [0, 9], 'subsurface': [1, 8],
+                 'bulk': list(range(2, 8))}
+        sof = SiteOccupancyObserver(cs, sites, atoms, interval=len(atoms))
+        mc.attach_observer(sof)
+
+        # run 1000 trial steps
+        mc.run(1000)
+
+    After having run this snippet one can access the SOFs via the data
+    container::
+
+        print(mc.data_container.data)
     """
 
     def __init__(self, cluster_space: ClusterSpace,

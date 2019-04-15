@@ -20,7 +20,7 @@ class BinaryShortRangeOrderObserver(BaseObserver):
     Parameters
     ----------
     cluster_space : icet.ClusterSpace
-        cluster space usedfor initialization
+        cluster space used for initialization
     structure : ase.Atoms
         defines the lattice which the observer will work on
     interval : int
@@ -34,6 +34,52 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         human readable observer name (`BinaryShortRangeOrderObserver`)
     interval : int
         observation interval
+
+    Example
+    -------
+    The following snippet illustrate how to use the short-range order (SRO)
+    observer in a Monte Carlo simulation of a bulk supercell. Here, the
+    parameters of the cluster expansion are set to emulate a simple Ising model
+    in order to obtain an example that can be run without modification. In
+    practice, one should of course use a proper cluster expansion::
+
+        from ase.build import bulk
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import CanonicalEnsemble
+        from mchammer.observers import SiteOccupancyObserver
+
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # prepare initial configuration based on a 2x2 supercell
+        atoms = prim.repeat((2, 2, 1))
+        for k in range(20):
+            atoms[k].symbol = 'Ag'
+
+        # set up MC simulation
+        calc = ClusterExpansionCalculator(atoms, ce)
+        mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                               data_container='myrun_sof.dc')
+
+        # set up observer and attach it to the MC simulation
+        sites = {'surface': [0, 9], 'subsurface': [1, 8],
+                 'bulk': list(range(2, 8))}
+        sof = SiteOccupancyObserver(cs, sites, atoms, interval=len(atoms))
+        mc.attach_observer(sof)
+
+        # run 1000 trial steps
+        mc.run(1000)
+
+    After having run this snippet one can access the SRO parameters via the
+    data container::
+
+        print(mc.data_container.data)
     """
 
     def __init__(self, cluster_space, structure: Atoms,
