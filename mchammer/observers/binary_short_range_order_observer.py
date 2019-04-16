@@ -66,16 +66,16 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         nAg = 10
         atoms = prim.repeat(3)
         atoms.set_chemical_symbols(nAg * ['Ag'] + (len(atoms) - nAg) * ['Au'])
-        
+
         # set up MC simulation
         calc = ClusterExpansionCalculator(atoms, ce)
         mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
                                data_container='myrun_sro.dc')
-        
+
         # set up observer and attach it to the MC simulation
         sro = BinaryShortRangeOrderObserver(cs, atoms, interval=len(atoms), radius=4.3)
         mc.attach_observer(sro)
-        
+
         # run 1000 trial steps
         mc.run(1000)
 
