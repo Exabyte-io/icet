@@ -47,7 +47,7 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         from icet import ClusterExpansion, ClusterSpace
         from mchammer.calculators import ClusterExpansionCalculator
         from mchammer.ensembles import CanonicalEnsemble
-        from mchammer.observers import SiteOccupancyObserver
+        from mchammer.observers import BinaryShortRangeOrderObserver
 
         # prepare cluster expansion
         # the setup emulates a second nearest-neighbor (NN) Ising model
@@ -62,17 +62,20 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         for k in range(20):
             atoms[k].symbol = 'Ag'
 
+        # prepare initial configuration
+        nAg = 10
+        atoms = prim.repeat(3)
+        atoms.set_chemical_symbols(nAg * ['Ag'] + (len(atoms) - nAg) * ['Au'])
+        
         # set up MC simulation
         calc = ClusterExpansionCalculator(atoms, ce)
         mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
-                               data_container='myrun_sof.dc')
-
+                               data_container='myrun_sro.dc')
+        
         # set up observer and attach it to the MC simulation
-        sites = {'surface': [0, 9], 'subsurface': [1, 8],
-                 'bulk': list(range(2, 8))}
-        sof = SiteOccupancyObserver(cs, sites, atoms, interval=len(atoms))
-        mc.attach_observer(sof)
-
+        sro = BinaryShortRangeOrderObserver(cs, atoms, interval=len(atoms), radius=4.3)
+        mc.attach_observer(sro)
+        
         # run 1000 trial steps
         mc.run(1000)
 

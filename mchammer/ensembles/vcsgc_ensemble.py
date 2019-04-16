@@ -138,23 +138,23 @@ class VCSGCEnsemble(BaseEnsemble):
         from mchammer.calculators import ClusterExpansionCalculator
         from mchammer.ensembles import VCSGCEnsemble
 
-        # prepare initial configuration
-        nAg = 10
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # set up and run MC simulation
         atoms = prim.repeat(3)
-        atoms.set_chemical_symbols(nAg * ['Ag'] + (len(atoms) - nAg) * ['Au'])
-
-        # set up MC simulation
         calc = ClusterExpansionCalculator(atoms, ce)
-        mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
-                               data_container='myrun_sro.dc')
-
-        # set up observer and attach it to the MC simulation
-        sro = BinaryShortRangeOrderObserver(cs, atoms,
-                                            interval=len(atoms), radius=4.3)
-        mc.attach_observer(sro)
-
-        # run 1000 trial steps
-        mc.run(1000)
+        phi = 0.6
+        mc = VCSGCEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                           data_container='myrun_vcsgc.dc',
+                           phis={'Ag': -2.0 - phi, 'Au': phi},
+                           kappa=200)
+        mc.run(100)  # carry out 100 trial swaps
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
