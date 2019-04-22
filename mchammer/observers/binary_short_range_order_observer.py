@@ -57,11 +57,6 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
         ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
 
-        # prepare initial configuration based on a 2x2 supercell
-        atoms = prim.repeat((2, 2, 1))
-        for k in range(20):
-            atoms[k].symbol = 'Ag'
-
         # prepare initial configuration
         nAg = 10
         atoms = prim.repeat(3)
