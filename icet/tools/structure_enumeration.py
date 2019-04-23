@@ -460,6 +460,8 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
             for hnf in snf.hnfs:
                 if niggli_reduce:
                     new_cell = spg_nigg_red(np.dot(atoms.cell.T, hnf.H).T)
+                    if new_cell is None:
+                        new_cell = np.dot(atoms.cell.T, hnf.H).T
                 else:
                     new_cell = np.dot(atoms.cell.T, hnf.H).T
                 for labeling in _yield_unique_labelings(labelings, snf, hnf,
