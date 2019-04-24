@@ -522,7 +522,7 @@ def enumerate_supercells(atoms: Atoms, sizes: List[int],
             supercell = make_supercell(atoms, hnf.H)
             if niggli_reduce:
                 new_cell = spg_nigg_red(np.dot(atoms.cell.T, hnf.H).T)
-                if new_cell is None: # Happens when spglib fails to Niggli reduce
+                if new_cell is None:  # Happens when spglib fails to Niggli reduce
                     yield supercell
                 else:
                     Pprim = np.dot(new_cell, np.linalg.inv(atoms.cell))
