@@ -19,8 +19,8 @@ class ClusterCountObserver(BaseObserver):
     Carlo (MC) simulation. For example, using this observer, several
     canonical MC simulations could be carried out at different
     temperatures and the temperature dependence of the number of
-    nearest neigbhors of a particular species could accessed with this
-    observer.
+    nearest neigbhors of a particular species could be accessed with
+    this observer.
 
     Parameters
     ----------

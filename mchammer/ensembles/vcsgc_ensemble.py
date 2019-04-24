@@ -124,6 +124,37 @@ class VCSGCEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+
+    Example
+    -------
+    The following snippet illustrate how to carry out a simple Monte Carlo
+    simulation in the variance-constrained semi-canonical ensemble. Here, the
+    parameters of the cluster expansion are set to emulate a simple Ising model
+    in order to obtain an example that can be run without modification. In
+    practice, one should of course use a proper cluster expansion::
+
+        from ase.build import bulk
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import VCSGCEnsemble
+
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # set up and run MC simulation
+        atoms = prim.repeat(3)
+        calc = ClusterExpansionCalculator(atoms, ce)
+        phi = 0.6
+        mc = VCSGCEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                           data_container='myrun_vcsgc.dc',
+                           phis={'Ag': -2.0 - phi, 'Au': phi},
+                           kappa=200)
+        mc.run(100)  # carry out 100 trial swaps
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
@@ -154,13 +185,12 @@ class VCSGCEnsemble(BaseEnsemble):
             trajectory_write_interval=trajectory_write_interval)
 
         if any([len(sl.chemical_symbols) > 2 for sl in self.sublattices]):
-            raise NotImplementedError('VCSGCEnsemble does not yet support '
-                                      'cluster spaces with more than two '
-                                      'species.')
+            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
+                                      ' spaces with more than two species.')
 
         if len(self.sublattices.active_sublattices) > 1:
-            raise NotImplementedError('VCSGCEnsemble does not yet support '
-                                      'cluster spaces more than one active sublattices ')
+            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
+                                      ' spaces with more than one active sublattice.')
         for sl in self.sublattices.active_sublattices:
             for number in sl.atomic_numbers:
                 if number not in self.phis.keys():
