@@ -388,7 +388,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         orig_size = len(self.cs.orbit_list)
         prune_indices = [0, 1, 3, 2]
         self.cs._prune_orbit_list(indices=prune_indices)
-        self.assertEqual(orig_size-len(prune_indices), len(self.cs.orbit_list))
+        self.assertEqual(orig_size - len(prune_indices), len(self.cs.orbit_list))
 
     def test_copy(self):
         """ Tests copy function. """

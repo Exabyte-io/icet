@@ -459,6 +459,33 @@ class ClusterSpace(_ClusterSpace):
         sublattices = self.get_sublattices(structure)
         sublattices.assert_occupation_is_allowed(structure.get_chemical_symbols())
 
+    def is_supercell_self_correlated(self, atoms: Atoms) -> bool:
+        """
+        Check whether an atoms object self-interacts via periodic
+        boundary conditions.
+
+        Parameters
+        ----------
+        atoms
+            An atoms object to check self-interaction for
+
+        Returns
+        -------
+        bool
+            If True, the atoms object self-interacts via periodic
+            boundary conditions, otherwise False.
+        """
+        ol = self.orbit_list.get_supercell_orbit_list(atoms)
+        orbit_indices = set()
+        for orbit in ol.orbits:
+            for sites in orbit.get_equivalent_sites():
+                indices = tuple(sorted([site.index for site in sites]))
+                if indices in orbit_indices:
+                    return True
+                else:
+                    orbit_indices.add(indices)
+        return False
+
     def write(self, filename: str) -> None:
         """
         Saves cluster space to a file.

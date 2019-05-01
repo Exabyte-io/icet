@@ -546,7 +546,7 @@ class DataContainer:
                 dc._data_list = \
                     data.T.apply(lambda x: x.dropna().to_dict()).tolist()
             else:
-                dc._data_list = np.load(runtime_data_file)['arr_0'].tolist()
+                dc._data_list = np.load(runtime_data_file, allow_pickle=True)['arr_0'].tolist()
 
         dc._observables = set([key for data in dc._data_list for key in data])
         dc._observables = dc._observables - {'mctrial'}

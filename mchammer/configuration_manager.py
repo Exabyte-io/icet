@@ -66,6 +66,17 @@ class ConfigurationManager(object):
         atoms.set_atomic_numbers(self.occupations)
         return atoms
 
+    def is_swap_possible(self, sublattice_index: int) -> bool:
+        """ Checks if swap is possible on specific sublattice.
+
+        Parameters
+        ----------
+        sublattice_index
+            index of sublattice to be checked
+         """
+        sl = self.sublattices[sublattice_index]
+        return len(set(self.occupations[sl.indices])) > 1
+
     def get_swapped_state(self, sublattice_index: int) -> Tuple[List[int], List[int]]:
         """Returns two random sites (first element of tuple) and their
         occupation after a swap (second element of tuple).  The new

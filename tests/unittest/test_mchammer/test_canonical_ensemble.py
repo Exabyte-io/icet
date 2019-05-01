@@ -5,8 +5,9 @@ from ase.build import bulk
 
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators import ClusterExpansionCalculator
-
-from mchammer.ensembles.canonical_ensemble import CanonicalEnsemble
+from mchammer.configuration_manager import ConfigurationManager
+from mchammer.ensembles.canonical_ensemble import CanonicalEnsemble, \
+    get_swap_sublattice_probabilities
 
 
 class TestEnsemble(unittest.TestCase):
@@ -137,6 +138,34 @@ class TestEnsemble(unittest.TestCase):
 
         mc = CanonicalEnsemble(supercell, calc, 300)
         mc.run(50)
+
+    def test_get_swap_sublattice_probabilities(self):
+        """ Tests the get_swap_sublattice_probabilities function. """
+
+        # setup system with inactive sublattice
+        prim = bulk('Al').repeat([2, 1, 1])
+        chemical_symbols = [['Al'], ['Ag', 'Al']]
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        supercell = prim.repeat(2)
+        supercell[1].symbol = 'Ag'
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        # test get_swap_sublattice_probabilities
+        probs = get_swap_sublattice_probabilities(cm)
+        self.assertEqual(len(probs), 2)
+        self.assertEqual(probs[0], 1)
+        self.assertEqual(probs[1], 0)
+
+        # test raise when swap not possible on either lattice
+        supercell[1].symbol = 'Al'
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        with self.assertRaises(ValueError) as context:
+            get_swap_sublattice_probabilities(cm)
+        self.assertIn('No canonical swaps are possible on any of the', str(context.exception))
 
 
 if __name__ == '__main__':

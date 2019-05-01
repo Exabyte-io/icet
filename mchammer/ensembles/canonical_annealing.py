@@ -8,6 +8,7 @@ from typing import Dict
 
 from .. import DataContainer
 from .base_ensemble import BaseEnsemble
+from .canonical_ensemble import get_swap_sublattice_probabilities
 from ..calculators.base_calculator import BaseCalculator
 
 
@@ -41,10 +42,10 @@ class CanonicalAnnealing(BaseEnsemble):
 
     Parameters
     ----------
-    atoms : :class:`ase:Atoms`
+    atoms : :class:`Atoms <ase.Atoms>`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
-    calculator : :class:`BaseCalculator`
+    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
     T_start : float
@@ -119,6 +120,7 @@ class CanonicalAnnealing(BaseEnsemble):
         self._T_stop = T_stop
         self._n_steps = n_steps
 
+        # setup cooling function
         if isinstance(cooling_function, str):
             available = sorted(available_cooling_functions.keys())
             if cooling_function not in available:
@@ -130,6 +132,9 @@ class CanonicalAnnealing(BaseEnsemble):
         else:
             raise TypeError(
                 'cooling_function must be either str or a function')
+
+        # setup sublattice probabilities
+        self.sublattice_probabilities = get_swap_sublattice_probabilities(self.configuration)
 
     @property
     def temperature(self) -> float:
@@ -208,20 +213,9 @@ class CanonicalAnnealing(BaseEnsemble):
 
         Todo
         ----
-        * fix this method
         * add unit test
         """
-        probability_distribution = []
-        for sl in self.sublattices:
-            if len(set(self.configuration.occupations[sl.indices])) <= 1 or \
-                 len(sl.chemical_symbols) == 1:
-                p = 0
-            else:
-                p = len(sl.indices)
-            probability_distribution.append(p)
-        norm = sum(probability_distribution)
-        probability_distribution = [p/norm for p in probability_distribution]
-        pick = np.random.choice(range(0, len(self.sublattices)), p=probability_distribution)
+        pick = np.random.choice(range(0, len(self.sublattices)), p=self.sublattice_probabilities)
         return pick
 
 

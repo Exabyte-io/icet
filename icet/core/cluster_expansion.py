@@ -109,7 +109,7 @@ class ClusterExpansion:
     @property
     def orders(self) -> List[int]:
         """ orders included in cluster expansion """
-        return list(range(len(self._cluster_space.cutoffs)+2))
+        return list(range(len(self._cluster_space.cutoffs) + 2))
 
     @property
     def cluster_space(self) -> ClusterSpace:

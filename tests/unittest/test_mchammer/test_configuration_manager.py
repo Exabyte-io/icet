@@ -13,11 +13,7 @@ class TestConfigurationManager(unittest.TestCase):
         self.atoms = bulk('Al').repeat([2, 1, 1])
         self.atoms[1].symbol = 'Ag'
         self.atoms = self.atoms.repeat(3)
-        self.constraints = [[13, 47] for _ in range(len(self.atoms))]
-        cs = ClusterSpace(self.atoms, cutoffs=[
-                          0], chemical_symbols=['Ag', 'Al'])
-
-        self.strict_constraints = self.constraints
+        cs = ClusterSpace(self.atoms, cutoffs=[0], chemical_symbols=['Ag', 'Al'])
         self.sublattices = cs.get_sublattices(self.atoms)
 
     def shortDescription(self):
@@ -25,8 +21,7 @@ class TestConfigurationManager(unittest.TestCase):
         return None
 
     def setUp(self):
-        self.cm = ConfigurationManager(
-            self.atoms, self.sublattices)
+        self.cm = ConfigurationManager(self.atoms, self.sublattices)
 
     def test_type(self):
         """Tests cm type."""
@@ -69,6 +64,27 @@ class TestConfigurationManager(unittest.TestCase):
         with self.assertRaises(AttributeError) as context:
             self.cm.sublattices = []
         self.assertTrue("can't set attribute" in str(context.exception))
+
+    def test_is_swap_possible(self):
+        """Tests is_swap_possible function."""
+
+        # swaps are possible
+        for i, sl in enumerate(self.cm.sublattices):
+            self.assertTrue(self.cm.is_swap_possible(i))
+
+        # setup system with inactive sublattice
+        prim = bulk('Al').repeat([2, 1, 1])
+        chemical_symbols = [['Al'], ['Ag', 'Al']]
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        supercell = prim.repeat(2)
+        supercell[1].symbol = 'Ag'
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        # check both sublattices
+        self.assertTrue(cm.is_swap_possible(0))
+        self.assertFalse(cm.is_swap_possible(1))
 
     def test_get_swapped_state(self):
         """Tests the getting swap indices method."""
