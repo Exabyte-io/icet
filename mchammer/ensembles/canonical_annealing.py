@@ -167,6 +167,12 @@ class CanonicalAnnealing(BaseEnsemble):
             raise Exception('Annealing has already finished')
         super().run(self.n_steps - self.total_trials)
 
+    def get_ground_state_and_potential(self):
+        """ Returns lowest potential structure and its potential. """
+        traj, potential = self.data_container.get_data('traj', 'potential')
+        min_ind = potential.argmin()
+        return traj[min_ind], potential[min_ind]
+
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
         self._temperature = self._cooling_function(
