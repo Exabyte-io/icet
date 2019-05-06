@@ -88,7 +88,7 @@ class ClusterCountObserver(BaseObserver):
         """
         structure = Structure.from_atoms(atoms)
         self._cluster_counts_cpp.count_orbit_list(
-            structure, self._full_orbit_list, False, True)
+            structure, self._full_orbit_list, True, True)
 
         empty_counts = self._get_empty_counts()
         pandas_rows = []
@@ -103,8 +103,7 @@ class ClusterCountObserver(BaseObserver):
 
                 count = chemical_number_counts_dict.get(chemical_symbols, 0)
                 pandas_row = {}
-                pandas_row['dc_tag'] = '{}_{}'.format(
-                    cluster_key.tag, '_'.join(chemical_symbols))
+                pandas_row['dc_tag'] = '{}_{}'.format(cluster_key.tag, '_'.join(chemical_symbols))
                 pandas_row['decoration'] = chemical_symbols
                 pandas_row['cluster_count'] = count
                 pandas_row['orbit_index'] = cluster_key.tag
