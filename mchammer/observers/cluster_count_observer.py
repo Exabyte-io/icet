@@ -64,8 +64,8 @@ class ClusterCountObserver(BaseObserver):
         for i, cluster in enumerate(self._cluster_keys):
             order = len(cluster)
             possible_decorations = self._cluster_space.get_possible_orbit_decorations(cluster.tag)
-            assert order == len(possible_decorations[0]),'{} is not {}, {}, {}'.format(
-                    order, len(possible_decorations[0]), possible_decorations)
+            assert order == len(possible_decorations[0]), '{} is not {}, {}, {}'.format(
+                order, len(possible_decorations[0]), possible_decorations)
 
             counts[cluster] = {decoration: 0 for decoration in possible_decorations}
         return counts
