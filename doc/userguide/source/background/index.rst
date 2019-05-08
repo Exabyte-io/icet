@@ -18,13 +18,6 @@ could for example also represent the sequence of amino acids in a protein
 general and include for example migration barriers, lattice constants, or
 transport coefficients [AngLinErh16]_.
 
-.. todo::
-
-   (expand and add more references; some references to topics such as cluster
-   functions are intentionally left broken as a reminder to cover these things)
-   [AngLinErh16]_, [CanWak08]_, [NelOzoRee13]_
-
-
 .. toctree::
    :maxdepth: 1
    :caption: Contents
