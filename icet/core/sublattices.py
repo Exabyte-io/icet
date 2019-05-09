@@ -177,7 +177,7 @@ class Sublattices:
         for sl in self:
             for i in sl.indices:
                 if not chemical_symbols[i] in sl.chemical_symbols:
-                    msg = 'Occupations of structure not compatible with the sublattice.'
-                    msg += ' Site {} with occupation {} not allowed on'
-                    msg += ' sublattice {}'.format(i, chemical_symbols[i], sl.chemical_symbols)
+                    msg = ('Occupations of structure not compatible with the sublattice.'
+                           ' Site {} with occupation {} not allowed on sublattice {}'
+                           .format(i, chemical_symbols[i], sl.chemical_symbols))
                     raise ValueError(msg)

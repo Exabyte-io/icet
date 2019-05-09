@@ -7,7 +7,6 @@ import random
 import numpy as np
 from ase.db import connect
 from icet import ClusterSpace
-from icet.tools.geometry import add_vacuum_in_non_pbc
 
 
 def generate_mixed_structure(atoms_prim, chemical_symbols):
@@ -73,14 +72,12 @@ db = connect('structures_for_testing.db')
 chemical_symbols = ['H', 'He', 'Pb']
 for row in db.select():
     atoms_row = row.toatoms()
+    if not all(atoms_row.pbc):
+        continue
     atoms_tag = row.tag
     cutoffs = [1.4] * 3
     if len(atoms_row) == 0:
         continue
-    if atoms_row.get_pbc().all():
-        atoms_row.wrap()
-        cluster_space = ClusterSpace(atoms_row, cutoffs, chemical_symbols)
-        if not atoms_row.get_pbc().all():
-            add_vacuum_in_non_pbc(atoms_row)
-        cvs = generate_cluster_vector_set(5, atoms_row,
-                                          chemical_symbols, cluster_space)
+    atoms_row.wrap()
+    cluster_space = ClusterSpace(atoms_row, cutoffs, chemical_symbols)
+    cvs = generate_cluster_vector_set(5, atoms_row, chemical_symbols, cluster_space)

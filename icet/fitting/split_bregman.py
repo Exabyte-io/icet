@@ -14,8 +14,7 @@ def fit_split_bregman(A: np.ndarray,
                       mu: float = 1e-3,
                       lmbda: float = 100,
                       n_iters: int = 1000,
-                      tol: float = 1e-6,
-                      verbose: bool = False) -> Dict[str, Any]:
+                      tol: float = 1e-6) -> Dict[str, Any]:
     """
     Determines the solution :math:`\\boldsymbol{x}` to the linear
     problem :math:`\\boldsymbol{A}\\boldsymbol{x}=\\boldsymbol{y}` using
@@ -38,9 +37,6 @@ def fit_split_bregman(A: np.ndarray,
         maximal number of split-Bregman iterations
     tol
         convergence criterion iterative minimization
-    verbose
-        if True print additional information pertaining to the optimization
-        to stdout
     """
 
     def _shrink(y: np.ndarray, alpha: float) -> np.ndarray:
@@ -62,8 +58,6 @@ def fit_split_bregman(A: np.ndarray,
     ftA = np.dot(y.conj().transpose(), A)
     ii = 0
     for i in range(n_iters):
-        if verbose:
-            print('Iteration ', i)
         args = (A, y, mu, lmbda, d, b, AtA, ftA)
         res = minimize(_objective_function, x, args, method='BFGS',
                        options={'disp': False},
@@ -76,14 +70,10 @@ def fit_split_bregman(A: np.ndarray,
         new_norm = np.linalg.norm(x)
         ii = ii + 1
 
-        if verbose:
-            print('|new_norm-old_norm| = ', abs(new_norm-old_norm))
         if abs(new_norm-old_norm) < tol:
             break
 
         old_norm = new_norm
-    else:
-        print('Warning: Split Bregman ran for max iters')
 
     fit_results = {'parameters': x}
     return fit_results

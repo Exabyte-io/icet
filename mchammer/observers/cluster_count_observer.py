@@ -41,16 +41,13 @@ class ClusterCountObserver(BaseObserver):
 
     def __init__(self, cluster_space, atoms: Atoms,
                  interval: int) -> None:
-        super().__init__(interval=interval, return_type=dict,
-                         tag='ClusterCountObserver')
+        super().__init__(interval=interval, return_type=dict, tag='ClusterCountObserver')
 
         structure = Structure.from_atoms(atoms)
         self._cluster_space = cluster_space
-        local_orbit_list_generator = LocalOrbitListGenerator(
-            cluster_space.orbit_list, structure)
+        local_orbit_list_generator = LocalOrbitListGenerator(cluster_space.orbit_list, structure)
 
-        self._full_orbit_list = \
-            local_orbit_list_generator.generate_full_orbit_list()
+        self._full_orbit_list = local_orbit_list_generator.generate_full_orbit_list()
         self._cluster_counts_cpp = _ClusterCounts()
 
         self._cluster_keys = []
@@ -66,15 +63,11 @@ class ClusterCountObserver(BaseObserver):
         counts = {}
         for i, cluster in enumerate(self._cluster_keys):
             order = len(cluster)
-            possible_decorations =\
-                self._cluster_space.get_possible_orbit_decorations(
-                    cluster.tag)
-            assert order == len(
-                possible_decorations[0]), '{} is not {}, {}, {}'.format(
-                    order, len(possible_decorations[0]), possible_decorations)
+            possible_decorations = self._cluster_space.get_possible_orbit_decorations(cluster.tag)
+            assert order == len(possible_decorations[0]), '{} is not {}, {}, {}'.format(
+                order, len(possible_decorations[0]), possible_decorations)
 
-            counts[cluster] = {
-                decoration: 0 for decoration in possible_decorations}
+            counts[cluster] = {decoration: 0 for decoration in possible_decorations}
         return counts
 
     def _generate_counts(self, atoms: Atoms) -> None:
@@ -87,8 +80,7 @@ class ClusterCountObserver(BaseObserver):
             input atomic structure.
         """
         structure = Structure.from_atoms(atoms)
-        self._cluster_counts_cpp.count_orbit_list(
-            structure, self._full_orbit_list, False, True)
+        self._cluster_counts_cpp.count_orbit_list(structure, self._full_orbit_list, True, True)
 
         empty_counts = self._get_empty_counts()
         pandas_rows = []
@@ -96,15 +88,13 @@ class ClusterCountObserver(BaseObserver):
         # std::unordered_map<Cluster, std::map<std::vector<int>, int>>
         cluster_counts = self._cluster_counts_cpp.get_cluster_counts()
 
-        for cluster_key, chemical_number_counts_dict in \
-                cluster_counts.items():
+        for cluster_key, chemical_number_counts_dict in cluster_counts.items():
 
             for chemical_symbols in empty_counts[cluster_key].keys():
 
                 count = chemical_number_counts_dict.get(chemical_symbols, 0)
                 pandas_row = {}
-                pandas_row['dc_tag'] = '{}_{}'.format(
-                    cluster_key.tag, '_'.join(chemical_symbols))
+                pandas_row['dc_tag'] = '{}_{}'.format(cluster_key.tag, '_'.join(chemical_symbols))
                 pandas_row['decoration'] = chemical_symbols
                 pandas_row['cluster_count'] = count
                 pandas_row['orbit_index'] = cluster_key.tag

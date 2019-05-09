@@ -446,12 +446,14 @@ class DataContainer:
         else:
             return data_list[0]
 
-    def write_trajectory(self, outfile: Union[str, BinaryIO, TextIO]):
-        """
-        Saves trajectory to a file along with the respectives values of the
-        potential field for each configuration. If the file exists the
-        trajectory will be appended. Use ase gui to visualize the trajectory
-        with values of the potential for each frame.
+    def write_trajectory(self, outfile: Union[str, BinaryIO, TextIO]) -> None:
+        """Writes the configurations along the trajectory to file in ASE
+        trajectory format.  The file also includes the respectives
+        values of the potential for each configuration. If the file
+        exists the trajectory will be appended. The ASE `convert`
+        command can be used to convert the trajectory file to other
+        formats. The ASE `gui` can be used to visualize the
+        trajectory.
 
         Parameters
         ----------
