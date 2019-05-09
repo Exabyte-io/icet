@@ -72,6 +72,8 @@ db = connect('structures_for_testing.db')
 chemical_symbols = ['H', 'He', 'Pb']
 for row in db.select():
     atoms_row = row.toatoms()
+    if not all(atoms_row.pbc):
+        continue
     atoms_tag = row.tag
     cutoffs = [1.4] * 3
     if len(atoms_row) == 0:
