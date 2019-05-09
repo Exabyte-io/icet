@@ -44,7 +44,7 @@ team can also be reached by email via icet@materialsmodeling.org.
    installation
    tutorial/index
    advanced_topics/index
-   cite
+   credits
 
 .. toctree::
    :maxdepth: 2
