@@ -19,8 +19,7 @@ from ase.io import write as ase_write
 from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.core.sublattices import Sublattices
-from icet.tools.geometry import (add_vacuum_in_non_pbc,
-                                 get_decorated_primitive_structure)
+from icet.tools.geometry import get_decorated_primitive_structure
 
 
 class ClusterSpace(_ClusterSpace):
@@ -635,18 +634,15 @@ def get_singlet_configuration(atoms: Atoms,
                                                    return_cluster_space=True)
 
     if to_primitive:
-        singlet_configuration = cluster_space.primitive_structure
+        atoms_singlet = cluster_space.primitive_structure
         for singlet in cluster_data:
             for site in singlet['sites']:
                 symbol = chemical_symbols[singlet['orbit_index'] + 1]
                 atom_index = site[0].index
-                singlet_configuration[atom_index].symbol = symbol
+                atoms_singlet[atom_index].symbol = symbol
     else:
-        singlet_configuration = atoms.copy()
-        singlet_configuration = add_vacuum_in_non_pbc(singlet_configuration)
-        orbit_list_supercell\
-            = cluster_space._orbit_list.get_supercell_orbit_list(
-                singlet_configuration)
+        atoms_singlet = atoms.copy()
+        orbit_list_supercell = cluster_space._orbit_list.get_supercell_orbit_list(atoms_singlet)
         for singlet in cluster_data:
             for site in singlet['sites']:
                 symbol = chemical_symbols[singlet['orbit_index'] + 1]
@@ -654,9 +650,9 @@ def get_singlet_configuration(atoms: Atoms,
                     singlet['orbit_index']).get_equivalent_sites()
                 for lattice_site in sites:
                     k = lattice_site[0].index
-                    singlet_configuration[k].symbol = symbol
+                    atoms_singlet[k].symbol = symbol
 
-    return singlet_configuration
+    return atoms_singlet
 
 
 def view_singlets(atoms: Atoms, to_primitive: bool = False):
@@ -674,6 +670,5 @@ def view_singlets(atoms: Atoms, to_primitive: bool = False):
     from ase.visualize import view
     assert isinstance(atoms, Atoms), \
         'input configuration must be an ASE Atoms object'
-    singlet_configuration = get_singlet_configuration(
-        atoms, to_primitive=to_primitive)
-    view(singlet_configuration)
+    atoms_singlet = get_singlet_configuration(atoms, to_primitive=to_primitive)
+    view(atoms_singlet)

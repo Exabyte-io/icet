@@ -98,9 +98,7 @@ def get_primitive_structure(atoms: Atoms,
         primitive structure
     """
     atoms_cpy = atoms.copy()
-    atoms_with_vacuum = add_vacuum_in_non_pbc(atoms_cpy)
-
-    atoms_as_tuple = ase_atoms_to_spglib_cell(atoms_with_vacuum)
+    atoms_as_tuple = ase_atoms_to_spglib_cell(atoms_cpy)
 
     lattice, scaled_positions, numbers = spglib.standardize_cell(
         atoms_as_tuple, to_primitive=to_primitive,
