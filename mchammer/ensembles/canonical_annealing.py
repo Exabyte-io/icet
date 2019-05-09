@@ -120,6 +120,10 @@ class CanonicalAnnealing(BaseEnsemble):
         self._T_stop = T_stop
         self._n_steps = n_steps
 
+        self._ground_state_candidate = self.configuration.atoms
+        self._ground_state_candidate_potential = self.calculator.calculate_total(
+                occupations=self.configuration.occupations)
+
         # setup cooling function
         if isinstance(cooling_function, str):
             available = sorted(available_cooling_functions.keys())
@@ -130,8 +134,7 @@ class CanonicalAnnealing(BaseEnsemble):
         elif callable(cooling_function):
             self._cooling_function = cooling_function
         else:
-            raise TypeError(
-                'cooling_function must be either str or a function')
+            raise TypeError('cooling_function must be either str or a function')
 
         # setup sublattice probabilities
         self.sublattice_probabilities = get_swap_sublattice_probabilities(self.configuration)
@@ -161,17 +164,21 @@ class CanonicalAnnealing(BaseEnsemble):
         """ Boltzmann constant :math:`k_B` (see parameters section above) """
         return self._boltzmann_constant
 
+    @property
+    def estimated_ground_state(self):
+        """ Structure with lowest observed potential during run """
+        return self._ground_state_candidate.copy()
+
+    @property
+    def estimated_ground_state_potential(self):
+        """ Lowest observed potential during run """
+        return self._ground_state_candidate_potential
+
     def run(self):
         """ Runs the annealing. """
         if self.total_trials >= self.n_steps:
             raise Exception('Annealing has already finished')
         super().run(self.n_steps - self.total_trials)
-
-    def get_ground_state_and_potential(self):
-        """ Returns lowest potential structure and its potential. """
-        traj, potential = self.data_container.get_data('traj', 'potential')
-        min_ind = potential.argmin()
-        return traj[min_ind], potential[min_ind]
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
@@ -211,6 +218,9 @@ class CanonicalAnnealing(BaseEnsemble):
         """
         data = super()._get_ensemble_data()
         data['temperature'] = self.temperature
+        if data['potential'] < self._ground_state_candidate_potential:
+            self._ground_state_candidate_potential = data['potential']
+            self._ground_state_candidate = self.configuration.atoms
         return data
 
     def get_random_sublattice_index(self) -> int:
