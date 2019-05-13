@@ -423,18 +423,16 @@ class DataContainer:
         return np.mean(data)
 
     def get_trajectory(self, start: int = None, stop: int = None, interval: int = 1) -> List[Atoms]:
-        """ Returns trajectory as a list of ase atoms objects
+        """ Returns trajectory as a list of ASE Atoms objects.
 
         Parameters
         ----------
         start
             minimum value of trial step to consider; by default the
             smallest value in the mctrial column will be used.
-
         stop
             maximum value of trial step to consider; by default the
             largest value in the mctrial column will be used.
-
         interval
             increment for mctrial; by default the smallest available
             interval will be used.
