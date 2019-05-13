@@ -78,8 +78,7 @@ class DataContainer:
 
         """
         if not isinstance(mctrial, numbers.Integral):
-            raise TypeError('mctrial has the wrong type: {}'
-                            .format(type(mctrial)))
+            raise TypeError('mctrial has the wrong type: {}'.format(type(mctrial)))
 
         if self._data_list:
             if self._data_list[-1]['mctrial'] > mctrial:
@@ -91,8 +90,7 @@ class DataContainer:
                                  ' when initializing a new ensemble.')
 
         if not isinstance(record, dict):
-            raise TypeError('record has the wrong type: {}'
-                            .format(type(record)))
+            raise TypeError('record has the wrong type: {}'.format(type(record)))
 
         for tag in record.keys():
             self._observables.add(tag)
@@ -223,20 +221,16 @@ class DataContainer:
             if fill_method != 'skip_none':
                 raise ValueError('Only skip_none fill method is avaliable'
                                  ' when trajectory is requested')
-            return self._get_trajectory(*tags, start=start, stop=stop,
-                                        interval=interval)
+            return self._get_trajectory(*tags, start=start, stop=stop, interval=interval)
 
         for tag in tags:
             if tag == 'mctrial':
                 continue
             if tag not in self.observables:
-                raise ValueError('No observable named {} in data'
-                                 ' container'.format(tag))
+                raise ValueError('No observable named {} in data container'.format(tag))
 
         mctrials = [row_dict['mctrial'] for row_dict in self._data_list]
-        data = pd.DataFrame.from_records(self._data_list,
-                                         index=mctrials,
-                                         columns=tags)
+        data = pd.DataFrame.from_records(self._data_list, index=mctrials, columns=tags)
         if start is None and stop is None:
             data = data.loc[::interval, tags].copy()
         else:
@@ -284,8 +278,7 @@ class DataContainer:
         data_list = []
         for tag in tags:
             # convert NaN to None
-            data_list.append(np.array(
-                [None if np.isnan(x).any() else x for x in data[tag]]))
+            data_list.append(np.array([None if np.isnan(x).any() else x for x in data[tag]]))
         if len(tags) > 1:
             # return a tuple if more than one tag is given
             return tuple(data_list)
@@ -350,8 +343,7 @@ class DataContainer:
             return len(data)
         else:
             if tag not in data:
-                raise ValueError('No observable named {}'
-                                 ' in data container'.format(tag))
+                raise ValueError('No observable named {} in data container'.format(tag))
             return data[tag].count()
 
     def analyze_data(self, tag: str, start: int = None,
@@ -403,8 +395,7 @@ class DataContainer:
         summary['correlation_length'] *= step_length  # in mc-trials
         return summary
 
-    def get_average(self, tag: str,
-                    start: int = None, stop: int = None) -> float:
+    def get_average(self, tag: str, start: int = None, stop: int = None) -> float:
         """
         Returns average of a scalar observable.
 
@@ -450,8 +441,7 @@ class DataContainer:
         """
         return self.get_data('trajectory', start=start, stop=stop, interval=interval)
 
-    def _get_trajectory(self, *tags, start: int = None, stop: int = None,
-                        interval: int = 1) \
+    def _get_trajectory(self, *tags, start: int = None, stop: int = None, interval: int = 1) \
             -> Union[List[Atoms], Tuple[List[Atoms], np.ndarray]]:
         """
         Returns a trajectory in the form of a list of ASE Atoms
@@ -472,10 +462,8 @@ class DataContainer:
             increment for mctrial; by default the smallest available
             interval will be used.
         """
-        new_tags = tuple(['occupations' if tag == 'trajectory' else
-                          tag for tag in tags])
-        data = \
-            self.get_data(*new_tags, start=start, stop=stop, interval=interval)
+        new_tags = tuple(['occupations' if tag == 'trajectory' else tag for tag in tags])
+        data = self.get_data(*new_tags, start=start, stop=stop, interval=interval)
 
         if len(tags) > 1:
             data_list = list(data)
@@ -557,36 +545,29 @@ class DataContainer:
             atoms = ase_read(reference_atoms_file.name, format='json')
 
             # file with reference data
-            reference_data_file.write(
-                tar_file.extractfile('reference_data').read())
+            reference_data_file.write(tar_file.extractfile('reference_data').read())
             reference_data_file.seek(0)
             with open(reference_data_file.name, encoding='utf-8') as fd:
                 reference_data = json.load(fd)
 
             # init DataContainer
-            dc = \
-                DataContainer(atoms=atoms,
-                              ensemble_parameters=reference_data['parameters'])
+            dc = DataContainer(atoms=atoms, ensemble_parameters=reference_data['parameters'])
 
             # overwrite metadata
             dc._metadata = reference_data['metadata']
 
             for tag, value in reference_data['last_state'].items():
                 if tag == 'random_state':
-                    value = \
-                        tuple(tuple(x) if isinstance(x, list)
-                              else x for x in value)
+                    value = tuple(tuple(x) if isinstance(x, list) else x for x in value)
                 dc._last_state[tag] = value
 
             # add runtime data from file
-            runtime_data_file.write(
-                tar_file.extractfile('runtime_data').read())
+            runtime_data_file.write(tar_file.extractfile('runtime_data').read())
             runtime_data_file.seek(0)
             if old_format:
                 runtime_data = pd.read_json(runtime_data_file)
                 data = runtime_data.sort_index(ascending=True)
-                dc._data_list = \
-                    data.T.apply(lambda x: x.dropna().to_dict()).tolist()
+                dc._data_list = data.T.apply(lambda x: x.dropna().to_dict()).tolist()
             else:
                 dc._data_list = np.load(runtime_data_file, allow_pickle=True)['arr_0'].tolist()
 
@@ -604,8 +585,7 @@ class DataContainer:
         outfile
             file to which to write
         """
-        self._metadata['date_last_backup'] = \
-            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self._metadata['date_last_backup'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
         # Save reference atomic structure
         reference_atoms_file = tempfile.NamedTemporaryFile()

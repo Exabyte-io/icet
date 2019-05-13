@@ -120,6 +120,10 @@ class CanonicalAnnealing(BaseEnsemble):
         self._T_stop = T_stop
         self._n_steps = n_steps
 
+        self._ground_state_candidate = self.configuration.atoms
+        self._ground_state_candidate_potential = self.calculator.calculate_total(
+                occupations=self.configuration.occupations)
+
         # setup cooling function
         if isinstance(cooling_function, str):
             available = sorted(available_cooling_functions.keys())
@@ -130,8 +134,7 @@ class CanonicalAnnealing(BaseEnsemble):
         elif callable(cooling_function):
             self._cooling_function = cooling_function
         else:
-            raise TypeError(
-                'cooling_function must be either str or a function')
+            raise TypeError('cooling_function must be either str or a function')
 
         # setup sublattice probabilities
         self.sublattice_probabilities = get_swap_sublattice_probabilities(self.configuration)
@@ -160,6 +163,16 @@ class CanonicalAnnealing(BaseEnsemble):
     def boltzmann_constant(self) -> float:
         """ Boltzmann constant :math:`k_B` (see parameters section above) """
         return self._boltzmann_constant
+
+    @property
+    def estimated_ground_state(self):
+        """ Structure with lowest observed potential during run """
+        return self._ground_state_candidate.copy()
+
+    @property
+    def estimated_ground_state_potential(self):
+        """ Lowest observed potential during run """
+        return self._ground_state_candidate_potential
 
     def run(self):
         """ Runs the annealing. """
@@ -205,6 +218,9 @@ class CanonicalAnnealing(BaseEnsemble):
         """
         data = super()._get_ensemble_data()
         data['temperature'] = self.temperature
+        if data['potential'] < self._ground_state_candidate_potential:
+            self._ground_state_candidate_potential = data['potential']
+            self._ground_state_candidate = self.configuration.atoms
         return data
 
     def get_random_sublattice_index(self) -> int:

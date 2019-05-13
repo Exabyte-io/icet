@@ -104,6 +104,16 @@ class TestEnsemble(unittest.TestCase):
         """Tests the get ensemble parameters method."""
         self.assertEqual(self.ensemble.ensemble_parameters['n_steps'], self.n_steps)
 
+    def test_estimated_ground_state_properties(self):
+        """ Tests the estimated ground state properites."""
+        self.ensemble.run()
+        traj, potential = self.ensemble.data_container.get_data('trajectory', 'potential')
+        min_ind = potential.argmin()
+
+        self.assertEqual(traj[min_ind], self.ensemble.estimated_ground_state)
+        self.assertAlmostEqual(potential[min_ind], self.ensemble.estimated_ground_state_potential,
+                               places=12)
+
 
 if __name__ == '__main__':
     unittest.main()
