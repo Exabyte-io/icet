@@ -335,13 +335,12 @@ def _validate_concentrations(concentrations: dict,
 
     # Symbols need to match
     # Flatten chemical symbols from cluster space
-    chemical_symbols = [
-        sym for syms in cluster_space.chemical_symbols for sym in syms]
-    if tuple(sorted(chemical_symbols)) != tuple(sorted(concentrations.keys())):
+    chemical_symbols = [sym for syms in cluster_space.chemical_symbols for sym in syms]
+    if set(chemical_symbols) != set(concentrations.keys()):
         raise ValueError('Chemical symbols in cluster space ({}) are '
                          'not the same as those in the specified '
-                         'concentrations ({})'.format(cluster_space.chemical_symbols,
-                                                      list(concentrations.keys())))
+                         'concentrations ({})'.format(set(chemical_symbols),
+                                                      set(concentrations.keys())))
 
     # Concentrations for each sublattice need to sum up to
     # its proportion of the total structure

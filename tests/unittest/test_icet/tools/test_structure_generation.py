@@ -51,19 +51,17 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         concentrations = {'Au': 0.1, 'Pd': 0.7}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue('Concentrations must sum up to 1' in str(cm.exception))
+        self.assertIn('Concentrations must sum up to 1', str(cm.exception))
 
         concentrations = {'Au': 0.1, 'Pd': 0.8, 'Cu': 0.1}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue(
-            'not the same as those in the specified' in str(cm.exception))
+        self.assertIn('not the same as those in the specified', str(cm.exception))
 
         concentrations = {'Au': 1.0}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue(
-            'not the same as those in the specified' in str(cm.exception))
+        self.assertIn('not the same as those in the specified', str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
         """Tests check of concentrations againt a certain number of atoms."""
@@ -191,13 +189,12 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         concentrations = {'Au': 0.1, 'Pd': 0.7, 'Cu': 0.05}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue('Concentrations must sum up to 1' in str(cm.exception))
+        self.assertIn('Concentrations must sum up to 1', str(cm.exception))
 
         concentrations = {'Au': 0.5, 'Pd': 0.5}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue(
-            'not the same as those in the specified' in str(cm.exception))
+        self.assertIn('not the same as those in the specified', str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
         """Tests check of concentrations againt a certain number of atoms."""
@@ -233,6 +230,68 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         self.assertEqual(syms.count('Cu'), len(atoms) // 4)
         self.assertEqual(syms.count('Au'), len(atoms) // 4)
         self.assertEqual(syms.count('Pd'), len(atoms) // 2)
+
+class TestStructureGenerationHCP(unittest.TestCase):
+    """
+    Container for tests of the class functionality
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(TestStructureGenerationHCP,
+              self).__init__(*args, **kwargs)
+        self.prim = bulk('Au', a=4.0, crystalstructure='hcp')
+        self.supercell = self.prim.repeat(3)
+        self.cs = ClusterSpace(self.prim, [5.0, 4.0], ['Au', 'Pd'])
+
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
+    def test_get_sqs_cluster_vector(self):
+        """Test SQS cluster vector generation."""
+        target_concentrations = {'Au': 0.5, 'Pd': 0.5}
+        cv = _get_sqs_cluster_vector(self.cs, target_concentrations)
+        target_vector = np.zeros(len(self.cs))
+        target_vector[0] = 1.0
+        self.assertTrue(np.allclose(cv, target_vector))
+
+    def test_validate_concentrations(self):
+        """Tests validation of conecntrations against cluster space."""
+        concentrations = {'Au': 0.1, 'Pd': 0.9}
+        _validate_concentrations(concentrations, self.cs)
+
+        concentrations = {'Au': 0.1, 'Pd': 0.7}
+        with self.assertRaises(ValueError) as cm:
+            _validate_concentrations(concentrations, self.cs)
+        self.assertIn('Concentrations must sum up to 1', str(cm.exception))
+
+        concentrations = {'Au': 1.0}
+        with self.assertRaises(ValueError) as cm:
+            _validate_concentrations(concentrations, self.cs)
+        self.assertIn('not the same as those in the specified', str(cm.exception))
+
+    def test_concentrations_fit_atoms(self):
+        """
+        Tests check of concentrations against an atoms object
+        belonging to a cluster space
+        """
+        concentrations = {'Au': 1 / 3, 'Pd': 2 / 3}
+        self.assertTrue(_concentrations_fit_atoms(
+            self.supercell, self.cs, concentrations))
+
+        concentrations = {'Au': 3 / 5, 'Pd': 2 / 5}
+        self.assertFalse(_concentrations_fit_atoms(
+            self.supercell, self.cs, concentrations))
+
+    def test_decorate_atoms_randomly(self):
+        """Tests random decoration of atoms object"""
+        atoms = self.prim.repeat(3)
+        target_concentrations = {'Pd': 1 / 3, 'Au': 2 / 3}
+        _decorate_atoms_randomly(atoms, self.cs,
+                                 target_concentrations)
+        syms = atoms.get_chemical_symbols()
+        self.assertEqual(syms.count('Au'), 2 * len(atoms) // 3)
+        self.assertEqual(syms.count('Pd'), len(atoms) // 3)
 
 
 class TestStructureGenerationSublatticesFCC(unittest.TestCase):
@@ -277,20 +336,18 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
         concentrations = {'Au': 0.1, 'Pd': 0.7, 'Cu': 0.05, 'H': 0.0, 'V': 0.0}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue('Concentrations must sum up to 1' in str(cm.exception))
+        self.assertIn('Concentrations must sum up to 1', str(cm.exception))
 
         concentrations = {'Au': 0.5, 'Pd': 0.5}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue(
-            'not the same as those in the specified' in str(cm.exception))
+        self.assertIn('not the same as those in the specified', str(cm.exception))
 
         concentrations = {'Au': 2 / 6, 'Pd': 1 /
                           6, 'Cu': 1 / 6, 'H': 1 / 6, 'V': 1 / 6}
         with self.assertRaises(ValueError) as cm:
             _validate_concentrations(concentrations, self.cs)
-        self.assertTrue(
-            'that concentrations per element and per sublattice match' in str(cm.exception))
+        self.assertIn('concentrations per element and per sublattice match', str(cm.exception))
 
     def test_concentrations_fit_atom_count(self):
         """Tests check of concentrations againt a certain number of atoms."""
