@@ -451,7 +451,7 @@ class ClusterSpace(_ClusterSpace):
         vol1 = prim.get_volume() / len(prim)
         vol2 = structure.get_volume() / len(structure)
         if abs(vol1 - vol2) > vol_tol:
-            raise ValueError('Volume per atom of structure does not match the volume of'
+            raise ValueError('Volume per atom of structure does not match the volume of '
                              'ClusterSpace.primitive_structure')
 
         # check occupations
