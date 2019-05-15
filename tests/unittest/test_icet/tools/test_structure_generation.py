@@ -231,6 +231,7 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         self.assertEqual(syms.count('Au'), len(atoms) // 4)
         self.assertEqual(syms.count('Pd'), len(atoms) // 2)
 
+
 class TestStructureGenerationHCP(unittest.TestCase):
     """
     Container for tests of the class functionality

@@ -335,8 +335,8 @@ def _validate_concentrations(concentrations: dict,
 
     # Symbols need to match
     # Flatten chemical symbols from cluster space
-    chemical_symbols = [sym for syms in cluster_space.chemical_symbols for sym in syms]
-    if set(chemical_symbols) != set(concentrations.keys()):
+    chemical_symbols = set(sym for syms in cluster_space.chemical_symbols for sym in syms)
+    if chemical_symbols != set(concentrations.keys()):
         raise ValueError('Chemical symbols in cluster space ({}) are '
                          'not the same as those in the specified '
                          'concentrations ({})'.format(set(chemical_symbols),
