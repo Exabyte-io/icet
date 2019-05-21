@@ -1,6 +1,5 @@
 from ase import Atoms
-from ase.build import bulk, fcc111
-from ase.cluster.icosahedron import Icosahedron
+from ase.build import bulk
 from ase.db import connect
 
 
@@ -48,16 +47,6 @@ def create_database():
                              (b, b, 0), (b, 0, b), (0, b, b)],
                   cell=[a, a, a], pbc=True)
     db.write(atoms, tag='BaZrO3-perovskite')
-
-    """ surface slab (two elements, pbc=[True, True, False]) """
-    atoms = fcc111('Pd', a=1.0, size=(2, 2, 3))
-    atoms.center(vacuum=4.0, axis=2)
-    db.write(atoms, tag='Pd-slab-surface')
-
-    """ Nanoparticle (single element, pbc=False) """
-    atoms = Icosahedron('Au', noshells=3, latticeconstant=1.0)
-    atoms.center(vacuum=6.0, axis=(0, 1, 2))
-    db.write(atoms, tag='Au-nanoparticle')
 
 
 if __name__ == "__main__":

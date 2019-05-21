@@ -14,16 +14,11 @@ def generate_mixed_structure(atoms_prim, chemical_symbols):
     Generate a supercell structure based on the input structure and populate it
     randomly with the species specified.
     """
-    repeat = [1] * 3
-    for i, pbc in enumerate(atoms_prim.pbc):
-        if pbc:
-            repeat[i] = 5
-
+    repeat = [5, 5, 5]
     atoms = atoms_prim.copy().repeat(repeat)
     for at in atoms:
         element = random.choice(chemical_symbols)
         at.symbol = element
-
     return atoms
 
 
@@ -72,8 +67,6 @@ db = connect('structures_for_testing.db')
 chemical_symbols = ['H', 'He', 'Pb']
 for row in db.select():
     atoms_row = row.toatoms()
-    if not all(atoms_row.pbc):
-        continue
     atoms_tag = row.tag
     cutoffs = [1.4] * 3
     if len(atoms_row) == 0:
