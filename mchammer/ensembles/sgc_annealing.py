@@ -11,7 +11,8 @@ from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 from .semi_grand_canonical_ensemble import get_chemical_potentials
-from .canonical_annealing import _cooling_linear, _cooling_exponential, available_cooling_functions
+from .canonical_annealing import available_cooling_functions
+
 
 class SGCAnnealing(ThermodynamicBaseEnsemble):
     """Instances of this class allow one to carry out simulated annealing
@@ -175,9 +176,9 @@ class SGCAnnealing(ThermodynamicBaseEnsemble):
 
     def run(self):
         """ Runs the annealing. """
-        if self.total_trials >= self.n_steps:
+        if self.total_trials >= self._n_steps:
             raise Exception('Annealing has already finished')
-        super().run(self.n_steps - self.total_trials)
+        super().run(self._n_steps - self.total_trials)
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
