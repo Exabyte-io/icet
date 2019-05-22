@@ -164,6 +164,7 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
 
         self._ensemble_parameters = dict(temperature=temperature)
 
+        # add chemical potentials to ensemble parameters
         self._chemical_potentials = get_chemical_potentials(chemical_potentials)
         for atnum, chempot in self.chemical_potentials.items():
             mu_sym = 'mu_{}'.format(chemical_symbols[atnum])
