@@ -104,6 +104,12 @@ class TestEnsemble(unittest.TestCase):
         self.assertIn('temperature', data.keys())
         self.assertIn('potential', data.keys())
 
+        self.assertIn('Al_count', data.keys())
+        self.assertIn('Ga_count', data.keys())
+
+        self.assertEqual(data['Al_count'], 13)
+        self.assertEqual(data['Ga_count'], 14)
+
     def test_ensemble_parameters(self):
         """Tests the get ensemble parameters method."""
         self.assertEqual(self.ensemble.ensemble_parameters['n_steps'], self.n_steps)
