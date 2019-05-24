@@ -47,33 +47,6 @@ def get_scaled_positions(positions: np.ndarray,
     return fractional
 
 
-def add_vacuum_in_non_pbc(configuration: Atoms) -> Atoms:
-    """
-    Adds vacuum in non-periodic directions.
-
-    Parameters
-    ----------
-    configuration
-        input atomic structure
-
-    Returns
-    -------
-    ase.Atoms
-        input atomic structure with vacuum in non-pbc directions
-    """
-    configuration_cpy = configuration.copy()
-    vacuum_axis = []
-    for i, pbc in enumerate(configuration.pbc):
-        if not pbc:
-            vacuum_axis.append(i)
-
-    if len(vacuum_axis) > 0:
-        configuration_cpy.center(30, axis=vacuum_axis)
-        configuration_cpy.wrap()
-
-    return configuration_cpy
-
-
 def get_primitive_structure(atoms: Atoms,
                             no_idealize: bool = True,
                             to_primitive: bool = True,
@@ -251,36 +224,12 @@ def get_permutation(container: Sequence[T],
     return [container[s] for s in permutation]
 
 
-def find_permutation(target: Sequence[T],
-                     permutated: Sequence[T]) -> List[int]:
-    """
-    Returns the permutation vector that takes permutated to target.
-
-    Parameters
-    ----------
-    target
-        a container that supports indexing and its elements contain
-        objects with __eq__ method
-    permutated
-        a container that supports indexing and its elements contain
-        objects with __eq__ method
-    """
-    permutation = []
-    for element in target:
-        index = permutated.index(element)
-        permutation.append(index)
-    return permutation
-
-
-def ase_atoms_to_spglib_cell(atoms: Atoms) \
-        -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def ase_atoms_to_spglib_cell(atoms: Atoms) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Returns a tuple of three components: cell metric, atomic positions, and
     atomic species of the input ASE Atoms object.
     """
-    return (atoms.get_cell(),
-            atoms.get_scaled_positions(),
-            atoms.get_atomic_numbers())
+    return (atoms.get_cell(), atoms.get_scaled_positions(), atoms.get_atomic_numbers())
 
 
 def get_decorated_primitive_structure(
