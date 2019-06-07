@@ -245,6 +245,11 @@ generated/scipy.spatial.ConvexHull.html>`_.
             indices is returned instead.
 
         """
+        # Convert to numpy arrays, can be necessary if, for example,
+        # they are Pandas Series with "gaps" 
+        concentrations = np.array(concentrations)
+        energies = np.array(energies)
+
         number_of_candidates = len(concentrations)
         assert len(energies) == number_of_candidates
         if structures is None:
