@@ -14,7 +14,7 @@ class BaseCalculator(ABC):
     """
 
     def __init__(self, atoms, name='BaseCalculator'):
-        self._atoms = atoms
+        self._atoms = atoms.copy()
         self.name = name
 
     @property
@@ -45,8 +45,8 @@ class BaseCalculator(ABC):
             raise TypeError('sites and species must be of type list')
         if len(indices) != len(species):
             raise ValueError('sites and species must have the same length')
-        self.atoms.numbers[indices] = species
+        self._atoms.numbers[indices] = species
 
     @property
-    def occupation_constraints(self):
+    def sublattices(self):
         raise NotImplementedError()

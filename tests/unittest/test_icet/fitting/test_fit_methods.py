@@ -37,6 +37,19 @@ class TestFitMethods(unittest.TestCase):
             res = fit(self.A, self.y, fit_method=fit_method, standardize=False)
             self.assertLess(np.linalg.norm(self.x - res['parameters']), 0.2)
 
+    def test_with_large_condition_number(self):
+        """Test fit with very large condition number"""
+
+        # set up fit matrix with linearly dependent columns
+        A_tmp = self.A.copy()
+        A_tmp[:, 0] = A_tmp[:, 1]
+
+        # with check_condition
+        fit(A_tmp, self.y, fit_method='least-squares', check_condition=True)
+
+        # without check_condition
+        fit(A_tmp, self.y, fit_method='least-squares', check_condition=False)
+
     def test_other_fit_methods(self):
         """Tests fit methods which are not run via available_fit_methods."""
 
@@ -49,11 +62,13 @@ class TestFitMethods(unittest.TestCase):
         self.assertIsNotNone(res['parameters'])
 
         # rfe-l2 with n_features
-        n_features = int(0.5 * self.n_cols)
-        res = fit(self.A, self.y, fit_method='rfe-l2', n_features=n_features)
+        kwargs = dict(n_features=int(0.5*self.n_cols),
+                      step=0.12, estimator='split-bregman',
+                      final_estimator='rfe')
+        res = fit(self.A, self.y, fit_method='rfe', **kwargs)
         self.assertIsNotNone(res['parameters'])
         self.assertEqual(len(res['parameters']), self.n_cols)
-        self.assertEqual(sum(res['features']), n_features)
+        self.assertEqual(sum(res['features']), kwargs['n_features'])
 
     def test_fit_with_invalid_fit_method(self):
         """Tests correct raise with unavailable fit_method."""

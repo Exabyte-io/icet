@@ -27,7 +27,7 @@ class TestEnsemble(unittest.TestCase):
         """Tests init."""
 
         # specify train size via integer
-        train_size = int(0.7 * self.n_rows)
+        train_size = int(0.7*self.n_rows)
         EnsembleOptimizer((self.A, self.y), train_size=train_size)
 
         # specify train size as fraction

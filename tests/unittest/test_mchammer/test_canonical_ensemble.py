@@ -5,7 +5,6 @@ from ase.build import bulk
 
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators import ClusterExpansionCalculator
-
 from mchammer.ensembles.canonical_ensemble import CanonicalEnsemble
 
 
@@ -94,23 +93,77 @@ class TestEnsemble(unittest.TestCase):
 
     def test_ensemble_parameters(self):
         """Tests the get ensemble parameters method."""
-        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
-                         len(self.atoms))
-        self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
-                         self.temperature)
 
+        n_atoms = len(self.atoms)
+        n_atoms_Al = self.atoms.get_chemical_symbols().count('Al')
+        n_atoms_Ga = self.atoms.get_chemical_symbols().count('Ga')
+
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'], n_atoms)
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms_Al'], n_atoms_Al)
+        self.assertEqual(self.ensemble.ensemble_parameters['n_atoms_Ga'], n_atoms_Ga)
+        self.assertEqual(self.ensemble.ensemble_parameters['temperature'], self.temperature)
+
+        # check in ensemble parameters was correctly passed to datacontainer
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms'], n_atoms)
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms_Al'], n_atoms_Al)
+        self.assertEqual(self.ensemble.data_container.ensemble_parameters['n_atoms_Ga'], n_atoms_Ga)
         self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['n_atoms'],
-            len(self.atoms))
-        self.assertEqual(
-            self.ensemble.data_container.ensemble_parameters['temperature'],
-            self.temperature)
+            self.ensemble.data_container.ensemble_parameters['temperature'], self.temperature)
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""
         self.assertEqual(self.ensemble.data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
+
+    def test_mc_with_one_filled_sublattice(self):
+        """ Tests if canonical ensemble works with two sublattices
+        where one sublattice is filled/empty. """
+
+        # setup two sublattices
+        prim = bulk('W', 'bcc', a=3.0, cubic=True)
+        cs = ClusterSpace(prim, [4.0], [['W', 'Ti'], ['C', 'Be']])
+        ce = ClusterExpansion(cs, np.arange(0, len(cs)))
+
+        # setup supercell with one filled sublattice
+        supercell = prim.copy()
+        supercell[1].symbol = 'C'
+        supercell = supercell.repeat(4)
+        supercell[2].symbol = 'Ti'
+
+        # run mc
+        calc = ClusterExpansionCalculator(supercell, ce)
+
+        mc = CanonicalEnsemble(supercell, calc, 300)
+        mc.run(50)
+
+    def test_get_swap_sublattice_probabilities(self):
+        """ Tests the get_swap_sublattice_probabilities function. """
+
+        # setup system with inactive sublattice
+        prim = bulk('Al').repeat([2, 1, 1])
+        chemical_symbols = [['Al'], ['Ag', 'Al']]
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+        ce = ClusterExpansion(cs, [1]*len(cs))
+
+        supercell = prim.repeat(2)
+        supercell[1].symbol = 'Ag'
+        ce_calc = ClusterExpansionCalculator(supercell, ce)
+        ensemble = CanonicalEnsemble(supercell, ce_calc, temperature=100)
+
+        # test get_swap_sublattice_probabilities
+        probs = ensemble._get_swap_sublattice_probabilities()
+        self.assertEqual(len(probs), 2)
+        self.assertEqual(probs[0], 1)
+        self.assertEqual(probs[1], 0)
+
+        # test raise when swap not possible on either lattice
+        supercell[1].symbol = 'Al'
+        ce_calc = ClusterExpansionCalculator(supercell, ce)
+
+        with self.assertRaises(ValueError) as context:
+            ensemble = CanonicalEnsemble(supercell, ce_calc, temperature=100)
+        self.assertIn('No canonical swaps are possible on any of the', str(context.exception))
 
 
 if __name__ == '__main__':

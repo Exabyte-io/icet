@@ -78,6 +78,7 @@ class BuildExt(build_ext):
                         .format(self.distribution.get_version()))
         for ext in self.extensions:
             ext.extra_compile_args = opts
+            ext.extra_link_args = opts
         build_ext.build_extensions(self)
 
 
@@ -144,7 +145,7 @@ if __name__ == '__main__':
                           'scipy',
                           'sklearn',
                           'pandas>=0.23',
-                          'spglib>1.11.0.19'],
+                          'spglib>1.12.0'],
         packages=find_packages(),
         cmdclass={'build_ext': BuildExt},
         zip_safe=False,

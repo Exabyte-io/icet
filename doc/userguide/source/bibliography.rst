@@ -11,11 +11,23 @@ Bibliography
    | Chem. Mater. **28**, 6877 (2016)
    | `doi: 10.1021/acs.chemmater.6b02117 <http://dx.doi.org/10.1021/acs.chemmater.6b02117>`_
 
+.. [AngMunRah19]
+   | M. Ångqvist, W. A. Muñoz, J. M. Rahm, E. Fransson, C. Durniak, P. Rozyczko, T. H. Rod, and P. Erhart
+   | *ICET – A Python Library for Constructing and Sampling Alloy Cluster Expansions*
+   | Adv. Theory. Sim., 1900015 (2019)
+   | `doi: 10.1002/adts.201900015 <https://doi.org/10.1002/adts.201900015>`_
+
 .. [CanWak08]
    | E. J. Candès and M. B. Wakin
    | *An Introduction To Compressive Sampling*
    | Signal Processing Magazine, IEEE **25**, 201 (2008)
    | `doi: 10.1109/MSP.2007.914731 <http://dx.doi.org/10.1109/MSP.2007.914731>`_
+
+.. [GolOsh09]
+   | T. Goldstein and S. Osher
+   | *The Split Bregman Method for L1-Regularized Problems*
+   | SIAM Journal of Imaging Science **2**, 323 (2009)
+   | `doi: 10.1137/080725891 <http://dx.doi.org/10.1137/080725891>`_
 
 .. [HarFor08]
    | G. L. W. Hart and R. W. Forcade
@@ -46,7 +58,7 @@ Bibliography
    | *Calculation of excess free energies of precipitates via direct thermodynamic integration across phase boundaries*
    | Phys. Rev. B **86**, 134204 (2012)
    | `doi: 10.1103/PhysRevB.86.134204 <http://dx.doi.org/10.1103/PhysRevB.86.134204>`_
-   
+
 .. [SanDucGra84]
    | J. M. Sanchez, F. Ducastelle, and D. Gratias
    | *Generalized cluster description of multicomponent systems*
@@ -57,10 +69,25 @@ Bibliography
    | J. M. Sanchez
    | *Cluster expansion and the configurational theory of alloys*
    | Phys. Rev. B **81**, 224202 (2010)
-   | `doi: <http://dx.doi.org/>`_
+   | `doi: 10.1103/PhysRevB.81.224202 <http://dx.doi.org/10.1103/PhysRevB.81.224202>`_
 
 .. [Wal09]
    | A. van de Walle
    | *Multicomponent multisublattice alloys, nonconfigurational entropy and other additions to the Alloy Theoretic Automated Toolkit*
    | Calphad **33**, 266 (2009)
    | `doi: 10.1016/j.calphad.2008.12.005 <http://dx.doi.org/10.1016/j.calphad.2008.12.005>`_
+
+.. [WalTiwJon13]
+   | A. van de Walle, P. Tiwary, M. de Jong, D.L. Olmsted, M. Asta, A. Dick, D. Shin, Y. Wang, L.-Q. Chen, and Z.-K. Liu
+   | *Efficient stochastic generation of special quasirandom structures*
+   | Calphad **42**, 13 (2013)
+   | `doi: 10.1016/j.calphad.2013.06.006 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+
+.. [ZunWeiFer90]
+   | A. Zunger, S.-H. Wei, L. G. Ferreira, and J. E. Bernard.
+   | *Special quasirandom structures*
+   | Phys. Rev. Lett. **65**, 353 (1990)
+   | `doi: 10.1103/PhysRevLett.65.353 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+
+
+

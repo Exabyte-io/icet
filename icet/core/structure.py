@@ -1,20 +1,25 @@
+"""
+This module provides the Structure class.
+"""
+
+from ase import Atoms
+
 from _icet import Structure
 
 
 @classmethod
-def __structure_from_atoms(self, conf):
+def _structure_from_atoms(self, conf: Atoms):
     """
-    Creates an icet Structure object from an ASE Atoms object.
+    Returns the input configuration as an icet Structure object.
 
     Parameters
     ----------
-    conf : ase.Atoms
+    conf
         input configuration
 
     Returns
     -------
-    icet.Structure
-        output configuration
+    atomic configuration
     """
     return self(conf.positions,
                 conf.get_chemical_symbols(),
@@ -22,17 +27,16 @@ def __structure_from_atoms(self, conf):
                 conf.pbc.tolist())
 
 
-Structure.from_atoms = __structure_from_atoms
+Structure.from_atoms = _structure_from_atoms
 
 
-def __structure_to_atoms(self):
+def _structure_to_atoms(self) -> Atoms:
     """
     Returns the structure as an ASE Atoms object.
 
     Returns
     -------
-    ASE Atoms object
-        atomic configuration
+    atomic configuration
     """
     import ase
     conf = ase.Atoms(pbc=self.pbc)
@@ -44,10 +48,10 @@ def __structure_to_atoms(self):
     return conf
 
 
-Structure.to_atoms = __structure_to_atoms
+Structure.to_atoms = _structure_to_atoms
 
 
-def __repr_function(self):
+def _repr_function(self) -> str:
     s = ['Cell:']
     s += ['{}\n'.format(self.cell)]
     s += ['Element and positions:']
@@ -56,4 +60,4 @@ def __repr_function(self):
     return '\n'.join(s)
 
 
-Structure.__repr__ = __repr_function
+Structure.__repr__ = _repr_function

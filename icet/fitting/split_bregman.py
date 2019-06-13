@@ -6,34 +6,45 @@ doi:10.1137/080725891
 
 import numpy as np
 from scipy.optimize import minimize
+from typing import Any, Dict
 
 
-def fit_split_bregman(A, y, mu=1e-3, lmbda=100, n_iters=1000, tol=1e-6,
-                      verbose=0):
+def fit_split_bregman(A: np.ndarray,
+                      y: np.ndarray,
+                      mu: float = 1e-3,
+                      lmbda: float = 100,
+                      n_iters: int = 1000,
+                      tol: float = 1e-6) -> Dict[str, Any]:
     """
-    Split-Bregman algorithm described in T. Goldstein and S. Osher,
+    Determines the solution :math:`\\boldsymbol{x}` to the linear
+    problem :math:`\\boldsymbol{A}\\boldsymbol{x}=\\boldsymbol{y}` using
+    the split-Bregman algorithm described in T. Goldstein and S. Osher,
     SIAM J. Imaging Sci. 2, 323 (2009); doi:10.1137/080725891.
+    The thus obtained parameters are returned in the form of a
+    dictionary with a key named `parameters`
 
     Parameters
-    -----------
-    X : numpy.ndarray
-        fit matrix
-    y : numpy.ndarray
-        target array
-    mu : float
-        Sparseness parameter
-    lmbda : float
-        Split Bregman parameter
-    n_iters : int
-        maximal number of split bregman iterations.
-    tol : float
-        tolerance for when stopping split bregman iterations.
-
-    Returns
     ----------
-    results : dict
-        parameters
+    A
+        fit matrix
+    y
+        target array
+    mu
+        sparseness parameter
+    lmbda
+        weight of additional L2-norm in split-Bregman
+    n_iters
+        maximal number of split-Bregman iterations
+    tol
+        convergence criterion iterative minimization
     """
+
+    def _shrink(y: np.ndarray, alpha: float) -> np.ndarray:
+        """
+        Shrinkage operator as defined in Eq. (11) of the paper by Nelson
+        et al., Phys. Rev. B 87, 035125 (2013); doi:10.1103/PhysRevB.87.035125.
+        """
+        return np.sign(y) * np.maximum(np.abs(y) - alpha, 0.0)
 
     n_cols = A.shape[1]
     d = np.zeros(n_cols)
@@ -47,11 +58,10 @@ def fit_split_bregman(A, y, mu=1e-3, lmbda=100, n_iters=1000, tol=1e-6,
     ftA = np.dot(y.conj().transpose(), A)
     ii = 0
     for i in range(n_iters):
-        if verbose:
-            print('Iteration ', i)
         args = (A, y, mu, lmbda, d, b, AtA, ftA)
-        res = minimize(_objective_function, x, args, method='BFGS', options={
-                       'disp': False}, jac=_objective_function_derivative)
+        res = minimize(_objective_function, x, args, method='BFGS',
+                       options={'disp': False},
+                       jac=_objective_function_derivative)
         x = res.x
 
         d = _shrink(mu*x + b, 1.0/lmbda)
@@ -60,39 +70,38 @@ def fit_split_bregman(A, y, mu=1e-3, lmbda=100, n_iters=1000, tol=1e-6,
         new_norm = np.linalg.norm(x)
         ii = ii + 1
 
-        if verbose:
-            print('|new_norm-old_norm| = ', abs(new_norm-old_norm))
         if abs(new_norm-old_norm) < tol:
             break
 
         old_norm = new_norm
-    else:
-        print('Warning: Split Bregman ran for max iters')
 
     fit_results = {'parameters': x}
     return fit_results
 
 
-def _objective_function(x, A, y, mu, lmbda, d, b, AtA, ftA):
-    """ Objective function to be minimized.
+def _objective_function(x: np.ndarray, A: np.ndarray, y: np.ndarray,
+                        mu: float, lmbda: float, d: np.ndarray, b: np.ndarray,
+                        AtA: np.ndarray, ftA: np.ndarray) -> np.ndarray:
+    """
+    Returns the objective function to be minimized.
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X
         fit matrix
-    y : numpy.ndarray
+    y
         target array
-    mu : float
+    mu
         the parameter that adjusts sparseness.
-    lmbda : float
+    lmbda
         Split Bregman parameter
-    d : numpy.ndarray
-        same notation as Nelson, Hart paper
-    b : numpy.ndarray
-        same notation as Nelson, Hart paper
-    AtA : numpy.ndarray
+    d
+        same notation as Nelson et al. paper
+    b
+        same notation as Nelson et al. paper
+    AtA
         sensing matrix transpose times sensing matrix.
-    ftA : numpy.ndarray
+    ftA
         np.dot(y.conj().transpose(), A)
     """
 
@@ -115,43 +124,37 @@ def _objective_function(x, A, y, mu, lmbda, d, b, AtA, ftA):
     return obj_function
 
 
-def _objective_function_derivative(x, A, y, mu, lmbda, d, b, AtA, ftA):
-    """ Derivative of the objective function.
+def _objective_function_derivative(x: np.ndarray,
+                                   A: np.ndarray,
+                                   y: np.ndarray,
+                                   mu: float,
+                                   lmbda: float,
+                                   d: np.ndarray,
+                                   b: np.ndarray,
+                                   AtA: np.ndarray,
+                                   ftA: np.ndarray) -> np.ndarray:
+    """
+    Returns the derivative of the objective function.
 
     Parameters
     -----------
-    X : numpy.ndarray
+    X
         fit matrix
-    y : numpy.ndarray
+    y
         target array
-    mu : float
+    mu
         the parameter that adjusts sparseness.
-    lmbda : float
+    lmbda
         Split Bregman parameter
-    d : numpy.ndarray
+    d
         same notation as Nelson, Hart paper
-    b : numpy.ndarray
+    b
         same notation as Nelson, Hart paper
-    AtA : numpy.ndarray
+    AtA
         sensing matrix transpose times sensing matrix.
-    ftA : numpy.ndarray
+    ftA
         np.dot(y.conj().transpose(), A)
-
     """
     ret = np.squeeze(np.dot(x[np.newaxis, :], AtA) -
                      ftA - lmbda*mu*(d - mu * x - b))
     return ret
-
-
-def _shrink(y, alpha):
-    """
-    Shrink operator as defined in Eq. (11) (p. 5)
-    in Nelson, Hart (Compressive sensing as a new
-    paradigm for model building).
-
-    Parameters
-    -----------
-    y : numpy.ndarray
-    alpha : float
-    """
-    return np.sign(y) * np.maximum(np.abs(y) - alpha, 0.0)

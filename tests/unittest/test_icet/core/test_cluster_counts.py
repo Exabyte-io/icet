@@ -8,7 +8,6 @@ from icet.core.cluster import Cluster
 from icet.core.orbit_list import OrbitList
 from icet.core.cluster_counts import ClusterCounts
 from icet.core.lattice_site import LatticeSite
-from icet.core.neighbor_list import get_neighbor_lists
 from io import StringIO
 
 
@@ -39,8 +38,6 @@ class TestClusterCounts(unittest.TestCase):
         self.atoms.set_chemical_symbols('NiFeNi2')
         self.structure = Structure.from_atoms(self.atoms)
         self.cutoffs = [2.2]
-        self.neighbor_lists = get_neighbor_lists(
-            atoms=self.atoms, cutoffs=self.cutoffs)
         self.orbit_list = OrbitList(self.atoms_prim, self.cutoffs)
         self.orbit_list.sort()
 
@@ -67,7 +64,7 @@ class TestClusterCounts(unittest.TestCase):
         cluster_map = self.cluster_counts.get_cluster_counts()
 
         count = cluster_map[cluster]
-        self.assertEqual(count, {(26, 28): 1})
+        self.assertEqual(count, {('Fe', 'Ni'): 1})
 
     def test_count_list_lattice_sites(self):
         """
@@ -91,7 +88,7 @@ class TestClusterCounts(unittest.TestCase):
         cluster_map = self.cluster_counts.get_cluster_counts()
 
         count = cluster_map[cluster]
-        self.assertEqual(count, {(28, 26): 1, (28, 28): 1})
+        self.assertEqual(count, {('Ni', 'Fe'): 1, ('Ni', 'Ni'): 1})
 
     def test_count_orbit_list(self):
         """Tests cluster_counts given orbits in an orbit list."""
@@ -134,8 +131,6 @@ class TestClusterCounts(unittest.TestCase):
 
     def test_reset(self):
         """Tests reset functionality."""
-        # self.cluster_counts.count_clusters(self.structure,
-        #                                   self.orbit_list, False)
         self.cluster_counts.reset()
         self.assertEqual(len(self.cluster_counts), 0)
 
@@ -170,6 +165,14 @@ Ni  Ni   6
 """
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
+
+    def test_get_cluster_counts(self):
+        """Tests get_cluster_counts functionality."""
+        counts = self.cluster_counts.get_cluster_counts()
+        for cluster, cluster_info in counts.items():
+            # check size of cluster match the number of elements in counts
+            for elements in cluster_info:
+                self.assertEqual(len(cluster), len(elements))
 
 
 if __name__ == '__main__':

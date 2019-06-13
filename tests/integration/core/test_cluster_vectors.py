@@ -7,7 +7,6 @@ import random
 import numpy as np
 from ase.db import connect
 from icet import ClusterSpace
-from icet.tools.geometry import add_vacuum_in_non_pbc
 
 
 def generate_mixed_structure(atoms_prim, chemical_symbols):
@@ -15,16 +14,11 @@ def generate_mixed_structure(atoms_prim, chemical_symbols):
     Generate a supercell structure based on the input structure and populate it
     randomly with the species specified.
     """
-    repeat = [1] * 3
-    for i, pbc in enumerate(atoms_prim.pbc):
-        if pbc:
-            repeat[i] = 5
-
+    repeat = [5, 5, 5]
     atoms = atoms_prim.copy().repeat(repeat)
     for at in atoms:
         element = random.choice(chemical_symbols)
         at.symbol = element
-
     return atoms
 
 
@@ -77,10 +71,6 @@ for row in db.select():
     cutoffs = [1.4] * 3
     if len(atoms_row) == 0:
         continue
-    if atoms_row.get_pbc().all():
-        atoms_row.wrap()
-        cluster_space = ClusterSpace(atoms_row, cutoffs, chemical_symbols)
-        if not atoms_row.get_pbc().all():
-            add_vacuum_in_non_pbc(atoms_row)
-        cvs = generate_cluster_vector_set(5, atoms_row,
-                                          chemical_symbols, cluster_space)
+    atoms_row.wrap()
+    cluster_space = ClusterSpace(atoms_row, cutoffs, chemical_symbols)
+    cvs = generate_cluster_vector_set(5, atoms_row, chemical_symbols, cluster_space)

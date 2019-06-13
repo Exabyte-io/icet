@@ -37,9 +37,6 @@ class ClusterExpansionObserver(BaseObserver):
         super().__init__(interval=interval, return_type=float, tag=tag)
         self._cluster_expansion = cluster_expansion
 
-        if interval is None:
-            raise ValueError("The value of interval must be specified")
-
     def get_observable(self, atoms: Atoms) -> float:
         """
         Returns the value of the property from a cluster expansion model

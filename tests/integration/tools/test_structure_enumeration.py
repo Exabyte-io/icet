@@ -5,7 +5,8 @@ number of structure.
 
 from ase.build import bulk, fcc100
 from ase import Atom
-from icet.tools import enumerate_structures
+from icet.tools import (enumerate_structures,
+                        enumerate_supercells)
 
 
 def count_structures(atoms, sizes, species, correct_count, tag,
@@ -83,3 +84,24 @@ concentration_restrictions = {'Au': [0.0, 0.36]}
 correct_count = 134
 count_structures(atoms, sizes, species, correct_count, tag,
                  conc_rest=concentration_restrictions)
+
+tag = 'FCC'
+msg = 'Supercell enumeration failed for {}'.format(tag)
+atoms = bulk('Au', crystalstructure='fcc')
+count = len(list(enumerate_supercells(atoms, [6])))
+msg = 'Supercell enumeration failed for {}'.format(tag)
+assert count == 10, msg
+
+tag = 'FCC'
+msg = 'Supercell enumeration failed for {}'.format(tag)
+atoms = bulk('Au', crystalstructure='fcc')
+count = len(list(enumerate_supercells(atoms, [6], niggli_reduce=False)))
+msg = 'Supercell enumeration failed for {}'.format(tag)
+assert count == 10, msg
+
+tag = 'FCC'
+msg = 'Supercell enumeration failed for {}'.format(tag)
+atoms = bulk('Au', crystalstructure='fcc')
+count = len(list(enumerate_supercells(atoms, range(0, 6))))
+msg = 'Supercell enumeration failed for {}'.format(tag)
+assert count == 18, msg

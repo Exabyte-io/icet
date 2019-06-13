@@ -14,6 +14,15 @@ from collections import OrderedDict
 from datetime import datetime
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
 from icet import __version__ as icet_version
+from .data_analysis import analyze_data
+from .observers.base_observer import BaseObserver
+
+
+class Int64Encoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.int64):
+            return int(obj)
+        return json.JSONEncoder.default(self, obj)
 
 
 class DataContainer:
@@ -47,7 +56,8 @@ class DataContainer:
         self._add_default_metadata()
         self._last_state = {}
 
-        self._data = pd.DataFrame(columns=['mctrial'])
+        self._observables = set()
+        self._data_list = []
 
     def append(self, mctrial: int,
                record: Dict[str, Union[int, float, list]]):
@@ -66,16 +76,12 @@ class DataContainer:
         TypeError
             if input parameters have the wrong type
 
-        Todo
-        ----
-        * This might be a quite expensive way to add data to the data
-          frame. Testing and profiling to be carried out later.
         """
         if not isinstance(mctrial, numbers.Integral):
-            raise TypeError('mctrial has the wrong type: {}'
-                            .format(type(mctrial)))
-        if not self._data.mctrial.empty:
-            if self._data.mctrial.iloc[-1] > mctrial:
+            raise TypeError('mctrial has the wrong type: {}'.format(type(mctrial)))
+
+        if self._data_list:
+            if self._data_list[-1]['mctrial'] > mctrial:
                 raise ValueError('mctrial values should be given in ascending'
                                  ' order. This error can for example occur'
                                  ' when trying to append to an existing data'
@@ -84,13 +90,15 @@ class DataContainer:
                                  ' when initializing a new ensemble.')
 
         if not isinstance(record, dict):
-            raise TypeError('record has the wrong type: {}'
-                            .format(type(record)))
+            raise TypeError('record has the wrong type: {}'.format(type(record)))
+
+        for tag in record.keys():
+            self._observables.add(tag)
+
         row_data = OrderedDict()
         row_data['mctrial'] = mctrial
         row_data.update(record)
-        self._data = self._data.append(row_data, ignore_index=True)
-        self._data.mctrial = self._data.mctrial.astype('int')
+        self._data_list.append(row_data)
 
     def _update_last_state(self, last_step: int, occupations: List[int],
                            accepted_trials: int, random_state: tuple):
@@ -113,6 +121,32 @@ class DataContainer:
         self._last_state['accepted_trials'] = accepted_trials
         self._last_state['random_state'] = random_state
 
+    def apply_observer(self, observer: BaseObserver):
+        """ Adds observer data from observer to data container.
+
+        The observer will only be run for the mctrials for which the
+        trajectory have been saved.
+
+        The interval of the observer is ignored.
+
+        Parameters
+        ----------
+        observer
+            observer to be used
+        """
+        for row_data in self._data_list:
+            if 'occupations' in row_data:
+                atoms = self.atoms.copy()
+                atoms.numbers = row_data['occupations']
+                record = dict()
+                if observer.return_type is dict:
+                    for key, value in observer.get_observable(atoms).items():
+                        record[key] = value
+                else:
+                    record[observer.tag] = observer.get_observable(atoms)
+                row_data.update(record)
+                self._observables.add(observer.tag)
+
     def get_data(self, *tags,
                  start: int = None,
                  stop: int = None,
@@ -120,7 +154,9 @@ class DataContainer:
                  fill_method: str = 'skip_none',
                  apply_to: List[str] = None) \
             -> Union[np.ndarray, List[Atoms], Tuple[np.ndarray, List[Atoms]]]:
-        """Returns the accumulated data for the requested observables.
+        """Returns the accumulated data for the requested observables,
+        including configurations stored in the data container. The latter
+        can be achieved by including 'trajectory' as a tag.
 
         Parameters
         ----------
@@ -158,6 +194,25 @@ class DataContainer:
             if fill method is unknown
         ValueError
             if trajectory is requested and fill method is not skip_none
+
+        Examples
+        --------
+        The following lines illustrate how to use the `get_data` method
+        for extracting data from the trajectory.
+
+        ```
+        # obtain a list of all values of the potential represented by
+        # the cluster expansion along the trajectory
+        p = get_data('potential')
+
+        # as above but this time the MC trial step and the temperature
+        # are included as well
+        s, p, t = get_data('mctrial', 'potential', 'temperature')
+
+        # obtain configurations along the trajectory along with
+        # their potential
+        p, confs = get_data('potential', 'trajectory')
+        ```
         """
         fill_methods = ['skip_none',
                         'fill_backward',
@@ -171,18 +226,19 @@ class DataContainer:
             if fill_method != 'skip_none':
                 raise ValueError('Only skip_none fill method is avaliable'
                                  ' when trajectory is requested')
-            return self._get_trajectory(*tags, start=start, stop=stop,
-                                        interval=interval)
+            return self._get_trajectory(*tags, start=start, stop=stop, interval=interval)
 
         for tag in tags:
-            if tag not in self._data:
-                raise ValueError('No observable named {} in data'
-                                 ' container'.format(tag))
+            if tag == 'mctrial':
+                continue
+            if tag not in self.observables:
+                raise ValueError('No observable named {} in data container'.format(tag))
 
+        mctrials = [row_dict['mctrial'] for row_dict in self._data_list]
+        data = pd.DataFrame.from_records(self._data_list, index=mctrials, columns=tags)
         if start is None and stop is None:
-            data = self._data.loc[::interval, tags]
+            data = data.loc[::interval, tags].copy()
         else:
-            data = self._data.set_index(self._data.mctrial)
             # slice and pass a copy to avoid slowing down dropna method below
             if start is None:
                 data = data.loc[:stop:interval, tags].copy()
@@ -200,7 +256,7 @@ class DataContainer:
                 apply_to = tags
 
             # retrieve only valid observations
-            if fill_method is 'skip_none':
+            if fill_method == 'skip_none':
                 data.dropna(inplace=True, subset=apply_to)
 
             else:
@@ -209,16 +265,16 @@ class DataContainer:
                 data.dropna(inplace=True, subset=subset)
 
                 # fill NaN with the next valid observation
-                if fill_method is 'fill_backward':
+                if fill_method == 'fill_backward':
                     data.fillna(method='bfill', inplace=True)
 
                 # fill NaN with the last valid observation
-                elif fill_method is 'fill_forward':
+                elif fill_method == 'fill_forward':
                     data.fillna(method='ffill', inplace=True)
 
                 # fill NaN with the linear interpolation of the last and
                 # next valid observations
-                elif fill_method is 'linear_interpolate':
+                elif fill_method == 'linear_interpolate':
                     data.interpolate(limit_area='inside', inplace=True)
 
                 # drop any left-over nan values
@@ -227,8 +283,7 @@ class DataContainer:
         data_list = []
         for tag in tags:
             # convert NaN to None
-            data_list.append(np.array(
-                [None if np.isnan(x).any() else x for x in data[tag]]))
+            data_list.append(np.array([None if np.isnan(x).any() else x for x in data[tag]]))
         if len(tags) > 1:
             # return a tuple if more than one tag is given
             return tuple(data_list)
@@ -239,7 +294,14 @@ class DataContainer:
     @property
     def data(self) -> pd.DataFrame:
         """ pandas data frame (see :class:`pandas.DataFrame`) """
-        return self._data
+        if self._data_list:
+            df = pd.DataFrame.from_records(self._data_list, index='mctrial',
+                                           exclude=['occupations'])
+            df.dropna(axis='index', how='all', inplace=True)
+            df.reset_index(inplace=True)
+            return df
+        else:
+            return pd.DataFrame()
 
     @property
     def ensemble_parameters(self) -> dict:
@@ -249,7 +311,7 @@ class DataContainer:
     @property
     def observables(self) -> List[str]:
         """ observable names """
-        return [col for col in self._data.columns.tolist() if col != 'mctrial']
+        return list(self._observables)
 
     @property
     def metadata(self) -> dict:
@@ -262,9 +324,9 @@ class DataContainer:
         return self._last_state
 
     def reset(self):
-        """ Resets (clears) data frame of data container. """
-        self._data = pd.DataFrame(columns=['mctrial'])
-        self._data = self._data.astype({'mctrial': int})
+        """ Resets (clears) internal data list of data container. """
+        self._data_list.clear()
+        self._observables.clear()
 
     def get_number_of_entries(self, tag: str = None) -> int:
         """
@@ -281,16 +343,64 @@ class DataContainer:
         ValueError
             if observable is requested that is not in data container
         """
+        data = pd.DataFrame.from_records(self._data_list)
         if tag is None:
-            return len(self._data)
+            return len(data)
         else:
-            if tag not in self._data:
-                raise ValueError('No observable named {}'
-                                 ' in data container'.format(tag))
-            return self._data[tag].count()
+            if tag not in data:
+                raise ValueError('No observable named {} in data container'.format(tag))
+            return data[tag].count()
 
-    def get_average(self, tag: str,
-                    start: int = None, stop: int = None) -> float:
+    def analyze_data(self, tag: str, start: int = None,
+                     stop: int = None, max_lag: int = None) -> dict:
+        """
+        Returns detailed analysis of a scalar observerable.
+
+        Parameters
+        ----------
+        tag
+            tag of field over which to average
+        start
+            minimum value of trial step to consider; by default the
+            smallest value in the mctrial column will be used.
+        stop
+            maximum value of trial step to consider; by default the
+            largest value in the mctrial column will be used.
+        max_lag
+            maximum lag between two points in data series, by default the
+            largest length of the data series will be used.
+            Used for computing autocorrelation
+        Raises
+        ------
+        ValueError
+            if observable is requested that is not in data container
+        ValueError
+            if observable is not scalar
+        ValueError
+            if observations is not evenly spaced
+
+        Returns
+        -------
+        dict
+            calculated properties of the data including mean,
+            standard_deviation, correlation_length and error_estimate
+            (95% confidence)
+        """
+        if tag in ['trajectory', 'occupations']:
+            raise ValueError('{} is not scalar'.format(tag))
+        steps, data = self.get_data('mctrial', tag, start=start, stop=stop)
+
+        # check that steps are evenly spaced
+        diff = np.diff(steps)
+        step_length = diff[0]
+        if not np.allclose(step_length, diff):
+            raise ValueError('data records must be evenly spaced.')
+
+        summary = analyze_data(data, max_lag=max_lag)
+        summary['correlation_length'] *= step_length  # in mc-trials
+        return summary
+
+    def get_average(self, tag: str, start: int = None, stop: int = None) -> float:
         """
         Returns average of a scalar observable.
 
@@ -317,37 +427,24 @@ class DataContainer:
         data = self.get_data(tag, start=start, stop=stop)
         return np.mean(data)
 
-    def get_standard_deviation(self, tag: str, start: int = None,
-                               stop: int = None) -> float:
-        """
-        Returns standard deviation of a scalar observable, calculated using
-        numpy.
+    def get_trajectory(self, start: int = None, stop: int = None, interval: int = 1) -> List[Atoms]:
+        """ Returns trajectory as a list of ASE Atoms objects.
 
         Parameters
         ----------
-        tag
-            tag of field over which to average
         start
             minimum value of trial step to consider; by default the
             smallest value in the mctrial column will be used.
         stop
             maximum value of trial step to consider; by default the
             largest value in the mctrial column will be used.
-
-        Raises
-        ------
-        ValueError
-            if observable is requested that is not in data container
-        ValueError
-            if observable is not scalar
+        interval
+            increment for mctrial; by default the smallest available
+            interval will be used.
         """
-        if tag in ['trajectory', 'occupations']:
-            raise ValueError('{} is not scalar'.format(tag))
-        data = self.get_data(tag, start=start, stop=stop)
-        return np.std(data)
+        return self.get_data('trajectory', start=start, stop=stop, interval=interval)
 
-    def _get_trajectory(self, *tags, start: int = None, stop: int = None,
-                        interval: int = 1) \
+    def _get_trajectory(self, *tags, start: int = None, stop: int = None, interval: int = 1) \
             -> Union[List[Atoms], Tuple[List[Atoms], np.ndarray]]:
         """
         Returns a trajectory in the form of a list of ASE Atoms
@@ -368,10 +465,8 @@ class DataContainer:
             increment for mctrial; by default the smallest available
             interval will be used.
         """
-        new_tags = tuple(['occupations' if tag == 'trajectory' else
-                          tag for tag in tags])
-        data = \
-            self.get_data(*new_tags, start=start, stop=stop, interval=interval)
+        new_tags = tuple(['occupations' if tag == 'trajectory' else tag for tag in tags])
+        data = self.get_data(*new_tags, start=start, stop=stop, interval=interval)
 
         if len(tags) > 1:
             data_list = list(data)
@@ -394,12 +489,14 @@ class DataContainer:
         else:
             return data_list[0]
 
-    def write_trajectory(self, outfile: Union[str, BinaryIO, TextIO]):
-        """
-        Saves trajectory to a file along with the respectives values of the
-        potential field for each configuration. If the file exists the
-        trajectory will be appended. Use ase gui to visualize the trajectory
-        with values of the potential for each frame.
+    def write_trajectory(self, outfile: Union[str, BinaryIO, TextIO]) -> None:
+        """Writes the configurations along the trajectory to file in ASE
+        trajectory format.  The file also includes the respectives
+        values of the potential for each configuration. If the file
+        exists the trajectory will be appended. The ASE `convert`
+        command can be used to convert the trajectory file to other
+        formats. The ASE `gui` can be used to visualize the
+        trajectory.
 
         Parameters
         ----------
@@ -413,7 +510,7 @@ class DataContainer:
         traj.close()
 
     @staticmethod
-    def read(infile: Union[str, BinaryIO, TextIO]):
+    def read(infile: Union[str, BinaryIO, TextIO], old_format: bool = False):
         """
         Reads DataContainer object from file.
 
@@ -421,6 +518,8 @@ class DataContainer:
         ----------
         infile
             file from which to read
+        old_format
+            If true use old json format to read runtime data; default to false
 
         Raises
         ------
@@ -449,36 +548,34 @@ class DataContainer:
             atoms = ase_read(reference_atoms_file.name, format='json')
 
             # file with reference data
-            reference_data_file.write(
-                tar_file.extractfile('reference_data').read())
+            reference_data_file.write(tar_file.extractfile('reference_data').read())
             reference_data_file.seek(0)
             with open(reference_data_file.name, encoding='utf-8') as fd:
                 reference_data = json.load(fd)
 
             # init DataContainer
-            dc = \
-                DataContainer(atoms=atoms,
-                              ensemble_parameters=reference_data['parameters'])
+            dc = DataContainer(atoms=atoms, ensemble_parameters=reference_data['parameters'])
 
             # overwrite metadata
             dc._metadata = reference_data['metadata']
 
             for tag, value in reference_data['last_state'].items():
                 if tag == 'random_state':
-                    value = \
-                        tuple(tuple(x) if isinstance(x, list)
-                              else x for x in value)
+                    value = tuple(tuple(x) if isinstance(x, list) else x for x in value)
                 dc._last_state[tag] = value
 
             # add runtime data from file
-            runtime_data_file.write(
-                tar_file.extractfile('runtime_data').read())
-
+            runtime_data_file.write(tar_file.extractfile('runtime_data').read())
             runtime_data_file.seek(0)
-            runtime_data = pd.read_json(runtime_data_file)
-            dc._data = runtime_data.sort_index(ascending=True)
-            dc._data.occupations = \
-                dc._data.occupations.replace({None: np.nan})
+            if old_format:
+                runtime_data = pd.read_json(runtime_data_file)
+                data = runtime_data.sort_index(ascending=True)
+                dc._data_list = data.T.apply(lambda x: x.dropna().to_dict()).tolist()
+            else:
+                dc._data_list = np.load(runtime_data_file, allow_pickle=True)['arr_0'].tolist()
+
+        dc._observables = set([key for data in dc._data_list for key in data])
+        dc._observables = dc._observables - {'mctrial'}
 
         return dc
 
@@ -491,8 +588,7 @@ class DataContainer:
         outfile
             file to which to write
         """
-        self._metadata['date_last_backup'] = \
-            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self._metadata['date_last_backup'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
         # Save reference atomic structure
         reference_atoms_file = tempfile.NamedTemporaryFile()
@@ -505,11 +601,11 @@ class DataContainer:
 
         reference_data_file = tempfile.NamedTemporaryFile()
         with open(reference_data_file.name, 'w') as handle:
-            json.dump(reference_data, handle)
+            json.dump(reference_data, handle, cls=Int64Encoder)
 
-        # Save pandas DataFrame
+        # Save runtime data
         runtime_data_file = tempfile.NamedTemporaryFile()
-        self._data.to_json(runtime_data_file.name, double_precision=15)
+        np.savez_compressed(runtime_data_file, self._data_list)
 
         with tarfile.open(outfile, mode='w') as handle:
             handle.add(reference_atoms_file.name, arcname='atoms')

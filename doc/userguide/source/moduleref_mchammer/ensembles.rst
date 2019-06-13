@@ -24,6 +24,21 @@ Canonical ensemble
    :inherited-members:
 
 
+.. _canonical_annealing:
+
+.. index::
+   single: Class reference; CanonicalAnnealing
+   single: Monte Carlo; Canonical ensemble
+
+Canonical annealing
+-------------------
+
+.. autoclass:: CanonicalAnnealing
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
 
 .. _sgc_ensemble:
 

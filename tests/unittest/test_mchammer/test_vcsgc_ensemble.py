@@ -7,6 +7,7 @@ from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators import ClusterExpansionCalculator
 
 from mchammer.ensembles import VCSGCEnsemble
+from mchammer.ensembles.vcsgc_ensemble import get_phis
 
 
 class TestEnsemble(unittest.TestCase):
@@ -84,22 +85,22 @@ class TestEnsemble(unittest.TestCase):
         target = {13: -1.3, 31: -0.7}
         self.assertEqual(retval, target)
 
-        self.ensemble._set_phis({'Al': -1.2, 'Ga': -0.8})
+        self.ensemble._phis = get_phis({'Al': -1.2, 'Ga': -0.8})
         retval = self.ensemble.phis
         target = {13: -1.2, 31: -0.8}
         self.assertEqual(retval, target)
 
-        self.ensemble._set_phis({13: -2.2, 31: 0.2})
+        self.ensemble._phis = get_phis({13: -2.2, 31: 0.2})
         retval = self.ensemble.phis
         target = {13: -2.2, 31: 0.2}
         self.assertEqual(retval, target)
 
         with self.assertRaises(TypeError) as context:
-            self.ensemble._set_phis('xyz')
+            get_phis('xyz')
         self.assertTrue('phis has the wrong type' in str(context.exception))
 
         with self.assertRaises(ValueError) as context:
-            self.ensemble._set_phis({13: -1.2, 31: -0.7})
+            get_phis({13: -1.2, 31: -0.7})
         self.assertTrue('The sum of all phis must' in str(context.exception))
 
     def test_property_boltzmann(self):

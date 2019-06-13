@@ -3,6 +3,7 @@ Optimizer
 """
 import numpy as np
 from sklearn.model_selection import train_test_split
+from typing import Any, Dict, List, Tuple, Union
 from .base_optimizer import BaseOptimizer
 from .fit_methods import fit
 from .tools import ScatterData
@@ -10,7 +11,8 @@ from .tools import ScatterData
 
 class Optimizer(BaseOptimizer):
     """
-    Optimizer for single `Ax = y` fit.
+    This optimizer finds a solution to the linear
+    :math:`\\boldsymbol{A}\\boldsymbol{x}=\\boldsymbol{y}` problem.
 
     One has to specify either `train_size`/`test_size` or
     `train_set`/`test_set` If either `train_set` or `test_set` (or both)
@@ -25,7 +27,7 @@ class Optimizer(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tuple(numpy.ndarray, numpy.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -36,7 +38,7 @@ class Optimizer(BaseOptimizer):
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
         "rfe-l2", "split-bregman"
     standardize : bool
-        whether or not to standardize the fit matrix before fitting
+        if True the fit matrix is standardized before fitting
     train_size : float or int
         If float represents the fraction of `fit_data` (rows) to be used for
         training. If int, represents the absolute number of rows to be used for
@@ -49,28 +51,40 @@ class Optimizer(BaseOptimizer):
         indices of rows of `A`/`y` to be used for training
     test_set : tuple or list(int)
         indices of rows of `A`/`y` to be used for testing
+    check_condition : bool
+        if True the condition number will be checked
+        (this can be sligthly more time consuming for larger
+        matrices)
     seed : int
         seed for pseudo random number generator
 
     Attributes
     ----------
-    train_scatter_data : ScatterData object (namedtuple)
+    train_scatter_data : ScatterData
         target and predicted value for each row in the training set
-    test_scatter_data : ScatterData object (namedtuple)
+    test_scatter_data : ScatterData
         target and predicted value for each row in the test set
     """
 
-    def __init__(self, fit_data, fit_method='least-squares', standardize=True,
-                 train_size=0.75, test_size=None, train_set=None,
-                 test_set=None, seed=42, **kwargs):
+    def __init__(self,
+                 fit_data: Tuple[np.ndarray, np.ndarray],
+                 fit_method: str = 'least-squares',
+                 standardize: bool = True,
+                 train_size: Union[int, float] = 0.75,
+                 test_size: Union[int, float] = None,
+                 train_set: Union[Tuple[int], List[int]] = None,
+                 test_set: Union[Tuple[int], List[int]] = None,
+                 check_condition: bool = True,
+                 seed: int = 42,
+                 **kwargs) -> None:
 
-        super().__init__(fit_data, fit_method, standardize, seed)
+        super().__init__(fit_data, fit_method, standardize, check_condition,
+                         seed)
 
         self._kwargs = kwargs
 
         # setup train and test sets
-        self._setup_rows(train_size, test_size,
-                         train_set, test_set)
+        self._setup_rows(train_size, test_size, train_set, test_set)
 
         # will be populate once running train
         self._rmse_train = None
@@ -80,7 +94,7 @@ class Optimizer(BaseOptimizer):
         self.train_scatter_data = None
         self.test_scatter_data = None
 
-    def train(self):
+    def train(self) -> None:
         """ Carries out training. """
 
         # select training data
@@ -89,9 +103,9 @@ class Optimizer(BaseOptimizer):
 
         # perform training
         self._fit_results = fit(A_train, y_train, self.fit_method,
-                                self.standardize, **self._kwargs)
+                                self.standardize, self._check_condition,
+                                **self._kwargs)
         self._rmse_train = self.compute_rmse(A_train, y_train)
-        self._contributions_train = self.get_contributions(A_train)
         self.train_scatter_data = ScatterData(y_train, self.predict(A_train))
 
         # perform testing
@@ -99,13 +113,16 @@ class Optimizer(BaseOptimizer):
             A_test = self._A[self.test_set, :]
             y_test = self._y[self.test_set]
             self._rmse_test = self.compute_rmse(A_test, y_test)
-            self._contributions_test = self.get_contributions(A_test)
             self.test_scatter_data = ScatterData(y_test, self.predict(A_test))
         else:
             self._rmse_test = None
             self.test_scatter_data = None
 
-    def _setup_rows(self, train_size, test_size, train_set, test_set):
+    def _setup_rows(self,
+                    train_size: Union[int, float],
+                    test_size: Union[int, float],
+                    train_set: Union[Tuple[int], List[int]],
+                    test_set: Union[Tuple[int], List[int]]) -> None:
         """
         Sets up train and test rows depending on which arguments are
         specified.
@@ -133,8 +150,11 @@ class Optimizer(BaseOptimizer):
         self._train_set = train_set
         self._test_set = test_set
 
-    def _get_rows_via_sizes(self, train_size, test_size):
-        """ Gets train and test rows via sizes. """
+    def _get_rows_via_sizes(self,
+                            train_size: Union[int, float],
+                            test_size: Union[int, float]) \
+            -> Tuple[List[int], List[int]]:
+        """ Returns train and test rows via sizes. """
 
         # Handle special cases
         if test_size is None and train_size is None:
@@ -156,8 +176,11 @@ class Optimizer(BaseOptimizer):
 
         return train_set, test_set
 
-    def _get_rows_from_indices(self, train_set, test_set):
-        """ Gets row via indices. """
+    def _get_rows_from_indices(self,
+                               train_set: Union[Tuple[int], List[int]],
+                               test_set: Union[Tuple[int], List[int]]) \
+            -> Tuple[np.ndarray, np.ndarray]:
+        """ Returns rows via indices. """
         if train_set is None and test_set is None:
             raise ValueError('Training and test sets are None (empty)')
         elif test_set is None:
@@ -169,8 +192,8 @@ class Optimizer(BaseOptimizer):
         return np.array(train_set), np.array(test_set)
 
     @property
-    def summary(self):
-        """ dict : comprehensive information about the optimizer """
+    def summary(self) -> Dict[str, Any]:
+        """ comprehensive information about the optimizer """
         info = super().summary
 
         # Add class specific data
@@ -180,8 +203,6 @@ class Optimizer(BaseOptimizer):
         info['train_set'] = self.train_set
         info['test_size'] = self.test_size
         info['test_set'] = self.test_set
-        info['contributions_train'] = self.contributions_train
-        info['contributions_test'] = self.contributions_test
         info['train_scatter_data'] = self.train_scatter_data
         info['test_scatter_data'] = self.test_scatter_data
 
@@ -189,7 +210,7 @@ class Optimizer(BaseOptimizer):
         info = {**info, **self._kwargs}
         return info
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         kwargs = dict()
         kwargs['fit_method'] = self.fit_method
         kwargs['traininig_size'] = self.train_size
@@ -202,57 +223,57 @@ class Optimizer(BaseOptimizer):
             ', '.join('{}={}'.format(*kwarg) for kwarg in kwargs.items()))
 
     @property
-    def rmse_train(self):
-        """ float : root mean squared error for training set """
+    def rmse_train(self) -> float:
+        """ root mean squared error for training set """
         return self._rmse_train
 
     @property
-    def rmse_test(self):
-        """ float : root mean squared error for test set """
+    def rmse_test(self) -> float:
+        """ root mean squared error for test set """
         return self._rmse_test
 
     @property
-    def contributions_train(self):
-        """ numpy.ndarray : average contribution to the predicted values for
+    def contributions_train(self) -> np.ndarray:
+        """ average contribution to the predicted values for
         the train set from each parameter """
         return self._contributions_train
 
     @property
-    def contributions_test(self):
-        """ numpy.ndarray : average contribution to the predicted values for
+    def contributions_test(self) -> np.ndarray:
+        """ average contribution to the predicted values for
         the test set from each parameter """
         return self._contributions_test
 
     @property
-    def train_set(self):
-        """ list : indices of rows included in the training set """
+    def train_set(self) -> List[int]:
+        """ indices of rows included in the training set """
         return self._train_set
 
     @property
-    def test_set(self):
-        """ list : indices of rows included in the test set """
+    def test_set(self) -> List[int]:
+        """ indices of rows included in the test set """
         return self._test_set
 
     @property
-    def train_size(self):
-        """ int : number of rows included in training set """
+    def train_size(self) -> int:
+        """ number of rows included in training set """
         return len(self.train_set)
 
     @property
-    def train_fraction(self):
-        """ float : fraction of rows included in training set """
+    def train_fraction(self) -> float:
+        """ fraction of rows included in training set """
         return self.train_size / self._n_rows
 
     @property
-    def test_size(self):
-        """ int : number of rows included in test set """
+    def test_size(self) -> int:
+        """ number of rows included in test set """
         if self.test_set is None:
             return 0
         return len(self.test_set)
 
     @property
-    def test_fraction(self):
-        """ float : fraction of rows included in test set """
+    def test_fraction(self) -> float:
+        """ fraction of rows included in test set """
         if self.test_set is None:
             return 0.0
         return self.test_size / self._n_rows

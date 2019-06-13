@@ -1,6 +1,12 @@
+"""
+This module provides the ClusterExpansion class.
+"""
+
 import pandas as pd
 import numpy as np
 import pickle
+import tempfile
+import tarfile
 import re
 
 from icet import ClusterSpace
@@ -10,15 +16,40 @@ from ase import Atoms
 
 
 class ClusterExpansion:
-    """
-    Cluster expansion model
+    """Cluster expansions are obtained by combining a cluster space with
+    a set of effective cluster interactions (ECIs). Instances of this
+    class allow one to predict the property of interest for a given
+    structure.
 
     Attributes
     ----------
     cluster_space : icet.ClusterSpace
         cluster space that was used for constructing the cluster expansion
-    parameters : numpy.ndarray
+    parameters : np.ndarray
         effective cluster interactions (ECIs)
+
+    Example
+    -------
+    The following snippet illustrates the initialization and usage of
+    a ClusterExpansion object. Here, the ECIs are taken to be a list
+    of ones. Usually, they would be obtained by training with
+    respect to a set of reference data::
+
+        from ase.build import bulk
+        from icet import ClusterSpace, ClusterExpansion
+
+        # create cluster expansion
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[7.0, 5.0],
+                          chemical_symbols=[['Au', 'Pd']])
+        ecis = 14 * [1.0]
+        ce = ClusterExpansion(cs, ecis)
+
+        # make prediction for supercell
+        sc = prim.repeat(3)
+        for k in [1, 4, 7]:
+            sc[k].symbol = 'Pd'
+        print(ce.predict(sc))
     """
 
     def __init__(self, cluster_space: ClusterSpace,
@@ -42,12 +73,11 @@ class ClusterExpansion:
             raise ValueError('cluster_space ({}) and parameters ({}) must have'
                              ' the same length'.format(len(cluster_space),
                                                        len(parameters)))
-        self._cluster_space = cluster_space
+        self._cluster_space = cluster_space.copy()
         if isinstance(parameters, list):
             parameters = np.array(parameters)
         self._parameters = parameters
         self._original_parameters = parameters.copy()
-        self._pruning_history = []
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
@@ -64,31 +94,52 @@ class ClusterExpansion:
         float
             property value of predicted by the cluster expansion
         """
-        cluster_vector = self.cluster_space.get_cluster_vector(structure)
+        cluster_vector = self._cluster_space.get_cluster_vector(structure)
         prop = np.dot(cluster_vector, self.parameters)
         return prop
 
     @property
     def parameters_as_dataframe(self) -> pd.DataFrame:
         """ dataframe containing orbit data and ECIs """
-        rows = self.cluster_space.orbit_data
+        rows = self._cluster_space.orbit_data
         for row, eci in zip(rows, self.parameters):
             row['eci'] = eci
         return pd.DataFrame(rows)
 
     @property
-    def orders(self) -> List:
-        return list(range(len(self.cluster_space.cutoffs)+2))
+    def orders(self) -> List[int]:
+        """ orders included in cluster expansion """
+        return list(range(len(self._cluster_space.cutoffs) + 2))
 
     @property
     def cluster_space(self) -> ClusterSpace:
         """ cluster space on which cluster expansion is based """
-        return self._cluster_space
+        return self._cluster_space.copy()
 
     @property
     def parameters(self) -> List[float]:
         """ effective cluster interactions (ECIs) """
         return self._parameters
+
+    def plot_parameters(self, orders=None):
+        """ Plot ECIs for given orders, default plots for all orders """
+
+        if orders is None:
+            orders = self.orders
+        df = self.parameters_as_dataframe
+
+        # plotting
+        import matplotlib.pyplot as plt
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+        ax.axhline(y=0.0, c='k', lw=1)
+        for order in orders:
+            df_order = df.loc[df['order'] == order]
+            ax.plot(df_order.radius, df_order.eci, 'o', ms=8, label='order {}'.format(order))
+        ax.legend(loc='best')
+        ax.set_xlabel('Radius')
+        ax.set_ylabel('ECI')
+        plt.show()
 
     def __len__(self) -> int:
         return len(self._parameters)
@@ -137,6 +188,24 @@ class ClusterExpansion:
         """ string representation """
         return self._get_string_representation(print_threshold=50)
 
+    def print_overview(self,
+                       print_threshold: int = None,
+                       print_minimum: int = 10) -> None:
+        """
+        Print an overview of the cluster expansion in terms of the orbits (order,
+        radius, multiplicity, corresponding ECI etc).
+
+        Parameters
+        ----------
+        print_threshold
+            if the number of orbits exceeds this number print dots
+        print_minimum
+            number of lines printed from the top and the bottom of the orbit
+            list if `print_threshold` is exceeded
+        """
+        print(self._get_string_representation(print_threshold=print_threshold,
+                                              print_minimum=print_minimum))
+
     def prune(self, indices: List[int] = None, tol: float = 0):
         """
         Removes orbits from the cluster expansion (CE), for which the effective
@@ -155,8 +224,8 @@ class ClusterExpansion:
             orbits for which the absolute ECIs is/are within this
             value will be pruned
         """
-        self._pruning_history.append({'indices': indices, 'tol': tol})
 
+        # find orbit indices to be removed
         if indices is None:
             indices = [i for i, param in enumerate(
                 self.parameters) if np.abs(param) <= tol and i > 0]
@@ -164,8 +233,7 @@ class ClusterExpansion:
         indices = list(set(indices))
 
         if 0 in indices:
-            raise ValueError('Orbit index cannot be 0 since'
-                             ' the zerolet may not be pruned.')
+            raise ValueError('Orbit index cannot be 0 since the zerolet may not be pruned.')
         orbit_candidates_for_removal = \
             df.orbit_index[np.array(indices)].tolist()
         safe_to_remove_orbits, safe_to_remove_params = [], []
@@ -176,12 +244,13 @@ class ClusterExpansion:
             oi_remove_count = orbit_candidates_for_removal.count(oi)
             if orbit_count <= oi_remove_count:
                 safe_to_remove_orbits.append(oi)
-                safe_to_remove_params += df.index[df['orbit_index']
-                                                  == oi].tolist()
+                safe_to_remove_params += df.index[df['orbit_index'] == oi].tolist()
 
+        # prune cluster space
         self._cluster_space._prune_orbit_list(indices=safe_to_remove_orbits)
         self._parameters = self._parameters[np.setdiff1d(
             np.arange(len(self._parameters)), safe_to_remove_params)]
+        assert len(self._parameters) == len(self._cluster_space)
 
     def write(self, filename: str):
         """
@@ -192,17 +261,23 @@ class ClusterExpansion:
         filename
             name of file to which to write
         """
-        self.cluster_space.write(filename)
+        self._cluster_space.write(filename)
 
-        with open(filename, 'rb') as handle:
-            data = pickle.load(handle)
+        items = dict()
+        items['parameters'] = self.parameters
 
-        data['parameters'] = self.parameters
-        data['original_parameters'] = self._original_parameters
-        data['pruning_history'] = self._pruning_history
+        with tarfile.open(name=filename, mode='w') as tar_file:
+            cs_file = tempfile.NamedTemporaryFile()
+            self._cluster_space.write(cs_file.name)
+            tar_file.add(cs_file.name, arcname='cluster_space')
 
-        with open(filename, 'wb') as handle:
-            pickle.dump(data, handle, protocol=pickle.HIGHEST_PROTOCOL)
+            # write items
+            temp_file = tempfile.TemporaryFile()
+            pickle.dump(items, temp_file)
+            temp_file.seek(0)
+            tar_info = tar_file.gettarinfo(arcname='items', fileobj=temp_file)
+            tar_file.addfile(tar_info, temp_file)
+            temp_file.close()
 
     @staticmethod
     def read(filename: str):
@@ -214,15 +289,15 @@ class ClusterExpansion:
         filename
             file from which to read
         """
-        cs = ClusterSpace.read(filename)
-        with open(filename, 'rb') as handle:
-            data = pickle.load(handle)
-        parameters = data['parameters']
-        pruning_history = data['pruning_history']
-        original_parameters = data['original_parameters']
-        ce = ClusterExpansion(cs, original_parameters)
-        for arg in pruning_history:
-            ce.prune(indices=arg['indices'], tol=arg['tol'])
+        with tarfile.open(name=filename, mode='r') as tar_file:
+            cs_file = tempfile.NamedTemporaryFile()
+            cs_file.write(tar_file.extractfile('cluster_space').read())
+            cs_file.seek(0)
+            cs = ClusterSpace.read(cs_file.name)
+            items = pickle.load(tar_file.extractfile('items'))
+
+        parameters = items['parameters']
+        ce = ClusterExpansion(cs, parameters)
 
         assert list(parameters) == list(ce.parameters)
         return ce

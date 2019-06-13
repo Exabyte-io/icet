@@ -50,9 +50,8 @@ class TestOptimizer(unittest.TestCase):
         # test with fractions
         train_size, test_size = 0.7, 0.2
         train_set, test_set = opt._get_rows_via_sizes(train_size, test_size)
-        self.assertLess(abs(train_size * self.n_rows - len(train_set)),
-                        self.tol)
-        self.assertLess(abs(test_size * self.n_rows - len(test_set)), self.tol)
+        self.assertLess(abs(train_size*self.n_rows - len(train_set)), self.tol)
+        self.assertLess(abs(test_size*self.n_rows - len(test_set)), self.tol)
 
         # test edge case with full training set
         test_size = None
@@ -118,7 +117,7 @@ class TestOptimizer(unittest.TestCase):
 
         # no training data from train_set
         with self.assertRaises(ValueError):
-            train_set, test_set = [], np.arange(0, int(0.5 * self.n_rows))
+            train_set, test_set = [], np.arange(0, int(0.5*self.n_rows))
             opt._setup_rows(None, None, train_set, test_set)
 
         # overlapping indices in train_set and test_set

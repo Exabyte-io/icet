@@ -9,7 +9,7 @@ from pandas.testing import assert_frame_equal
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators.cluster_expansion_calculator import \
     ClusterExpansionCalculator
-from mchammer.ensembles.base_ensemble import BaseEnsemble
+from mchammer.ensembles.base_ensemble import BaseEnsemble, dicts_equal
 from mchammer.observers.base_observer import BaseObserver
 from mchammer import DataContainer
 
@@ -112,6 +112,29 @@ class TestEnsemble(unittest.TestCase):
         self.assertTrue('Path to data container file does not exist:'
                         ' path/to/nowhere' in str(context.exception))
 
+        # wrong occupations on atoms
+        wrong_atoms = self.atoms.copy()
+        wrong_atoms.numbers = [1]*len(self.atoms)
+        with self.assertRaises(ValueError) as context:
+            ConcreteEnsemble(atoms=wrong_atoms,
+                             calculator=self.calculator)
+
+        self.assertTrue('Occupations of structure not compatible with '
+                        'the sublattice' in str(context.exception))
+
+    def test_init_fails_for_faulty_chemical_symbols(self):
+        """Tests that initialization fails if species exists  on
+        mutliple sublattices"""
+        atoms = bulk('Al').repeat(2)
+        cutoffs = [4.0]
+        elements = [['Al', 'Ga']] * 4 + [['Al', 'Ge']] * 4
+        cs = ClusterSpace(atoms, cutoffs, elements)
+        ce = ClusterExpansion(cs, np.arange(0, len(cs)))
+        calc = ClusterExpansionCalculator(atoms, ce)
+        with self.assertRaises(ValueError) as context:
+            ConcreteEnsemble(atoms, calc)
+        self.assertIn('found on multiple active sublattices', str(context.exception))
+
     def test_property_user_tag(self):
         """Tests name property."""
         self.assertEqual('test-ensemble', self.ensemble.user_tag)
@@ -183,7 +206,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(self.ensemble._step, 70)
 
         # Do a number of steps of continuous runs and see that
-        # we get the expected number of parakeet observations.
+        # we get the expected number of observations.
         for i in range(30):
             self.ensemble.reset_data_container()
             run_iters = [1, 50, 100, 200, i]
@@ -199,6 +222,14 @@ class TestEnsemble(unittest.TestCase):
             self.assertEqual(
                 number_of_observations,
                 total_iters // self.ensemble.observers['Apple2'].interval + 1)
+
+    def test_get_random_sublattice_index(self):
+        """Tests the random sublattice index method."""
+
+        with self.assertRaises(ValueError) as context:
+            self.ensemble.get_random_sublattice_index([1, 0])
+        self.assertIn("probability_distribution should have the same size as sublattices",
+                      str(context.exception))
 
     def test_run_with_dict_observer(self):
         """Tests the run method with a dict observer."""
@@ -290,7 +321,7 @@ class TestEnsemble(unittest.TestCase):
         n_iters = 10
         self.ensemble.run(n_iters)
         ensemble_T1000 = tempfile.NamedTemporaryFile()
-        self.ensemble.data_container.write(ensemble_T1000.name)
+        self.ensemble.write_data_container(ensemble_T1000.name)
 
         with self.assertRaises(ValueError) as context:
             ConcreteEnsemble(atoms=self.atoms,
@@ -300,6 +331,29 @@ class TestEnsemble(unittest.TestCase):
         self.assertIn("Ensemble parameters do not match with those stored in"
                       " DataContainer file: {('temperature', 1000)}",
                       str(context.exception))
+
+    def test_restart_with_inactive_sites(self):
+        """ Tests restart works with inactive sites """
+
+        chemical_symbols = [['C', 'Be'], ['W']]
+        prim = bulk('W', 'bcc', cubic=True, )
+        cs = ClusterSpace(atoms=prim, chemical_symbols=chemical_symbols, cutoffs=[5])
+        parameters = [1] * len(cs)
+        ce = ClusterExpansion(cs, parameters)
+
+        size = 4
+        atoms = ce.cluster_space.primitive_structure.repeat(size)
+        calculator = ClusterExpansionCalculator(atoms, ce)
+
+        # Carry out Monte Carlo simulations
+        dc_file = tempfile.NamedTemporaryFile()
+        mc = ConcreteEnsemble(atoms=atoms, calculator=calculator)
+        mc.write_data_container(dc_file.name)
+        mc.run(10)
+
+        # and now restart
+        mc = ConcreteEnsemble(atoms=atoms, calculator=calculator, data_container=dc_file.name)
+        mc.run(10)
 
     def test_internal_run(self):
         """Tests the _run method."""
@@ -352,6 +406,10 @@ class TestEnsemble(unittest.TestCase):
         target = 5
         self.assertEqual(self.ensemble._get_gcd(input), target)
 
+        input = [1]
+        target = 1
+        self.assertEqual(self.ensemble._get_gcd(input), target)
+
     def test_get_property_change(self):
         """Tests the get property change method."""
 
@@ -395,6 +453,22 @@ class TestEnsemble(unittest.TestCase):
 
         self.ensemble.data_container_write_period = 1e-2
         self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
+
+    def test_dicts_equal(self):
+        """Tests dicts_equal function."""
+        d1 = dict(T=300.25, phi=-0.1, kappa=200)
+        d2 = {k: v for k, v in d1.items()}
+
+        # check dicts are equal
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts are equal even with small difference
+        d2['T'] += 1e-16
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts differ when a larger difference is introduced
+        d2['T'] += 1e-10
+        self.assertFalse(dicts_equal(d1, d2))
 
 
 if __name__ == '__main__':

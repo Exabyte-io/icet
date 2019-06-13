@@ -27,12 +27,25 @@ tests:
     - coverage report -m
     - coverage html -d coverage
     - for f in benchmark/*.py; do python3 "$f"; done
-    - for f in tutorial/advanced/*.py; do python3 "$f">/dev/null; done
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   artifacts:
     expire_in: 14 days
     paths:
       - coverage/
+
+
+test_benchmarks_examples:
+  stage: test
+  only:
+    - schedules
+  tags:
+    - linux
+  dependencies:
+    - build_linux
+  script:
+    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
+    - for f in benchmark/*.py; do echo $f ; python3 $f ; done
+    - for f in $(ls examples/*/*.py | grep -v __ | grep -v parallel_monte_carlo); do echo $f ; cd `dirname $f` ; python3 `basename $f` ; cd ../../ ; done
 
 
 style_check:
@@ -66,10 +79,18 @@ pages:
     # user guide (sphinx)
     - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - sphinx-build doc/userguide/source/ public/
-    # make tests and tutorial downloadable
-    - zip -rj public/basic_tutorial.zip tutorial/basic/
-    - zip -rj public/advanced_tutorial.zip tutorial/advanced/
-    - find tests/ -name '*.py' -print | zip public/tests.zip tests/structure_databases/*.db -@
+    # make tests and examples downloadable
+    - for tag in `git tag | tail -3` ; do
+        echo "tag= ${tag}" ;
+        git checkout $tag ;
+        if [ -d examples ] ; then
+          cd examples ;
+          find tutorial/ -print | zip ../public/tutorial_${tag}.zip -@ ;
+          find advanced_topics/ -print | zip ../public/advanced_topics_${tag}.zip -@ ;
+          cd .. ;
+        fi ;
+        find tests/ -print | zip public/tests_${tag}.zip tests/structure_databases/*.db -@ ;
+      done
     # clean up
     - ls -l public/.well-known/acme-challenge/
     - ls -l public/

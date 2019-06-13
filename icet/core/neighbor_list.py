@@ -1,10 +1,15 @@
+"""
+This module provides a Python interface to the NeighborList class
+with supplementary functions.
+"""
+
 from _icet import NeighborList
-from .structure import Structure
 from ase import Atoms
+from .structure import Structure
 
 
 def get_neighbor_lists(atoms, cutoffs=None):
-    '''
+    """
     Returns list of icet neighbor lists from a configuration and cutoffs.
 
     Parameters
@@ -17,7 +22,7 @@ def get_neighbor_lists(atoms, cutoffs=None):
     Returns
     -------
     list of NeighborList objects
-    '''
+    """
 
     # deal with different types of structure objects
     if isinstance(atoms, Atoms):

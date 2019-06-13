@@ -10,6 +10,7 @@
 #include "ClusterExpansionCalculator.hpp"
 #include <pybind11/pybind11.h>
 #include "Symmetry.hpp"
+#include "PeriodicTable.hpp"
 #include "Orbit.hpp"
 #include "OrbitList.hpp"
 #include <iostream>
@@ -128,35 +129,42 @@ PYBIND11_MODULE(_icet, m)
                  positions and distances
          )pbdoc")
         .def(py::init<>())
-        .def(py::init<const Eigen::Matrix<double, Dynamic, 3, Eigen::RowMajor> &,
-                      const std::vector<std::string> &,
-                      const Eigen::Matrix3d &,
-                      const std::vector<bool> &,
-                      double>(),
-             R"pbdoc(
-             Initializes an icet Structure instance.
-         )pbdoc",
-             py::arg("positions"),
-             py::arg("chemical_symbols"),
-             py::arg("cell"),
-             py::arg("pbc"),
-             py::arg("tolerance") = 1e-5)
-        .def("get_pbc", &Structure::getPBC,
-             "Returns the periodic boundary conditions.")
-        .def("set_pbc", &Structure::setPBC,
-             "Sets the periodic boundary conditions.")
-        .def_property("pbc",
-                      &Structure::getPBC,
-                      &Structure::setPBC,
-                      "3-dimensional vector : periodic boundary conditions")
-        .def("get_cell", &Structure::getCell,
-             "Returns the cell metric.")
-        .def("set_cell", &Structure::setCell,
-             "Sets the cell metric.")
-        .def_property("cell",
-                      &Structure::getCell,
-                      &Structure::setCell,
-                      "3x3 array : cell metric")
+        .def(
+            py::init<const Eigen::Matrix<double, Dynamic, 3, Eigen::RowMajor> &,
+                     const std::vector<std::string> &,
+                     const Eigen::Matrix3d &,
+                     const std::vector<bool> &,
+                     double>(),
+            "Initializes an icet Structure instance.",
+            py::arg("positions"),
+            py::arg("chemical_symbols"),
+            py::arg("cell"),
+            py::arg("pbc"),
+            py::arg("tolerance") = 1e-5)
+        // @todo Remove getter/setter, keep property.
+        .def(
+            "get_pbc", &Structure::getPBC,
+            "Returns the periodic boundary conditions.")
+        .def(
+            "set_pbc", &Structure::setPBC,
+            "Sets the periodic boundary conditions.")
+        .def_property(
+            "pbc",
+            &Structure::getPBC,
+            &Structure::setPBC,
+            "list(int) : periodic boundary conditions")
+        // @todo Remove getter/setter, keep property.
+        .def(
+            "get_cell", &Structure::getCell,
+            "Returns the cell metric.")
+        .def(
+            "set_cell", &Structure::setCell,
+            "Sets the cell metric.")
+        .def_property(
+            "cell",
+            &Structure::getCell,
+            &Structure::setCell,
+            "list(list(float)) : cell metric")
         .def("get_positions",
              &Structure::getPositions,
              R"pbdoc(
@@ -240,7 +248,7 @@ PYBIND11_MODULE(_icet, m)
              -------
              list of ints
          )pbdoc")
-        .def("set_number_of_allowed_species", (void (Structure::*)(const std::vector<int> &)) &Structure::setNumberOfAllowedSpecies,
+        .def("set_number_of_allowed_species", (void (Structure::*)(const std::vector<int> &)) & Structure::setNumberOfAllowedSpecies,
              py::arg("numbersOfAllowedSpecies"),
              R"pbdoc(
              Sets the number of allowed species on each site.
@@ -253,7 +261,7 @@ PYBIND11_MODULE(_icet, m)
              numbersOfAllowedSpecies : list of int
          )pbdoc")
         .def("set_number_of_allowed_species",
-            (void (Structure::*)(const int)) &Structure::setNumberOfAllowedSpecies,
+             (void (Structure::*)(const int)) & Structure::setNumberOfAllowedSpecies,
              py::arg("numbersOfAllowedSpecies"),
              R"pbdoc(
              Sets the number of allowed species on each site.
@@ -472,9 +480,9 @@ PYBIND11_MODULE(_icet, m)
         .def_property_readonly("sorted",
                                &Cluster::isSorted,
                                "boolean : True/False if the cluster is sorted/unsorted")
-        .def_property_readonly("tag",
-                               &Cluster::tag,
-                               "int : cluster tag (defined for sorted cluster)")
+        .def_property("tag",
+                      &Cluster::tag, &Cluster::setTag,
+                      "int : cluster tag (defined for sorted cluster)")
         .def_property_readonly("radius",
                                &Cluster::radius,
                                "float : the radius of the cluster")
@@ -562,8 +570,6 @@ PYBIND11_MODULE(_icet, m)
          )pbdoc")
         .def("__len__", &ClusterCounts::size)
         .def("reset", &ClusterCounts::reset)
-        .def("setup_cluster_counts_info", &ClusterCounts::setupClusterCountsInfo)
-        .def("get_cluster_counts_info", &ClusterCounts::getClusterCountsInfo)
         .def("get_cluster_counts", [](const ClusterCounts &clusterCounts) {
             //&ClusterCounts::getClusterCounts
             py::dict clusterCountDict;
@@ -572,13 +578,18 @@ PYBIND11_MODULE(_icet, m)
                 py::dict d;
                 for (const auto &vecInt_intPair : mapPair.second)
                 {
-                    d[py::tuple(py::cast(vecInt_intPair.first))] = vecInt_intPair.second;
+                    py::list element_symbols;
+                    for (auto el : vecInt_intPair.first)
+                    {
+                        auto getElementSymbols = PeriodicTable::intStr[el];
+                        element_symbols.append(getElementSymbols);
+                    }
+                    d[py::tuple(element_symbols)] = vecInt_intPair.second;
                 }
                 clusterCountDict[py::cast(mapPair.first)] = d;
             }
             return clusterCountDict;
-        })
-        .def("print", &ClusterCounts::print);
+        });
 
     // @todo convert getters to properties
     // @todo document Orbit in pybindings
@@ -664,7 +675,6 @@ PYBIND11_MODULE(_icet, m)
         .def("get_sites_with_permutation", &Orbit::getSitesWithPermutation,
              R"pbdoc(Return the permuted to representative
         sites of equivalent_sites[index].)pbdoc")
-        // .def("get_number_of_duplicates", &Orbit::getNumberOfDuplicates, py::arg("verbosity") = 0)
         .def("get_mc_vectors", &Orbit::getMultiComponentVectors,
              R"pbdoc(
         Return the mc vectors for this orbit given the allowed components.
@@ -697,17 +707,19 @@ PYBIND11_MODULE(_icet, m)
         returns all_mc_vectors : list of tuples of int
         )pbdoc")
         .def_property("allowed_permutations", [](const Orbit &orbit) {
-             auto permutationSet = orbit.getAllowedSitesPermutations();
-             std::vector<std::vector<int>> vectorPermutations;
-            for(auto vector : permutationSet)
-            {
-                vectorPermutations.push_back(vector);
-            }
-             return vectorPermutations; }, [](Orbit &orbit, const std::vector<std::vector<int>> &permutations) {
+            std::set<std::vector<int>> allowedPermutations = orbit.getAllowedSitesPermutations();
+            // std::vector<std::vector<int>> retPermutations;
+            std::vector<std::vector<int>> retPermutations(allowedPermutations.begin(), allowedPermutations.end());
+            return retPermutations; },
+                      [](Orbit &orbit, const std::vector<std::vector<int>> &newPermutations) {
+                          std::set<std::vector<int>> allowedPermutations;
+                          for (const auto &perm : newPermutations)
+                          {
+                              allowedPermutations.insert(perm);
+                          }
+                          orbit.setAllowedSitesPermutations(allowedPermutations);
+                      },
 
-                std::unordered_set<std::vector<int>, VectorHash> setPermutations;
-                setPermutations.insert(permutations.begin(),permutations.end());
-                 orbit.setAllowedSitesPermutations(setPermutations); },
                       R"pbdoc(Get the list of equivalent permutations
         for this orbit.
 
@@ -740,71 +752,64 @@ PYBIND11_MODULE(_icet, m)
 
     py::class_<OrbitList>(m, "_OrbitList")
         .def(py::init<>())
-        .def(py::init<const std::vector<NeighborList> &, const Structure &>(),
-             R"pbdoc(
-             Initializes an OrbitList instance from a list of neighbor lists
-             and a structure.
+        .def(
+            py::init<const Structure &,
+                     const std::vector<std::vector<LatticeSite>> &,
+                     const std::vector<NeighborList> &>(),
+            R"pbdoc(
+            Constructs an OrbitList object from a permutation matrix with
+            LatticeSite type entries and a Structure instance.
 
-             Parameters
-             ----------
-             neighbor_lists : list of NeighborList objects
-                list of neighbor list for the atomic configuration under different cutoffs.
-             structure : icet Structure object
+            Parameters
+            ----------
+            permutation_matrix : list(list(_icet.LatticeSite))
+                permutation matrix with lattice sites
+            structure : _icet.Structure
                 primitive atomic structure
-        )pbdoc",
-             py::arg("neigbor_lists"),
-             py::arg("structure"))
-        .def(py::init<const Structure &, const std::vector<std::vector<LatticeSite>> &, const std::vector<NeighborList> &>(),
-             R"pbdoc(
-                Constructs an OrbitList object from a permutation matrix with
-                LatticeSite type entries and a Structure instance.
-
-             Parameters
-             ----------
-             permutation_matrix : vector of vector of LatticeSite objects
-                 permutation matrix with lattice sites
-             structure : icet Structure object
-                 primitive atomic structure
-        )pbdoc",
-             py::arg("structure"),
-             py::arg("permutation_matrix"),
-             py::arg("neighbor_lists"))
-        .def_property_readonly("orbits", &OrbitList::getOrbitList, R"pbdoc(Internal list of orbits)pbdoc")
+            )pbdoc",
+            py::arg("structure"),
+            py::arg("permutation_matrix"),
+            py::arg("neighbor_lists"))
+        .def_property_readonly(
+            "orbits",
+            &OrbitList::getOrbits,
+            "list(_icet.Orbit) : list of orbits")
+        .def("get_orbit_list", &OrbitList::getOrbits,
+             "Returns the list of orbits")
         .def("add_orbit", &OrbitList::addOrbit,
              "Add an Orbit object to the OrbitList")
-        .def("get_number_of_NClusters", &OrbitList::getNumberOfNClusters,
+        .def("get_number_of_nbody_clusters", &OrbitList::getNumberOfNBodyClusters,
              "Returns the number of orbits in the OrbitList")
         .def("get_orbit", &OrbitList::getOrbit,
              "Returns a copy of the orbit at the position i in the OrbitList")
-        .def("_remove_inactive_orbits",&OrbitList::removeInactiveOrbits)
-        .def("clear", &OrbitList::clear,
-             "Clears the OrbitList")
+        .def("_remove_inactive_orbits", &OrbitList::removeInactiveOrbits)
+        .def("clear", &OrbitList::clear, "Clears the list of orbits.")
         .def("sort", &OrbitList::sort,
              "Sorts the orbits by orbit comparison")
         .def(
-	    "remove_orbit",
-	    &OrbitList::removeOrbit,
-	    R"pbdoc(
+            "remove_orbit",
+            &OrbitList::removeOrbit,
+            R"pbdoc(
             Removes the orbit with the input index.
 
             Parameters
             ---------
             index : int
-                index of the orbit to be removed             
+                index of the orbit to be removed
             )pbdoc")
-        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
-             R"pbdoc(
-                 Returns the index of the orbit with the given representative cluster.
-
-             Parameters
-             ---------
-             cluster: icet Cluster object
-                representative cluster of an orbit
-             )pbdoc",
-             py::arg("cluster"))
+        //        .def("_find_orbit", (int (OrbitList::*)(const Cluster &) const) & OrbitList::findOrbit,
+        //             R"pbdoc(
+        //                 Returns the index of the orbit with the given representative cluster.
+        //
+        //             Parameters
+        //             ---------
+        //             cluster: icet Cluster object
+        //                representative cluster of an orbit
+        //             )pbdoc",
+        //             py::arg("cluster"))
         .def("_is_row_taken", &OrbitList::isRowsTaken,
-            R"pbdoc(
-                Returns true if rows exist in taken_rows.
+             R"pbdoc(
+            Returns true if rows exist in taken_rows.
 
             Parameters
             ----------
@@ -815,9 +820,6 @@ PYBIND11_MODULE(_icet, m)
              )pbdoc",
              py::arg("taken_rows"),
              py::arg("rows"))
-        .def("get_orbit_list", &OrbitList::getOrbitList,
-             "Returns a list of Orbit objects from OrbitList")
-        //.def_property_readonly("orbits", &OrbitList::getOrbitList)
         .def("_get_sites_translated_to_unitcell", &OrbitList::getSitesTranslatedToUnitcell,
              R"pbdoc(
                 Returns a set of sites where at least one site is translated inside the unit cell.
@@ -853,7 +855,7 @@ PYBIND11_MODULE(_icet, m)
         .def("__len__", &OrbitList::size,
              "Returns the total number of orbits counted in the OrbitList instance")
         .def_property_readonly("permutation_matrix", &OrbitList::getPermutationMatrix,
-             "list of list of icet LatticeSite objects: permutation_matrix")
+                               "list of list of icet LatticeSite objects: permutation_matrix")
         // .def("print", &OrbitList::print, py::arg("verbosity") = 0)
         // .def("get_supercell_orbit_list", &OrbitList::getSupercellOrbitList)
         ;
@@ -866,9 +868,9 @@ PYBIND11_MODULE(_icet, m)
 
              Parameters
              ----------
-             orbit_list : icet.OrbitList
+             orbit_list : _icet.OrbitList
                 an orbit list set up from a primitive structure
-             supercell : icet.Structure
+             supercell : _icet.Structure
                 supercell build up from the same primitive structure used to set the input orbit list
              )pbdoc",
              py::arg("orbit_list"),
@@ -903,7 +905,7 @@ PYBIND11_MODULE(_icet, m)
         .def("clear", &LocalOrbitListGenerator::clear,
              "Clears the list of offsets and primitive-to-supercell map of the LocalOrbitListGenerator object")
         .def("get_number_of_unique_offsets",
-	     &LocalOrbitListGenerator::getNumberOfUniqueOffsets,
+             &LocalOrbitListGenerator::getNumberOfUniqueOffsets,
              "Returns the number of unique offsets")
         .def("_get_primitive_to_supercell_map", &LocalOrbitListGenerator::getMapFromPrimitiveToSupercell,
              "Returns the primitive to supercell mapping")
@@ -928,14 +930,10 @@ PYBIND11_MODULE(_icet, m)
         .def("_get_primitive_structure", &ClusterSpace::getPrimitiveStructure)
         .def("get_multi_component_vector_permutations", &ClusterSpace::getMultiComponentVectorPermutations)
         .def("get_number_of_allowed_species_by_site", &ClusterSpace::getNumberOfAllowedSpeciesBySite)
-        .def(
-	    "_precompute_multi_component_vectors",
-	    &ClusterSpace::precomputeMultiComponentVectors,
-	    "Precompute the multi-component vectors (internal).")
+        .def("_precompute_multi_component_vectors", &ClusterSpace::precomputeMultiComponentVectors, "Precompute the multi-component vectors (internal).")
         .def("_prune_orbit_list_cpp", &ClusterSpace::pruneOrbitList)
+        .def("evaluate_cluster_function", &ClusterSpace::evaluateClusterFunction, "Evaluates value of a cluster function.")
         .def("__len__", &ClusterSpace::getClusterSpaceSize);
-
-    // ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clusterSpace, const Structure &structure)
 
     py::class_<ClusterExpansionCalculator>(m, "_ClusterExpansionCalculator")
         .def(py::init<const ClusterSpace &, const Structure &>(),
@@ -944,7 +942,7 @@ PYBIND11_MODULE(_icet, m)
 
              Parameters
              ----------
-             cluster_space : icet.ClusterSpace
+             cluster_space : _icet.ClusterSpace
                 defines the cluster space
              structure : icet Structure object
                 the supercell the calculator will operate on

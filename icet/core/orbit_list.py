@@ -1,3 +1,7 @@
+"""
+This module provides the OrbitList class.
+"""
+
 from typing import List
 
 import numpy as np
@@ -23,7 +27,7 @@ class OrbitList(_OrbitList):
 
     Parameters
     ----------
-    atoms : ASE Atoms object
+    atoms : ase.Atoms
             This atoms object will be used to construct a primitive
             structure on which all the lattice sites in the orbits
             are based on.

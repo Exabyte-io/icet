@@ -4,13 +4,14 @@ import numpy as np
 
 from ase import Atoms
 from ase.units import kB
+from typing import List
 
 from .. import DataContainer
-from .base_ensemble import BaseEnsemble
 from ..calculators.base_calculator import BaseCalculator
+from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
 
-class CanonicalEnsemble(BaseEnsemble):
+class CanonicalEnsemble(ThermodynamicBaseEnsemble):
     """Instances of this class allow one to simulate systems in the
     canonical ensemble (:math:`N_iVT`), i.e. at constant temperature
     (:math:`T`), number of atoms of each species (:math:`N_i`), and
@@ -51,10 +52,10 @@ class CanonicalEnsemble(BaseEnsemble):
 
     Parameters
     ----------
-    atoms : :class:`ase:Atoms`
+    atoms : :class:`Atoms <ase.Atoms>`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
-    calculator : :class:`BaseCalculator`
+    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
     temperature : float
@@ -87,6 +88,43 @@ class CanonicalEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+    sublattice_probabilities : List[float]
+        probability for picking a sublattice when doing a random swap.
+        This should be as long as the number of sublattices and should
+        sum up to 1.
+
+
+    Example
+    -------
+    The following snippet illustrate how to carry out a simple Monte Carlo
+    simulation in the canonical ensemble. Here, the parameters of the cluster
+    expansion are set to emulate a simple Ising model in order to obtain an
+    example that can be run without modification. In practice, one should of
+    course use a proper cluster expansion::
+
+        from ase.build import bulk
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import CanonicalEnsemble
+
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # prepare initial configuration
+        atoms = prim.repeat(3)
+        for k in range(5):
+            atoms[k].symbol = 'Ag'
+
+        # set up and run MC simulation
+        calc = ClusterExpansionCalculator(atoms, ce)
+        mc = CanonicalEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                               data_container='myrun_canonical.dc')
+        mc.run(100)  # carry out 100 trial swaps
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
@@ -95,11 +133,18 @@ class CanonicalEnsemble(BaseEnsemble):
                  data_container: DataContainer = None, random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
-                 trajectory_write_interval: int = None) -> None:
+                 trajectory_write_interval: int = None,
+                 sublattice_probabilities: List[float] = None) -> None:
 
         self._ensemble_parameters = dict(temperature=temperature)
 
-        self._boltzmann_constant = boltzmann_constant
+        # add species count to ensemble parameters
+        symbols = set([symbol for sub in calculator.sublattices
+                       for symbol in sub.chemical_symbols])
+        for symbol in symbols:
+            key = 'n_atoms_{}'.format(symbol)
+            count = atoms.get_chemical_symbols().count(symbol)
+            self._ensemble_parameters[key] = count
 
         super().__init__(
             atoms=atoms, calculator=calculator, user_tag=user_tag,
@@ -107,45 +152,20 @@ class CanonicalEnsemble(BaseEnsemble):
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
-            trajectory_write_interval=trajectory_write_interval)
+            trajectory_write_interval=trajectory_write_interval,
+            boltzmann_constant=boltzmann_constant)
+
+        if sublattice_probabilities is None:
+            self._swap_sublattice_probabilities = self._get_swap_sublattice_probabilities()
+        else:
+            self._swap_sublattice_probabilities = sublattice_probabilities
 
     @property
     def temperature(self) -> float:
-        """ temperature :math:`T` (see parameters section above) """
-        return self.ensemble_parameters['temperature']
-
-    @property
-    def boltzmann_constant(self) -> float:
-        """ Boltzmann constant :math:`k_B` (see parameters section above) """
-        return self._boltzmann_constant
+        """ Current temperature """
+        return self._ensemble_parameters['temperature']
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self._total_trials += 1
-
-        sublattice_index = self.get_random_sublattice_index()
-        sites, species = \
-            self.configuration.get_swapped_state(sublattice_index)
-
-        potential_diff = self._get_property_change(sites, species)
-
-        if self._acceptance_condition(potential_diff):
-            self._accepted_trials += 1
-            self.update_occupations(sites, species)
-
-    def _acceptance_condition(self, potential_diff: float) -> bool:
-        """
-        Evaluates Metropolis acceptance criterion.
-
-        Parameters
-        ----------
-        potential_diff
-            change in the thermodynamic potential associated
-            with the trial step
-        """
-        if potential_diff < 0:
-            return True
-        else:
-            return np.exp(-potential_diff / (
-                self.boltzmann_constant * self.temperature)) > \
-                self._next_random_number()
+        sublattice_index = self.get_random_sublattice_index(self._swap_sublattice_probabilities)
+        self.do_canonical_swap(sublattice_index=sublattice_index)

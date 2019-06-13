@@ -7,14 +7,14 @@ import numpy as np
 from ase import Atoms
 from ase.data import atomic_numbers, chemical_symbols
 from ase.units import kB
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 from .. import DataContainer
-from .base_ensemble import BaseEnsemble
 from ..calculators.base_calculator import BaseCalculator
+from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
 
-class VCSGCEnsemble(BaseEnsemble):
+class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     """Instances of this class allow one to simulate systems in the
     variance-constrained semi-grand canonical (VCSGC) ensemble
     (:math:`N\\phi\\kappa VT`), i.e. at constant temperature (:math:`T`), total
@@ -81,10 +81,10 @@ class VCSGCEnsemble(BaseEnsemble):
 
     Parameters
     ----------
-    atoms : :class:`ase:Atoms`
+    atoms : :class:`Atoms <ase.Atoms>`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
-    calculator : :class:`BaseCalculator`
+    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
     temperature : float
@@ -124,6 +124,42 @@ class VCSGCEnsemble(BaseEnsemble):
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+    sublattice_probabilities : List[float]
+        probability for picking a sublattice when doing a random flip.
+        The list should be as long as the number of sublattices and should
+        sum up to 1.
+
+
+    Example
+    -------
+    The following snippet illustrate how to carry out a simple Monte Carlo
+    simulation in the variance-constrained semi-canonical ensemble. Here, the
+    parameters of the cluster expansion are set to emulate a simple Ising model
+    in order to obtain an example that can be run without modification. In
+    practice, one should of course use a proper cluster expansion::
+
+        from ase.build import bulk
+        from icet import ClusterExpansion, ClusterSpace
+        from mchammer.calculators import ClusterExpansionCalculator
+        from mchammer.ensembles import VCSGCEnsemble
+
+        # prepare cluster expansion
+        # the setup emulates a second nearest-neighbor (NN) Ising model
+        # (zerolet and singlet ECIs are zero; only first and second neighbor
+        # pairs are included)
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[4.3], chemical_symbols=['Ag', 'Au'])
+        ce = ClusterExpansion(cs, [0, 0, 0.1, -0.02])
+
+        # set up and run MC simulation
+        atoms = prim.repeat(3)
+        calc = ClusterExpansionCalculator(atoms, ce)
+        phi = 0.6
+        mc = VCSGCEnsemble(atoms=atoms, calculator=calc, temperature=600,
+                           data_container='myrun_vcsgc.dc',
+                           phis={'Ag': -2.0 - phi, 'Au': phi},
+                           kappa=200)
+        mc.run(100)  # carry out 100 trial swaps
     """
 
     def __init__(self, atoms: Atoms, calculator: BaseCalculator,
@@ -134,11 +170,12 @@ class VCSGCEnsemble(BaseEnsemble):
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
-                 trajectory_write_interval: int = None) -> None:
+                 trajectory_write_interval: int = None,
+                 sublattice_probabilities: List[float] = None) -> None:
 
         self._ensemble_parameters = dict(temperature=temperature,
                                          kappa=kappa)
-        self._set_phis(phis)
+        self._phis = get_phis(phis)
         for atnum, phi in self.phis.items():
             phi_sym = 'phi_{}'.format(chemical_symbols[atnum])
             self._ensemble_parameters[phi_sym] = phi
@@ -151,71 +188,37 @@ class VCSGCEnsemble(BaseEnsemble):
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
-            trajectory_write_interval=trajectory_write_interval)
+            trajectory_write_interval=trajectory_write_interval,
+            boltzmann_constant=boltzmann_constant
+        )
 
-        if len(self.configuration._allowed_species) > 2:
-            raise NotImplementedError('VCSGCEnsemble does not yet support '
-                                      'cluster spaces with more than two '
-                                      'species.')
+        if any([len(sl.chemical_symbols) > 2 for sl in self.sublattices]):
+            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
+                                      ' spaces with more than two species.')
 
-        if set(self.configuration._allowed_species) != set(self.phis.keys()):
-            raise ValueError('phis were not set for all species')
+        if len(self.sublattices.active_sublattices) > 1:
+            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
+                                      ' spaces with more than one active sublattice.')
+        for sl in self.sublattices.active_sublattices:
+            for number in sl.atomic_numbers:
+                if number not in self.phis.keys():
+                    raise ValueError('phis were not set for {}'.format(chemical_symbols[number]))
+
+        if sublattice_probabilities is None:
+            self._flip_sublattice_probabilities = self._get_flip_sublattice_probabilities()
+        else:
+            self._flip_sublattice_probabilities = sublattice_probabilities
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
-        self._total_trials += 1
-
-        # choose flip
-        sublattice_index = self.get_random_sublattice_index()
-        index, new_species = \
-            self.configuration.get_flip_state(sublattice_index)
-        old_species = self.configuration.occupations[index]
-
-        # Calculate difference in VCSGC thermodynamic potential.
-        # Note that this assumes that only one atom was flipped.
-        N = len(self.atoms)
-        occupations = self.configuration._occupations.tolist()
-        potential_diff = 1.0  # dN
-        potential_diff -= occupations.count(old_species)
-        potential_diff -= 0.5 * N * self.phis[old_species]
-        potential_diff += occupations.count(new_species)
-        potential_diff += 0.5 * N * self.phis[new_species]
-        potential_diff *= self.kappa
-        potential_diff *= self.boltzmann_constant * self.temperature
-        potential_diff /= N
-
-        potential_diff += self._get_property_change([index], [new_species])
-
-        if self._acceptance_condition(potential_diff):
-            self._accepted_trials += 1
-            self.update_occupations([index], [new_species])
-
-    def _acceptance_condition(self, potential_diff: float) -> bool:
-        """
-        Evaluates Metropolis acceptance criterion.
-
-        Parameters
-        ----------
-        potential_diff
-            the change in the thermodynamic potential associated
-            with the trial step
-        """
-        if potential_diff < 0:
-            return True
-        else:
-            return np.exp(-potential_diff / (
-                self.boltzmann_constant * self.temperature)) > \
-                self._next_random_number()
+        sublattice_index = self.get_random_sublattice_index(
+            probability_distribution=self._flip_sublattice_probabilities)
+        self.do_vcsgc_flip(phis=self.phis, kappa=self.kappa, sublattice_index=sublattice_index)
 
     @property
     def temperature(self) -> float:
         """ temperature :math:`T` (see parameters section above) """
         return self.ensemble_parameters['temperature']
-
-    @property
-    def boltzmann_constant(self) -> float:
-        """ Boltzmann constant :math:`k_B` (see parameters section above) """
-        return self._boltzmann_constant
 
     @property
     def phis(self) -> Dict[int, float]:
@@ -232,21 +235,6 @@ class VCSGCEnsemble(BaseEnsemble):
         (see parameters section above)
         """
         return self.ensemble_parameters['kappa']
-
-    def _set_phis(self, phis: Dict[Union[int, str], float]):
-        """ Sets values of phis."""
-        if not isinstance(phis, dict):
-            raise TypeError('phis has the wrong type: {}'.format(type(phis)))
-        if abs(sum(phis.values()) + 2) > 1e-6:
-            raise ValueError('The sum of all phis must equal to -2')
-
-        self._phis = {}
-        for key, phi in phis.items():
-            if isinstance(key, str):
-                atomic_number = atomic_numbers[key]
-                self._phis[atomic_number] = phi
-            elif isinstance(key, int):
-                self._phis[key] = phi
 
     def _get_ensemble_data(self) -> Dict:
         """
@@ -266,10 +254,35 @@ class VCSGCEnsemble(BaseEnsemble):
         # species counts
         atoms = self.configuration.atoms
         unique, counts = np.unique(atoms.numbers, return_counts=True)
-        # TODO: avoid accessing a protected member of a client class
-        for atnum in self.configuration._allowed_species:
-            data['{}_count'.format(chemical_symbols[atnum])] = 0
+
+        for sl in self.sublattices:
+            for symbol in sl.chemical_symbols:
+                data['{}_count'.format(symbol)] = 0
         for atnum, count in zip(unique, counts):
             data['{}_count'.format(chemical_symbols[atnum])] = count
 
         return data
+
+
+def get_phis(phis: Dict[Union[int, str], float]) -> Dict[int, float]:
+    """Get phis as used in the vcsgc ensemble.
+
+    Parameters
+    ----------
+    phis
+        the phis that will be transformed to the format
+        the ensemble use.
+    """
+    if not isinstance(phis, dict):
+        raise TypeError('phis has the wrong type: {}'.format(type(phis)))
+    if abs(sum(phis.values()) + 2) > 1e-6:
+        raise ValueError('The sum of all phis must equal to -2')
+
+    phis_ret = {}
+    for key, phi in phis.items():
+        if isinstance(key, str):
+            atomic_number = atomic_numbers[key]
+            phis_ret[atomic_number] = phi
+        elif isinstance(key, int):
+            phis_ret[key] = phi
+    return phis_ret

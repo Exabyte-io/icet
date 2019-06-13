@@ -34,13 +34,6 @@ class TestCEObserver(unittest.TestCase):
         self.observer = ClusterExpansionObserver(
             self.ce, tag='ce_band_gap', interval=10)
 
-        # without interval
-        with self.assertRaises(Exception) as context:
-            ClusterExpansionObserver(self.ce)
-
-        self.assertTrue('The value of interval must be specified' in
-                        str(context.exception))
-
     def test_property_tag(self):
         """Tests property tag."""
         self.assertEqual(self.observer.tag, 'ce_band_gap')

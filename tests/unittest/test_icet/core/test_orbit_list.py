@@ -60,9 +60,9 @@ class TestOrbitList(unittest.TestCase):
         self.orbit_list.add_orbit(orbit)
         self.assertEqual(len(self.orbit_list), 3)
 
-    def test_get_number_of_NClusters(self):
+    def test_get_number_of_nbody_clusters(self):
         """Tests that only a pair is counted in the orbit list."""
-        NPairs = self.orbit_list.get_number_of_NClusters(2)
+        NPairs = self.orbit_list.get_number_of_nbody_clusters(2)
         self.assertEqual(NPairs, 1)
 
     def test_get_orbit(self):
@@ -90,13 +90,15 @@ class TestOrbitList(unittest.TestCase):
             self.assertLess(
                 self.orbit_list.get_orbit(i), self.orbit_list.get_orbit(i + 1))
 
-    def test_find_orbit(self):
-        """Tests orbit index returned for the given representative cluster."""
-        # TODO: test a non-representative cluster returns -1
-        self.assertEqual(
-            self.orbit_list._find_orbit(self.cluster_singlet), 0)
-        self.assertEqual(
-            self.orbit_list._find_orbit(self.cluster_pair), 1)
+#    def test_find_orbit_index(self):
+#        """
+#        Tests that orbit index returned for the given representative cluster.
+#        """
+#        # TODO: test that a non-representative cluster returns -1
+#        self.assertEqual(
+#            self.orbit_list._find_orbit_index(self.cluster_singlet), 0)
+#        self.assertEqual(
+#            self.orbit_list._find_orbit_index(self.cluster_pair), 1)
 
     def test_is_row_taken(self):
         """Tests is_row_taken (private) functionality."""
@@ -111,11 +113,10 @@ class TestOrbitList(unittest.TestCase):
 
     def test_get_orbit_list(self):
         """Tests a list of orbits is returned from this function."""
-        orbit_list = self.orbit_list.get_orbit_list()
         # clusters for testing
         repr_clusters = [self.cluster_singlet, self.cluster_pair]
 
-        for k, orbit in enumerate(orbit_list):
+        for k, orbit in enumerate(self.orbit_list.orbits):
             with self.subTest(orbit=orbit):
                 self.assertEqual(orbit.get_representative_cluster(),
                                  repr_clusters[k])
@@ -132,7 +133,7 @@ class TestOrbitList(unittest.TestCase):
         self.assertEqual(len_after, 0)
 
     def test_get_primitive_structure(self):
-        """Tests get_primitive structure functionality."""
+        """ Tests get primitive structure functionality. """
         self.assertIsInstance(
             self.orbit_list.get_primitive_structure(), Structure)
 

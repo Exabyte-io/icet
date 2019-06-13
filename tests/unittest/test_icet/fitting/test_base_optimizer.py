@@ -48,7 +48,7 @@ class TestBaseOptimizer(unittest.TestCase):
 
         # test init with a non-aligned fit data
         with self.assertRaises(ValueError):
-            A_faulty = np.random.normal(0, 1, (self.n_rows + 20, self.n_cols))
+            A_faulty = np.random.normal(0, 1, (self.n_rows+20, self.n_cols))
             RandomOptimizer((A_faulty, self.y), 'least-squares')
 
     def test_str(self):

@@ -89,54 +89,19 @@ class TestStructureContainer(unittest.TestCase):
 
     def setUp(self):
         """Instantiates class before each test."""
-        self.sc = StructureContainer(self.cs,
-                                     list(zip(self.structure_list,
-                                              self.user_tags)),
-                                     self.properties_list)
+        self.sc = StructureContainer(self.cs)
+        for atoms, tag, props in zip(self.structure_list, self.user_tags, self.properties_list):
+            self.sc.add_structure(atoms, tag, props)
 
     def test_init(self):
         """Tests that initialization of tested class works."""
         # check empty initialization
-        self.assertIsInstance(StructureContainer(self.cs),
-                              StructureContainer)
-
-        # with atoms without tags and properties
-        sc = StructureContainer(self.cs, self.structure_list,
-                                self.properties_list)
-        self.assertIsInstance(sc, StructureContainer)
-
-        # with only atoms (properties read from calc)
-        sc = StructureContainer(self.cs, self.structure_list)
-        self.assertIsInstance(sc, StructureContainer)
-
-        # add atoms along with tags
-        structure_list_with_tags = []
-        for k, atoms in enumerate(self.structure_list, start=1):
-            structure_list_with_tags.append((atoms, 'struct{}'.format(k)))
-        sc = StructureContainer(self.cs, structure_list_with_tags,
-                                self.properties_list)
-        self.assertIsInstance(sc, StructureContainer)
+        self.assertIsInstance(StructureContainer(self.cs), StructureContainer)
 
         # check whether method raises Exceptions
         with self.assertRaises(TypeError) as cm:
-            StructureContainer(self.cs, 'atoms')
-        self.assertTrue('atoms must be given as a list' in str(cm.exception))
-
-        with self.assertRaises(ValueError) as cm:
-            StructureContainer(self.cs, self.structure_list, [1.2])
-        self.assertTrue('list of atoms and list of properties'
-                        ' must have the same length' in str(cm.exception))
-
-        # check inputs with wrong format are skipped
-        with self.assertLogs('icet.structure_container') as cm:
-                StructureContainer(self.cs, ['atoms'])
-        self.assertIn('Skipping structure 0;', cm.output[0])
-        self.assertIn('atoms must be an ASE Atoms object', cm.output[0])
-
-        with self.assertLogs('icet.structure_container') as cm:
-            StructureContainer(self.cs, [(self.structure_list[0], 1)])
-        self.assertIn('Skipping structure 0;', cm.output[0])
-        self.assertIn('user_tag must be a string', cm.output[0])
+            StructureContainer('my_sc.sc')
+        self.assertIn('cluster_space must be a ClusterSpace', str(cm.exception))
 
     def test_len(self):
         """Tests length functionality."""
@@ -165,16 +130,15 @@ class TestStructureContainer(unittest.TestCase):
         # add atom and read property from calculator
         self.sc.add_structure(atoms)
         self.assertEqual(len(self.sc), len(self.structure_list) + 2)
-        self.assertEqual(self.sc.get_properties([5], 'energy'),
-                         [self.properties_list[0]['energy'] / len(atoms)])
+        self.assertEqual(self.sc[5].properties['energy'],
+                         self.properties_list[0]['energy'] / len(atoms))
 
         # add atom and don't read property from calculator
         atoms_cpy = atoms.copy()
         atoms_cpy.set_calculator(EMT())
         self.sc.add_structure(atoms_cpy)
         self.assertEqual(len(self.sc), len(self.structure_list) + 3)
-        with self.assertRaises(KeyError):
-            self.sc.get_properties([6], 'energy')
+        self.assertNotIn('energy', self.sc[6].properties)
 
         # check that duplicate structure is not added.
         with self.assertRaises(ValueError) as cm:
@@ -268,51 +232,17 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
             sys.stdout = sys.__stdout__  # reset redirect
             self.assertTrue('Structure Container' in capturedOutput.getvalue())
 
-    def test_get_properties(self):
-        """Tests get_properties functionality."""
-        p_list = self.sc.get_properties()
-        self.assertTrue(isinstance(properties, float) for properties in p_list)
-        # passing a list of indexes
-        p_list = self.sc.get_properties([0])
-        self.assertTrue(isinstance(properties, float) for properties in p_list)
-
-    def test_add_properties(self):
-        """Tests add_properties functionality."""
-        self.sc.add_properties([0], properties=[self.add_properties_list[0]])
-        p_list = self.sc.get_properties([0], key='total_energy')
-        self.assertTrue(isinstance(properties, float) for properties in p_list)
-        # adding a list of properties
-        self.sc.add_properties(properties=self.add_properties_list)
-        p_list = self.sc.get_properties(key='total_energy')
-        self.assertTrue(isinstance(properties, float) for properties in p_list)
-
-    def test_get_structures(self):
-        """Tests get_structures functionality."""
-        s_list = self.sc.get_structures()
-        self.assertTrue(isinstance(atoms, Atoms) for atoms in s_list)
-        # passing a list of indexes
-        s_list = self.sc.get_structures([0])
-        self.assertTrue(isinstance(atoms, Atoms) for atoms in s_list)
-
-    def test_get_user_tags(self):
-        """Tests get_user_tags functionality."""
-        target = ['Structure 0', 'Structure 1', 'Structure 2', 'Structure 3']
-        self.assertEqual(target, self.sc.get_user_tags())
-        self.assertEqual(['Structure 3'], self.sc.get_user_tags([3]))
-
     def test_cluster_space(self):
         """Tests cluster space functionality."""
         cs_onlyread = self.sc.cluster_space
-        self.assertEqual(cs_onlyread, self.cs)
+        self.assertEqual(str(cs_onlyread), str(self.cs))
 
     def test_available_properties(self):
         """Tests available_properties property."""
         available_properties = sorted(self.properties_list[0])
-        self.sc.add_structure(self.structure_list[0],
-                              properties=self.properties_list[0])
+        self.sc.add_structure(self.structure_list[0], properties=self.properties_list[0])
 
-        self.assertSequenceEqual(available_properties,
-                                 self.sc.available_properties)
+        self.assertSequenceEqual(available_properties, self.sc.available_properties)
 
     def test_read_write(self):
         """Tests the read and write functionality."""
@@ -323,6 +253,13 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
             self.sc.read(temp_file)
         self.assertTrue('{} is not a tar file'.format(str(temp_file.name))
                         in str(context.exception))
+
+        # save and read an empty structure container
+        sc = StructureContainer(self.cs)
+        sc.write(temp_file.name)
+        sc_read = StructureContainer.read(temp_file.name)
+        self.assertEqual(sc_read.__str__(), 'Empty StructureContainer')
+
         # save to file
         self.sc.write(temp_file.name)
 
@@ -333,7 +270,7 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
         self.assertEqual(len(self.sc), len(sc_read))
         self.assertEqual(self.sc.__str__(), sc_read.__str__())
 
-        for fs, fs_read in zip(self.sc.fit_structures, sc_read.fit_structures):
+        for fs, fs_read in zip(self.sc._structure_list, sc_read._structure_list):
             self.assertEqual(list(fs.cluster_vector),
                              list(fs_read.cluster_vector))
             self.assertEqual(fs.atoms, fs_read.atoms)
@@ -351,23 +288,24 @@ class TestFitStructure(unittest.TestCase):
         self.cs = ClusterSpace(atoms=self.prim, cutoffs=[4.0, 4.0, 4.0],
                                chemical_symbols=['Ag', 'Au'])
 
+        self.atoms = self.prim.repeat(2)
+        self.prop = {'energy': 0.0126746}
+        self.cv = self.cs.get_cluster_vector(self.atoms)
+        self.tag = 'struct1'
+
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
         return None
 
     def setUp(self):
         """Instantiates class before each test."""
-        atoms = self.prim.repeat(2)
-        prop = {'energy': 0.0126746}
-        cv = self.cs.get_cluster_vector(atoms)
-        tag = 'struct1'
-        self.fit_structure = FitStructure(atoms, tag, cv, prop)
+        self.fit_structure = FitStructure(self.atoms, self.tag, self.cv, self.prop)
 
     def test_init(self):
         """Tests that initialization of tested class works."""
         atoms = self.prim.repeat(2)
         tag = 'struct1'
-        self.fit_structure = FitStructure(atoms, tag)
+        self.fit_structure = FitStructure(atoms, tag, [1, 2, 3, 4])
 
     def test_cluster_vector(self):
         """Tests cluster vector attribute."""
@@ -391,41 +329,26 @@ class TestFitStructure(unittest.TestCase):
         properties = self.fit_structure.properties
         self.assertTrue(isinstance(properties, dict))
 
-    def test_set_properties(self):
-        """Tests set_properties functionality."""
-        add_prop = {'total_energy': 0.0126746}
-        self.fit_structure.set_properties(add_prop)
-        properties = self.fit_structure.properties
-        self.assertTrue(isinstance(properties, dict))
-        prop_value = self.fit_structure.properties['total_energy']
-        self.assertEqual(prop_value, add_prop['total_energy'])
-
-    def test_set_cluster_vector(self):
-        """Tests set_cluster_vector functionality."""
-        self.fit_structure._set_cluster_vector(None)
-        cv = self.fit_structure.cluster_vector
-        self.assertTrue(cv is None)
-
     def test_getattr(self):
         """Tests custom getattr function."""
         properties = dict(energy=2.123, nvac=48, c=[0.5, 0.5], fname='asd.xml')
-        self.fit_structure.set_properties(properties)
+        fs = FitStructure(self.atoms, self.tag, self.cv, properties)
 
         # test the function call
         for key, val in properties.items():
-            self.assertEqual(self.fit_structure.__getattr__(key), val)
+            self.assertEqual(fs.__getattr__(key), val)
 
         # test the attributes
-        self.assertEqual(self.fit_structure.energy, properties['energy'])
-        self.assertEqual(self.fit_structure.nvac, properties['nvac'])
-        self.assertEqual(self.fit_structure.c, properties['c'])
-        self.assertEqual(self.fit_structure.fname, properties['fname'])
+        self.assertEqual(fs.energy, properties['energy'])
+        self.assertEqual(fs.nvac, properties['nvac'])
+        self.assertEqual(fs.c, properties['c'])
+        self.assertEqual(fs.fname, properties['fname'])
 
         # test regular attribute call
-        self.fit_structure.properties
-        self.fit_structure.atoms
+        fs.properties
+        fs.atoms
         with self.assertRaises(AttributeError):
-            self.fit_structure.hello_world
+            fs.hello_world
 
 
 if __name__ == '__main__':

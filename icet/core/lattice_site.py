@@ -1,3 +1,7 @@
+"""
+This module provides a Python interface to the LatticeSite class.
+"""
+
 from _icet import LatticeSite
 
 

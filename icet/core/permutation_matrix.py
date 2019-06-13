@@ -1,3 +1,8 @@
+"""
+This module provides a Python interface to the PermutationMatrix
+class with supplementary functions.
+"""
+
 from typing import List
 
 import numpy as np
@@ -63,7 +68,7 @@ def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
 
     logger.debug('Number of fractional positions:'
                  ' {}'.format(len(frac_positions)))
-    if len(frac_positions) > 0:
+    if frac_positions is not None:
         permutation_matrix.build(frac_positions)
 
     return permutation_matrix, prim_structure, neighbor_list
@@ -106,7 +111,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
                 except RuntimeError:
                     continue
                 lat_neighbors.append(lat_neighbor)
-        if len(lat_neighbors) > 0:
+        if lat_neighbors is not None:
             pm_lattice_sites.append(lat_neighbors)
         else:
             logger.warning('Unable to transform any element in a column of the'

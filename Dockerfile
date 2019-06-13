@@ -1,37 +1,46 @@
 # Base image
 FROM ubuntu:18.10
 
-# Bring package repos up to speed
-RUN apt-get update -qy
-RUN apt-get upgrade -qy
+# Base packages
+RUN \
+  apt-get update -qy && \
+  apt-get upgrade -qy && \
+  apt-get install -qy \
+    python3-pip \
+    doxygen \
+    git \
+    graphviz \
+    zip
 
-# packages for icet
-RUN apt-get install -qy \
-            python3-pip
+# Set up Python3 packages via pip
 RUN pip3 install --upgrade \
-         pip \
-	 setuptools
-RUN pip3 install --upgrade \
-         ase \
-    	 numpy \
-         pandas \
-         scikit-learn \
-	 scipy \
-         spglib
+  pip \
+  setuptools
 
-# packages for compilation of documentation
-RUN apt-get install -qy \
-            doxygen \
-            graphviz \
-	    zip
+# Install entrypoints "manually" to ensure a sufficiently recent version is
+# available for flake8 since the version from python3-dev/pip is too old.
+RUN pip3 install --upgrade --user \
+  entrypoints
 
 RUN pip3 install --upgrade \
-    	 breathe \
-         coverage \
-         cloud_sptheme \
-         flake8 \
-	 sphinx \
-         sphinx-rtd-theme \
-         sphinx_autodoc_typehints \
-         sphinx_sitemap \
-         sphinxcontrib-bibtex
+  coverage \
+  flake8
+
+# Packages needed for icet
+RUN pip3 install --upgrade \
+  ase \
+  numpy \
+  pandas \
+  scikit-learn \
+  scipy \
+  spglib
+
+# Packages for building documentation
+RUN pip3 install --upgrade \
+  breathe \
+  cloud_sptheme \
+  sphinx \
+  sphinx-rtd-theme \
+  sphinx_autodoc_typehints \
+  sphinx_sitemap \
+  sphinxcontrib-bibtex

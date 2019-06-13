@@ -1,0 +1,154 @@
+.. _example_test_cluster_vector_correlation:
+.. highlight:: python
+.. index::
+   single: Examples; Cluster vector correlations
+
+Cluster vector correlations
+===========================
+
+The purpose of this example is to demonstrate how one can test the
+correlation between structures via their cluster vectors.
+
+Import modules
+--------------
+
+We need to import two :program:`icet` classes, namely
+:class:`~icet.ClusterSpace` and :class:`~icet.Structure`. The corresponding
+objects are used to store information regarding a specific cluster space and
+structure, respectively. Additionally, the `ASE
+<https://wiki.fysik.dtu.dk/ase>`_ function :func:`db.connect
+<https://wiki.fysik.dtu.dk/ase/ase/db/db.html#ase.db.core.connect>` will be
+used to extract structures from a previously prepared database.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # Import modules
+   :end-before: # Function for generating random
+
+Helper functions
+----------------
+
+Since the intention is to calculate the correlation between the
+cluster vectors for a number of structures in a database, first
+several functions are defined that will be called in the loop over
+strucures described in the last section.
+
+Random structure generation
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The first function, :func:`generate_random_structure`, takes an
+:class:`~ase.Atoms` object creates a supercell with the specified
+dimensions, and populates it randomly with the allowed chemical
+elements. In the end, a new :class:`~ase.Atoms` object is returned.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # Function for generating random
+   :end-before: # Function for generating cluster
+
+Calculation of cluster vectors
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The second function, :func:`generate_cv_set`, generates cluster vectors for a
+number of supercells, which have been constructed from an :class:`~ase.Atoms`
+object and randomly populated with different species, based on a given
+:class:`ClusterSpace <icet.core.cluster_space.ClusterSpace>` object. This is
+achieved by first calling the :func:`generate_random_structure` function,
+defined in the previous section. The thus obtained configuration is
+subsequently converted to a :class:`~icet.Structure` object using the
+:meth:`~icet.Structure.from_atoms` method, which is forwarded as an input
+argument to the :func:`~icet.ClusterSpace.get_cluster_vector` method to extract
+the cluster vector.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # Function for generating cluster
+   :end-before: # Function for calculating
+
+Column correlation
+^^^^^^^^^^^^^^^^^^
+
+The third function, :func:`get_column_correlation`, calculates the correlation
+between columns ``i`` and ``j`` in ``cv_matrix``.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # Function for calculating
+   :end-before: # Function for asserting
+
+Check correlation
+^^^^^^^^^^^^^^^^^
+
+The fourth function, :func:`assert_no_correlation`, checks that the
+correlations between the columns in the matrix ``cvs`` are smaller
+than the tolerance, ``tol``. This is achieved by calculating the
+correlation between all pairs of columns with help of the
+:func:`get_column_correlation` defined earlier. If this value is not
+smaller than the tolerance, the number of the columns and the
+correlation is written to stdout.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # Function for asserting
+   :end-before: # Create a list
+
+
+Setup
+-----
+
+Before starting the test, a list of the relevant chemical symbols,
+namely Pd, H, and V, of which the latter is used for representing
+vacancies, is defined. Also, the cutoff for pairs is set to 2.0 Å and
+it is decided that the cluster vectors be calculated for
+:math:`8\times8\times8` supercells.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # cutoff distance for
+   :end-before: # Test the correlation
+
+
+Test correlation
+----------------
+
+The functions defined above are now employed to test the cluster
+vector correlations for the first ten structures in the database
+``PdHVac-fcc.db``, created in :ref:`a previous example
+<example_structure_enumeration>`.  At each step of the loop, some basic
+information regarding the structure is extracted. Thereafter, a
+:class:`~icet.ClusterSpace` object is initiated. Subsequently a list
+of cluster vectors is fed into the :func:`assert_no_correlation`
+function to check if correlations between the columns are smaller than
+the tolerance specified previously.
+
+.. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
+   :start-after: # previously generated database.
+
+The script produces the following output::
+
+  Testing structure: PdH (id=1) with cutoffs [2.0]
+  Number of atoms: 1024    Length of cluster vector: 6
+  Testing structure: PdV (id=2) with cutoffs [2.0]
+  Number of atoms: 1024    Length of cluster vector: 6
+  Testing structure: Pd2VH (id=3) with cutoffs [2.0]
+  Number of atoms: 2048    Length of cluster vector: 6
+  Testing structure: Pd2VH (id=4) with cutoffs [2.0]
+  Number of atoms: 2048    Length of cluster vector: 6
+  Testing structure: Pd3VH2 (id=5) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+  Testing structure: Pd3V2H (id=6) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+  Testing structure: Pd3VH2 (id=7) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+  Testing structure: Pd3V2H (id=8) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+  Testing structure: Pd3VH2 (id=9) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+  Testing structure: Pd3V2H (id=10) with cutoffs [2.0]
+  Number of atoms: 3072    Length of cluster vector: 6
+
+Source code
+-----------
+
+.. container:: toggle
+
+    .. container:: header
+
+       The complete source code is available in
+       ``examples/test_cluster_vector_correlation.py``
+
+    .. literalinclude:: ../../../../examples/advanced_topics/test_cluster_vector_correlation.py
