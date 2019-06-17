@@ -28,7 +28,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
     potentials (`chemical_potentials`) for the former and constraint
     parameters (`phis` and `kappa`) for the latter. For more detailed
     information regarding the different ensembles, please see
-    :class:`CanonicalEnsemble mchammer.ensembles.CanonicalEnsemble>`,
+    :class:`CanonicalEnsemble <mchammer.ensembles.CanonicalEnsemble>`,
     :class:`SemiGrandCanonicalEnsemble
     <mchammer.ensembles.SemiGrandCanonicalEnsemble>`, and
     :class:`VCSGCEnsemble <mchammer.ensembles.VCSGCEnsemble>`.
