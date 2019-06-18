@@ -20,9 +20,10 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     (:math:`N\\phi\\kappa VT`), i.e. at constant temperature (:math:`T`), total
     number of sites (:math:`N=\\sum_i N_i`), and two additional dimensionless
     parameters :math:`\\phi` and :math:`\\kappa`, which constrain average and
-    variance of the concentration, respectively. The VCSGC ensemble is
-    currently only implemented for binary systems.
+    variance of the concentration, respectively.
 
+    The below examples treat the binary case, but the generalization of
+    to ternaries and higher-order systems is straight-forward.
     The probability for a particular state in the VCSGC ensemble for a
     :math:`2`-component system can be written
 
@@ -34,12 +35,12 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     where :math:`c_1` represents the concentration of species 1, i.e.
     :math:`c_1=N_1/N`. (Please note that the quantities :math:`\\kappa` and
     :math:`\\phi` correspond, respectively, to :math:`\\bar{\\kappa}` and
-    :math:`\\bar{\\phi}` in [SadErh12]_.) This implementation requires
-    :math:`\\phi` to be specified for both species. The sum of the specified
-    :math:`\\phi` values is required to be :math:`-2`, because then the above
-    expression is symmetric with respect to interchange of species 1 and 2,
-    i.e., it does not matter if we use :math:`\\phi_1` and :math:`c_1` or
-    :math:`\\phi_2` and :math:`c_2`.
+    :math:`\\bar{\\phi}` in [SadErh12]_.). The :math:`\\phi` may refer to any
+    of the two species. If :math:`\\phi` is specified for species A, an
+    equivalent simulation can be carried out by specifying :math:`\\phi_B` as
+    :math:`-2-\\phi_A`. In general, simulations of :math:`N`-component
+    systems requires the specification of :math:`\\phi` for :math:`N-1`
+    elements.
 
     Just like the :ref:`semi-grand canonical ensemble <canonical_ensemble>`,
     the VCSGC ensemble allows concentrations to change. A trial step consists
