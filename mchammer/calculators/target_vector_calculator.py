@@ -103,12 +103,12 @@ class TargetVectorCalculator(BaseCalculator):
                                        optimality_weight=self.optimality_weight,
                                        tol=self.optimality_tol)
 
-    def calculate_local_contribution(self, occupations: List[int]) -> float:
+    def calculate_local_contribution(self, local_indices, occupations: List[int]) -> float:
         """
         Not yet implemented, forwards calculation to
         calculate_total.
         """
-        return self.calulate_total(occupations)
+        return self.calculate_total(occupations)
 
     @property
     def sublattices(self) -> Sublattices:
