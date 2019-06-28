@@ -183,6 +183,9 @@ class TestClusterExpansion(unittest.TestCase):
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of parameters: 5
+ total number of nonzero parameters: 4
+ number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
 --------------------------------------------------------------------------------------------------------
 index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
 --------------------------------------------------------------------------------------------------------
@@ -192,16 +195,15 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
    3  |   3   |   1.6657 |        8     |       2     |       [0, 0, 0]        |    A-A-A    |         3
    4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
 ========================================================================================================
+
 """  # noqa
 
-        self.assertEqual(strip_surrounding_spaces(target),
-                         strip_surrounding_spaces(retval))
+        self.assertEqual(strip_surrounding_spaces(target), strip_surrounding_spaces(retval))
 
     def test_get_string_representation(self):
         """Tests _get_string_representation functionality."""
 
-        retval = self.ce._get_string_representation(print_threshold=2,
-                                                    print_minimum=1)
+        retval = self.ce._get_string_representation(print_threshold=2, print_minimum=1)
 
         target = """
 ========================================== Cluster Expansion ===========================================
@@ -209,6 +211,9 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
  cutoffs: 3.0000 3.0000 3.0000
  total number of orbits: 5
  number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of parameters: 5
+ total number of nonzero parameters: 4
+ number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
 --------------------------------------------------------------------------------------------------------
 index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
 --------------------------------------------------------------------------------------------------------
@@ -217,8 +222,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
    4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
 ========================================================================================================
 """  # noqa
-        self.assertEqual(strip_surrounding_spaces(target),
-                         strip_surrounding_spaces(retval))
+        self.assertEqual(strip_surrounding_spaces(target), strip_surrounding_spaces(retval))
 
     def test_print_overview(self):
         """Tests print_overview functionality."""
