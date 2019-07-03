@@ -221,10 +221,10 @@ class ClusterSpace(_ClusterSpace):
               .format(self._get_chemical_symbol_representation())]
         s += [' cutoffs: {}'.format(' '.join(['{:.4f}'.format(co)
                                               for co in self._cutoffs]))]
-        s += [' total number of orbits: {}'.format(len(self))]
+        s += [' total number of parameters: {}'.format(len(self))]
         t = ['{}= {}'.format(k, c)
              for k, c in self.get_number_of_orbits_by_order().items()]
-        s += [' number of orbits by order: {}'.format('  '.join(t))]
+        s += [' number of parameters by order: {}'.format('  '.join(t))]
 
         # table header
         s += [''.center(width, '-')]

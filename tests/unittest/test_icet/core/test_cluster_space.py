@@ -217,8 +217,8 @@ class TestClusterSpace(unittest.TestCase):
 ====================================== Cluster Space =======================================
  chemical species: ['Ag', 'Au'] (sublattice A)
  cutoffs: 4.0000 4.0000 4.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
 --------------------------------------------------------------------------------------------
 index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices
 --------------------------------------------------------------------------------------------
@@ -240,8 +240,8 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 ====================================== Cluster Space =======================================
  chemical species: ['Ag', 'Au'] (sublattice A)
  cutoffs: 4.0000 4.0000 4.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
 --------------------------------------------------------------------------------------------
 index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices
 --------------------------------------------------------------------------------------------

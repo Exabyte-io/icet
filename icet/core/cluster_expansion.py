@@ -155,12 +155,11 @@ class ClusterExpansion:
         s += ['{s:=^{n}}'.format(s=' Cluster Expansion ', n=width)]
         s += [t for t in cluster_space_repr if re.search(':', t)]
 
-        # additional information about the ECIs
+        # additional information about number of nonzero the ECIs
         df = self.parameters_as_dataframe
         orders = self.orders
         nzp_by_order = [np.count_nonzero(df[df.order == order].eci) for order in orders]
         assert sum(nzp_by_order) == np.count_nonzero(self.parameters)
-        s += [' total number of parameters: {}'.format(len(self))]
         s += [' total number of nonzero parameters: {}'.format(sum(nzp_by_order))]
         line = ' number of nonzero parameters by order: '
         for order, nzp in zip(orders, nzp_by_order):

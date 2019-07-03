@@ -181,9 +181,8 @@ class TestClusterExpansion(unittest.TestCase):
 ========================================== Cluster Expansion ===========================================
  chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
  total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
  total number of nonzero parameters: 4
  number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
 --------------------------------------------------------------------------------------------------------
@@ -209,9 +208,8 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 ========================================== Cluster Expansion ===========================================
  chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
  total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
  total number of nonzero parameters: 4
  number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
 --------------------------------------------------------------------------------------------------------
