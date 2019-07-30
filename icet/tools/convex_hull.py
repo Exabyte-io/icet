@@ -246,7 +246,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
         """
         # Convert to numpy arrays, can be necessary if, for example,
-        # they are Pandas Series with "gaps" 
+        # they are Pandas Series with "gaps"
         concentrations = np.array(concentrations)
         energies = np.array(energies)
 
