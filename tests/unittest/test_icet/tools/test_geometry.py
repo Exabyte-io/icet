@@ -160,6 +160,7 @@ class TestGeometry(unittest.TestCase):
         for fractional in frac_pos:
             cart_pos_predicted.append(fractional_to_cartesian(atoms, fractional))
 
+        # Test if predicted cartesian positions are equal to target
         for target, predicted in zip(cart_pos_target, cart_pos_predicted):
             np.testing.assert_almost_equal(target, predicted)
 
