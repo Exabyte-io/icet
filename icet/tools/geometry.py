@@ -3,7 +3,6 @@ import spglib
 from typing import Tuple, List, Sequence, TypeVar
 from ase import Atoms
 from ase.data import chemical_symbols
-from ase.neighborlist import NeighborList as ase_NeighborList
 from icet.core.lattice_site import LatticeSite
 from icet.core.neighbor_list import NeighborList
 from icet.core.structure import Structure
@@ -115,39 +114,6 @@ def get_fractional_positions_from_neighbor_list(
             structure.cell, wrap=False,
             pbc=structure.pbc)
 
-    return fractional_positions
-
-
-def get_fractional_positions_from_ase_neighbor_list(
-        atoms: Atoms, neighbor_list: ase_NeighborList) -> List[Vector]:
-    """
-    Returns the fractional positions of the lattice sites in atomic structure
-    from a neighbor list.
-
-    Parameters
-    ----------
-    atoms
-        input atomic structure
-    neighbor_list
-        list of neighbors of the input structure
-    """
-    neighbor_positions = []
-    fractional_positions = []
-
-    for i in range(len(atoms)):
-        lattice_site = LatticeSite(i, [0., 0., 0.])
-        position = get_position_from_lattice_site(atoms, lattice_site)
-        neighbor_positions.append(position)
-        indices, offsets = neighbor_list.get_neighbors(i)
-        for index, offset in zip(indices, offsets):
-            lattice_site = LatticeSite(index, offset)
-            position = get_position_from_lattice_site(atoms, lattice_site)
-            neighbor_positions.append(position)
-    if len(neighbor_positions) > 0:
-        fractional_positions = get_scaled_positions(
-            np.array(neighbor_positions),
-            atoms.cell, wrap=False,
-            pbc=atoms.pbc)
     return fractional_positions
 
 

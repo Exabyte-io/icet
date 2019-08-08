@@ -2,12 +2,12 @@
 
 import random
 import unittest
+import numpy as np
 
 from ase.build import bulk
 from ase.neighborlist import NeighborList
 
 from icet.core.lattice_site import LatticeSite
-from icet.tools.geometry import get_fractional_positions_from_ase_neighbor_list
 from icet.tools.geometry import find_lattice_site_by_position
 from icet.tools.geometry import get_position_from_lattice_site
 from icet.tools.geometry import fractional_to_cartesian
@@ -35,31 +35,6 @@ class TestGeometry(unittest.TestCase):
             len(self.structure) * [cutoff / 2], skin=1e-8,
             bothways=True, self_interaction=False)
         self.neighborlist.update(self.structure)
-
-    def test_get_frac_pos_from_ase_neighborlist(self):
-        """Tests the get fractional position from ase neighborlist."""
-
-        # This system is simple so all neighbors are integer
-        #  fractional positions
-        frac_pos = get_fractional_positions_from_ase_neighbor_list(
-            self.structure, self.neighborlist)
-
-        target = [[0., 0., - 0.],
-                  [0., 0., 1.],
-                  [0., 1., - 1.],
-                  [0., 1., - 0.],
-                  [1., - 1., - 0.],
-                  [1., 0., - 1.],
-                  [1., 0., - 0.],
-                  [0., 0., - 1.],
-                  [0., - 1., 1.],
-                  [0., - 1., - 0.],
-                  [-1., 1., - 0.],
-                  [-1., 0., 1.],
-                  [-1., 0., - 0.]]
-
-        for pos1, pos2 in zip(frac_pos, target):
-            self.assertListEqual(list(pos1), pos2)
 
     def test_find_lattice_site_by_position_simple(self):
         """
@@ -149,33 +124,44 @@ class TestGeometry(unittest.TestCase):
 
     def test_fractional_to_cartesian(self):
         """Tests the geometry function fractional_to_cartesian."""
-        # Use the get frac positions from
-        #  neighborlist to have something to work with
 
-        frac_pos = get_fractional_positions_from_ase_neighbor_list(
-            self.structure, self.neighborlist)
+        # reference data
+        atoms = bulk('Al')
+        frac_pos = np.array([[ 0.0,  0.0, -0.0],
+                             [ 0.0,  0.0,  1.0],
+                             [ 0.0,  1.0, -1.0],
+                             [ 0.0,  1.0, -0.0],
+                             [ 1.0, -1.0, -0.0],
+                             [ 1.0,  0.0, -1.0],
+                             [ 1.0,  0.0, -0.0],
+                             [ 0.0,  0.0, -1.0],
+                             [ 0.0, -1.0,  1.0],
+                             [ 0.0, -1.0, -0.0],
+                             [-1.0,  1.0, -0.0],
+                             [-1.0,  0.0,  1.0],
+                             [-1.0,  0.0, -0.0]])
+
+        cart_pos_target = [[0., 0., 0.],
+                           [2.025, 2.025, 0.],
+                           [0., - 2.025, 2.025],
+                           [2.025, 0., 2.025],
+                           [-2.025, 2.025, 0.],
+                           [-2.025, 0., 2.025],
+                           [0., 2.025, 2.025],
+                           [-2.025, - 2.025, 0.],
+                           [0., 2.025, - 2.025],
+                           [-2.025, 0., - 2.025],
+                           [2.025, - 2.025, 0.],
+                           [2.025, 0., - 2.025],
+                           [0., - 2.025, - 2.025]]
 
         # Transform to cartesian
-        positions = []
+        cart_pos_predicted = []
         for fractional in frac_pos:
-            positions.append(fractional_to_cartesian(self.structure, fractional))
+            cart_pos_predicted.append(fractional_to_cartesian(atoms, fractional))
 
-        target_pos = [[0., 0., 0.],
-                      [2.025, 2.025, 0.],
-                      [0., - 2.025, 2.025],
-                      [2.025, 0., 2.025],
-                      [-2.025, 2.025, 0.],
-                      [-2.025, 0., 2.025],
-                      [0., 2.025, 2.025],
-                      [-2.025, - 2.025, 0.],
-                      [0., 2.025, - 2.025],
-                      [-2.025, 0., - 2.025],
-                      [2.025, - 2.025, 0.],
-                      [2.025, 0., - 2.025],
-                      [0., - 2.025, - 2.025]]
-
-        for target, pos in zip(target_pos, positions):
-            self.assertEqual(target, list(pos))
+        for target, predicted in zip(cart_pos_target, cart_pos_predicted):
+            np.testing.assert_almost_equal(target, predicted)
 
     def test_get_permutation(self):
         """Tests the get_permutation function."""
