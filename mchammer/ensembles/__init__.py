@@ -5,6 +5,7 @@ from .canonical_annealing import CanonicalAnnealing
 from .sgc_annealing import SGCAnnealing
 from .semi_grand_canonical_ensemble import SemiGrandCanonicalEnsemble
 from .vcsgc_ensemble import VCSGCEnsemble
+from .hybrid_ensemble import HybridEnsemble
 from .target_cluster_vector_annealing import TargetClusterVectorAnnealing
 
 __all__ = ['CanonicalEnsemble',
@@ -12,4 +13,5 @@ __all__ = ['CanonicalEnsemble',
            'SGCAnnealing',
            'SemiGrandCanonicalEnsemble',
            'VCSGCEnsemble',
+           'HybridEnsemble',
            'TargetClusterVectorAnnealing']

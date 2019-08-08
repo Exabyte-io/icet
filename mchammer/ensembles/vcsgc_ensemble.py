@@ -20,9 +20,10 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     (:math:`N\\phi\\kappa VT`), i.e. at constant temperature (:math:`T`), total
     number of sites (:math:`N=\\sum_i N_i`), and two additional dimensionless
     parameters :math:`\\phi` and :math:`\\kappa`, which constrain average and
-    variance of the concentration, respectively. The VCSGC ensemble is
-    currently only implemented for binary systems.
+    variance of the concentration, respectively.
 
+    The below examples treat the binary case, but the generalization of
+    to ternaries and higher-order systems is straight-forward.
     The probability for a particular state in the VCSGC ensemble for a
     :math:`2`-component system can be written
 
@@ -34,12 +35,12 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     where :math:`c_1` represents the concentration of species 1, i.e.
     :math:`c_1=N_1/N`. (Please note that the quantities :math:`\\kappa` and
     :math:`\\phi` correspond, respectively, to :math:`\\bar{\\kappa}` and
-    :math:`\\bar{\\phi}` in [SadErh12]_.) This implementation requires
-    :math:`\\phi` to be specified for both species. The sum of the specified
-    :math:`\\phi` values is required to be :math:`-2`, because then the above
-    expression is symmetric with respect to interchange of species 1 and 2,
-    i.e., it does not matter if we use :math:`\\phi_1` and :math:`c_1` or
-    :math:`\\phi_2` and :math:`c_2`.
+    :math:`\\bar{\\phi}` in [SadErh12]_.). The :math:`\\phi` may refer to any
+    of the two species. If :math:`\\phi` is specified for species A, an
+    equivalent simulation can be carried out by specifying :math:`\\phi_B` as
+    :math:`-2-\\phi_A`. In general, simulations of :math:`N`-component
+    systems requires the specification of :math:`\\phi` for :math:`N-1`
+    elements.
 
     Just like the :ref:`semi-grand canonical ensemble <canonical_ensemble>`,
     the VCSGC ensemble allows concentrations to change. A trial step consists
@@ -91,8 +92,9 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         temperature :math:`T` in appropriate units [commonly Kelvin]
     phis : Dict[str, float]
         average constraint parameters :math:`\\phi_i`; the key denotes the
-        species; there must be one entry for each species but their sum must be
-        :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
+        species; for a N-component sublattice, there should be N - 1
+        different `\\phi_i` (referred to as :math:`\\bar{\\phi}`
+        in [SadErh12]_)
     kappa : float
         parameter that constrains the variance of the concentration
         (referred to as :math:`\\bar{\\kappa}` in [SadErh12]_)
@@ -157,7 +159,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         phi = 0.6
         mc = VCSGCEnsemble(atoms=atoms, calculator=calc, temperature=600,
                            data_container='myrun_vcsgc.dc',
-                           phis={'Ag': -2.0 - phi, 'Au': phi},
+                           phis={'Au': phi},
                            kappa=200)
         mc.run(100)  # carry out 100 trial swaps
     """
@@ -175,12 +177,16 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
 
         self._ensemble_parameters = dict(temperature=temperature,
                                          kappa=kappa)
-        self._phis = get_phis(phis)
-        for atnum, phi in self.phis.items():
-            phi_sym = 'phi_{}'.format(chemical_symbols[atnum])
-            self._ensemble_parameters[phi_sym] = phi
-
         self._boltzmann_constant = boltzmann_constant
+
+        # Save ensemble parameters
+        for sym, phi in phis.items():
+            if isinstance(sym, str):
+                chemical_symbol = sym
+            else:
+                chemical_symbol = chemical_symbols[sym]
+            phi_sym = 'phi_{}'.format(chemical_symbol)
+            self._ensemble_parameters[phi_sym] = phi
 
         super().__init__(
             atoms=atoms, calculator=calculator, user_tag=user_tag,
@@ -192,17 +198,19 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
             boltzmann_constant=boltzmann_constant
         )
 
-        if any([len(sl.chemical_symbols) > 2 for sl in self.sublattices]):
-            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
-                                      ' spaces with more than two species.')
+        # Save phis (need self.configuration to check sublattices so
+        # we do it last)
+        self._phis = get_phis(phis)
 
-        if len(self.sublattices.active_sublattices) > 1:
-            raise NotImplementedError('VCSGCEnsemble does not yet support cluster'
-                                      ' spaces with more than one active sublattice.')
+        # Check that each sublattice has N - 1 phis
         for sl in self.sublattices.active_sublattices:
+            count_specified_elements = 0
             for number in sl.atomic_numbers:
-                if number not in self.phis.keys():
-                    raise ValueError('phis were not set for {}'.format(chemical_symbols[number]))
+                if number in self._phis.keys():
+                    count_specified_elements += 1
+            if count_specified_elements != len(sl.atomic_numbers) - 1:
+                raise ValueError('phis must be set for N - 1 elements on a '
+                                 'sublattice with N elements')
 
         if sublattice_probabilities is None:
             self._flip_sublattice_probabilities = self._get_flip_sublattice_probabilities()
@@ -244,22 +252,10 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         data = super()._get_ensemble_data()
 
         # free energy derivative
-        atnum_1 = min(self.phis.keys())
-        concentration = self.configuration._occupations.tolist().count(
-            atnum_1) / len(self.atoms)
-        data['free_energy_derivative'] = self.kappa * \
-            self.boltzmann_constant * self.temperature * \
-            (- 2 * concentration - self.phis[atnum_1])
+        data.update(self._get_vcsgc_free_energy_derivatives(self.phis, self.kappa))
 
         # species counts
-        atoms = self.configuration.atoms
-        unique, counts = np.unique(atoms.numbers, return_counts=True)
-
-        for sl in self.sublattices:
-            for symbol in sl.chemical_symbols:
-                data['{}_count'.format(symbol)] = 0
-        for atnum, count in zip(unique, counts):
-            data['{}_count'.format(chemical_symbols[atnum])] = count
+        data.update(self._get_species_counts())
 
         return data
 
@@ -275,9 +271,8 @@ def get_phis(phis: Dict[Union[int, str], float]) -> Dict[int, float]:
     """
     if not isinstance(phis, dict):
         raise TypeError('phis has the wrong type: {}'.format(type(phis)))
-    if abs(sum(phis.values()) + 2) > 1e-6:
-        raise ValueError('The sum of all phis must equal to -2')
 
+    # Translate to atomic numbers if necessary
     phis_ret = {}
     for key, phi in phis.items():
         if isinstance(key, str):
@@ -285,4 +280,5 @@ def get_phis(phis: Dict[Union[int, str], float]) -> Dict[int, float]:
             phis_ret[atomic_number] = phi
         elif isinstance(key, int):
             phis_ret[key] = phi
+
     return phis_ret

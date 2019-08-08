@@ -212,14 +212,7 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
         data = super()._get_ensemble_data()
 
         # species counts
-        atoms = self.configuration.atoms
-        unique, counts = np.unique(atoms.numbers, return_counts=True)
-
-        for sl in self.sublattices:
-            for symbol in sl.chemical_symbols:
-                data['{}_count'.format(symbol)] = 0
-        for atnum, count in zip(unique, counts):
-            data['{}_count'.format(chemical_symbols[atnum])] = count
+        data.update(self._get_species_counts())
 
         return data
 

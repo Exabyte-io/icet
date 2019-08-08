@@ -41,7 +41,9 @@ todo_include_todos = True
 # Collect basic information from main module
 with open('../../../icet/__init__.py', encoding='utf-8') as fd:
     lines = '\n'.join(fd.readlines())
-version = re.search("__version__ = '(.*)'", lines).group(1)
+version = ''
+if len(version) == 0:
+    version = re.search("__version__ = '(.*)'", lines).group(1)
 release = ''
 copyright = re.search("__copyright__ = '(.*)'", lines).group(1)
 project = re.search("__project__ = '(.*)'", lines).group(1)
@@ -53,31 +55,14 @@ html_favicon = "_static/logo.ico"
 html_theme = 'sphinx_rtd_theme'
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_static_path = ['_static']
-html_theme_options = {'display_version': False}
+html_theme_options = {'display_version': True}
 html_context = {
-    'software':
-        [('atomicrex',
-          'https://atomicrex.org/',
-          'interatomic potential construction'),
-         ('dynasor',
-          'https://dynasor.materialsmodeling.org/',
-          'dynamical structure factors from MD'),
-         ('hiphive',
-          'https://hiphive.materialsmodeling.org/',
-          'anharmonic force constant potentials'),
-         ('icet',
-          'https://icet.materialsmodeling.org/',
-          'cluster expansions'),
-         ('libvdwxc',
-          'https://libvdwxc.org/',
-          'library for van-der-Waals functionals'),
-         ('storq',
-          'https://storq.materialsmodeling.org/',
-          'high-throughput submission system'),
-         ('vcsgc-lammps',
-          'https://vcsgc-lammps.materialsmodeling.org/',
-          'Monte Carlo simulations with lammps'),
-         ]}
+    'current_version': version,
+    'versions':
+        [('latest stable release',
+          '{}'.format(site_url)),
+         ('development version',
+          '{}/dev'.format(site_url).replace('//', ''))]}
 htmlhelp_basename = 'icetdoc'
 intersphinx_mapping = \
     {'ase': ('https://wiki.fysik.dtu.dk/ase', None),

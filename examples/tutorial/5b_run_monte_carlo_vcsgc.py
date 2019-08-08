@@ -30,7 +30,7 @@ for temperature in [900, 300]:
             temperature=temperature,
             data_container='{}/vcsgc-T{}-phi{:+.3f}.dc'
                            .format(output_directory, temperature, phi),
-            phis={'Ag': -2.0 - phi, 'Pd': phi},
+            phis={'Pd': phi},
             kappa=200)
 
         mc.run(number_of_trial_steps=len(atoms) * 30)

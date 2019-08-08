@@ -69,3 +69,18 @@ Variance-constrained semi-grand canonical ensemble
    :members:
    :undoc-members:
    :inherited-members:
+
+
+.. _hybrid_ensemble:
+
+.. index::
+   single: Class reference; HybridEnsemble
+   single: Monte Carlo; Hybrid ensemble
+
+Hybrid ensemble
+---------------
+
+.. autoclass:: HybridEnsemble
+   :members:
+   :undoc-members:
+   :inherited-members:

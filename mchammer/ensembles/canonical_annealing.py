@@ -127,7 +127,7 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
 
         self._ground_state_candidate = self.configuration.atoms
         self._ground_state_candidate_potential = self.calculator.calculate_total(
-                occupations=self.configuration.occupations)
+            occupations=self.configuration.occupations)
 
         # setup cooling function
         if isinstance(cooling_function, str):

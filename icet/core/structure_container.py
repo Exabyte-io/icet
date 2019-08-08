@@ -26,12 +26,31 @@ class StructureContainer:
     cluster_space : icet.ClusterSpace
         cluster space used for evaluating the cluster vectors
 
-    list_of_atoms : list or tuple or list(tuple)
-        list of atoms; if the list contains tuples, the second element of the
-        tuple will be used as a tag of the structure
+    Example
+    -------
+    The following snippet illustrates the initialization
+    and usage of a StructureContainer object. The construction
+    of a structure container is convenient for compiling the
+    data needed to train a cluster expansion, i.e., a sensing
+    matrix and target energies::
 
-    list_of_properties : list(dict)
-        list of properties, which are provided in dicts
+        from ase.build import bulk
+        from icet import ClusterSpace, StructureContainer
+        from icet.tools import enumerate_structures
+        import numpy as np
+
+        # create cluster space
+        prim = bulk('Au')
+        cs = ClusterSpace(prim, cutoffs=[7.0, 5.0],
+                          chemical_symbols=[['Au', 'Pd']])
+
+        sc = StructureContainer(cs)
+        for structure in enumerate_structures(prim, range(5), ['Au', 'Pd']):
+            sc.add_structure(structure,
+                             properties={'my_random_energy': np.random.rand()})
+        print(sc)
+
+        sensing_matrix, target_energies = sc.get_fit_data(key='my_random_energy')
     """
 
     def __init__(self, cluster_space: ClusterSpace):
@@ -182,7 +201,7 @@ class StructureContainer:
         allow_duplicate
              whether or not to add the structure if there already exists a
              structure with identical cluster-vector
-         sanity_check
+        sanity_check
             whether or not to carry out a sanity check before adding the
             structure. This includes checking occupations and volume.
         """

@@ -1,16 +1,8 @@
+.. _credits:
 .. index:: Credits
 
 Credits
 *******
-
-* Mattias Ångqvist
-* William A. Muñoz
-* Magnus Rahm
-* Erik Fransson
-* Céline Durniak
-* Piotr Rozyczko
-* Thomas Holm Rod
-* Paul Erhart
 
 **icet** has been developed at Chalmers University of Technology in Gothenburg
 (Sweden) in the `Materials and Surface Theory division
@@ -20,10 +12,11 @@ Software Center of the European Spallation Source
 <https://europeanspallationsource.se/data-management-software#data-analysis-
 modelling>`_ in Copenhagen (Denmark).
 
-How to cite
------------
+Contributors: Mattias Ångqvist, William A. Muñoz, Magnus Rahm, Erik
+Fransson, Céline Durniak, Piotr Rozyczko, Thomas Holm Rod, and Paul
+Erhart.
 
-When using :program:`icet` in your research please cite
+When using :program:`icet` in your research please cite the following paper:
 
 | M. Ångqvist, W. A. Muñoz, J. M. Rahm, E. Fransson, C. Durniak, P. Rozyczko, T. H. Rod, and P. Erhart
 | *ICET – A Python Library for Constructing and Sampling Alloy Cluster Expansions*

@@ -66,18 +66,40 @@ class ConfigurationManager(object):
         atoms.set_atomic_numbers(self.occupations)
         return atoms
 
-    def is_swap_possible(self, sublattice_index: int) -> bool:
+    def get_occupations_on_sublattice(self, sublattice_index: int) -> List[int]:
+        """
+        Returns the occupations on one sublattice.
+
+        Parameters
+        ---------
+        sublattice_index
+            the sublattice for which the occupations should be returned
+        """
+        sl = self.sublattices[sublattice_index]
+        return list(self.occupations[sl.indices])
+
+    def is_swap_possible(self, sublattice_index: int,
+                         allowed_species: List[int] = None) -> bool:
         """ Checks if swap is possible on specific sublattice.
 
         Parameters
         ----------
         sublattice_index
             index of sublattice to be checked
+        allowed_species
+            list of atomic numbers for allowed species
          """
         sl = self.sublattices[sublattice_index]
-        return len(set(self.occupations[sl.indices])) > 1
+        if allowed_species is None:
+            swap_symbols = set(self.occupations[sl.indices])
+        else:
+            swap_symbols = set([o for o in self.occupations[sl.indices] if o in
+                                allowed_species])
+        return len(swap_symbols) > 1
 
-    def get_swapped_state(self, sublattice_index: int) -> Tuple[List[int], List[int]]:
+    def get_swapped_state(self, sublattice_index: int,
+                          allowed_species: List[int] = None
+                          ) -> Tuple[List[int], List[int]]:
         """Returns two random sites (first element of tuple) and their
         occupation after a swap (second element of tuple).  The new
         configuration will obey the occupation constraints associated
@@ -87,18 +109,32 @@ class ConfigurationManager(object):
         ----------
         sublattice_index
             sublattice from which to pick sites
+        allowed_species
+            list of atomic numbers for allowed species
         """
         # pick the first site
+        if allowed_species is None:
+            available_sites =\
+                self.sublattices[sublattice_index].indices
+        else:
+            available_sites =\
+                [s for Z in allowed_species for s in
+                 self._get_sites_by_species()[sublattice_index][Z]]
+
         try:
-            site1 = random.choice(self.sublattices[sublattice_index].indices)
+            site1 = random.choice(available_sites)
         except IndexError:
             raise SwapNotPossibleError(
                 'Sublattice {} is empty.'.format(sublattice_index))
 
         # pick the second site
-        possible_swap_species = \
-            set(self._sublattices.get_allowed_numbers_on_site(site1)) - \
-            set([self._occupations[site1]])
+        if allowed_species is None:
+            possible_swap_species = \
+                set(self._sublattices.get_allowed_numbers_on_site(site1)) - \
+                set([self._occupations[site1]])
+        else:
+            possible_swap_species = \
+                set(allowed_species) - set([self._occupations[site1]])
         possible_swap_sites = []
         for Z in possible_swap_species:
             possible_swap_sites.extend(self._sites_by_species[sublattice_index][Z])
@@ -115,7 +151,8 @@ class ConfigurationManager(object):
 
         return ([site1, site2], [self._occupations[site2], self._occupations[site1]])
 
-    def get_flip_state(self, sublattice_index: int) -> Tuple[int, int]:
+    def get_flip_state(self, sublattice_index: int,
+                       allowed_species: List[int] = None) -> Tuple[int, int]:
         """
         Returns a site index and a new species for the site.
 
@@ -123,12 +160,23 @@ class ConfigurationManager(object):
         ----------
         sublattice_index
             index of sublattice from which to pick a site
+        allowed_species
+            list of atomic numbers for allowed species
         """
+        if allowed_species is None:
+            available_sites = self._sublattices[sublattice_index].indices
+        else:
+            available_sites = [s for Z in allowed_species for s in
+                               self._get_sites_by_species()[sublattice_index][Z]]
 
-        site = random.choice(self._sublattices[sublattice_index].indices)
-        species = random.choice(list(
-            set(self._sublattices[sublattice_index].atomic_numbers) -
-            set([self._occupations[site]])))
+        site = random.choice(available_sites)
+        if allowed_species is not None:
+            species = random.choice(list(
+                set(allowed_species) - set([self._occupations[site]])))
+        else:
+            species = random.choice(list(
+                set(self._sublattices[sublattice_index].atomic_numbers) -
+                set([self._occupations[site]])))
         return site, species
 
     def update_occupations(self, sites: List[int], species: List[int]):
@@ -145,7 +193,7 @@ class ConfigurationManager(object):
             new occupations by atomic number
         """
 
-        # Update _sites_by_sublattice
+        # Update sublattices
         for site, new_Z in zip(sites, species):
             if 0 > new_Z > 118:
                 raise ValueError('Invalid new species {} on site {}'.format(new_Z, site))

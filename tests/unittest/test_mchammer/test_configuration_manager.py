@@ -65,6 +65,14 @@ class TestConfigurationManager(unittest.TestCase):
             self.cm.sublattices = []
         self.assertTrue("can't set attribute" in str(context.exception))
 
+    def test_get_occupations_on_sublattice(self):
+        """Tests get_occupations_on_sublattice function."""
+
+        # get all occupations
+        indices = self.cm.sublattices[0].indices
+        target = list(self.cm.occupations[indices])
+        self.assertListEqual(target, self.cm.get_occupations_on_sublattice(0))
+
     def test_is_swap_possible(self):
         """Tests is_swap_possible function."""
 
@@ -74,17 +82,25 @@ class TestConfigurationManager(unittest.TestCase):
 
         # setup system with inactive sublattice
         prim = bulk('Al').repeat([2, 1, 1])
-        chemical_symbols = [['Al'], ['Ag', 'Al']]
+        chemical_symbols = [['Al'], ['Ag', 'Al', 'Au']]
         cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
 
         supercell = prim.repeat(2)
         supercell[1].symbol = 'Ag'
+        supercell[3].symbol = 'Au'
         sublattices = cs.get_sublattices(supercell)
         cm = ConfigurationManager(supercell, sublattices)
 
         # check both sublattices
         self.assertTrue(cm.is_swap_possible(0))
         self.assertFalse(cm.is_swap_possible(1))
+
+        # check both sublattices when specifying allowed species
+        allowed_species = [13, 47]
+        self.assertTrue(cm.is_swap_possible(0,
+                                            allowed_species=allowed_species))
+        self.assertFalse(cm.is_swap_possible(1,
+                                             allowed_species=allowed_species))
 
     def test_get_swapped_state(self):
         """Tests the getting swap indices method."""
@@ -110,12 +126,64 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertTrue("Cannot swap on sublattice" in str(context.exception))
         self.assertTrue("since it is full of" in str(context.exception))
 
+        # setup a ternary system
+        prim = bulk('Al').repeat([3, 1, 1])
+        chemical_symbols = ['Ag', 'Al', 'Au']
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        for i, symbol in enumerate(chemical_symbols):
+            prim[i].symbol = symbol
+        supercell = prim.repeat(2)
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        allowed_species = [13, 47]
+        for _ in range(1000):
+            indices, elements = cm.get_swapped_state(
+                0, allowed_species=allowed_species)
+            index1 = indices[0]
+            index2 = indices[1]
+            self.assertNotEqual(
+                cm.occupations[index1], cm.occupations[index2])
+            self.assertNotEqual(
+                elements[0], elements[1])
+            self.assertEqual(cm.occupations[index1], elements[1])
+            self.assertEqual(cm.occupations[index2], elements[0])
+
+        # set everything to Al and see that swap is not possible
+        indices = [i for i in range(len(supercell))]
+        elements = [13] * len(supercell)
+        cm.update_occupations(indices, elements)
+
+        with self.assertRaises(SwapNotPossibleError) as context:
+            indices, elements = cm.get_swapped_state(
+                0, allowed_species=allowed_species)
+        self.assertTrue("Cannot swap on sublattice" in str(context.exception))
+        self.assertTrue("since it is full of" in str(context.exception))
+
     def test_get_flip_index(self):
         """Tests the getting flip indices method."""
 
         for _ in range(1000):
             index, element = self.cm.get_flip_state(0)
             self.assertNotEqual(self.cm.occupations[index], element)
+
+        # setup a ternary system
+        prim = bulk('Al').repeat([3, 1, 1])
+        chemical_symbols = ['Ag', 'Al', 'Au']
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        for i, symbol in enumerate(chemical_symbols):
+            prim[i].symbol = symbol
+        supercell = prim.repeat(2)
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        allowed_species = [13, 47]
+        for _ in range(1000):
+            index, element = cm.get_flip_state(
+                0, allowed_species=allowed_species)
+            self.assertNotEqual(cm.occupations[index], element)
 
     def test_update_occupations(self):
         """Tests the update occupation method."""

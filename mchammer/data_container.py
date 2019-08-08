@@ -19,6 +19,7 @@ from .observers.base_observer import BaseObserver
 
 
 class Int64Encoder(json.JSONEncoder):
+
     def default(self, obj):
         if isinstance(obj, np.int64):
             return int(obj)
@@ -198,21 +199,20 @@ class DataContainer:
         Examples
         --------
         The following lines illustrate how to use the `get_data` method
-        for extracting data from the trajectory.
+        for extracting data from the trajectory::
 
-        ```
-        # obtain a list of all values of the potential represented by
-        # the cluster expansion along the trajectory
-        p = get_data('potential')
+            # obtain a list of all values of the potential represented by
+            # the cluster expansion along the trajectory
+            p = dc.get_data('potential')
 
-        # as above but this time the MC trial step and the temperature
-        # are included as well
-        s, p, t = get_data('mctrial', 'potential', 'temperature')
+            # as above but this time the MC trial step and the temperature
+            # are included as well
+            s, p, t = dc.get_data('mctrial', 'potential', 'temperature')
 
-        # obtain configurations along the trajectory along with
-        # their potential
-        p, confs = get_data('potential', 'trajectory')
-        ```
+            # obtain configurations along the trajectory along with
+            # their potential
+            p, confs = dc.get_data('potential', 'trajectory')
+
         """
         fill_methods = ['skip_none',
                         'fill_backward',

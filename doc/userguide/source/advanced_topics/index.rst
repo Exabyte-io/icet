@@ -11,11 +11,8 @@ The scripts and database that are required for this tutorial can be downloaded
 as a single zip archive. To this end, run the following command from the
 command line::
 
-    curl -O https://icet.materialsmodeling.org/advanced_topics_<version>.zip
-    unzip advanced_topics_<version>.zip
-
-Here, ``<version>`` has to be replaced by the :program:`icet` version that is
-installed.
+    curl -O https://icet.materialsmodeling.org/advanced_topics.zip
+    unzip advanced_topics.zip
 
 .. toctree::
    :maxdepth: 1

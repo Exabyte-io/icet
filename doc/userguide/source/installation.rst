@@ -43,12 +43,9 @@ It is always a good idea to test that your installation works as advertised. To
 this end, you should run the :program:`icet` test suite, which can be
 accomplished as follows::
 
-    curl -O https://icet.materialsmodeling.org/tests_<version>.zip
-    unzip tests_<version>.zip
+    curl -O https://icet.materialsmodeling.org/tests.zip
+    unzip tests.zip
     python3 tests/main.py
-
-Here, ``<version>`` has to be replaced by the :program:`icet` version that is
-installed.
 
 
 Developers

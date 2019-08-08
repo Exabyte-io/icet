@@ -52,8 +52,7 @@ class ClusterExpansion:
         print(ce.predict(sc))
     """
 
-    def __init__(self, cluster_space: ClusterSpace,
-                 parameters: np.array) -> None:
+    def __init__(self, cluster_space: ClusterSpace, parameters: np.array) -> None:
         """
         Initializes a ClusterExpansion object.
 
@@ -71,8 +70,7 @@ class ClusterExpansion:
         """
         if len(cluster_space) != len(parameters):
             raise ValueError('cluster_space ({}) and parameters ({}) must have'
-                             ' the same length'.format(len(cluster_space),
-                                                       len(parameters)))
+                             ' the same length'.format(len(cluster_space), len(parameters)))
         self._cluster_space = cluster_space.copy()
         if isinstance(parameters, list):
             parameters = np.array(parameters)
@@ -150,13 +148,23 @@ class ClusterExpansion:
         cluster_space_repr = self._cluster_space._get_string_representation(
             print_threshold, print_minimum).split('\n')
         # rescale width
-        eci_col_width = max(
-            len('{:9.3g}'.format(max(self._parameters, key=abs))), len('ECI'))
+        eci_col_width = max(len('{:9.3g}'.format(max(self._parameters, key=abs))), len('ECI'))
         width = len(cluster_space_repr[0]) + len(' | ') + eci_col_width
 
         s = []  # type: List
         s += ['{s:=^{n}}'.format(s=' Cluster Expansion ', n=width)]
         s += [t for t in cluster_space_repr if re.search(':', t)]
+
+        # additional information about number of nonzero the ECIs
+        df = self.parameters_as_dataframe
+        orders = self.orders
+        nzp_by_order = [np.count_nonzero(df[df.order == order].eci) for order in orders]
+        assert sum(nzp_by_order) == np.count_nonzero(self.parameters)
+        s += [' total number of nonzero parameters: {}'.format(sum(nzp_by_order))]
+        line = ' number of nonzero parameters by order: '
+        for order, nzp in zip(orders, nzp_by_order):
+            line += '{}= {}  '.format(order, nzp)
+        s += [line]
 
         # table header
         s += [''.center(width, '-')]
@@ -234,8 +242,7 @@ class ClusterExpansion:
 
         if 0 in indices:
             raise ValueError('Orbit index cannot be 0 since the zerolet may not be pruned.')
-        orbit_candidates_for_removal = \
-            df.orbit_index[np.array(indices)].tolist()
+        orbit_candidates_for_removal = df.orbit_index[np.array(indices)].tolist()
         safe_to_remove_orbits, safe_to_remove_params = [], []
         for oi in set(orbit_candidates_for_removal):
             if oi == -1:

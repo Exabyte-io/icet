@@ -126,12 +126,12 @@ def map_structure_to_reference(input_structure: Atoms,
     logger.debug('Cell metric of rescaled input structure:\n'
                  '{}\n'.format(scaled_structure.cell))
 
-    # map atoms in input structure to closest site in ideal supercell
-    dr_max = 0.0
-    dr_sum = 0.0
-    dr_sumsq = 0.0
     # per-atom-list for keeping track of mapped atoms
     mapped = [-1] * len(ideal_supercell)
+    # positions in scaled input structure
+    original_positions = [(None, None, None)] * len(ideal_supercell)
+    # displacement vectors
+    displacements = [(None, None, None)] * len(ideal_supercell)
     # distances between ideal and input sites
     drs = [None] * len(ideal_supercell)
     for ideal_site in ideal_supercell:
@@ -141,9 +141,10 @@ def map_structure_to_reference(input_structure: Atoms,
             # ideal supercell. This allows one to simply use the ASE
             # Atoms method for computing the interatomic distance
             ideal_supercell.append(atom)
-            dr = ideal_supercell.get_distance(ideal_site.index,
-                                              ideal_supercell[-1].index,
-                                              mic=True)
+            dvec = ideal_supercell.get_distance(ideal_site.index,
+                                                ideal_supercell[-1].index,
+                                                mic=True, vector=True)
+            dr = np.linalg.norm(dvec)
             del ideal_supercell[-1]
             if dr < tolerance_mapping:
                 if mapped[ideal_site.index] >= 0:
@@ -153,10 +154,9 @@ def map_structure_to_reference(input_structure: Atoms,
                                     ' Try reducing `tolerance_mapping`.')
                 mapped[ideal_site.index] = atom.index
                 drs[ideal_site.index] = dr
+                original_positions[ideal_site.index] = atom.position
+                displacements[ideal_site.index] = dvec
                 ideal_site.symbol = atom.symbol
-                dr_max = max(dr, dr_max)
-                dr_sum += dr
-                dr_sumsq += dr * dr
                 break
         else:
             assert vacancy_type is not None, \
@@ -166,8 +166,20 @@ def map_structure_to_reference(input_structure: Atoms,
                  ' {}'.format(ideal_site))
             ideal_site.symbol = vacancy_type
 
-    dr_avg = dr_sum / len(ideal_supercell)
-    dr_sdv = np.sqrt(dr_sumsq / len(ideal_supercell) - dr_avg ** 2)
+    # store information concerning mapping in output structure
+    ideal_supercell.new_array('displacements', displacements,
+                              float, (3,))
+    ideal_supercell.new_array('original_positions', original_positions,
+                              float, (3,))
+    for name, ar in reference_structure.arrays.items():
+        if name in ideal_supercell.arrays:
+            continue
+        ideal_supercell.new_array(name, ar)
+
+    # maximum, average, and standard deviation of displacements
+    dr_avg = np.average([d for d in drs if d is not None])
+    dr_sdv = np.std([d for d in drs if d is not None])
+    dr_max = np.max([d for d in drs if d is not None])
 
     # check that not more than one atom was assigned to the same site
     for k in set(mapped):
