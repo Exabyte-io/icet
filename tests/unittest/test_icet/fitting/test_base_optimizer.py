@@ -1,7 +1,8 @@
 import numpy as np
 import unittest
+import tempfile
 
-from icet.fitting import available_fit_methods
+from icet.fitting import available_fit_methods, read_summary
 from icet.fitting.base_optimizer import BaseOptimizer
 
 
@@ -10,7 +11,7 @@ class RandomOptimizer(BaseOptimizer):
         super().__init__(fit_data, fit_method, standardize, seed)
 
     def train(self):
-        self.fit_results['parameters'] = np.random.random(self._n_cols)
+        self._fit_results['parameters'] = np.random.random(self._n_cols)
 
 
 class TestBaseOptimizer(unittest.TestCase):
@@ -72,6 +73,26 @@ class TestBaseOptimizer(unittest.TestCase):
         bopt = RandomOptimizer((self.A, self.y), 'least-squares')
         self.assertIn('parameters', bopt.summary.keys())
         self.assertIn('fit_method', bopt.summary.keys())
+
+    def test_write_summary_and_read(self):
+        """ Tests write and read summary functionality """
+        bopt = RandomOptimizer((self.A, self.y), 'least-squares')
+        bopt.train()
+
+        # write and read summary
+        with tempfile.NamedTemporaryFile() as file:
+            bopt.write_summary(file.name)
+            summary_read = read_summary(file.name)
+
+        # compare summary to read summary
+        summary = bopt.summary
+        self.assertEqual(len(summary), len(summary_read))
+        self.assertSequenceEqual(sorted(summary.keys()), sorted(summary_read.keys()))
+        for key in summary.keys():
+            if isinstance(summary[key], (int, float, str)):
+                self.assertEqual(summary[key], summary_read[key])
+            else:
+                np.testing.assert_almost_equal(summary[key], summary_read[key])
 
 
 if __name__ == '__main__':

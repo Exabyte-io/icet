@@ -44,7 +44,7 @@ class CrossValidationEstimator(BaseOptimizer):
     fit_method : str
         method to be used for training; possible choice are
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
-        "rfe-l2", "split-bregman"
+        "rfe", "split-bregman"
     standardize : bool
         if True the fit matrix is standardized before fitting
     validation_method : str
@@ -156,6 +156,7 @@ class CrossValidationEstimator(BaseOptimizer):
         self._split_kwargs = {}
 
         if self.validation_method == 'k-fold':
+            self._split_kwargs['shuffle'] = True  # default True
             for key, val in kwargs.items():
                 if key in ['shuffle']:
                     self._split_kwargs[key] = val

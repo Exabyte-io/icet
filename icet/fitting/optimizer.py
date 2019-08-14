@@ -36,7 +36,7 @@ class Optimizer(BaseOptimizer):
     fit_method : str
         method to be used for training; possible choice are
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
-        "rfe-l2", "split-bregman"
+        "rfe", "split-bregman"
     standardize : bool
         if True the fit matrix is standardized before fitting
     train_size : float or int

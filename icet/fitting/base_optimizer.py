@@ -6,6 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple, Union
 from .fit_methods import available_fit_methods
+from .io import _write_pickle
 
 
 class BaseOptimizer(ABC):
@@ -25,7 +26,7 @@ class BaseOptimizer(ABC):
     fit_method : str
         method to be used for training; possible choice are
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
-        "rfe-l2", "split-bregman"
+        "rfe", "split-bregman"
     standardize : bool
         if True the fit matrix is standardized before fitting
     check_condition : bool
@@ -137,9 +138,13 @@ class BaseOptimizer(ABC):
         info['standardize'] = self.standardize
         info['n_target_values'] = self.n_target_values
         info['n_parameters'] = self.n_parameters
-        info['n_nonzero_parameters'] = \
-            self.n_nonzero_parameters
+        info['n_nonzero_parameters'] = self.n_nonzero_parameters
+        info['parameters_norm'] = self.parameters_norm
         return {**info, **self._fit_results}
+
+    def write_summary(self, fname: str):
+        """ Writes summary dict to file """
+        _write_pickle(fname, self.summary)
 
     def __str__(self) -> str:
         width = 54
@@ -147,7 +152,7 @@ class BaseOptimizer(ABC):
         s.append(' {} '.format(self.__class__.__name__).center(width, '='))
         for key in sorted(self.summary.keys()):
             value = self.summary[key]
-            if isinstance(value, (str, int)):
+            if isinstance(value, (str, int, np.integer)):
                 s.append('{:30} : {}'.format(key, value))
             elif isinstance(value, (float)):
                 s.append('{:30} : {:.7g}'.format(key, value))
@@ -170,6 +175,14 @@ class BaseOptimizer(ABC):
             return None
         else:
             return self._fit_results['parameters'].copy()
+
+    @property
+    def parameters_norm(self) -> float:
+        """ the norm of the parameters """
+        if self.parameters is None:
+            return None
+        else:
+            return np.linalg.norm(self.parameters)
 
     @property
     def n_nonzero_parameters(self) -> int:

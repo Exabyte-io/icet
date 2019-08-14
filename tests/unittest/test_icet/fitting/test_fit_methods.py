@@ -61,7 +61,7 @@ class TestFitMethods(unittest.TestCase):
         res = fit(self.A, self.y, fit_method='elasticnet', alpha=1e-5)
         self.assertIsNotNone(res['parameters'])
 
-        # rfe-l2 with n_features
+        # rfe with n_features
         kwargs = dict(n_features=int(0.5*self.n_cols),
                       step=0.12, estimator='split-bregman',
                       final_estimator='rfe')

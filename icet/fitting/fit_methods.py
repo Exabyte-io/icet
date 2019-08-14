@@ -55,7 +55,7 @@ def fit(X: np.ndarray,
     fit_method
         method to be used for training; possible choice are
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
-        "rfe-l2", "split-bregman"
+        "rfe", "split-bregman"
     standardize : bool
         if True the fit matrix is standardized before fitting
     check_condition : bool
@@ -192,12 +192,16 @@ def _fit_lassoCV(X: np.ndarray,
 
 
 def _fit_ridge(X, y, alpha=None, fit_intercept=False, **kwargs):
+    results = dict()
     if alpha is None:
+        if 'alphas' not in kwargs:
+            kwargs['alphas'] = np.logspace(-6, 3, 100)
         ridge = RidgeCV(fit_intercept=fit_intercept, **kwargs)
+        ridge.fit(X, y)
+        results['alpha_optimal'] = ridge.alpha_
     else:
         ridge = Ridge(alpha=alpha, fit_intercept=fit_intercept, **kwargs)
-    ridge.fit(X, y)
-    results = dict()
+        ridge.fit(X, y)
     results['parameters'] = ridge.coef_
     return results
 
