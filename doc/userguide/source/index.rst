@@ -68,5 +68,6 @@ team can also be reached by email via icet@materialsmodeling.org.
    :caption: Backmatter
 
    bibliography
+   publications
    glossary
    genindex
