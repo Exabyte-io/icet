@@ -286,6 +286,29 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
             retval = list(self.cs.get_cluster_vector(structure))
             self.assertAlmostEqual(retval, target, places=9)
 
+    def test_get_cluster_vector_exceptions(self):
+        """Tests cluster vector calculation with bad input."""
+        # Fixed boundary conditions
+        structure = self.structure_prim.copy()
+        structure.pbc = False
+        with self.assertRaises(ValueError) as cm:
+            self.cs.get_cluster_vector(structure)
+        self.assertIn('must have periodic boundary conditions', str(cm.exception))
+
+        # Bad volume
+        structure = self.structure_prim.copy()
+        structure.set_cell(1.1 * structure.cell)
+        with self.assertRaises(ValueError) as cm:
+            self.cs.get_cluster_vector(structure)
+        self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
+
+        # Bad position
+        structure = self.structure_prim.repeat(3)
+        structure[0].position[0] += 0.1
+        with self.assertRaises(RuntimeError) as cm:
+            self.cs.get_cluster_vector(structure)
+        self.assertIn('Failed to find site by position', str(cm.exception))
+
     def test_get_singlet_info(self):
         """Tests get_singlet_info functionality."""
         retval = get_singlet_info(self.structure_list[0])
@@ -526,7 +549,7 @@ class TestClusterSpaceTernary(unittest.TestCase):
         permutations_target = [[[0, 1, 2, 3]],
                                [[0, 1, 2, 3], [0, 1, 3, 2], [0, 3, 1, 2], [3, 0, 1, 2]],
                                [[0, 1, 2, 3], [0, 2, 1, 3], [0, 2, 3, 1], [2, 0, 1, 3],
-                               [2, 0, 3, 1], [2, 3, 0, 1]],
+                                [2, 0, 3, 1], [2, 3, 0, 1]],
                                [[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [1, 2, 3, 0]],
                                [[0, 1, 2, 3]]]
         permutation_retval = self.cs.get_multi_component_vector_permutations(
