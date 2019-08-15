@@ -286,21 +286,12 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
             retval = list(self.cs.get_cluster_vector(structure))
             self.assertAlmostEqual(retval, target, places=9)
 
-    def test_get_cluster_vector_exceptions(self):
-        """Tests cluster vector calculation with bad input."""
-        # Fixed boundary conditions
+        # Test that exception is raised if input is bad
         structure = self.structure_prim.copy()
         structure.pbc = False
         with self.assertRaises(ValueError) as cm:
             self.cs.get_cluster_vector(structure)
         self.assertIn('must have periodic boundary conditions', str(cm.exception))
-
-        # Bad volume
-        structure = self.structure_prim.copy()
-        structure.set_cell(1.1 * structure.cell)
-        with self.assertRaises(ValueError) as cm:
-            self.cs.get_cluster_vector(structure)
-        self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
 
         # Bad position
         structure = self.structure_prim.repeat(3)
@@ -418,18 +409,18 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         cs_copy = self.cs.copy()
         self.assertEqual(str(cs_copy), str(self.cs))
 
-    def test_assert_structure_compatability(self):
-        """ Tests assert_structure_compatability functionality """
+    def test_assert_structure_compatibility(self):
+        """ Tests assert_structure_compatibility functionality """
         supercell = self.structure_prim.repeat((2, 3, 4))
 
         # real supercell works
-        self.cs.assert_structure_compatability(supercell)
+        self.cs.assert_structure_compatibility(supercell)
 
         # faulty volume
         supercell_tmp = supercell.copy()
         supercell_tmp.set_cell(1.01 * supercell_tmp.cell, scale_atoms=True)
         with self.assertRaises(ValueError) as cm:
-            self.cs.assert_structure_compatability(supercell_tmp)
+            self.cs.assert_structure_compatibility(supercell_tmp)
         self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
 
         # faulty occupations
@@ -438,8 +429,15 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         symbols[0] = 'W'
         supercell_tmp.set_chemical_symbols(symbols)
         with self.assertRaises(ValueError) as cm:
-            self.cs.assert_structure_compatability(supercell_tmp)
+            self.cs.assert_structure_compatibility(supercell_tmp)
         self.assertIn('Occupations of structure not compatible', str(cm.exception))
+
+        # PBC False
+        structure = self.structure_prim.copy()
+        structure.pbc = False
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatibility(structure)
+        self.assertIn('must have periodic boundary conditions', str(cm.exception))
 
     def test_get_possible_orbit_occupations(self):
         """Tests get possible orbit occupations."""

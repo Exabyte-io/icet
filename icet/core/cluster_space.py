@@ -348,11 +348,8 @@ class ClusterSpace(_ClusterSpace):
         try:
             cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(structure))
         except Exception as e:
-            if not all(structure.pbc):
-                raise ValueError('Input structure must have periodic boundary conditions')
-            else:
-                self.assert_structure_compatability(structure)
-                raise(e)
+            self.assert_structure_compatibility(structure)
+            raise(e)
         return cv
 
     def _prune_orbit_list(self, indices: List[int]) -> None:
@@ -432,7 +429,7 @@ class ClusterSpace(_ClusterSpace):
         sl = Sublattices(self.chemical_symbols, self.primitive_structure, structure)
         return sl
 
-    def assert_structure_compatability(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
+    def assert_structure_compatibility(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
         """ Raises error if structure is not compatible with ClusterSpace.
 
         Todo
@@ -455,6 +452,10 @@ class ClusterSpace(_ClusterSpace):
         # check occupations
         sublattices = self.get_sublattices(structure)
         sublattices.assert_occupation_is_allowed(structure.get_chemical_symbols())
+
+        # check pbc
+        if not all(structure.pbc):
+            raise ValueError('Input structure must have periodic boundary conditions')
 
     def is_supercell_self_correlated(self, structure: Atoms) -> bool:
         """
