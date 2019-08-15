@@ -218,7 +218,7 @@ class StructureContainer:
                                 ' not {}.'.format(type(user_tag)))
 
         if sanity_check:
-            self._cluster_space.assert_structure_compatability(structure)
+            self._cluster_space.assert_structure_compatibility(structure)
 
         # check for properties in attached calculator
         if properties is None and structure.calc:

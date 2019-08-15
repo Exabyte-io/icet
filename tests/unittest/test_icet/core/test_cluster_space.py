@@ -286,6 +286,20 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
             retval = list(self.cs.get_cluster_vector(structure))
             self.assertAlmostEqual(retval, target, places=9)
 
+        # Test that exception is raised if input is bad
+        structure = self.structure_prim.copy()
+        structure.pbc = False
+        with self.assertRaises(ValueError) as cm:
+            self.cs.get_cluster_vector(structure)
+        self.assertIn('must have periodic boundary conditions', str(cm.exception))
+
+        # Bad position
+        structure = self.structure_prim.repeat(3)
+        structure[0].position[0] += 0.1
+        with self.assertRaises(RuntimeError) as cm:
+            self.cs.get_cluster_vector(structure)
+        self.assertIn('Failed to find site by position', str(cm.exception))
+
     def test_get_singlet_info(self):
         """Tests get_singlet_info functionality."""
         retval = get_singlet_info(self.structure_list[0])
@@ -395,18 +409,18 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         cs_copy = self.cs.copy()
         self.assertEqual(str(cs_copy), str(self.cs))
 
-    def test_assert_structure_compatability(self):
-        """ Tests assert_structure_compatability functionality """
+    def test_assert_structure_compatibility(self):
+        """ Tests assert_structure_compatibility functionality """
         supercell = self.structure_prim.repeat((2, 3, 4))
 
         # real supercell works
-        self.cs.assert_structure_compatability(supercell)
+        self.cs.assert_structure_compatibility(supercell)
 
         # faulty volume
         supercell_tmp = supercell.copy()
         supercell_tmp.set_cell(1.01 * supercell_tmp.cell, scale_atoms=True)
         with self.assertRaises(ValueError) as cm:
-            self.cs.assert_structure_compatability(supercell_tmp)
+            self.cs.assert_structure_compatibility(supercell_tmp)
         self.assertIn('Volume per atom of structure does not match the', str(cm.exception))
 
         # faulty occupations
@@ -415,8 +429,15 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         symbols[0] = 'W'
         supercell_tmp.set_chemical_symbols(symbols)
         with self.assertRaises(ValueError) as cm:
-            self.cs.assert_structure_compatability(supercell_tmp)
+            self.cs.assert_structure_compatibility(supercell_tmp)
         self.assertIn('Occupations of structure not compatible', str(cm.exception))
+
+        # PBC False
+        structure = self.structure_prim.copy()
+        structure.pbc = False
+        with self.assertRaises(ValueError) as cm:
+            self.cs.assert_structure_compatibility(structure)
+        self.assertIn('must have periodic boundary conditions', str(cm.exception))
 
     def test_get_possible_orbit_occupations(self):
         """Tests get possible orbit occupations."""
@@ -526,7 +547,7 @@ class TestClusterSpaceTernary(unittest.TestCase):
         permutations_target = [[[0, 1, 2, 3]],
                                [[0, 1, 2, 3], [0, 1, 3, 2], [0, 3, 1, 2], [3, 0, 1, 2]],
                                [[0, 1, 2, 3], [0, 2, 1, 3], [0, 2, 3, 1], [2, 0, 1, 3],
-                               [2, 0, 3, 1], [2, 3, 0, 1]],
+                                [2, 0, 3, 1], [2, 3, 0, 1]],
                                [[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [1, 2, 3, 0]],
                                [[0, 1, 2, 3]]]
         permutation_retval = self.cs.get_multi_component_vector_permutations(
