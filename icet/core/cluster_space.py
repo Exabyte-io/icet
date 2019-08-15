@@ -102,8 +102,7 @@ class ClusterSpace(_ClusterSpace):
             raise TypeError('Input configuration must be an ASE Atoms object'
                             ', not type {}'.format(type(structure)))
         if not all(structure.pbc):
-            raise ValueError('Input structure must have periodic boundary '
-                             'condition')
+            raise ValueError('Input structure must have periodic boundary conditions')
 
         self._cutoffs = cutoffs.copy()
         self._input_structure = structure.copy()
@@ -349,8 +348,11 @@ class ClusterSpace(_ClusterSpace):
         try:
             cv = _ClusterSpace.get_cluster_vector(self, Structure.from_atoms(structure))
         except Exception as e:
-            self.assert_structure_compatability(structure)
-            raise(e)
+            if not all(structure.pbc):
+                raise ValueError('Input structure must have periodic boundary conditions')
+            else:
+                self.assert_structure_compatability(structure)
+                raise(e)
         return cv
 
     def _prune_orbit_list(self, indices: List[int]) -> None:
