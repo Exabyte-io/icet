@@ -39,7 +39,8 @@ class EnsembleOptimizer(BaseOptimizer):
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
         "rfe", "split-bregman"
     standardize : bool
-        if True the fit matrix is standardized before fitting
+        if True the fit matrix is standardized before fitting, meaning columns
+        are normalized to have a standard deviation of 1.0
     ensemble_size : int
         number of fits in the ensemble
     train_size : float or int

@@ -28,7 +28,8 @@ class BaseOptimizer(ABC):
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
         "rfe", "split-bregman"
     standardize : bool
-        if True the fit matrix is standardized before fitting
+        if True the fit matrix is standardized before fitting, meaning columns
+        are normalized to have a standard deviation of 1.0
     check_condition : bool
         if True the condition number will be checked
         (this can be sligthly more time consuming for larger
@@ -132,6 +133,8 @@ class BaseOptimizer(ABC):
     @property
     def summary(self) -> Dict[str, Any]:
         """ comprehensive information about the optimizer """
+        target_values_std = np.std(self._y)
+
         info = dict()
         info['seed'] = self.seed
         info['fit_method'] = self.fit_method
@@ -140,6 +143,7 @@ class BaseOptimizer(ABC):
         info['n_parameters'] = self.n_parameters
         info['n_nonzero_parameters'] = self.n_nonzero_parameters
         info['parameters_norm'] = self.parameters_norm
+        info['target_values_std'] = target_values_std
         return {**info, **self._fit_results}
 
     def write_summary(self, fname: str):

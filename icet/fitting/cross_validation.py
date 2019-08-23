@@ -46,7 +46,8 @@ class CrossValidationEstimator(BaseOptimizer):
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
         "rfe", "split-bregman"
     standardize : bool
-        if True the fit matrix is standardized before fitting
+        if True the fit matrix is standardized before fitting, meaning columns
+        are normalized to have a standard deviation of 1.0
     validation_method : str
         method to use for cross-validation; possible choices are
         "shuffle-split", "k-fold"

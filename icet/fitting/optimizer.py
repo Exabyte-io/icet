@@ -38,7 +38,8 @@ class Optimizer(BaseOptimizer):
         "least-squares", "lasso", "elasticnet", "bayesian-ridge", "ardr",
         "rfe", "split-bregman"
     standardize : bool
-        if True the fit matrix is standardized before fitting
+        if True the fit matrix is standardized before fitting, meaning columns
+        are normalized to have a standard deviation of 1.0
     train_size : float or int
         If float represents the fraction of `fit_data` (rows) to be used for
         training. If int, represents the absolute number of rows to be used for
