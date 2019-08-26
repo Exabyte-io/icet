@@ -92,12 +92,12 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
             change in the thermodynamic potential associated
             with the trial step
         """
-        if potential_diff < 0:
+        if potential_diff <= 0:
             return True
-        elif abs(self.temperature) < 1e-6:  # temperature is numerically zero
+        elif self.temperature <= 1e-16:
             return False
         else:
-            p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
+            p = np.exp(-exponent)
             return p > self._next_random_number()
 
     def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> None:
