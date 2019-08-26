@@ -93,9 +93,6 @@ class StructureContainer:
         ----------
         print_threshold
             if the number of structures exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the
-            structure list if `print_threshold` is exceeded
 
         Returns
         -------
@@ -172,9 +169,6 @@ class StructureContainer:
         ----------
         print_threshold
             if the number of orbits exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the orbit
-            list if `print_threshold` is exceeded
         """
         print(self._get_string_representation(print_threshold=print_threshold))
 
