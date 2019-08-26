@@ -107,7 +107,8 @@ class StructureContainer:
             return 'Empty StructureContainer'
 
         # Number of structures to print before cutting and printing dots
-        threshold = len(self) + 1 if print_threshold is None else print_threshold
+        if print_threshold is None or print_threshold >= len(self):
+            print_threshold = len(self) + 2
 
         # format specifiers for fields in table
         def get_format(val):
@@ -149,7 +150,7 @@ class StructureContainer:
         s += [''.center(total_width, '-')]
         for i, fs_data in enumerate(str_table, start=1):
             s += [row_format.format(*fs_data)]
-            if i+1 >= threshold:
+            if i+1 >= print_threshold:
                 s += [' ...']
                 s += [row_format.format(*str_table[-1])]
                 break
