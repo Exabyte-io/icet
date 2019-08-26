@@ -100,7 +100,6 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertEqual(
             self.cs._input_chemical_symbols, ce_read.cluster_space._input_chemical_symbols)
 
-
         # check parameters
         self.assertIsInstance(ce_read.parameters, np.ndarray)
         self.assertEqual(list(ce_read.parameters), list(self.parameters))
