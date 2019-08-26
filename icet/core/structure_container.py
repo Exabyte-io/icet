@@ -83,8 +83,7 @@ class StructureContainer:
         """
         return [i for i, s in enumerate(self) if user_tag is None or s.user_tag == user_tag]
 
-    def _get_string_representation(self, print_threshold: int = None,
-                                   print_minimum: int = 10) -> str:
+    def _get_string_representation(self, print_threshold: int = None) -> str:
         """
         String representation of the structure container that provides an
         overview of the structures in the container.
@@ -93,9 +92,6 @@ class StructureContainer:
         ----------
         print_threshold
             if the number of structures exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the
-            structure list if `print_threshold` is exceeded
 
         Returns
         -------
@@ -103,72 +99,67 @@ class StructureContainer:
             string representation of the structure container
         """
 
-        def repr_structure(structure, index=-1, header=False):
-            """
-            Helper function used to generate a representation string for a
-            single structure.
-            """
-            from collections import OrderedDict
-            fields = OrderedDict([
-                ('index', '{:4}'.format(index)),
-                ('user_tag', '{:21}'.format(structure.user_tag)),
-                ('natoms', '{:5}'.format(len(structure))),
-                ('chemical formula', structure._structure.get_chemical_formula())])
-            fields.update(sorted(structure.properties.items()))
-            for key, value in fields.items():
-                if isinstance(value, float):
-                    fields[key] = '{:8.3f}'.format(value)
-                if isinstance(value, int):
-                    fields[key] = '{:8}'.format(value)
-            s = []
-            for name, value in fields.items():
-                n = max(len(name), len(value))
-                if header:
-                    s += ['{s:^{n}}'.format(s=name, n=n)]
-                else:
-                    if name == 'user_tag' or name == 'chemical formula':
-                        # We want them aligned to the left
-                        value = '{:{padding}}'.format(value, padding=n - 1)
-                    s += ['{s:^{n}}'.format(s=value, n=n)]
-            return ' | '.join(s)
-
         if len(self) == 0:
             return 'Empty StructureContainer'
 
-        # basic information
-        # (use last structure in list to obtain maximum line length)
-        dummy = self._structure_list[-1]
-        width = len(repr_structure(dummy))
+        # Number of structures to print before cutting and printing dots
+        if print_threshold is None or print_threshold >= len(self):
+            print_threshold = len(self) + 2
 
-        # table header
-        s = []  # type: List
-        s += ['{s:=^{n}}'.format(s=' Structure Container ', n=width)]
+        # format specifiers for fields in table
+        def get_format(val):
+            if isinstance(val, float):
+                return '{:9.4f}'
+            else:
+                return '{}'
+
+        # table headers
+        default_headers = ['index', 'user_tag', 'n_atoms', 'chemical formula']
+        property_headers = sorted(set(key for fs in self for key in fs.properties))
+        headers = default_headers + property_headers
+
+        # collect the table data
+        str_table = []
+        for i, fs in enumerate(self):
+            default_data = [i, fs.user_tag, len(fs), fs.structure.get_chemical_formula()]
+            property_data = [fs.properties.get(key, '') for key in property_headers]
+            str_row = [get_format(d).format(d) for d in default_data+property_data]
+            str_table.append(str_row)
+        str_table = np.array(str_table)
+
+        # find maximum widths for each column
+        widths = []
+        for i in range(str_table.shape[1]):
+            data_width = max(len(val) for val in str_table[:, i])
+            header_width = len(headers[i])
+            widths.append(max([data_width, header_width]))
+
+        total_width = sum(widths) + 3 * len(headers)
+        row_format = ' | '.join('{:'+str(width)+'}' for width in widths)
+
+        # Make string representation of table
+        s = []
+        s += ['{s:=^{n}}'.format(s=' Structure Container ', n=total_width)]
         s += ['Total number of structures: {}'.format(len(self))]
-        s += [''.center(width, '-')]
-        s += [repr_structure(dummy, header=True).rstrip()]
-        s += [''.center(width, '-')]
-
-        # table body
-        index = 0
-        while index < len(self):
-            if (print_threshold is not None and
-                    len(self) > print_threshold and
-                    index >= print_minimum and
-                    index <= len(self) - print_minimum):
-                index = len(self) - print_minimum
+        s += [''.center(total_width, '-')]
+        s += [row_format.format(*headers)]
+        s += [''.center(total_width, '-')]
+        for i, fs_data in enumerate(str_table, start=1):
+            s += [row_format.format(*fs_data)]
+            if i+1 >= print_threshold:
                 s += [' ...']
-            s += [repr_structure(self._structure_list[index], index=index)]
-            index += 1
-        s += [''.center(width, '=')]
+                s += [row_format.format(*str_table[-1])]
+                break
+        s += [''.center(total_width, '=')]
+        s = '\n'.join(s)
 
-        return '\n'.join(s)
+        return s
 
     def __repr__(self) -> str:
         """ String representation. """
         return self._get_string_representation(print_threshold=50)
 
-    def print_overview(self, print_threshold: int = None,
-                       print_minimum: int = 10):
+    def print_overview(self, print_threshold: int = None):
         """
         Prints a list of structures in the structure container.
 
@@ -176,12 +167,8 @@ class StructureContainer:
         ----------
         print_threshold
             if the number of orbits exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the orbit
-            list if `print_threshold` is exceeded
         """
-        print(self._get_string_representation(print_threshold=print_threshold,
-                                              print_minimum=print_minimum))
+        print(self._get_string_representation(print_threshold=print_threshold))
 
     def add_structure(self, structure: Atoms, user_tag: str = None,
                       properties: dict = None, allow_duplicate: bool = True,
@@ -209,13 +196,11 @@ class StructureContainer:
 
         # structure must have a proper format and label
         if not isinstance(structure, Atoms):
-            raise TypeError('structure must be an ASE Atoms object '
-                            'not {}'.format(type(structure)))
+            raise TypeError('structure must be an ASE Atoms object not {}'.format(type(structure)))
 
         if user_tag is not None:
             if not isinstance(user_tag, str):
-                raise TypeError('user_tag must be a string'
-                                ' not {}.'.format(type(user_tag)))
+                raise TypeError('user_tag must be a string not {}.'.format(type(user_tag)))
 
         if sanity_check:
             self._cluster_space.assert_structure_compatibility(structure)

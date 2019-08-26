@@ -191,16 +191,16 @@ class TestStructureContainer(unittest.TestCase):
         """Tests repr functionality."""
         retval = self.sc.__repr__()
         target = """
-================================== Structure Container ===================================
+================================ Structure Container =================================
 Total number of structures: 4
-------------------------------------------------------------------------------------------
-index |       user_tag        | natoms | chemical formula | Au atoms |  energy  |  volume
-------------------------------------------------------------------------------------------
-   0  | Structure 0           |     8  | Ag8              |        0 |    0.013 |  136.836
-   1  | Structure 1           |     8  | Ag7Au            |        1 |   -0.007 |  136.836
-   2  | Structure 2           |     8  | Ag6Au2           |        2 |   -0.026 |  136.836
-   3  | Structure 3           |     8  | Ag5Au3           |        3 |   -0.038 |  136.836
-==========================================================================================
+--------------------------------------------------------------------------------------
+index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume   
+--------------------------------------------------------------------------------------
+0     | Structure 0 | 8       | Ag8              | 0        |    0.0127 |  136.8359
+1     | Structure 1 | 8       | Ag7Au            | 1        |   -0.0073 |  136.8359
+2     | Structure 2 | 8       | Ag6Au2           | 2        |   -0.0255 |  136.8359
+3     | Structure 3 | 8       | Ag5Au3           | 3        |   -0.0382 |  136.8359
+======================================================================================
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
@@ -211,18 +211,17 @@ index |       user_tag        | natoms | chemical formula | Au atoms |  energy  
 
     def test_get_string_representation(self):
         """Tests _get_string_representation functionality."""
-        retval = self.sc._get_string_representation(print_threshold=2,
-                                                    print_minimum=1)
+        retval = self.sc._get_string_representation(print_threshold=2)
         target = """
-================================== Structure Container ===================================
+================================ Structure Container =================================
 Total number of structures: 4
-------------------------------------------------------------------------------------------
-index |       user_tag        | natoms | chemical formula | Au atoms |  energy  |  volume
-------------------------------------------------------------------------------------------
-   0  | Structure 0           |     8  | Ag8              |        0 |    0.013 |  136.836
+--------------------------------------------------------------------------------------
+index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume   
+--------------------------------------------------------------------------------------
+0     | Structure 0 | 8       | Ag8              | 0        |    0.0127 |  136.8359
  ...
-   3  | Structure 3           |     8  | Ag5Au3           |        3 |   -0.038 |  136.836
-==========================================================================================
+3     | Structure 3 | 8       | Ag5Au3           | 3        |   -0.0382 |  136.8359
+======================================================================================
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
