@@ -138,7 +138,7 @@ class StructureContainer:
             widths.append(max([data_width, header_width]))
 
         total_width = sum(widths) + 3 * len(headers)
-        row_format = ' | '.join('{:^'+str(width)+'}' for width in widths)
+        row_format = ' | '.join('{:'+str(width)+'}' for width in widths)
 
         # Make string representation of table
         s = []
@@ -149,8 +149,9 @@ class StructureContainer:
         s += [''.center(total_width, '-')]
         for i, fs_data in enumerate(str_table, start=1):
             s += [row_format.format(*fs_data)]
-            if i >= threshold:
+            if i+1 >= threshold:
                 s += [' ...']
+                s += [row_format.format(*str_table[-1])]
                 break
         s += [''.center(total_width, '=')]
         s = '\n'.join(s)

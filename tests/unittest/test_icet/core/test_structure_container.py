@@ -194,12 +194,12 @@ class TestStructureContainer(unittest.TestCase):
 ================================ Structure Container =================================
 Total number of structures: 4
 --------------------------------------------------------------------------------------
-index |  user_tag   | n_atoms | chemical formula | Au atoms |  energy   |  volume  
+index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume   
 --------------------------------------------------------------------------------------
-  0   | Structure 0 |    8    |       Ag8        |    0     |    0.0127 |  136.8359
-  1   | Structure 1 |    8    |      Ag7Au       |    1     |   -0.0073 |  136.8359
-  2   | Structure 2 |    8    |      Ag6Au2      |    2     |   -0.0255 |  136.8359
-  3   | Structure 3 |    8    |      Ag5Au3      |    3     |   -0.0382 |  136.8359
+0     | Structure 0 | 8       | Ag8              | 0        |    0.0127 |  136.8359
+1     | Structure 1 | 8       | Ag7Au            | 1        |   -0.0073 |  136.8359
+2     | Structure 2 | 8       | Ag6Au2           | 2        |   -0.0255 |  136.8359
+3     | Structure 3 | 8       | Ag5Au3           | 3        |   -0.0382 |  136.8359
 ======================================================================================
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
@@ -216,11 +216,11 @@ index |  user_tag   | n_atoms | chemical formula | Au atoms |  energy   |  volum
 ================================ Structure Container =================================
 Total number of structures: 4
 --------------------------------------------------------------------------------------
-index |  user_tag   | n_atoms | chemical formula | Au atoms |  energy   |  volume  
+index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume   
 --------------------------------------------------------------------------------------
-  0   | Structure 0 |    8    |       Ag8        |    0     |    0.0127 |  136.8359
-  1   | Structure 1 |    8    |      Ag7Au       |    1     |   -0.0073 |  136.8359
+0     | Structure 0 | 8       | Ag8              | 0        |    0.0127 |  136.8359
  ...
+3     | Structure 3 | 8       | Ag5Au3           | 3        |   -0.0382 |  136.8359
 ======================================================================================
 """  # noqa
         self.assertEqual(strip_surrounding_spaces(target),
