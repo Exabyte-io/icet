@@ -97,7 +97,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         elif self.temperature <= 1e-16:
             return False
         else:
-            p = np.exp(-exponent)
+            p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
             return p > self._next_random_number()
 
     def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> None:
