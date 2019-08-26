@@ -27,6 +27,8 @@ class ClusterExpansion:
         cluster space that was used for constructing the cluster expansion
     parameters : np.ndarray
         effective cluster interactions (ECIs)
+    metadata : dict
+        metadata dictionary, will be pickled when object is written to file
 
     Example
     -------
@@ -52,7 +54,7 @@ class ClusterExpansion:
         print(ce.predict(sc))
     """
 
-    def __init__(self, cluster_space: ClusterSpace, parameters: np.array) -> None:
+    def __init__(self, cluster_space: ClusterSpace, parameters: np.array, metadata: dict = None) -> None:
         """
         Initializes a ClusterExpansion object.
 
@@ -76,6 +78,13 @@ class ClusterExpansion:
             parameters = np.array(parameters)
         self._parameters = parameters
         self._original_parameters = parameters.copy()
+
+        # add metadata
+        if metadata is None:
+            metadata = dict()
+        self._metadata = metadata
+        self._add_default_metadata()
+
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
@@ -118,6 +127,11 @@ class ClusterExpansion:
     def parameters(self) -> List[float]:
         """ effective cluster interactions (ECIs) """
         return self._parameters
+
+    @property
+    def metadata(self):
+        """ dict : metadata associated with force constant potential """
+        return self._metadata
 
     def plot_parameters(self, orders=None):
         """ Plot ECIs for given orders, default plots for all orders """
@@ -273,6 +287,10 @@ class ClusterExpansion:
         items = dict()
         items['parameters'] = self.parameters
 
+        # TODO: remove if condition once metadata is firmly established
+        if hasattr(self, '_metadata'):
+            items['metadata'] = self._metadata
+
         with tarfile.open(name=filename, mode='w') as tar_file:
             cs_file = tempfile.NamedTemporaryFile()
             self._cluster_space.write(cs_file.name)
@@ -306,5 +324,23 @@ class ClusterExpansion:
         parameters = items['parameters']
         ce = ClusterExpansion(cs, parameters)
 
+        # TODO: remove if condition once metadata is firmly established
+        if 'metadata' in items:
+            ce._metadata = items['metadata']
+        else:
+            del ce._metadata
+
         assert list(parameters) == list(ce.parameters)
         return ce
+
+    def _add_default_metadata(self):
+        """Adds default metadata to metadata dict."""
+        import getpass
+        import socket
+        from datetime import datetime
+        from icet import __version__ as icet_version
+
+        self._metadata['date_created'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self._metadata['username'] = getpass.getuser()
+        self._metadata['hostname'] = socket.gethostname()
+        self._metadata['icet_version'] = icet_version
