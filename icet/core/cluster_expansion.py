@@ -54,7 +54,8 @@ class ClusterExpansion:
         print(ce.predict(sc))
     """
 
-    def __init__(self, cluster_space: ClusterSpace, parameters: np.array, metadata: dict = None) -> None:
+    def __init__(self, cluster_space: ClusterSpace, parameters: np.array,
+                 metadata: dict = None) -> None:
         """
         Initializes a ClusterExpansion object.
 
@@ -84,7 +85,6 @@ class ClusterExpansion:
             metadata = dict()
         self._metadata = metadata
         self._add_default_metadata()
-
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
@@ -130,7 +130,7 @@ class ClusterExpansion:
 
     @property
     def metadata(self):
-        """ dict : metadata associated with force constant potential """
+        """ dict : metadata associated with cluster expansion """
         return self._metadata
 
     def plot_parameters(self, orders=None):
