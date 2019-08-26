@@ -272,7 +272,6 @@ index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume
         self.assertEqual(len(self.sc), len(sc_read))
         self.assertEqual(self.sc.__str__(), sc_read.__str__())
 
-
         for fs, fs_read in zip(self.sc._structure_list, sc_read._structure_list):
             self.assertEqual(list(fs.cluster_vector),
                              list(fs_read.cluster_vector))
