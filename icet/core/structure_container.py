@@ -9,7 +9,6 @@ from typing import BinaryIO, List, TextIO, Tuple, Union
 
 import numpy as np
 import ase.db
-from collections import defaultdict
 from ase import Atoms
 
 from icet import ClusterSpace
@@ -155,7 +154,6 @@ class StructureContainer:
         s = '\n'.join(s)
 
         return s
-
 
     def __repr__(self) -> str:
         """ String representation. """
