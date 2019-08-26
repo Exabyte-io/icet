@@ -95,15 +95,20 @@ class TestClusterExpansion(unittest.TestCase):
         ce_read = ClusterExpansion.read(temp_file.name)
 
         # check cluster space
-        self.assertEqual(self.cs._input_structure,
-                         ce_read.cluster_space._input_structure)
+        self.assertEqual(self.cs._input_structure, ce_read.cluster_space._input_structure)
         self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
         self.assertEqual(
             self.cs._input_chemical_symbols, ce_read.cluster_space._input_chemical_symbols)
 
-        self.assertIsInstance(ce_read.parameters, np.ndarray)
         # check parameters
+        self.assertIsInstance(ce_read.parameters, np.ndarray)
         self.assertEqual(list(ce_read.parameters), list(self.parameters))
+
+        # check metadata
+        self.assertEqual(len(self.ce.metadata), len(ce_read.metadata))
+        self.assertSequenceEqual(sorted(self.ce.metadata.keys()), sorted(ce_read.metadata.keys()))
+        for key in self.ce.metadata.keys():
+            self.assertEqual(self.ce.metadata[key], ce_read.metadata[key])
 
     def test_read_write_pruned(self):
         """Tests read and write functionalities."""
@@ -272,6 +277,23 @@ class TestClusterExpansionTernary(unittest.TestCase):
         df_new = self.ce.parameters_as_dataframe
         pair_indices_new = df_new.index[df_new['order'] == 2].tolist()
         self.assertEqual(pair_indices_new, [])
+
+    def test_property_metadata(self):
+        """ Test get metadata method. """
+
+        user_metadata = dict(parameters=[1, 2, 3], fit_method='ardr')
+        ce = ClusterExpansion(self.cs, self.parameters, metadata=user_metadata)
+        metadata = ce.metadata
+
+        # check for user metadata
+        self.assertIn('parameters', metadata.keys())
+        self.assertIn('fit_method', metadata.keys())
+
+        # check for default metadata
+        self.assertIn('date_created', metadata.keys())
+        self.assertIn('username', metadata.keys())
+        self.assertIn('hostname', metadata.keys())
+        self.assertIn('icet_version', metadata.keys())
 
 
 if __name__ == '__main__':
