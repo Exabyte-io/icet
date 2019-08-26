@@ -110,8 +110,11 @@ class StructureContainer:
         threshold = len(self) + 1 if print_threshold is None else print_threshold
 
         # format specifiers for fields in table
-        field_formats = defaultdict(lambda: '{}')
-        field_formats[float] = '{:9.4f}'
+        def get_format(val):
+            if isinstance(val, float):
+                return '{:9.4f}'
+            else:
+                return '{}'
 
         # table headers
         default_headers = ['index', 'user_tag', 'n_atoms', 'chemical formula']
@@ -123,7 +126,7 @@ class StructureContainer:
         for i, fs in enumerate(self):
             default_data = [i, fs.user_tag, len(fs), fs.structure.get_chemical_formula()]
             property_data = [fs.properties.get(key, '') for key in property_headers]
-            str_row = [field_formats[type(d)].format(d) for d in default_data+property_data]
+            str_row = [get_format(d).format(d) for d in default_data+property_data]
             str_table.append(str_row)
         str_table = np.array(str_table)
 
@@ -149,7 +152,7 @@ class StructureContainer:
             if i >= threshold:
                 s += [' ...']
                 break
-        s += [''.center(total_width, '-')]
+        s += [''.center(total_width, '=')]
         s = '\n'.join(s)
 
         return s
