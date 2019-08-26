@@ -27,8 +27,6 @@ class ClusterExpansion:
         cluster space that was used for constructing the cluster expansion
     parameters : np.ndarray
         effective cluster interactions (ECIs)
-    metadata : dict
-        metadata dictionary, will be pickled when object is written to file
 
     Example
     -------
@@ -65,6 +63,10 @@ class ClusterExpansion:
             cluster space to be used for constructing the cluster expansion
         parameters
             effective cluster interactions (ECIs)
+        metadata : dict
+            metadata dictionary, user-defined metadata to be stored together
+            with cluster expansion. Will be pickled when CE is written to file.
+            By default contains icet version, username, hostname and date.
 
         Raises
         ------
