@@ -182,7 +182,7 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
             raise Exception('Annealing has already finished')
         super().run(self.n_steps - self.step)
 
-    def _do_trial_step(self):
+    def _do_trial_step(self) -> int:
         """ Carries out one Monte Carlo trial step. """
         self._temperature = self._cooling_function(
             self.step, self.T_start, self.T_stop, self.n_steps)

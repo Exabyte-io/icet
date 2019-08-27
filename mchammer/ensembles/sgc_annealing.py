@@ -180,7 +180,7 @@ class SGCAnnealing(ThermodynamicBaseEnsemble):
             raise Exception('Annealing has already finished')
         super().run(self._n_steps - self.step)
 
-    def _do_trial_step(self):
+    def _do_trial_step(self) -> int:
         """ Carries out one Monte Carlo trial step. """
         self._temperature = self._cooling_function(
             self.step, self._T_start, self._T_stop, self._n_steps)
