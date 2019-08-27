@@ -62,7 +62,6 @@ class BaseEnsemble(ABC):
 
         # initialize basic variables
         self._accepted_trials = 0
-        self._total_trials = 0
         self._observers = {}
         self._step = 0
 
@@ -142,16 +141,6 @@ class BaseEnsemble(ABC):
         return self.configuration.structure.copy()
 
     @property
-    def total_trials(self) -> int:
-        """ number of Monte Carlo trial steps """
-        return self._total_trials
-
-    @property
-    def accepted_trials(self) -> int:
-        """ number of accepted trial steps """
-        return self._accepted_trials
-
-    @property
     def data_container(self) -> DataContainer:
         """ data container associated with ensemble """
         return self._data_container
@@ -160,13 +149,6 @@ class BaseEnsemble(ABC):
     def observers(self) -> Dict[str, BaseObserver]:
         """ observers """
         return self._observers
-
-    @property
-    def acceptance_ratio(self) -> float:
-        """ acceptance ratio """
-        if self.total_trials > 0:
-            return self.accepted_trials / self.total_trials
-        return 0
 
     @property
     def calculator(self) -> BaseCalculator:
@@ -246,7 +228,8 @@ class BaseEnsemble(ABC):
             number of trial steps to run without stopping
         """
         for _ in range(number_of_trial_steps):
-            self._do_trial_step()
+            self._accepted += self._do_trial_step()
+            self._step += 1
 
     def _observe(self, step: int):
         """Submits current configuration to observers and appends
@@ -363,9 +346,7 @@ class BaseEnsemble(ABC):
     def reset_data_container(self):
         """ Resets the data container and the trial step counter. """
         self._step = 0
-        self._total_trials = 0
         self._accepted_trials = 0
-
         self._data_container.reset()
 
     def update_occupations(self, sites: List[int], species: List[int]):
