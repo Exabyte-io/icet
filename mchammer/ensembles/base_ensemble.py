@@ -188,8 +188,8 @@ class BaseEnsemble(ABC):
             final_step = number_of_trial_steps
             self.reset_data_container()
         else:
-            initial_step = self._step
-            final_step = self._step + number_of_trial_steps
+            initial_step = self.step
+            final_step = self.step + number_of_trial_steps
             # run Monte Carlo simulation such that we start at an
             # interval which lands on the observer interval
             if not initial_step == 0:
@@ -198,14 +198,14 @@ class BaseEnsemble(ABC):
                      (initial_step // self.observer_interval) *
                         self.observer_interval)
                 first_run_interval = min(first_run_interval, number_of_trial_steps)
-                self._run(first_run_interval)
+                self.run(first_run_interval)
                 initial_step += first_run_interval
 
         step = initial_step
         while step < final_step:
             uninterrupted_steps = min(self.observer_interval, final_step - step)
-            if self._step % self.observer_interval == 0:
-                self._observe(self._step)
+            if self.step % self.observer_interval == 0:
+                self._observe(self.step)
             if self._data_container_filename is not None and \
                     time() - last_write_time > self.data_container_write_period:
                 self.write_data_container(self._data_container_filename)
@@ -215,8 +215,8 @@ class BaseEnsemble(ABC):
             step += uninterrupted_steps
 
         # If we end on an observation interval we also observe
-        if self._step % self.observer_interval == 0:
-            self._observe(self._step)
+        if self.step % self.observer_interval == 0:
+            self._observe(self.step)
 
         if self._data_container_filename is not None:
             self.write_data_container(self._data_container_filename)
@@ -458,7 +458,7 @@ class BaseEnsemble(ABC):
             file to which to write
         """
         self._data_container._update_last_state(
-            last_step=self._step,
+            last_step=self.step,
             occupations=self.configuration.occupations.tolist(),
             accepted_trials=self._accepted_trials,
             random_state=random.getstate())
