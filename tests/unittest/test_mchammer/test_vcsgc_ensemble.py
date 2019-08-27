@@ -97,6 +97,12 @@ class TestEnsemble(unittest.TestCase):
             get_phis('xyz')
         self.assertIn('phis has the wrong type', str(context.exception))
 
+    def test_run(self):
+        """Test that run function runs. """
+        n = 50
+        self.ensemble.run(n)
+        self.assertEqual(self.ensemble.step, n)
+
     def test_property_boltzmann(self):
         """Tests explicit Boltzmann constant."""
         self.assertAlmostEqual(1e-5, self.ensemble.boltzmann_constant)
