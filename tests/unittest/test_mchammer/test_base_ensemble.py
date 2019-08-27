@@ -57,7 +57,7 @@ class ConcreteEnsemble(BaseEnsemble):
             trajectory_write_interval=trajectory_write_interval)
 
     def _do_trial_step(self):
-        pass
+        return 1
 
 
 class TestEnsemble(unittest.TestCase):

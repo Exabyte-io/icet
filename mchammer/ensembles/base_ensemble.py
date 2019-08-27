@@ -233,6 +233,7 @@ class BaseEnsemble(ABC):
         for _ in range(number_of_trial_steps):
             accepted = self._do_trial_step()
             self._step += 1
+            self._accepted_trials += accepted
 
     def _observe(self, step: int):
         """Submits current configuration to observers and appends

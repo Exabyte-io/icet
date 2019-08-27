@@ -443,13 +443,15 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         # count number of trial steps for each ensemble
         self._trial_steps_per_ensemble[ensemble_arg['tag']] += 1
 
+
+
         if ensemble_arg['ensemble'] == 'canonical' and not self.configuration.is_swap_possible(
                 ensemble_arg['sublattice_index'], ensemble_arg['allowed_species']):
-            pass
+            return 0
         else:
             arguments = {key: val for key, val in ensemble_arg.items() if key not in
                          ['ensemble', 'tag']}
-            self._ensemble_trial_steps[ensemble_arg['ensemble']](**arguments)
+            return self._ensemble_trial_steps[ensemble_arg['ensemble']](**arguments)
 
     def _get_ensemble_data(self) -> Dict:
         """
