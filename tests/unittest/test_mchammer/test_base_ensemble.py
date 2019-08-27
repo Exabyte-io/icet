@@ -153,23 +153,11 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble._accepted_trials += 1
         self.assertEqual(self.ensemble._accepted_trials, 1)
 
-    def test_property_totals_trials(self):
-        """Tests property accepted trials."""
-        self.assertEqual(self.ensemble._total_trials, 0)
-        self.ensemble._total_trials += 1
-        self.assertEqual(self.ensemble._total_trials, 1)
-
     def test_property_step(self):
         """Tests property accepted trials."""
         self.assertEqual(self.ensemble._step, 0)
         self.ensemble._step += 1
         self.assertEqual(self.ensemble._step, 1)
-
-    def test_property_acceptance_ratio(self):
-        """Tests property acceptance ratio."""
-        self.ensemble._total_trials = 30
-        self.ensemble._accepted_trials = 15
-        self.assertEqual(self.ensemble.acceptance_ratio, 0.5)
 
     def test_property_calculator(self):
         """Tests the calculator property."""

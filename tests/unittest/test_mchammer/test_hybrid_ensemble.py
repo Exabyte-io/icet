@@ -305,7 +305,6 @@ class TestEnsemble(unittest.TestCase):
             self.ensemble._do_trial_step()
 
         # Check that all steps were performed with all ensembles
-        self.assertEqual(self.ensemble._total_trials, 100)
         for retval in self.ensemble.trial_steps_per_ensemble.values():
             self.assertGreater(retval, 0)
 
@@ -522,7 +521,6 @@ class TestEnsembleTernaryFCC(unittest.TestCase):
             self.ensemble._do_trial_step()
 
         # Check that all steps were performed with all ensembles
-        self.assertEqual(self.ensemble._total_trials, 100)
         for retval in self.ensemble.trial_steps_per_ensemble.values():
             self.assertGreater(retval, 0)
 
@@ -719,7 +717,6 @@ class TestEnsembleSublattices(unittest.TestCase):
             self.ensemble._do_trial_step()
 
         # Check that all steps were performed with all ensembles
-        self.assertEqual(self.ensemble._total_trials, 100)
         for retval in self.ensemble.trial_steps_per_ensemble.values():
             self.assertGreater(retval, 0)
 
@@ -898,7 +895,6 @@ class TestEnsembleSpectatorSublattice(unittest.TestCase):
             self.ensemble._do_trial_step()
 
         # Check that all steps were performed with all ensembles
-        self.assertEqual(self.ensemble._total_trials, 100)
         for retval in self.ensemble.trial_steps_per_ensemble.values():
             self.assertGreater(retval, 0)
 

@@ -110,7 +110,6 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         allowed_species
             list of atomic numbers for allowed species
          """
-        self._total_trials += 1
         sites, species = self.configuration.get_swapped_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change(sites, species)
 
@@ -130,7 +129,6 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         allowed_species
             list of atomic numbers for allowed species
         """
-        self._total_trials += 1
         index, species = self.configuration.get_flip_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change([index], [species])
 
@@ -158,7 +156,6 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         allowed_species
             list of atomic numbers for allowed species
         """
-        self._total_trials += 1
         index, new_species = self.configuration.get_flip_state(
             sublattice_index, allowed_species)
         old_species = self.configuration.occupations[index]

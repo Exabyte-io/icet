@@ -445,7 +445,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
 
         if ensemble_arg['ensemble'] == 'canonical' and not self.configuration.is_swap_possible(
                 ensemble_arg['sublattice_index'], ensemble_arg['allowed_species']):
-            self._total_trials += 1
+            pass
         else:
             arguments = {key: val for key, val in ensemble_arg.items() if key not in
                          ['ensemble', 'tag']}
