@@ -169,4 +169,4 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
         sublattice_index = self.get_random_sublattice_index(self._swap_sublattice_probabilities)
-        self.do_canonical_swap(sublattice_index=sublattice_index)
+        return self.do_canonical_swap(sublattice_index=sublattice_index)
