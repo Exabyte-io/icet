@@ -198,7 +198,7 @@ class BaseEnsemble(ABC):
                      (initial_step // self.observer_interval) *
                         self.observer_interval)
                 first_run_interval = min(first_run_interval, number_of_trial_steps)
-                self.run(first_run_interval)
+                self._run(first_run_interval)
                 initial_step += first_run_interval
 
         step = initial_step
