@@ -76,6 +76,7 @@ class TargetClusterVectorAnnealing():
         self._temperature = T_start
         self._T_start = T_start
         self._T_stop = T_stop
+        self._total_trials = 0
         self._accepted_trials = 0
         self._n_steps = 42
 
