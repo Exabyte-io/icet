@@ -251,6 +251,9 @@ class BaseEnsemble(ABC):
             for key, value in ensemble_data.items():
                 row_dict[key] = value
 
+            # reset accepted trial count
+            self._accepted_trials = 0
+
         # Trajectory data
         if step % self._trajectory_write_interval == 0:
             row_dict['occupations'] = self.configuration.occupations.tolist()
