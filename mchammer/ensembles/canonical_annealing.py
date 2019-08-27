@@ -187,7 +187,7 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
         self._temperature = self._cooling_function(
             self.step, self.T_start, self.T_stop, self.n_steps)
         sublattice_index = self.get_random_sublattice_index(self._swap_sublattice_probabilities)
-        self.do_canonical_swap(sublattice_index=sublattice_index)
+        return self.do_canonical_swap(sublattice_index=sublattice_index)
 
     def _get_ensemble_data(self) -> Dict:
         """Returns the data associated with the ensemble. For the

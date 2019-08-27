@@ -185,8 +185,8 @@ class SGCAnnealing(ThermodynamicBaseEnsemble):
         self._temperature = self._cooling_function(
             self.step, self._T_start, self._T_stop, self._n_steps)
         sublattice_index = self.get_random_sublattice_index(self._flip_sublattice_probabilities)
-        self.do_sgc_flip(sublattice_index=sublattice_index,
-                         chemical_potentials=self.chemical_potentials)
+        return self.do_sgc_flip(
+            sublattice_index=sublattice_index, chemical_potentials=self.chemical_potentials)
 
     def _get_ensemble_data(self) -> Dict:
         """Returns the data associated with the ensemble. For the
