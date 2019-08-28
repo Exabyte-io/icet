@@ -38,6 +38,6 @@ plt.savefig('mixing_energy_predicted.png', bbox_inches='tight')
 # step 4: Extract candidate ground state structures
 tol = 0.0005
 low_energy_structures = hull.extract_low_energy_structures(
-    data['concentration'], data['mixing_energy'], tol, structures)
+    data['concentration'], data['mixing_energy'], tol)
 print('Found {} structures within {} meV/atom of the convex hull'.
       format(len(low_energy_structures), 1e3 * tol))
