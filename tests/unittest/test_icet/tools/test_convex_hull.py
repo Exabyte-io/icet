@@ -47,8 +47,7 @@ class TestConvexHull(unittest.TestCase):
         energy_tolerance = 0.3
         extracted = self.ch.extract_low_energy_structures(concentrations,
                                                           energies,
-                                                          energy_tolerance,
-                                                          structures)
+                                                          energy_tolerance)
         self.assertEqual(len(extracted), 1)
 
 
