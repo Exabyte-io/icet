@@ -41,7 +41,6 @@ class TestConvexHull(unittest.TestCase):
         from ase.build import bulk
         structure_1 = bulk('Au')
         structure_2 = bulk('Pd')
-        structures = [structure_1, structure_2]
         concentrations = [0.3, 0.7]
         energies = [-7.0, 0.1]
         energy_tolerance = 0.3
