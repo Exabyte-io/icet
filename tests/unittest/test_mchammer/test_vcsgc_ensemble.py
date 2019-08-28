@@ -97,6 +97,12 @@ class TestEnsemble(unittest.TestCase):
             get_phis('xyz')
         self.assertIn('phis has the wrong type', str(context.exception))
 
+    def test_run(self):
+        """Test that run function runs. """
+        n = 50
+        self.ensemble.run(n)
+        self.assertEqual(self.ensemble.step, n)
+
     def test_property_boltzmann(self):
         """Tests explicit Boltzmann constant."""
         self.assertAlmostEqual(1e-5, self.ensemble.boltzmann_constant)
@@ -114,8 +120,6 @@ class TestEnsemble(unittest.TestCase):
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
-
-        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
@@ -241,8 +245,6 @@ class TestEnsembleTernaryFCC(unittest.TestCase):
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
-
-        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
@@ -370,8 +372,6 @@ class TestEnsembleSublattices(unittest.TestCase):
         for _ in range(10):
             self.ensemble._do_trial_step()
 
-        self.assertEqual(self.ensemble._total_trials, 10)
-
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
 
@@ -485,8 +485,6 @@ class TestEnsembleSpectatorSublattice(unittest.TestCase):
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
-
-        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""

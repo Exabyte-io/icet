@@ -79,13 +79,17 @@ class TestEnsemble(unittest.TestCase):
         self.assertTrue('chemical_potentials has the wrong type'
                         in str(context.exception))
 
+    def test_run(self):
+        """Test that run function runs. """
+        n = 50
+        self.ensemble.run(n)
+        self.assertEqual(self.ensemble.step, n)
+
     def test_do_trial_step(self):
         """Tests the do trial step."""
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
-
-        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""

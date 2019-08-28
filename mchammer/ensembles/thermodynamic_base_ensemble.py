@@ -100,7 +100,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
             p = np.exp(-potential_diff / (self.boltzmann_constant * self.temperature))
             return p > self._next_random_number()
 
-    def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> None:
+    def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> int:
         """ Carries out one Monte Carlo trial step.
 
         Parameters
@@ -109,19 +109,25 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
             the sublattice the swap will act on
         allowed_species
             list of atomic numbers for allowed species
-         """
-        self._total_trials += 1
+
+        Returns
+        -------
+        Returns 1 or 0 depending on if trial move was accepted or rejected
+        """
         sites, species = self.configuration.get_swapped_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change(sites, species)
 
         if self._acceptance_condition(potential_diff):
-            self._accepted_trials += 1
             self.update_occupations(sites, species)
+            return 1
+        return 0
 
     def do_sgc_flip(self, chemical_potentials: Dict[int, float], sublattice_index: int,
-                    allowed_species: List[int] = None) -> None:
+                    allowed_species: List[int] = None) -> int:
         """ Carries out one Monte Carlo trial step.
 
+        Parameters
+        ---------
         chemical_potentials
             chemical potentials used to calculate the potential
              difference
@@ -129,8 +135,11 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
             the sublattice the flip will act on
         allowed_species
             list of atomic numbers for allowed species
+
+        Returns
+        -------
+        Returns 1 or 0 depending on if trial move was accepted or rejected
         """
-        self._total_trials += 1
         index, species = self.configuration.get_flip_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change([index], [species])
 
@@ -140,11 +149,12 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         potential_diff += chemical_potential_diff
 
         if self._acceptance_condition(potential_diff):
-            self._accepted_trials += 1
             self.update_occupations([index], [species])
+            return 1
+        return 0
 
     def do_vcsgc_flip(self, phis: Dict[int, float], kappa: float, sublattice_index: int,
-                      allowed_species: List[int] = None) -> None:
+                      allowed_species: List[int] = None) -> int:
         """Carries out one Monte Carlo trial step.
 
         Parameters
@@ -157,8 +167,11 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
             the sublattice the flip will act on
         allowed_species
             list of atomic numbers for allowed species
+
+        Returns
+        -------
+        Returns 1 or 0 depending on if trial move was accepted or rejected
         """
-        self._total_trials += 1
         index, new_species = self.configuration.get_flip_state(
             sublattice_index, allowed_species)
         old_species = self.configuration.occupations[index]
@@ -180,8 +193,9 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         potential_diff += self._get_property_change([index], [new_species])
 
         if self._acceptance_condition(potential_diff):
-            self._accepted_trials += 1
             self.update_occupations([index], [new_species])
+            return 1
+        return 0
 
     def _get_swap_sublattice_probabilities(self) -> List[float]:
         """ Returns sublattice probabilities suitable for swaps."""

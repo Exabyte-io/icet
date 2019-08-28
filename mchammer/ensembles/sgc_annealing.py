@@ -176,17 +176,17 @@ class SGCAnnealing(ThermodynamicBaseEnsemble):
 
     def run(self):
         """ Runs the annealing. """
-        if self.total_trials >= self._n_steps:
+        if self.step >= self._n_steps:
             raise Exception('Annealing has already finished')
-        super().run(self._n_steps - self.total_trials)
+        super().run(self._n_steps - self.step)
 
-    def _do_trial_step(self):
+    def _do_trial_step(self) -> int:
         """ Carries out one Monte Carlo trial step. """
         self._temperature = self._cooling_function(
-            self.total_trials, self._T_start, self._T_stop, self._n_steps)
+            self.step, self._T_start, self._T_stop, self._n_steps)
         sublattice_index = self.get_random_sublattice_index(self._flip_sublattice_probabilities)
-        self.do_sgc_flip(sublattice_index=sublattice_index,
-                         chemical_potentials=self.chemical_potentials)
+        return self.do_sgc_flip(
+            sublattice_index=sublattice_index, chemical_potentials=self.chemical_potentials)
 
     def _get_ensemble_data(self) -> Dict:
         """Returns the data associated with the ensemble. For the

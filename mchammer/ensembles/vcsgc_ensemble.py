@@ -222,7 +222,8 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         """ Carries out one Monte Carlo trial step. """
         sublattice_index = self.get_random_sublattice_index(
             probability_distribution=self._flip_sublattice_probabilities)
-        self.do_vcsgc_flip(phis=self.phis, kappa=self.kappa, sublattice_index=sublattice_index)
+        return self.do_vcsgc_flip(
+            phis=self.phis, kappa=self.kappa, sublattice_index=sublattice_index)
 
     @property
     def temperature(self) -> float:

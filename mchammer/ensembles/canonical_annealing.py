@@ -178,16 +178,16 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
 
     def run(self):
         """ Runs the annealing. """
-        if self.total_trials >= self.n_steps:
+        if self.step >= self.n_steps:
             raise Exception('Annealing has already finished')
-        super().run(self.n_steps - self.total_trials)
+        super().run(self.n_steps - self.step)
 
-    def _do_trial_step(self):
+    def _do_trial_step(self) -> int:
         """ Carries out one Monte Carlo trial step. """
         self._temperature = self._cooling_function(
-            self.total_trials, self.T_start, self.T_stop, self.n_steps)
+            self.step, self.T_start, self.T_stop, self.n_steps)
         sublattice_index = self.get_random_sublattice_index(self._swap_sublattice_probabilities)
-        self.do_canonical_swap(sublattice_index=sublattice_index)
+        return self.do_canonical_swap(sublattice_index=sublattice_index)
 
     def _get_ensemble_data(self) -> Dict:
         """Returns the data associated with the ensemble. For the

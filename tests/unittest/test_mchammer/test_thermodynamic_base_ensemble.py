@@ -77,7 +77,6 @@ class TestEnsemble(unittest.TestCase):
                 self.ensemble._flip_sublattice_probabilities)
             self.ensemble.do_sgc_flip(sublattice_index=sl_index,
                                       chemical_potentials=chemical_potentials)
-        self.assertEqual(self.ensemble._total_trials, 10)
 
         # repeat the test when specifying allowed species
         allowed_species = [atomic_numbers[s] for s in self.elements]
@@ -87,7 +86,6 @@ class TestEnsemble(unittest.TestCase):
             self.ensemble.do_sgc_flip(sublattice_index=sl_index,
                                       chemical_potentials=chemical_potentials,
                                       allowed_species=allowed_species)
-        self.assertEqual(self.ensemble._total_trials, 20)
 
     def test_do_canonical_trial_step(self):
         """Tests the do trial step."""
@@ -96,7 +94,6 @@ class TestEnsemble(unittest.TestCase):
             sl_index = self.ensemble.get_random_sublattice_index(
                 self.ensemble._flip_sublattice_probabilities)
             self.ensemble.do_canonical_swap(sublattice_index=sl_index)
-        self.assertEqual(self.ensemble._total_trials, 10)
 
         # repeat the test when specifying allowed species
         allowed_species = [atomic_numbers[s] for s in self.elements]
@@ -105,7 +102,6 @@ class TestEnsemble(unittest.TestCase):
                 self.ensemble._flip_sublattice_probabilities)
             self.ensemble.do_canonical_swap(sublattice_index=sl_index,
                                             allowed_species=allowed_species)
-        self.assertEqual(self.ensemble._total_trials, 20)
 
     def test_do_vcsgc_flip(self):
         """Test the vcsgc flip."""
@@ -116,7 +112,6 @@ class TestEnsemble(unittest.TestCase):
             sl_index = self.ensemble.get_random_sublattice_index(
                 self.ensemble._flip_sublattice_probabilities)
             self.ensemble.do_vcsgc_flip(phis=phis, kappa=kappa, sublattice_index=sl_index)
-        self.assertEqual(self.ensemble._total_trials, 10)
 
         # repeat the test when specifying allowed species
         allowed_species = [atomic_numbers[s] for s in self.elements]
@@ -125,7 +120,6 @@ class TestEnsemble(unittest.TestCase):
                 self.ensemble._flip_sublattice_probabilities)
             self.ensemble.do_vcsgc_flip(phis=phis, kappa=kappa, sublattice_index=sl_index,
                                         allowed_species=allowed_species)
-        self.assertEqual(self.ensemble._total_trials, 20)
 
     def test_get_vcsgc_free_energy_derivatives(self):
         """Test the functionality for determining the VCSGC free energy derivatives."""
