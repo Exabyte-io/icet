@@ -101,11 +101,10 @@ def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> float:
 
 def _estimate_correlation_length_from_acf(acf: np.ndarray) -> int:
     """ Estimate correlation length from acf """
-    lengths = np.where(acf < np.exp(-2))[0]  # ACF < exp(-2)
-    if len(lengths) == 0:
-        return np.nan
-    else:
-        return lengths[0]
+    for i, a in enumerate(acf):
+        if a < np.exp(-2):
+            return i
+    return np.nan
 
 
 def _estimate_error(data: np.ndarray, correlation_length: int,
