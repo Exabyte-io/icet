@@ -206,11 +206,12 @@ class StructureContainer:
             self._cluster_space.assert_structure_compatibility(structure)
 
         # check for properties in attached calculator
-        if properties is None and structure.calc:
+        if properties is None:
             properties = {}
-            if not structure.calc.calculation_required(structure, ['energy']):
-                energy = structure.get_potential_energy()
-                properties['energy'] = energy / len(structure)
+            if structure.calc is not None:
+                if not structure.calc.calculation_required(structure, ['energy']):
+                    energy = structure.get_potential_energy()
+                    properties['energy'] = energy / len(structure)
 
         # check if there exist structures with identical cluster vectors
         structure_copy = structure.copy()
