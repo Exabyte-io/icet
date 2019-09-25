@@ -1,8 +1,6 @@
 .. raw:: html
 
-  <p>
-  <a href="https://gitlab.com/materials-modeling/icet/commits/master"><img alt="pipeline status" src="https://gitlab.com/materials-modeling/icet/badges/master/pipeline.svg" /></a>
-  <a href="https://icet.materialsmodeling.org/htmlcov"><img alt="coverage report" src="https://gitlab.com/materials-modeling/icet/badges/master/coverage.svg" /></a>
+  <p>  
   <a href="https://badge.fury.io/py/icet"><img src="https://badge.fury.io/py/icet.svg" alt="PyPI version" height="18"></a>
   </p>
 
