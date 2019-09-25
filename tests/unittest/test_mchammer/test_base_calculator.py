@@ -4,12 +4,23 @@ from ase.build import bulk
 from ase.atoms import Atoms
 
 
+class ConcreteCalculator(BaseCalculator):
+    def __init__(self, structure, name='ConcreteCalc'):
+        super().__init__(structure, name=name)
+
+    def calculate_total(self):
+        super().calculate_total()
+
+    def calculate_local_contribution(self):
+        super().calculate_local_contribution()
+
+
 class TestBaseCalculator(unittest.TestCase):
     """Container for tests of the class functionality."""
 
     def __init__(self, *args, **kwargs):
         super(TestBaseCalculator, self).__init__(*args, **kwargs)
-        self.structure = bulk("Al").repeat(3)
+        self.structure = bulk("Al", a=4.0).repeat(3)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -17,22 +28,13 @@ class TestBaseCalculator(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        class ConcreteCalculator(BaseCalculator):
-            def __init__(self, structure, name='ConcreteCalc'):
-                super().__init__(structure, name=name)
-
-            def calculate_total(self):
-                super().calculate_total()
-
-            def calculate_local_contribution(self):
-                super().calculate_local_contribution()
-
         self.calculator = ConcreteCalculator(self.structure)
 
     def test_property_structure(self):
         """Tests property structure."""
         self.assertIsInstance(self.calculator.structure, Atoms)
         self.assertEqual(self.structure, self.calculator.structure)
+        print(self.structure.positions, self.calculator.structure.positions)
 
     def test_calculate_total(self):
         """Tests calculate total."""

@@ -15,6 +15,7 @@ class BaseCalculator(ABC):
 
     def __init__(self, structure, name='BaseCalculator'):
         self._structure = structure.copy()
+        self._structure.wrap()
         self.name = name
 
     @property
