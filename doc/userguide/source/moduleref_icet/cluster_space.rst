@@ -9,13 +9,11 @@ Setting up a cluster space
 ---------------------------
 
 
-The cluster space serves as a basis for a cluster expansions.
-Setting up a clusterspace object is commonly done via::
+The cluster space serves as a basis for cluster expansions. Setting up a clusterspace object is commonly done via::
 
     cs = ClusterSpace(atoms, cutoffs=[7.0, 5.0], chemical_symbols=['Si', 'Ge'])
 
-where the first element in the cutoffs list means to include pairs with an interatomic distance smaller than 7Å, and the second element to consider triplets for which all pair-wise interatomic distance are smaller than 5Å.
-The chemical_symbols defines which elements are allowed on the lattice.
+where the first element in the cutoffs list means to include pairs with an interatomic distance smaller than 7Å, and the second element to consider triplets for which all pair-wise interatomic distance are smaller than 5Å. The chemical_symbols defines which elements are allowed on the lattice.
 
 
 Sublattices
