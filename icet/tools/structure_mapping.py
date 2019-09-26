@@ -28,8 +28,8 @@ def map_structure_to_reference(relaxed: Atoms,
 
     The Atoms object that provide further supplemental information via
     custom per-atom arrays including the atomic displacements
-    (`Displacement`, 'Displacement_Magnitude`) as well as the
-    distances to the three next best sites (`Minimum_Distances`).
+    (`Displacement`, `Displacement_Magnitude`) as well as the
+    distances to the three closest sites (`Minimum_Distances`).
 
     Parameters
     ----------
