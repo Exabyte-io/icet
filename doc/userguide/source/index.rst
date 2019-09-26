@@ -10,12 +10,12 @@
 :program:`icet` is a tool for the construction and sampling of alloy cluster
 expansions. A detailed description of the functionality provided as well as an
 extensive tutorial can be found in the `user guide
-<https://icet.materialsmodeling.org/>`_
+<https://icet.materialsmodeling.org/>`_.
 
-:program:`icet` is written in Python, which allows easy integration with
-countless first-principles codes and analysis tools accessible from Python, and
+:program:`icet` is written in Python, which enables easy integration with
+many first-principles codes and analysis tools accessible from Python, and
 allows for a simple and intuitive user interface. All computationally demanding
-parts are, however, written in C++ providing performance while maintaining
+parts are, however, written in C++ ensuring performance while maintaining
 portability.
 
 The following snippet provides a minimal example for its usage:
