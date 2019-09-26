@@ -60,7 +60,7 @@ class ClusterExpansionCalculator(BaseCalculator):
         self.use_local_energy_calculator = use_local_energy_calculator
         if self.use_local_energy_calculator:
             self.cpp_calc = _ClusterExpansionCalculator(
-                cluster_expansion.cluster_space,
+                cluster_expansion.get_cluster_space_copy(),
                 Structure.from_atoms(structure_cpy))
 
         self._cluster_expansion = cluster_expansion

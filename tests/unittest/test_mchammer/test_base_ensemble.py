@@ -328,7 +328,7 @@ class TestEnsemble(unittest.TestCase):
         ce = ClusterExpansion(cs, parameters)
 
         size = 4
-        structure = ce.cluster_space.primitive_structure.repeat(size)
+        structure = ce._cluster_space.primitive_structure.repeat(size)
         calculator = ClusterExpansionCalculator(structure, ce)
 
         # Carry out Monte Carlo simulations

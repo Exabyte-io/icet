@@ -72,9 +72,9 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertIn('eci', df.columns)
         self.assertEqual(len(df), len(self.parameters))
 
-    def test_property_clusterspace(self):
-        """Tests cluster space property."""
-        self.assertEqual(str(self.ce.cluster_space), str(self.cs))
+    def test_get__clusterspace_copy(self):
+        """Tests get cluster space copy."""
+        self.assertEqual(str(self.ce.get_cluster_space_copy()), str(self.cs))
 
     def test_property_parameters(self):
         """Tests parameters properties."""
@@ -95,10 +95,10 @@ class TestClusterExpansion(unittest.TestCase):
         ce_read = ClusterExpansion.read(temp_file.name)
 
         # check cluster space
-        self.assertEqual(self.cs._input_structure, ce_read.cluster_space._input_structure)
-        self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
+        self.assertEqual(self.cs._input_structure, ce_read._cluster_space._input_structure)
+        self.assertEqual(self.cs._cutoffs, ce_read._cluster_space._cutoffs)
         self.assertEqual(
-            self.cs._input_chemical_symbols, ce_read.cluster_space._input_chemical_symbols)
+            self.cs._input_chemical_symbols, ce_read._cluster_space._input_chemical_symbols)
 
         # check parameters
         self.assertIsInstance(ce_read.parameters, np.ndarray)

@@ -107,6 +107,10 @@ class ClusterExpansion:
         prop = np.dot(cluster_vector, self.parameters)
         return prop
 
+    def get_cluster_space_copy(self) -> ClusterSpace:
+        """ Gets copy of cluster space on which cluster expansion is based """
+        return self._cluster_space.copy()
+
     @property
     def parameters_as_dataframe(self) -> pd.DataFrame:
         """ dataframe containing orbit data and ECIs """
@@ -119,11 +123,6 @@ class ClusterExpansion:
     def orders(self) -> List[int]:
         """ orders included in cluster expansion """
         return list(range(len(self._cluster_space.cutoffs) + 2))
-
-    @property
-    def cluster_space(self) -> ClusterSpace:
-        """ cluster space on which cluster expansion is based """
-        return self._cluster_space.copy()
 
     @property
     def parameters(self) -> List[float]:
