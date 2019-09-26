@@ -44,7 +44,15 @@ The sublattice functionality also allows one to have inactive sites. For example
 The cluster space requires your input structure to have periodic boundary conditions (pbc).
 In order to treat 2D systems, or systems in general without pbc, you thus have to embedded the structure in a cell containing vacuum and then applying pbc. This can easily be achived with the ase function::
 
-  atoms.center()
+    from ase.build import surface
+    atoms = surface('Cu', (1,1,1), layers=7)
+
+which creates ase atoms object with pbc False in the z-direction. This atoms object can be modified to have pbc in the z-direction with vacuum via::
+
+    atoms.pbc = [True, True, False]
+    atoms.center(vacuum=20, axis=2)
+
+which can now be used to create a cluster space.
 
 
 
