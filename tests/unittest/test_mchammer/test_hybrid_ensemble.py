@@ -426,7 +426,7 @@ class TestEnsemble(unittest.TestCase):
         """
         Tests interval and period for writing data from ensemble.
         """
-        self.assertEqual(self.ensemble.data_container_write_period, 499.0)
+        self.assertEqual(self.ensemble._data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
 
@@ -805,7 +805,7 @@ class TestEnsembleSublattices(unittest.TestCase):
         """
         Tests interval and period for writing data from ensemble.
         """
-        self.assertEqual(self.ensemble.data_container_write_period, 499)
+        self.assertEqual(self.ensemble._data_container_write_period, 499)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
 

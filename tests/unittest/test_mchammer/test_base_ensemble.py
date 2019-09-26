@@ -171,45 +171,25 @@ class TestEnsemble(unittest.TestCase):
     def test_run(self):
         """Tests the run method."""
 
-        n_iters = 364
-        self.ensemble.run(n_iters)
-        self.assertEqual(self.ensemble._step, n_iters)
+        n_steps1 = 364
+        self.ensemble.run(n_steps1)
+        self.assertEqual(self.ensemble._step, n_steps1)
+
         dc_data = self.ensemble.data_container.get_data('Apple2')
-
         number_of_observations = len([x for x in dc_data if x is not None])
-        # plus one since we also count step 0
-        self.assertEqual(
-            number_of_observations,
-            n_iters // self.ensemble.observers['Apple2'].interval + 1)
+        # plus one since we also observe at step 0
+        n_target_obs = n_steps1 // self.ensemble.observers['Apple2'].interval + 1
+        self.assertEqual(number_of_observations, n_target_obs)
 
-        # run it again to check that step is the same
-        n_iters = 50
-        self.ensemble.run(n_iters, reset_step=True)
-        self.assertEqual(self.ensemble._step, 50)
+        # run it again to check that step accumulates
+        n_steps2 = 68
+        self.ensemble.run(n_steps2)
+        self.assertEqual(self.ensemble._step, n_steps1+n_steps2)
 
-        # run it yet again to check that step accumulates
-        n_iters = 10
-        self.ensemble.run(n_iters, reset_step=False)
-        self.ensemble.run(n_iters, reset_step=False)
-        self.assertEqual(self.ensemble._step, 70)
-
-        # Do a number of steps of continuous runs and see that
-        # we get the expected number of observations.
-        for i in range(30):
-            self.ensemble.reset_data_container()
-            run_iters = [1, 50, 100, 200, i]
-            for n_iter in run_iters:
-                self.ensemble.run(n_iter)
-            total_iters = sum(run_iters)
-            # Check that the number of iters are correct
-            self.assertEqual(self.ensemble._step, total_iters)
-            dc_data = self.ensemble.data_container.get_data('Apple2')
-            number_of_observations = len(
-                [x for x in dc_data if x is not None])
-            # plus one since we also count step 0
-            self.assertEqual(
-                number_of_observations,
-                total_iters // self.ensemble.observers['Apple2'].interval + 1)
+        dc_data = self.ensemble.data_container.get_data('Apple2')
+        number_of_observations = len([x for x in dc_data if x is not None])
+        n_target_obs = (n_steps1 + n_steps2) // self.ensemble.observers['Apple2'].interval + 1
+        self.assertEqual(number_of_observations, n_target_obs)
 
     def test_get_random_sublattice_index(self):
         """Tests the random sublattice index method."""
@@ -433,13 +413,6 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(
             'ConcreteEnsemble',
             self.ensemble.data_container.metadata['ensemble_name'])
-
-    def test_data_container_write_period(self):
-        """Tests property data container write container."""
-        self.assertTrue(np.isinf(self.ensemble.data_container_write_period))
-
-        self.ensemble.data_container_write_period = 1e-2
-        self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
 
     def test_dicts_equal(self):
         """Tests dicts_equal function."""

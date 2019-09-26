@@ -44,7 +44,7 @@ class BaseEnsemble(ABC):
         period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: np.inf]
+        the data.
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
@@ -58,7 +58,7 @@ class BaseEnsemble(ABC):
                  calculator: BaseCalculator,
                  user_tag: str = None,
                  data_container: DataContainer = None,
-                 data_container_write_period: float = np.inf,
+                 data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
                  random_seed: int = None) -> None:
@@ -162,16 +162,7 @@ class BaseEnsemble(ABC):
         """ current configuration (copy) """
         return self._step
 
-    @property
-    def data_container_write_period(self) -> float:
-        """ data container write period """
-        return self._data_container_write_period
-
-    @data_container_write_period.setter
-    def data_container_write_period(self, data_container_write_period):
-        self._data_container_write_period = data_container_write_period
-
-    def run(self, number_of_trial_steps: int, reset_step: bool = False):
+    def run(self, number_of_trial_steps: int):
         """
         Samples the ensemble for the given number of trial steps.
 
@@ -185,23 +176,19 @@ class BaseEnsemble(ABC):
         """
 
         last_write_time = time()
-        if reset_step:
-            initial_step = 0
-            final_step = number_of_trial_steps
-            self.reset_data_container()
-        else:
-            initial_step = self.step
-            final_step = self.step + number_of_trial_steps
-            # run Monte Carlo simulation such that we start at an
-            # interval which lands on the observer interval
-            if not initial_step == 0:
-                first_run_interval = self.observer_interval -\
-                    (initial_step -
-                     (initial_step // self.observer_interval) *
-                        self.observer_interval)
-                first_run_interval = min(first_run_interval, number_of_trial_steps)
-                self._run(first_run_interval)
-                initial_step += first_run_interval
+
+        initial_step = self.step
+        final_step = self.step + number_of_trial_steps
+        # run Monte Carlo simulation such that we start at an
+        # interval which lands on the observer interval
+        if not initial_step == 0:
+            first_run_interval = self.observer_interval -\
+                (initial_step -
+                 (initial_step // self.observer_interval) *
+                    self.observer_interval)
+            first_run_interval = min(first_run_interval, number_of_trial_steps)
+            self._run(first_run_interval)
+            initial_step += first_run_interval
 
         step = initial_step
         while step < final_step:
@@ -209,7 +196,7 @@ class BaseEnsemble(ABC):
             if self.step % self.observer_interval == 0:
                 self._observe(self.step)
             if self._data_container_filename is not None and \
-                    time() - last_write_time > self.data_container_write_period:
+                    time() - last_write_time > self._data_container_write_period:
                 self.write_data_container(self._data_container_filename)
                 last_write_time = time()
 
@@ -351,12 +338,6 @@ class BaseEnsemble(ABC):
             self.observers[observer.tag] = observer
 
         self._find_observer_interval()
-
-    def reset_data_container(self):
-        """ Resets the data container and the trial step counter. """
-        self._step = 0
-        self._accepted_trials = 0
-        self._data_container.reset()
 
     def update_occupations(self, sites: List[int], species: List[int]):
         """Updates the occupation vector of the configuration being

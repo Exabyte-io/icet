@@ -266,15 +266,6 @@ class TestDataContainer(unittest.TestCase):
         self.assertTrue('Unknown fill method'
                         in str(context.exception))
 
-    def test_reset(self):
-        """Tests appended data is cleared."""
-        # add some data first
-        for mctrial in range(10):
-            self.dc.append(mctrial, dict(energy=2.123))
-        # clears data
-        self.dc.reset()
-        self.assertEqual(self.dc.get_number_of_entries(), 0)
-
     def test_get_number_of_entries(self):
         """Tests number of entries is returned from function."""
         for mctrial in range(10):

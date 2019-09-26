@@ -151,7 +151,7 @@ class TestEnsemble(unittest.TestCase):
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""
-        self.assertEqual(self.ensemble.data_container_write_period, 499.0)
+        self.assertEqual(self.ensemble._data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
 

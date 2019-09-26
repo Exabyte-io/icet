@@ -325,11 +325,6 @@ class DataContainer:
         """ last state to be used to restart Monte Carlo simulation """
         return self._last_state
 
-    def reset(self):
-        """ Resets (clears) internal data list of data container. """
-        self._data_list.clear()
-        self._observables.clear()
-
     def get_number_of_entries(self, tag: str = None) -> int:
         """
         Returns the total number of entries with the given observable tag.
