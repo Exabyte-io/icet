@@ -7,7 +7,7 @@ from os import mkdir
 
 # step 1: Set up structure to simulate as well as calculator
 ce = ClusterExpansion.read('mixing_energy.ce')
-structure = make_supercell(ce.cluster_space.primitive_structure,
+structure = make_supercell(ce.get_cluster_space_copy().primitive_structure,
                            3 * np.array([[-1, 1, 1],
                                          [1, -1, 1],
                                          [1, 1, -1]]))
