@@ -59,11 +59,11 @@ directions. This can easily be achived with the ASE functions::
     from ase.build import surface
     atoms = surface('Cu', (1,1,1), layers=7)
 
-which creates ase atoms object without PBCs in the z-direction. The
+which creates ase atoms object without PBC in the z-direction. The
 structure can be modified to have PBC in the z-direction with vacuum
 via::
 
-    atoms.pbc = [True, True, False]
+    atoms.pbc = [True, True, True]
     atoms.center(vacuum=20, axis=2)
 
 which can now be used to create a cluster space.
