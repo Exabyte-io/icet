@@ -290,7 +290,7 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
     mapped.new_array('Displacement', displacements, float, (3, ))
     mapped.new_array('Displacement_Magnitude', displacement_magnitudes, float)
     mapped.new_array('Minimum_Distances', minimum_distances,
-                     float, (3, ))
+                     float, (min(3, len(mapped)), ))
 
     drmax = np.nanmax(displacement_magnitudes)
     dravg = np.nanmean(displacement_magnitudes)
