@@ -1,8 +1,14 @@
-from typing import List
+"""
+This module provides a Python interface to the PermutationMatrix
+class with supplementary functions.
+"""
+
+from typing import List, Tuple
 
 import numpy as np
 import spglib
 
+from ase import Atoms
 from _icet import PermutationMatrix
 from icet.core.lattice_site import LatticeSite
 from icet.core.neighbor_list import NeighborList
@@ -15,37 +21,38 @@ from icet.tools.geometry import (ase_atoms_to_spglib_cell,
 logger = logger.getChild('permutation_matrix')
 
 
-def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
-    """Set up a list of permutation maps from an atoms object.
+def permutation_matrix_from_structure(structure: Atoms, cutoff: float,
+                                      find_prim: bool = True) \
+        -> Tuple[np.ndarray, Structure, NeighborList]:
+    """Sets up a list of permutation maps from an Atoms object.
 
     Parameters
     ----------
-    atoms : ASE Atoms object
+    structure
         input structure
-    cutoff : float
+    cutoff
         cutoff radius
-    find_primitive : boolean
+    find_primitive
         if True the symmetries of the primitive structure will be employed
 
     Returns
     -------
-    matrix, icet Structure object, NeighborList object
-        the tuple comprises the permutation matrix, the primitive structure,
-        and the neighbor list
+    the tuple that is returned comprises the permutation matrix, the
+    primitive structure, and the neighbor list
     """
 
-    atoms = atoms.copy()
+    structure = structure.copy()
 
-    atoms_prim = atoms
+    structure_prim = structure
     if find_prim:
-        atoms_prim = get_primitive_structure(atoms)
+        structure_prim = get_primitive_structure(structure)
 
-    logger.debug('Size of primitive structure: {}'.format(len(atoms_prim)))
+    logger.debug('Size of primitive structure: {}'.format(len(structure_prim)))
 
-    atoms_as_tuple = ase_atoms_to_spglib_cell(atoms_prim)
+    structure_as_tuple = ase_atoms_to_spglib_cell(structure_prim)
 
     # get symmetry information
-    symmetry = spglib.get_symmetry(atoms_as_tuple)
+    symmetry = spglib.get_symmetry(structure_as_tuple)
     translations = symmetry['translations']
     rotations = symmetry['rotations']
 
@@ -53,25 +60,25 @@ def permutation_matrix_from_atoms(atoms, cutoff, find_prim=True):
     permutation_matrix = PermutationMatrix(translations, rotations)
 
     # create neighbor_lists from the different cutoffs
-    prim_structure = Structure.from_atoms(atoms_prim)
+    prim_icet_structure = Structure.from_atoms(structure_prim)
     neighbor_list = NeighborList(cutoff)
-    neighbor_list.build(prim_structure)
+    neighbor_list.build(prim_icet_structure)
 
     # get fractional positions for neighbor_list
     frac_positions = get_fractional_positions_from_neighbor_list(
-        prim_structure, neighbor_list)
+        prim_icet_structure, neighbor_list)
 
     logger.debug('Number of fractional positions:'
                  ' {}'.format(len(frac_positions)))
-    if len(frac_positions) > 0:
+    if frac_positions is not None:
         permutation_matrix.build(frac_positions)
 
-    return permutation_matrix, prim_structure, neighbor_list
+    return permutation_matrix, prim_icet_structure, neighbor_list
 
 
 def _get_lattice_site_permutation_matrix(structure: Structure,
                                          permutation_matrix: PermutationMatrix,
-                                         prune: bool = True):
+                                         prune: bool = True) -> np.ndarray:
     """
     Returns a transformed permutation matrix with lattice sites as entries
     instead of fractional coordinates.
@@ -79,7 +86,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
     Parameters
     ----------
     structure
-        primitive atomic structure
+        primitive atomic icet structure
     permutation_matrix
         permutation matrix with fractional coordinates format entries
     prune
@@ -106,7 +113,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
                 except RuntimeError:
                     continue
                 lat_neighbors.append(lat_neighbor)
-        if len(lat_neighbors) > 0:
+        if lat_neighbors is not None:
             pm_lattice_sites.append(lat_neighbors)
         else:
             logger.warning('Unable to transform any element in a column of the'
@@ -146,7 +153,7 @@ def _prune_permutation_matrix(permutation_matrix: List[List[LatticeSite]]):
 
 
 def _fractional_to_cartesian(fractional_coordinates: List[List[float]],
-                             cell: np.ndarray):
+                             cell: np.ndarray) -> List[float]:
     """
     Converts cell metrics from fractional to cartesian coordinates.
 

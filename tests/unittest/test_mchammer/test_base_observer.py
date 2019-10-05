@@ -9,7 +9,7 @@ class TestBaseObserver(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestBaseObserver, self).__init__(*args, **kwargs)
-        self.atoms = bulk('Al').repeat(3)
+        self.structure = bulk('Al').repeat(3)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -21,13 +21,13 @@ class TestBaseObserver(unittest.TestCase):
         class ConcreteObserver(BaseObserver):
 
             def __init__(self, interval, tag='ConcreteObserver'):
-                super().__init__(interval, return_type=int, tag=tag)
+                super().__init__(interval=interval, return_type=int, tag=tag)
 
-            def get_observable(self, atoms):
+            def get_observable(self, structure):
                 """
-                Return number of Al atoms.
+                Return number of Al structure.
                 """
-                return atoms.get_chemical_symbols().count('Al')
+                return structure.get_chemical_symbols().count('Al')
 
         self.observer = ConcreteObserver(interval=10, tag='test_observer')
 
@@ -37,7 +37,7 @@ class TestBaseObserver(unittest.TestCase):
 
     def test_get_observable(self):
         """Tests base observer by calling concrete observers get_observable."""
-        self.assertEqual(self.observer.get_observable(self.atoms), 27)
+        self.assertEqual(self.observer.get_observable(self.structure), 27)
 
     def test_interval_attribute(self):
         """Tests interval attribute."""

@@ -24,6 +24,21 @@ Canonical ensemble
    :inherited-members:
 
 
+.. _canonical_annealing:
+
+.. index::
+   single: Class reference; CanonicalAnnealing
+   single: Monte Carlo; Canonical ensemble
+
+Canonical annealing
+-------------------
+
+.. autoclass:: CanonicalAnnealing
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
 
 .. _sgc_ensemble:
 
@@ -51,6 +66,21 @@ Variance-constrained semi-grand canonical ensemble
 --------------------------------------------------
 
 .. autoclass:: VCSGCEnsemble
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+.. _hybrid_ensemble:
+
+.. index::
+   single: Class reference; HybridEnsemble
+   single: Monte Carlo; Hybrid ensemble
+
+Hybrid ensemble
+---------------
+
+.. autoclass:: HybridEnsemble
    :members:
    :undoc-members:
    :inherited-members:

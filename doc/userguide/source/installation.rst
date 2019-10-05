@@ -25,7 +25,6 @@ C++11 compliant compiler to be installed on your system, e.g., `GCC 4.8.1 and
 above <https://gcc.gnu.org/projects/cxx-status.html#cxx11>`_ or
 `Clang 3.3 and above <https://clang.llvm.org/cxx_status.html>`_.
 
-
 Installation via ``setup.py``
 -----------------------------
 
@@ -36,7 +35,6 @@ If installation via pip fails or if you want to use the most recent
     git clone git@gitlab.com:materials-modeling/icet.git
     cd icet
     python3 setup.py install --user
-
 
 Testing
 -------

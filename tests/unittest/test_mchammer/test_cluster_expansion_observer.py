@@ -14,16 +14,16 @@ class TestCEObserver(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestCEObserver, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Al').repeat(3)
+        self.structure = bulk('Al').repeat(3)
 
         cutoffs = [6, 6, 5]
         subelements = ['Al', 'Ge']
-        cs = ClusterSpace(self.atoms, cutoffs, subelements)
+        cs = ClusterSpace(self.structure, cutoffs, subelements)
         params_len = cs.get_cluster_space_size()
         params = list(range(params_len))
 
         self.ce = ClusterExpansion(cs, params)
-        self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
+        self.calculator = ClusterExpansionCalculator(self.structure, self.ce)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -33,13 +33,6 @@ class TestCEObserver(unittest.TestCase):
         """Set up observer before each test."""
         self.observer = ClusterExpansionObserver(
             self.ce, tag='ce_band_gap', interval=10)
-
-        # without interval
-        with self.assertRaises(Exception) as context:
-            ClusterExpansionObserver(self.ce)
-
-        self.assertTrue('The value of interval must be specified' in
-                        str(context.exception))
 
     def test_property_tag(self):
         """Tests property tag."""
@@ -52,14 +45,14 @@ class TestCEObserver(unittest.TestCase):
     def test_get_observable(self):
         """Tests observable is returned accordingly."""
         self.assertEqual(self.observer.get_observable(
-            atoms=self.atoms), 283.0)
+            structure=self.structure), 283.0)
 
         # updated occupation using calculator
         indices = [10, 2, 4, 2]
         elements = [32] * 4
         self.calculator.update_occupations(indices, elements)
         self.assertAlmostEqual(self.observer.get_observable(
-            atoms=self.calculator.atoms), 1808.0 / 27)
+            structure=self.calculator.structure), 1808.0 / 27)
 
 
 if __name__ == '__main__':

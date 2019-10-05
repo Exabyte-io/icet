@@ -14,9 +14,9 @@ from collections import namedtuple
 ScatterData = namedtuple('ScatterData', ['target', 'predicted'])
 
 
-def compute_correlation_matrix(A):
+def compute_correlation_matrix(A: np.ndarray) -> np.ndarray:
     """
-    Computes correlation matrix for rows in matrix.
+    Returns the correlation matrix for the rows in the fit matrix.
 
     Notes
     -----
@@ -24,13 +24,8 @@ def compute_correlation_matrix(A):
 
     Parameters
     ----------
-    A : numpy.ndarray
+    A
         fit matrix
-
-    Returns
-    -------
-    numpy.ndarray
-        correlation matrix
     """
     N = A.shape[0]
     C = np.zeros((N, N))

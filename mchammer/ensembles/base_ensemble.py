@@ -1,15 +1,15 @@
 import os
 import random
 from abc import ABC, abstractmethod
+from collections import OrderedDict
 from math import gcd
 from time import time
-from typing import Dict, List, Union, BinaryIO, TextIO
+from typing import BinaryIO, Dict, List, TextIO, Union
 
 import numpy as np
 
 from ase import Atoms
-from ase.data import chemical_symbols
-from collections import OrderedDict
+from icet.core.sublattices import Sublattices
 
 from ..calculators.base_calculator import BaseCalculator
 from ..configuration_manager import ConfigurationManager
@@ -22,12 +22,12 @@ class BaseEnsemble(ABC):
 
     Parameters
     ----------
-    calculator : :class:`BaseCalculator`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    atoms : :class:`ase:Atoms`
+    structure : :class:`Atoms <ase.Atoms>`
         atomic configuration to be used in the Monte Carlo simulation;
         also defines the initial occupation vector
+    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
     user_tag : str
         human-readable tag for ensemble [default: None]
     data_container : str
@@ -44,7 +44,7 @@ class BaseEnsemble(ABC):
         period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: np.inf]
+        the data.
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
@@ -53,41 +53,35 @@ class BaseEnsemble(ABC):
         simulation
     """
 
-    def __init__(self, atoms: Atoms, calculator: BaseCalculator,
-                 user_tag: str = None, data_container: DataContainer = None,
-                 data_container_write_period: float = np.inf,
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
+                 user_tag: str = None,
+                 data_container: DataContainer = None,
+                 data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
                  random_seed: int = None) -> None:
 
         # initialize basic variables
         self._accepted_trials = 0
-        self._total_trials = 0
         self._observers = {}
         self._step = 0
 
         # calculator and configuration
         self._calculator = calculator
         self._user_tag = user_tag
-        strict_constraints_symbol = self.calculator.occupation_constraints
-        symbols = list({tuple(sym)
-                        for sym in strict_constraints_symbol if len(sym) > 1})
-        sublattices = [[] for _ in symbols]
-        for i, constraint in enumerate(strict_constraints_symbol):
-            for j, sym in enumerate(symbols):
-                if len(sym) < 2:
-                    continue
-                if sorted(constraint) == sorted(sym):
-                    sublattices[j].append(i)
-        self._sublattices = sublattices
-        strict_constraints = []
-        for symbols in strict_constraints_symbol:
-            numbers = []
-            for symbol in symbols:
-                numbers.append(chemical_symbols.index(symbol))
-            strict_constraints.append(numbers)
-        self.configuration = ConfigurationManager(
-            atoms, strict_constraints, sublattices)
+        sublattices = self.calculator.sublattices
+
+        sublattices.assert_occupation_is_allowed(structure.get_chemical_symbols())
+
+        # item for sublist in l for item in sublist
+        symbols_flat = [s for sl in sublattices.active_sublattices for s in sl.chemical_symbols]
+        if len(symbols_flat) != len(set(symbols_flat)):
+            bad_symbols = set([s for s in symbols_flat if symbols_flat.count(s) > 1])
+            raise ValueError('Symbols {} found on multiple active sublattices'.format(bad_symbols))
+
+        self.configuration = ConfigurationManager(structure, sublattices)
 
         # random number generator
         if random_seed is None:
@@ -97,21 +91,20 @@ class BaseEnsemble(ABC):
         random.seed(a=self._random_seed)
 
         # add ensemble parameters and metadata
-        self._ensemble_parameters['n_atoms'] = len(self.atoms)
+        self._ensemble_parameters['n_atoms'] = len(self.structure)
         metadata = OrderedDict(ensemble_name=self.__class__.__name__,
-                               user_tag=user_tag,
-                               seed=self.random_seed)
+                               user_tag=user_tag, seed=self.random_seed)
 
         # data container
         self._data_container_write_period = data_container_write_period
-
         self._data_container_filename = data_container
 
         if data_container is not None and os.path.isfile(data_container):
             self._data_container = DataContainer.read(data_container)
 
             dc_ensemble_parameters = self.data_container.ensemble_parameters
-            if self.ensemble_parameters != dc_ensemble_parameters:
+            if not dicts_equal(self.ensemble_parameters,
+                               dc_ensemble_parameters):
                 raise ValueError('Ensemble parameters do not match with those'
                                  ' stored in DataContainer file: {}'.format(
                                      set(dc_ensemble_parameters.items()) -
@@ -124,41 +117,30 @@ class BaseEnsemble(ABC):
                 if filedir and not os.path.isdir(filedir):
                     raise FileNotFoundError('Path to data container file does'
                                             ' not exist: {}'.format(filedir))
-            self._data_container = \
-                DataContainer(atoms=atoms,
-                              ensemble_parameters=self.ensemble_parameters,
-                              metadata=metadata)
+            self._data_container = DataContainer(structure=structure,
+                                                 ensemble_parameters=self.ensemble_parameters,
+                                                 metadata=metadata)
 
         # interval for writing data and further preparation of data container
-        default_interval = max(1, 10 * round(len(atoms) / 10))
+        self._default_interval = len(structure)
 
         if ensemble_data_write_interval is None:
-            self._ensemble_data_write_interval = default_interval
+            self._ensemble_data_write_interval = self._default_interval
         else:
             self._ensemble_data_write_interval = ensemble_data_write_interval
 
         # Handle trajectory writing
         if trajectory_write_interval is None:
-            self._trajectory_write_interval = default_interval
+            self._trajectory_write_interval = self._default_interval
         else:
             self._trajectory_write_interval = trajectory_write_interval
 
         self._find_observer_interval()
 
     @property
-    def atoms(self) -> Atoms:
+    def structure(self) -> Atoms:
         """ current configuration (copy) """
-        return self.configuration.atoms.copy()
-
-    @property
-    def total_trials(self) -> int:
-        """ number of Monte Carlo trial steps """
-        return self._total_trials
-
-    @property
-    def accepted_trials(self) -> int:
-        """ number of accepted trial steps """
-        return self._accepted_trials
+        return self.configuration.structure.copy()
 
     @property
     def data_container(self) -> DataContainer:
@@ -171,27 +153,16 @@ class BaseEnsemble(ABC):
         return self._observers
 
     @property
-    def acceptance_ratio(self) -> float:
-        """ acceptance ratio """
-        if self.total_trials > 0:
-            return self.accepted_trials / self.total_trials
-        return 0
-
-    @property
     def calculator(self) -> BaseCalculator:
         """ calculator attached to the ensemble """
         return self._calculator
 
     @property
-    def data_container_write_period(self) -> float:
-        " data container write period "
-        return self._data_container_write_period
+    def step(self) -> int:
+        """ current configuration (copy) """
+        return self._step
 
-    @data_container_write_period.setter
-    def data_container_write_period(self, data_container_write_period):
-        self._data_container_write_period = data_container_write_period
-
-    def run(self, number_of_trial_steps: int, reset_step: bool = False):
+    def run(self, number_of_trial_steps: int):
         """
         Samples the ensemble for the given number of trial steps.
 
@@ -205,45 +176,36 @@ class BaseEnsemble(ABC):
         """
 
         last_write_time = time()
-        if reset_step:
-            initial_step = 0
-            final_step = number_of_trial_steps
-            self.reset_data_container()
-        else:
-            initial_step = self._step
-            final_step = self._step + number_of_trial_steps
-            # run Monte Carlo simulation such that we start at an
-            # interval which lands on the observer interval
-            if not initial_step == 0:
-                first_run_interval = self.observer_interval -\
-                    (initial_step -
-                     (initial_step // self.observer_interval) *
-                        self.observer_interval)
-                first_run_interval = min(
-                    first_run_interval, number_of_trial_steps)
-                self._run(first_run_interval)
-                initial_step += first_run_interval
-                self._step += first_run_interval
+
+        initial_step = self.step
+        final_step = self.step + number_of_trial_steps
+        # run Monte Carlo simulation such that we start at an
+        # interval which lands on the observer interval
+        if not initial_step == 0:
+            first_run_interval = self.observer_interval -\
+                (initial_step -
+                 (initial_step // self.observer_interval) *
+                    self.observer_interval)
+            first_run_interval = min(first_run_interval, number_of_trial_steps)
+            self._run(first_run_interval)
+            initial_step += first_run_interval
 
         step = initial_step
         while step < final_step:
-            uninterrupted_steps = min(
-                self.observer_interval, final_step - step)
-            if self._step % self.observer_interval == 0:
-                self._observe(self._step)
+            uninterrupted_steps = min(self.observer_interval, final_step - step)
+            if self.step % self.observer_interval == 0:
+                self._observe(self.step)
             if self._data_container_filename is not None and \
-                    time() - last_write_time > \
-                    self.data_container_write_period:
+                    time() - last_write_time > self._data_container_write_period:
                 self.write_data_container(self._data_container_filename)
                 last_write_time = time()
 
             self._run(uninterrupted_steps)
             step += uninterrupted_steps
-            self._step += uninterrupted_steps
 
         # If we end on an observation interval we also observe
-        if self._step % self.observer_interval == 0:
-            self._observe(self._step)
+        if self.step % self.observer_interval == 0:
+            self._observe(self.step)
 
         if self._data_container_filename is not None:
             self.write_data_container(self._data_container_filename)
@@ -258,7 +220,9 @@ class BaseEnsemble(ABC):
             number of trial steps to run without stopping
         """
         for _ in range(number_of_trial_steps):
-            self._do_trial_step()
+            accepted = self._do_trial_step()
+            self._step += 1
+            self._accepted_trials += accepted
 
     def _observe(self, step: int):
         """Submits current configuration to observers and appends
@@ -277,6 +241,9 @@ class BaseEnsemble(ABC):
             for key, value in ensemble_data.items():
                 row_dict[key] = value
 
+            # reset accepted trial count
+            self._accepted_trials = 0
+
         # Trajectory data
         if step % self._trajectory_write_interval == 0:
             row_dict['occupations'] = self.configuration.occupations.tolist()
@@ -285,12 +252,10 @@ class BaseEnsemble(ABC):
         for observer in self.observers.values():
             if step % observer.interval == 0:
                 if observer.return_type is dict:
-                    for key, value in observer.get_observable(
-                            self.calculator.atoms).items():
+                    for key, value in observer.get_observable(self.calculator.structure).items():
                         row_dict[key] = value
                 else:
-                    row_dict[observer.tag] = observer.get_observable(
-                        self.calculator.atoms)
+                    row_dict[observer.tag] = observer.get_observable(self.calculator.structure)
 
         if len(row_dict) > 0:
             self._data_container.append(mctrial=step, record=row_dict)
@@ -361,8 +326,10 @@ class BaseEnsemble(ABC):
             name used in data container
         """
         if not isinstance(observer, BaseObserver):
-            raise TypeError('observer has the wrong type: {}'
-                            .format(type(observer)))
+            raise TypeError('observer has the wrong type: {}'.format(type(observer)))
+
+        if observer.interval is None:
+            observer.interval = self._default_interval
 
         if tag is not None:
             observer.tag = tag
@@ -372,18 +339,10 @@ class BaseEnsemble(ABC):
 
         self._find_observer_interval()
 
-    def reset_data_container(self):
-        """ Resets the data container and the trial step counter. """
-        self._step = 0
-        self._total_trials = 0
-        self._accepted_trials = 0
-
-        self._data_container.reset()
-
     def update_occupations(self, sites: List[int], species: List[int]):
-        """Updates the occupation vector of the configuration being sampled.
-        This will change the state of the configuration in both the
-        calculator and the configuration manager.
+        """Updates the occupation vector of the configuration being
+        sampled. This will change the state of the configuration in
+        both the calculator and the configuration manager.
 
         Parameters
         ----------
@@ -402,12 +361,11 @@ class BaseEnsemble(ABC):
             raise ValueError('sites and species must have the same length.')
         self.configuration.update_occupations(sites, species)
 
-    def _get_property_change(self,
-                             sites: List[int], species: List[int]) -> float:
-        """Computes and returns the property change due to a change of the
-        configuration.
+    def _get_property_change(self, sites: List[int], species: List[int]) -> float:
+        """Computes and returns the property change due to a change of
+        the configuration.
 
-        _N.B.:_ This method leaves to configuration itself unchanged.
+        _N.B.:_ This method leaves the configuration itself unchanged.
 
         Parameters
         ----------
@@ -433,25 +391,23 @@ class BaseEnsemble(ABC):
 
     def _get_ensemble_data(self) -> dict:
         """ Returns the current calculator property. """
-        return {
-            'potential': self.calculator.calculate_total(
-                occupations=self.configuration.occupations),
-            'acceptance_ratio': self.acceptance_ratio}
+        potential = self.calculator.calculate_total(occupations=self.configuration.occupations)
+        return {'potential': potential,
+                'acceptance_ratio': self._accepted_trials / self._ensemble_data_write_interval}
 
-    def get_random_sublattice_index(self) -> int:
+    def get_random_sublattice_index(self, probability_distribution) -> int:
         """Returns a random sublattice index based on the weights of the
         sublattice.
 
-        Todo
-        ----
-        * fix this method
-        * add unit test
+        Parameters
+        ----------
+        probability_distribution
+            probability distributions for the sublattices
         """
-        total_active_sites = sum([len(sub) for sub in self._sublattices])
-        probability_distribution = [
-            len(sub) / total_active_sites for sub in self._sublattices]
-        pick = np.random.choice(
-            range(0, len(self._sublattices)), p=probability_distribution)
+
+        if len(probability_distribution) != len(self.sublattices):
+            raise ValueError("probability_distribution should have the same size as sublattices")
+        pick = np.random.choice(len(self.sublattices), p=probability_distribution)
         return pick
 
     def _restart_ensemble(self):
@@ -463,13 +419,14 @@ class BaseEnsemble(ABC):
 
         # Update configuration
         occupations = self.data_container.last_state['occupations']
-        sites = list(range(len(self.configuration.atoms)))
-        self.update_occupations(sites, occupations)
+        active_sites = []
+        for sl in self.sublattices.active_sublattices:
+            active_sites.extend(sl.indices)
+        active_occupations = [occupations[s] for s in active_sites]
+        self.update_occupations(active_sites, active_occupations)
 
         # Restart number of total and accepted trial steps
-        self._total_trials = self._step
-        self._accepted_trials = \
-            self.data_container.last_state['accepted_trials']
+        self._accepted_trials = self.data_container.last_state['accepted_trials']
 
         # Restart state of random number generator
         random.setstate(self.data_container.last_state['random_state'])
@@ -484,14 +441,36 @@ class BaseEnsemble(ABC):
             file to which to write
         """
         self._data_container._update_last_state(
-            last_step=self._step,
+            last_step=self.step,
             occupations=self.configuration.occupations.tolist(),
             accepted_trials=self._accepted_trials,
             random_state=random.getstate())
 
-        self.data_container._write(outfile)
+        self.data_container.write(outfile)
 
     @property
     def ensemble_parameters(self) -> dict:
         """Returns parameters associated with the ensemble."""
         return self._ensemble_parameters.copy()
+
+    @property
+    def sublattices(self) -> Sublattices:
+        """sublattices for the configuration being sampled"""
+        return self.configuration.sublattices
+
+
+def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
+    """Returns True (False) if two dicts are equal (not equal), if
+    float or integers are in the dicts then atol is used for comparing them."""
+    if len(dict1) != len(dict2):
+        return False
+    for key in dict1.keys():
+        if key not in dict2:
+            return False
+        if isinstance(dict1[key], (int, float)) and isinstance(dict2[key], (int, float)):
+            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol):
+                return False
+        else:
+            if dict1[key] != dict2[key]:
+                return False
+    return True

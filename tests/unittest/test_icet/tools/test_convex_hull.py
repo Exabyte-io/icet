@@ -38,17 +38,12 @@ class TestConvexHull(unittest.TestCase):
         Tests extracting of structures that are sufficiently close to convex
         hull.
         """
-        from ase.build import bulk
-        atoms_1 = bulk('Au')
-        atoms_2 = bulk('Pd')
-        structures = [atoms_1, atoms_2]
         concentrations = [0.3, 0.7]
         energies = [-7.0, 0.1]
         energy_tolerance = 0.3
         extracted = self.ch.extract_low_energy_structures(concentrations,
                                                           energies,
-                                                          energy_tolerance,
-                                                          structures)
+                                                          energy_tolerance)
         self.assertEqual(len(extracted), 1)
 
 

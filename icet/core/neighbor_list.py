@@ -1,32 +1,33 @@
+"""
+This module provides a Python interface to the NeighborList class
+with supplementary functions.
+"""
+
+from typing import List, Union
 from _icet import NeighborList
-from .structure import Structure
 from ase import Atoms
+from .structure import Structure
 
 
-def get_neighbor_lists(atoms, cutoffs=None):
-    '''
-    Returns list of icet neighbor lists from a configuration and cutoffs.
+def get_neighbor_lists(structure: Union[Atoms, Structure],
+                       cutoffs: List[float] = None) -> List[NeighborList]:
+    """
+    Returns a list of icet neighbor lists given a configuration and cutoffs.
 
     Parameters
     ----------
-    atoms : ASE Atoms object / icet Structure object (bi-optional)
+    structure
         atomic configuration
-    cutoffs:
+    cutoffs
         positive floats indicating the cutoffs for the various clusters
-
-    Returns
-    -------
-    list of NeighborList objects
-    '''
+    """
 
     # deal with different types of structure objects
-    if isinstance(atoms, Atoms):
-        structure = Structure.from_atoms(atoms)
-    elif isinstance(atoms, Structure):
-        structure = atoms
-    else:
+    if isinstance(structure, Atoms):
+        structure = Structure.from_atoms(structure)
+    elif not isinstance(structure, Structure):
         msg = ['Unknown structure format']
-        msg += ['{} (ClusterSpace)'.format(type(atoms))]
+        msg += ['{} (ClusterSpace)'.format(type(structure))]
         raise Exception(' '.join(msg))
 
     neighbor_lists = []

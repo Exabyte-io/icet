@@ -1,7 +1,7 @@
 import unittest
 from mchammer.configuration_manager import ConfigurationManager
 from ase.build import bulk
-
+from icet import ClusterSpace
 from mchammer.configuration_manager import SwapNotPossibleError
 
 
@@ -10,67 +10,26 @@ class TestConfigurationManager(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestConfigurationManager, self).__init__(*args, **kwargs)
-        self.atoms = bulk('Al').repeat([2, 1, 1])
-        self.atoms[1].symbol = 'Ag'
-        self.atoms = self.atoms.repeat(3)
-        self.constraints = [[13, 47] for _ in range(len(self.atoms))]
-        self.strict_constraints = self.constraints
-        self.sublattices = [list(range(len(self.atoms)))]
+        self.structure = bulk('Al').repeat([2, 1, 1])
+        self.structure[1].symbol = 'Ag'
+        self.structure = self.structure.repeat(3)
+        cs = ClusterSpace(self.structure, cutoffs=[0], chemical_symbols=['Ag', 'Al'])
+        self.sublattices = cs.get_sublattices(self.structure)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
         return None
 
     def setUp(self):
-        self.cm = ConfigurationManager(
-            self.atoms, self.strict_constraints, self.sublattices,
-            self.constraints)
+        self.cm = ConfigurationManager(self.structure, self.sublattices)
 
     def test_type(self):
         """Tests cm type."""
         self.assertIsInstance(self.cm, ConfigurationManager)
 
-    def test_init_alternative_constructors(self):
-        """Tests alternative initialization."""
-        cm = ConfigurationManager(
-            self.atoms, self.strict_constraints, self.sublattices, None)
-        self.assertTrue(cm.occupation_constraints == self.strict_constraints)
-
-        constraints = [[13, 47] if i < 5 else [13]
-                       for i in range(len(self.atoms))]
-        cm = ConfigurationManager(
-            self.atoms, constraints, self.sublattices, None)
-        self.assertTrue(cm.occupation_constraints == constraints)
-
-    def test_check_occupation_constraint(self):
-        """Tests the check occupation constraint method."""
-
-        # Check that equal constraint is allowed
-        constraint = [[1, 2], [1, 2], [1], [2]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        # Check that a more accepting constraint throws ValueError
-        constraint = [[1, 2], [1, 2], [1], [2, 3]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        with self.assertRaises(Exception) as context:
-            self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        self.assertTrue('User defined occupation_constraints must be stricter'
-                        in str(context.exception))
-
-        # Check that the length of the constraints throw a value error
-        constraint = [[1, 2], [1, 2], [1]]
-        strict_constraint = [[1, 2], [1, 2], [1], [2]]
-        with self.assertRaises(Exception) as context:
-            self.cm._check_occupation_constraint(strict_constraint, constraint)
-
-        self.assertTrue('strict_occupations and occupation_constraints'
-                        ' must be equal length' in str(context.exception))
-
-    def test_property_atoms(self):
-        """Tests atoms property."""
-        self.assertEqual(self.atoms, self.cm.atoms)
+    def test_property_structure(self):
+        """Tests structure property."""
+        self.assertEqual(self.structure, self.cm.structure)
 
     def test_property_occupations(self):
         """
@@ -79,7 +38,7 @@ class TestConfigurationManager(unittest.TestCase):
         """
 
         self.assertListEqual(list(self.cm.occupations),
-                             list(self.atoms.numbers))
+                             list(self.structure.numbers))
 
         # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
@@ -92,46 +51,56 @@ class TestConfigurationManager(unittest.TestCase):
         occupations[0] = occupations[0] + 1
         self.assertNotEqual(list(occupations), list(self.cm.occupations))
 
-    def test_property_occupation_constraints(self):
-        """
-        Tests that the occupation_constraints property returns expected result
-        and that it cannot be modified.
-        """
-
-        self.assertListEqual(list(self.cm.occupation_constraints),
-                             list(self.constraints))
-
-        # Tests that the property can not be set.
-        with self.assertRaises(AttributeError) as context:
-            self.cm.occupation_constraints = []
-        self.assertTrue("can't set attribute" in str(context.exception))
-
-        # Tests that the property can't be set by modifying the
-        # returned occupations
-        occupation_constraints = self.cm.occupation_constraints
-        occupation_constraints[0][0] = occupation_constraints[0][0] + 1
-        self.assertNotEqual(list(occupation_constraints),
-                            list(self.cm.occupation_constraints))
-
     def test_property_sublattices(self):
         """
         Tests that the occupation_constraints property returns expected result
         and that it cannot be modified.
         """
 
-        self.assertListEqual(list(self.cm.sublattices),
-                             list(self.sublattices))
+        self.assertEqual(self.cm.sublattices,
+                         self.sublattices)
 
         # Tests that the property can not be set.
         with self.assertRaises(AttributeError) as context:
             self.cm.sublattices = []
         self.assertTrue("can't set attribute" in str(context.exception))
 
-        # Tests that the property can't be set by modifying the
-        # returned occupations
-        sublattices = self.cm.sublattices
-        sublattices[0][0] = sublattices[0][0] + 1
-        self.assertNotEqual(list(sublattices), list(self.cm.sublattices))
+    def test_get_occupations_on_sublattice(self):
+        """Tests get_occupations_on_sublattice function."""
+
+        # get all occupations
+        indices = self.cm.sublattices[0].indices
+        target = list(self.cm.occupations[indices])
+        self.assertListEqual(target, self.cm.get_occupations_on_sublattice(0))
+
+    def test_is_swap_possible(self):
+        """Tests is_swap_possible function."""
+
+        # swaps are possible
+        for i, sl in enumerate(self.cm.sublattices):
+            self.assertTrue(self.cm.is_swap_possible(i))
+
+        # setup system with inactive sublattice
+        prim = bulk('Al').repeat([2, 1, 1])
+        chemical_symbols = [['Al'], ['Ag', 'Al', 'Au']]
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        supercell = prim.repeat(2)
+        supercell[1].symbol = 'Ag'
+        supercell[3].symbol = 'Au'
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        # check both sublattices
+        self.assertTrue(cm.is_swap_possible(0))
+        self.assertFalse(cm.is_swap_possible(1))
+
+        # check both sublattices when specifying allowed species
+        allowed_species = [13, 47]
+        self.assertTrue(cm.is_swap_possible(0,
+                                            allowed_species=allowed_species))
+        self.assertFalse(cm.is_swap_possible(1,
+                                             allowed_species=allowed_species))
 
     def test_get_swapped_state(self):
         """Tests the getting swap indices method."""
@@ -148,23 +117,49 @@ class TestConfigurationManager(unittest.TestCase):
             self.assertEqual(self.cm.occupations[index2], elements[0])
 
         # set everything to Al and see that swap is not possible
-        indices = [i for i in range(len(self.atoms))]
-        elements = [13] * len(self.atoms)
+        indices = [i for i in range(len(self.structure))]
+        elements = [13] * len(self.structure)
         self.cm.update_occupations(indices, elements)
 
         with self.assertRaises(SwapNotPossibleError) as context:
             indices, elements = self.cm.get_swapped_state(0)
+        self.assertTrue("Cannot swap on sublattice" in str(context.exception))
+        self.assertTrue("since it is full of" in str(context.exception))
 
-        # try swapping in an empty sublattice
-        sublattices = [indices, []]
+        # setup a ternary system
+        prim = bulk('Al').repeat([3, 1, 1])
+        chemical_symbols = ['Ag', 'Al', 'Au']
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
 
-        cm_two_sublattices = ConfigurationManager(
-            self.atoms, self.strict_constraints, sublattices,
-            self.constraints)
+        for i, symbol in enumerate(chemical_symbols):
+            prim[i].symbol = symbol
+        supercell = prim.repeat(2)
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        allowed_species = [13, 47]
+        for _ in range(1000):
+            indices, elements = cm.get_swapped_state(
+                0, allowed_species=allowed_species)
+            index1 = indices[0]
+            index2 = indices[1]
+            self.assertNotEqual(
+                cm.occupations[index1], cm.occupations[index2])
+            self.assertNotEqual(
+                elements[0], elements[1])
+            self.assertEqual(cm.occupations[index1], elements[1])
+            self.assertEqual(cm.occupations[index2], elements[0])
+
+        # set everything to Al and see that swap is not possible
+        indices = [i for i in range(len(supercell))]
+        elements = [13] * len(supercell)
+        cm.update_occupations(indices, elements)
+
         with self.assertRaises(SwapNotPossibleError) as context:
-            indices, elements = cm_two_sublattices.get_swapped_state(1)
-
-        self.assertTrue("Sublattice 1 is empty" in str(context.exception))
+            indices, elements = cm.get_swapped_state(
+                0, allowed_species=allowed_species)
+        self.assertTrue("Cannot swap on sublattice" in str(context.exception))
+        self.assertTrue("since it is full of" in str(context.exception))
 
     def test_get_flip_index(self):
         """Tests the getting flip indices method."""
@@ -173,9 +168,26 @@ class TestConfigurationManager(unittest.TestCase):
             index, element = self.cm.get_flip_state(0)
             self.assertNotEqual(self.cm.occupations[index], element)
 
+        # setup a ternary system
+        prim = bulk('Al').repeat([3, 1, 1])
+        chemical_symbols = ['Ag', 'Al', 'Au']
+        cs = ClusterSpace(prim, cutoffs=[0], chemical_symbols=chemical_symbols)
+
+        for i, symbol in enumerate(chemical_symbols):
+            prim[i].symbol = symbol
+        supercell = prim.repeat(2)
+        sublattices = cs.get_sublattices(supercell)
+        cm = ConfigurationManager(supercell, sublattices)
+
+        allowed_species = [13, 47]
+        for _ in range(1000):
+            index, element = cm.get_flip_state(
+                0, allowed_species=allowed_species)
+            self.assertNotEqual(cm.occupations[index], element)
+
     def test_update_occupations(self):
         """Tests the update occupation method."""
-
+        structure_cpy = self.structure.copy()
         indices = [0, 2, 3, 5, 7, 8]
         elements = [13, 13, 47, 47, 13, 47]
 
@@ -185,10 +197,13 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertEqual(list(self.cm.occupations[indices]), elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
+        # test input structure remains unchanged
+        self.assertEqual(self.structure, structure_cpy)
+
         # test that correct exceptions are raised
         with self.assertRaises(ValueError) as context:
-            self.cm.update_occupations([-1], [0])
-        self.assertTrue('Site -1 is not present' in str(context.exception))
+            self.cm.update_occupations([-1], [1])
+        self.assertTrue('Site -1 is not a valid site index' in str(context.exception))
         with self.assertRaises(ValueError) as context:
             self.cm.update_occupations([0], [-1])
         self.assertTrue('Invalid new species' in str(context.exception))
@@ -209,20 +224,20 @@ class TestConfigurationManager(unittest.TestCase):
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
         # Set everything to Al
-        indices = [i for i in range(len(self.atoms))]
-        elements = [13] * len(self.atoms)
+        indices = [i for i in range(len(self.structure))]
+        elements = [13] * len(self.structure)
         self.cm.update_occupations(indices, elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
         # Set everything to Ag
-        indices = [i for i in range(len(self.atoms))]
-        elements = [47] * len(self.atoms)
+        indices = [i for i in range(len(self.structure))]
+        elements = [47] * len(self.structure)
         self.cm.update_occupations(indices, elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 
         # Set everything to Al-Ag-Al-Ag ...
-        indices = [i for i in range(len(self.atoms))]
-        elements = [13, 47] * (len(self.atoms) // 2)
+        indices = [i for i in range(len(self.structure))]
+        elements = [13, 47] * (len(self.structure) // 2)
         self.cm.update_occupations(indices, elements)
         self.assertTrue(self._is_sites_by_species_dict_correct(self.cm))
 

@@ -117,7 +117,7 @@ url = re.search("__url__ = '(.*)'", lines).group(1)
 license = re.search("__license__ = '(.*)'", lines).group(1)
 
 classifiers = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Stable',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: 3',
@@ -145,7 +145,7 @@ if __name__ == '__main__':
                           'scipy',
                           'sklearn',
                           'pandas>=0.23',
-                          'spglib>1.11.0.19'],
+                          'spglib>1.12.0'],
         packages=find_packages(),
         cmdclass={'build_ext': BuildExt},
         zip_safe=False,

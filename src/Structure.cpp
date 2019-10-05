@@ -41,7 +41,7 @@ double Structure::getDistance(const size_t index1, const size_t index2,
                               const Vector3d offset1 = {0.0, 0.0, 0.0},
                               const Vector3d offset2 = {0.0, 0.0, 0.0}) const
 {
-    if (index1 >= (size_t) _positions.rows() or
+    if (index1 >= (size_t) _positions.rows() ||
         index2 >= (size_t) _positions.rows())
     {
         std::string errorMessage = "At least one site index out of bounds ";

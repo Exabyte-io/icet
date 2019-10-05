@@ -7,7 +7,7 @@ from ase.build import bulk
 from icet import Structure
 from icet.core.neighbor_list import NeighborList
 from icet.core.permutation_matrix import (
-    PermutationMatrix, permutation_matrix_from_atoms)
+    PermutationMatrix, permutation_matrix_from_structure)
 from icet.core.permutation_matrix import (
     _get_lattice_site_permutation_matrix as
     get_lattice_site_permutation_matrix)
@@ -27,15 +27,15 @@ class TestPermutationMatrix(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestPermutationMatrix, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Ni', 'hcp', a=3.0).repeat([2, 2, 1])
+        self.structure = bulk('Ni', 'hcp', a=3.0).repeat([2, 2, 1])
         self.cutoff = 5.0
 
-        self.atoms_prim = get_primitive_structure(self.atoms)
-        prim_structure = Structure.from_atoms(self.atoms_prim)
+        self.structure_prim = get_primitive_structure(self.structure)
         neighbor_list = NeighborList(self.cutoff)
-        neighbor_list.build(prim_structure)
+        icet_structure_prim = Structure.from_atoms(self.structure_prim)
+        neighbor_list.build(icet_structure_prim)
         self.frac_positions = get_fractional_positions_from_neighbor_list(
-            prim_structure, neighbor_list)
+            icet_structure_prim, neighbor_list)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -44,7 +44,7 @@ class TestPermutationMatrix(unittest.TestCase):
     def setUp(self):
         """Setup before each test."""
         symmetry = spglib.get_symmetry(
-            ase_atoms_to_spglib_cell(self.atoms_prim))
+            ase_atoms_to_spglib_cell(self.structure_prim))
         self.translations = symmetry['translations']
         self.rotations = symmetry['rotations']
 
@@ -78,23 +78,23 @@ class TestPermutationMatrix(unittest.TestCase):
                       [0.3333333, 0.6666667, 0.5],
                       [0.3333333, 0.6666667, 0.5],
                       [0.0, 0.0, 0.0],
-                      [0.0, 1.0, 0.0],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.0, 0.0, 0.0],
-                      [0.0, 0.0, 0.0],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.0, 1.0, 0.0],
-                      [0.0, 0.0, 0.0],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.3333333, 0.6666667, 0.5],
-                      [0.0, 1.0, 0.0],
                       [0.0, 0.0, 0.0],
                       [0.3333333, 0.6666667, 0.5],
                       [0.3333333, 0.6666667, 0.5],
                       [0.0, 0.0, 0.0],
-                      [0.0, 1.0, 0.0],
+                      [0.0, 0.0, 0.0],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.0, 0.0, 0.0],
+                      [0.0, 0.0, 0.0],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.0, 0.0, 0.0],
+                      [0.0, 0.0, 0.0],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.3333333, 0.6666667, 0.5],
+                      [0.0, 0.0, 0.0],
+                      [0.0, 0.0, 0.0],
                       [0.3333333, 0.6666667, 0.5],
                       [0.3333333, 0.6666667, 0.5],
                       [0.0, 0.0, 0.0]]
@@ -164,10 +164,10 @@ class TestPermutationMatrix(unittest.TestCase):
         for pos, ind_pos in zip(pm_frac[0], ind_positions):
             self.assertEqual(pos.tolist(), ind_pos.tolist())
 
-    def test_permutation_matrix_from_atoms(self):
-        """Tests permutation matrix from atoms functionality."""
+    def test_permutation_matrix_from_structure(self):
+        """Tests permutation matrix from structure functionality."""
         pm, _, _ = \
-            permutation_matrix_from_atoms(self.atoms, self.cutoff)
+            permutation_matrix_from_structure(self.structure, self.cutoff)
 
         matrix = pm.get_permuted_positions()
         matrix2 = self.pm.get_permuted_positions()
@@ -178,8 +178,8 @@ class TestPermutationMatrix(unittest.TestCase):
                 self.assertEqual(element.tolist(), element2.tolist())
 
         pm_prim, _, _ = \
-            permutation_matrix_from_atoms(
-                self.atoms_prim, self.cutoff, find_prim=False)
+            permutation_matrix_from_structure(
+                self.structure_prim, self.cutoff, find_prim=False)
 
         matrix_prim = pm_prim.get_permuted_positions()
 
@@ -196,30 +196,30 @@ class TestPermutationMatrix(unittest.TestCase):
                   [-0.0, 1.73, 2.45],
                   [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0],
-                  [-1.5, 2.6, 0.0],
-                  [-0.0, 1.73, 2.45],
-                  [-0.0, 1.73, 2.45],
-                  [0.0, 0.0, 0.0],
-                  [0.0, 0.0, 0.0],
-                  [-0.0, 1.73, 2.45],
-                  [-0.0, 1.73, 2.45],
-                  [-1.5, 2.6, 0.0],
-                  [0.0, 0.0, 0.0],
-                  [-0.0, 1.73, 2.45],
-                  [-0.0, 1.73, 2.45],
-                  [-1.5, 2.6, 0.0],
                   [0.0, 0.0, 0.0],
                   [-0.0, 1.73, 2.45],
                   [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0],
-                  [-1.5, 2.6, 0.0],
+                  [0.0, 0.0, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
+                  [0.0, 0.0, 0.0],
+                  [0.0, 0.0, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
+                  [0.0, 0.0, 0.0],
+                  [0.0, 0.0, 0.0],
+                  [-0.0, 1.73, 2.45],
+                  [-0.0, 1.73, 2.45],
+                  [0.0, 0.0, 0.0],
+                  [0.0, 0.0, 0.0],
                   [-0.0, 1.73, 2.45],
                   [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0]]
 
         fractional_pos = self.pm.get_permuted_positions()[0]
         cartesian_pos = fractional_to_cartesian(
-            fractional_pos, self.atoms_prim.cell)
+            fractional_pos, self.structure_prim.cell)
         retval = np.around(cartesian_pos, decimals=2).tolist()
         self.assertListEqual(retval, target)
 
@@ -230,10 +230,10 @@ class TestPermutationMatrix(unittest.TestCase):
         """
         # TODO: Some part of the implementation cannot be covered as test fails
         # for non-pbc structures.
-        atoms = bulk('Al').repeat(2)
+        structure = bulk('Al').repeat(2)
         cutoff = 4.2
         pm, prim_structure, _ = \
-            permutation_matrix_from_atoms(atoms, cutoff)
+            permutation_matrix_from_structure(structure, cutoff)
         pm_lattice_site = \
             get_lattice_site_permutation_matrix(prim_structure, pm)
         for i in range(len(pm_lattice_site)):
@@ -242,10 +242,10 @@ class TestPermutationMatrix(unittest.TestCase):
                 for k in range(len(pm_lattice_site[i])):
                     site_1 = pm_lattice_site[i][k]
                     site_2 = pm_lattice_site[j][k]
-                    pos1 = self.atoms[site_1.index].position +\
-                        np.dot(site_1.unitcell_offset, atoms.cell)
-                    pos2 = self.atoms[site_2.index].position +\
-                        np.dot(site_2.unitcell_offset, atoms.cell)
+                    pos1 = self.structure[site_1.index].position +\
+                        np.dot(site_1.unitcell_offset, structure.cell)
+                    pos2 = self.structure[site_2.index].position +\
+                        np.dot(site_2.unitcell_offset, structure.cell)
                     dist_first = np.linalg.norm(pos1 - pos2)
                     if dist_last != -1:
                         self.assertAlmostEqual(dist_first, dist_last, places=8)
@@ -257,7 +257,7 @@ class TestPermutationMatrix(unittest.TestCase):
         containes unique elements.
         """
         pm, prim_structure, _ = \
-            permutation_matrix_from_atoms(self.atoms, self.cutoff)
+            permutation_matrix_from_structure(self.structure, self.cutoff)
 
         pm_lattice_site = \
             get_lattice_site_permutation_matrix(prim_structure, pm)

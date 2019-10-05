@@ -12,3 +12,15 @@ Data container
    :members:
    :undoc-members:
    :inherited-members:
+
+
+.. _data_container_supporting_functions:
+
+Supporting functions
+--------------------
+
+.. automodule:: mchammer.data_analysis
+   :members:
+   :undoc-members:
+   :inherited-members:
+

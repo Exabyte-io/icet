@@ -109,39 +109,4 @@ void ClusterCounts::countOrbitList(const Structure &structure, const OrbitList &
     }
 }
 
-// Return clusters count information (elements and count) per cluster
-void ClusterCounts::setupClusterCountsInfo()
-{
-    _clusterCountsInfo.clear();
-    for (const auto &map_pair : _clusterCounts)
-    {
-        for (const auto &element_count_pair : map_pair.second)
-        {
-            std::vector<std::string> elementVec;
-            for (auto el : element_count_pair.first)
-            {
-                auto getElementSymbol = PeriodicTable::intStr[el];
-                elementVec.push_back(getElementSymbol);
-            }
-            auto getCountPair = map_pair.second.at(element_count_pair.first);
-            _clusterCountsInfo.push_back(std::make_pair(elementVec, getCountPair));
-        }
-    }
-    //std::sort(
-    //    _clusterCountsInfo.begin(),
-    //    _clusterCountsInfo.end(),
-    //    [](const std::pair<std::vector<std::string>, int> &a, const std::pair<std::vector<std::string>, int> &b){
-    //        return a.first.size() < b.first.size();
-    //    });
-}
 
-// Retrieve cluster count information
-std::pair<std::vector<std::string>, int> ClusterCounts::getClusterCountsInfo(const unsigned int index)
-{
-    if (index >= _clusterCountsInfo.size())
-    {
-        std::string errMSG = "Out of range in ClusterCounts::getClusterCountsInfo " + std::to_string(index) + " >= " + std::to_string(_clusterCountsInfo.size());
-        throw std::out_of_range(errMSG);
-    }
-    return _clusterCountsInfo[index];
-}

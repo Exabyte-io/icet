@@ -9,16 +9,17 @@ from icet import Structure
 
 class TestNeighborList(unittest.TestCase):
     """Container for test of the module functionality."""
+
     def __init__(self, *args, **kwargs):
         super(TestNeighborList, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Ni', 'hcp', a=1.0).repeat([3, 3, 1])
+        self.structure = bulk('Ni', 'hcp', a=1.0).repeat([3, 3, 1])
         self.cutoff = 1.4
-        self.structure = Structure.from_atoms(self.atoms)
-        self.ase_nl = ASENeighborList(len(self.atoms) * [self.cutoff / 2],
+        self.icet_structure = Structure.from_atoms(self.structure)
+        self.ase_nl = ASENeighborList(len(self.structure) * [self.cutoff / 2],
                                       skin=1e-8, bothways=True,
                                       self_interaction=False)
-        self.ase_nl.update(self.atoms)
+        self.ase_nl.update(self.structure)
         self.ase_indices, self.ase_offsets = self.ase_nl.get_neighbors(0)
 
     def shortDescription(self):
@@ -28,7 +29,7 @@ class TestNeighborList(unittest.TestCase):
     def setUp(self):
         """Setup before each test."""
         self.nl = NeighborList(self.cutoff)
-        self.nl.build(self.structure)
+        self.nl.build(self.icet_structure)
         neighbors = self.nl.get_neighbors(0)
         self.indices = []
         self.offsets = []
@@ -40,7 +41,7 @@ class TestNeighborList(unittest.TestCase):
         """
         Tests build gives the same number of neighbors as ASE neigborlist.
         """
-        for index in range(len(self.atoms)):
+        for index in range(len(self.structure)):
             neighbors = self.nl.get_neighbors(index)
             ase_neighbors = self.ase_nl.get_neighbors(index)
             self.assertEqual(len(neighbors), len(ase_neighbors[0]))
@@ -71,19 +72,19 @@ class TestNeighborList(unittest.TestCase):
         Tests return neighbor positions from neighborlist
         againts ASE neighborlist.
         """
-        for i in range(len(self.atoms)):
+        for i in range(len(self.structure)):
             index = [ngb.index for ngb in self.nl.get_neighbors(i)]
             offset = [ngb.unitcell_offset for ngb in self.nl.get_neighbors(i)]
-            pos = self.atoms.positions[index] + np.dot(offset,
-                                                       self.atoms.get_cell())
+            pos = self.structure.positions[index] + np.dot(offset,
+                                                           self.structure.get_cell())
             index2, offset2 = self.ase_nl.get_neighbors(i)
-            pos2 = self.atoms.positions[index2] + np.dot(offset2,
-                                                         self.atoms.get_cell())
+            pos2 = self.structure.positions[index2] + np.dot(offset2,
+                                                             self.structure.get_cell())
             self.assertCountEqual(pos2.tolist(), pos.tolist())
 
     def test_get_neighbors_lists(self):
         """Tests get_neighbor_lists functionality."""
-        list_of_nl = get_neighbor_lists(self.structure, [self.cutoff] * 4)
+        list_of_nl = get_neighbor_lists(self.icet_structure, [self.cutoff] * 4)
         self.assertEqual(len(list_of_nl), 4)
         self.assertEqual(len(list_of_nl[0]), len(self.nl))
 
@@ -92,18 +93,16 @@ class TestNeighborList(unittest.TestCase):
         Tests indices and offset of neighborlist for a
         non-pbc structure under the same cutoff as above.
         """
-        atoms = self.atoms.copy()
-        atoms.pbc = [True, True, False]
-        atoms.center(4.0, axis=[2])
-
-        structure = Structure.from_atoms(atoms)
+        structure = self.structure.copy()
+        structure.pbc = [True, True, False]
+        structure.center(4.0, axis=[2])
 
         nl = NeighborList(self.cutoff)
-        nl.build(structure)
+        nl.build(Structure.from_atoms(structure))
         indices = [ngb.index for ngb in nl.get_neighbors(0)]
         offsets = [ngb.unitcell_offset for ngb in nl.get_neighbors(0)]
 
-        self.ase_nl.update(atoms)
+        self.ase_nl.update(structure)
         ase_indices, ase_offsets = self.ase_nl.get_neighbors(0)
 
         for index in indices:

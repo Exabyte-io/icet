@@ -114,7 +114,7 @@ Cluster expansions
    Cluster expansion
    CE
    CEs
-   	:ref:`Cluster expansions <cluster-expansions>` provide a
+   	:ref:`Cluster expansions <cluster_expansions>` provide a
    	mapping between a configuration and a property of interest
    	that can be many orders of magnitude faster than the
    	underlying reference calculations from e.g., :term:`DFT`.
@@ -122,7 +122,7 @@ Cluster expansions
    ECI
    ECIs
 	The parameters of a :term:`CE` are usually referred to as
-	:ref:`effective cluster interactions (ECIs) <cluster-expansions>`.
+	:ref:`effective cluster interactions (ECIs) <cluster_expansions>`.
 
    MC
         Monte Carlo (MC) simulations are an effective method for

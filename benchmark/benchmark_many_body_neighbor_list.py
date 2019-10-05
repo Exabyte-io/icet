@@ -30,11 +30,11 @@ if __name__ == '__main__':
 
     order = 3
     cutoff = 10.0
-    atoms = bulk('Al').repeat(2)
-    structure = Structure.from_atoms(atoms)
+    structure = bulk('Al').repeat(2)
+    structure = Structure.from_atoms(structure)
     print('Cutoff: {:.3f}'.format(cutoff))
     print('Order: {:}'.format(order))
-    print('Number of atoms: {}'.format(len(atoms)))
+    print('Number of atoms: {}'.format(len(structure)))
 
     t = time.process_time()
     mbnl_time_cpp = build_many_body_neighbor_list_cpp(structure,

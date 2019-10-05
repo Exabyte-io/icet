@@ -108,7 +108,7 @@ def yield_hermite_normal_forms(det, pbc):
                                     yield np.array(hnf)
 
 
-def get_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
+def yield_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
     """
     For a fixed determinant N (i.e., a number of atoms N), yield all
     Hermite Normal Forms (HNF) that are inequivalent under symmetry
@@ -123,7 +123,7 @@ def get_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
     pbc : list of bools
         Periodic boundary conditions of the primitive structure
 
-    Returns
+    Yields
     ------
     list of ndarrays
         Symmetrically inequivalent HNFs with determinant N.
@@ -132,6 +132,7 @@ def get_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
     translations = symmetries['translations']
     basis_shifts = symmetries['basis_shifts']
     hnfs = []
+
     for hnf in yield_hermite_normal_forms(ncells, pbc):
 
         # Throw away HNF:s that yield equivalent supercells
@@ -154,4 +155,4 @@ def get_reduced_hnfs(ncells, symmetries, pbc, tol=1e-3):
         # and the supercell so that it can be compared to
         hnf = HermiteNormalForm(hnf, rotations, translations, basis_shifts)
         hnfs.append(hnf)
-    return hnfs
+        yield hnf

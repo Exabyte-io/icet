@@ -1,5 +1,8 @@
 #pragma once
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "Structure.hpp"
 #include "OrbitList.hpp"
 #include "LocalOrbitListGenerator.hpp"
@@ -67,6 +70,9 @@ class ClusterSpace
     /// Returns the cluster product.
     double evaluateClusterProduct(const std::vector<int> &, const std::vector<int> &, const std::vector<int> &, const std::vector<int>&) const;
 
+    /// Returns the default cluster function.
+    double evaluateClusterFunction(const int, const int, const int) const;
+
     /// Precomputed multicomponent vectors for each orbit in _orbitlist.
     /// @todo Make private.
     std::vector<std::vector<std::vector<int>>> _multiComponentVectors;
@@ -80,11 +86,6 @@ class ClusterSpace
     
     /// Prunes the orbit list.
     void pruneOrbitList(std::vector<size_t> &);
-
-  private:
-
-    /// Returns the default cluster function.
-    double evaluateClusterFunction(const int, const int, const int) const;
 
   private:
 

@@ -6,17 +6,17 @@ from icet.core.neighbor_list import NeighborList
 
 
 def build_neighbor_list_cpp(structure, cutoff):
-    '''
+    """
     Build a neighbor list using the function implemented in C++.
-    '''
+    """
     nl = NeighborList(cutoff)
     nl.build(structure)
 
 
 def build_neighbor_list_python(atoms, cutoff):
-    '''
+    """
     Build a neighbor list using the Python implementation from ASE.
-    '''
+    """
     ase_nl = asenl.NeighborList(len(atoms) * [cutoff / 2.0], skin=1e-8,
                                 bothways=True, self_interaction=False)
     ase_nl.update(atoms)

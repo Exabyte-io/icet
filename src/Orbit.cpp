@@ -70,6 +70,9 @@ std::vector<std::vector<int>> Orbit::getMultiComponentVectors(const std::vector<
         {
             permutedMCVectors.push_back(icet::getPermutedVector<int>(mcVector, allowedPermutation));
         }
+        std::sort(permutedMCVectors.begin(),permutedMCVectors.end());
+
+
         // if not any of the vectors in permutedMCVectors exist in distinctMCVectors
         if (!std::any_of(permutedMCVectors.begin(), permutedMCVectors.end(), [&](const std::vector<int> &permMcVector) { return !(std::find(distinctMCVectors.begin(), distinctMCVectors.end(), permMcVector) == distinctMCVectors.end()); }))
         {

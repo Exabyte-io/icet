@@ -39,7 +39,7 @@ OrbitList::OrbitList(const Structure &structure,
                 lat_nbrs.push_back(latticeSite);
                 auto lat_nbrs_copy = lat_nbrs;
                 std::sort(lat_nbrs_copy.begin(), lat_nbrs_copy.end());
-                if (lat_nbrs_copy != lat_nbrs and !bothways)
+                if (lat_nbrs_copy != lat_nbrs && !bothways)
                 {
                     throw std::runtime_error("Original sites is not sorted");
                 }
@@ -286,7 +286,7 @@ void OrbitList::addPermutationInformationToOrbits(const std::vector<LatticeSite>
                               std::back_inserter(p_allowed_permutations));
 
         // Step six: Get the indice version of p_allowed_permutations
-        std::unordered_set<std::vector<int>, VectorHash> allowedPermutations;
+        std::set<std::vector<int>> allowedPermutations;
         for (const auto &p_lattNbr : p_allowed_permutations)
         {
             size_t failedLoops = 0;
@@ -515,7 +515,7 @@ std::vector<LatticeSite> OrbitList::translateSites(const std::vector<LatticeSite
     return translatedSites;
 }
 
-/// Debug function to check that all equivalent sites in every orbit give same sorted cluster.
+/// Debug function to check that all equivalent sites in every orbit give the same sorted cluster.
 void OrbitList::checkEquivalentClusters() const
 {
     for (const auto &orbit : _orbits)
@@ -526,25 +526,25 @@ void OrbitList::checkEquivalentClusters() const
             Cluster equivalentCluster = Cluster(_primitiveStructure, sites);
             if (representative_cluster != equivalentCluster)
             {
-                std::cout << " found an 'equivalent' cluster that was not equal representative cluster" << std::endl;
+                std::cout << " found an 'equivalent' cluster that does not match the representative cluster" << std::endl;
                 std::cout << "representative_cluster:" << std::endl;
                 representative_cluster.print();
 
                 std::cout << "equivalentCluster:" << std::endl;
                 equivalentCluster.print();
 
-                throw std::runtime_error("found an 'equivalent'\"' cluster that were not equal representative cluster");
+                throw std::runtime_error("found an 'equivalent' cluster that does not match the representative cluster");
             }
             if (fabs(equivalentCluster.radius() - representative_cluster.radius()) > 1e-3)
             {
-                std::cout << " found an 'equivalent' cluster that does not equal the representative cluster" << std::endl;
+                std::cout << " found an 'equivalent' cluster that does not match the representative cluster" << std::endl;
                 std::cout << "representative_cluster:" << std::endl;
                 representative_cluster.print();
 
                 std::cout << "equivalentCluster:" << std::endl;
                 equivalentCluster.print();
                 std::cout << " test geometric size: " << icet::getGeometricalRadius(sites, _primitiveStructure) << " " << std::endl;
-                throw std::runtime_error("Found an 'equivalent' cluster that does not equal the representative cluster");
+                throw std::runtime_error("Found an 'equivalent' cluster that does not match the representative cluster");
             }
         }
     }

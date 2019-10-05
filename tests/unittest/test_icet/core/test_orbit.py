@@ -43,8 +43,7 @@ class TestOrbit(unittest.TestCase):
 
     def setUp(self):
         """Instantiates class before each test."""
-        atoms = bulk("Al")
-        structure = Structure.from_atoms(atoms)
+        structure = Structure.from_atoms(bulk("Al"))
         lattice_site_for_cluster = [
             LatticeSite(0, [i, 0, 0]) for i in range(3)]
 

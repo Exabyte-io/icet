@@ -4,6 +4,7 @@ from ase.build import bulk
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators import ClusterExpansionCalculator
 from mchammer.ensembles import SemiGrandCanonicalEnsemble
+from mchammer.ensembles.semi_grand_canonical_ensemble import get_chemical_potentials
 
 
 class TestEnsemble(unittest.TestCase):
@@ -12,14 +13,14 @@ class TestEnsemble(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestEnsemble, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Al').repeat(3)
-        for i, atom in enumerate(self.atoms):
+        self.structure = bulk('Al').repeat(3)
+        for i, atom in enumerate(self.structure):
             if i % 2 == 0:
                 atom.symbol = 'Ga'
         cutoffs = [5, 5, 4]
         elements = ['Al', 'Ga']
         self.chemical_potentials = {'Al': 5, 'Ga': 0}
-        self.cs = ClusterSpace(self.atoms, cutoffs, elements)
+        self.cs = ClusterSpace(self.structure, cutoffs, elements)
         parameters = parameters = np.array([1.2] * len(self.cs))
         self.ce = ClusterExpansion(self.cs, parameters)
         self.temperature = 100.0
@@ -30,10 +31,10 @@ class TestEnsemble(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
+        self.calculator = ClusterExpansionCalculator(self.structure, self.ce)
 
         self.ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms,
+            structure=self.structure,
             calculator=self.calculator,
             user_tag='test-ensemble', random_seed=42,
             data_container_write_period=499.0,
@@ -46,13 +47,13 @@ class TestEnsemble(unittest.TestCase):
     def test_init(self):
         """ Tests exceptions are raised during initialization. """
         with self.assertRaises(TypeError) as context:
-            SemiGrandCanonicalEnsemble(atoms=self.atoms,
+            SemiGrandCanonicalEnsemble(structure=self.structure,
                                        calculator=self.calculator)
         self.assertTrue("required positional arguments: 'temperature'" in
                         str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            SemiGrandCanonicalEnsemble(atoms=self.atoms,
+            SemiGrandCanonicalEnsemble(structure=self.structure,
                                        calculator=self.calculator,
                                        temperature=self.temperature)
         self.assertTrue("required positional argument:"
@@ -72,39 +73,23 @@ class TestEnsemble(unittest.TestCase):
         target = {13: 5, 31: 0}
         self.assertEqual(retval, target)
 
-        self.ensemble._set_chemical_potentials({'Al': 4, 'Ga': 1})
-        retval = self.ensemble.chemical_potentials
-        target = {13: 4, 31: 1}
-        self.assertEqual(retval, target)
-
-        self.ensemble._set_chemical_potentials({13: 10, 31: -1})
-        retval = self.ensemble.chemical_potentials
-        target = {13: 10, 31: -1}
-        self.assertEqual(retval, target)
-
-        self.ensemble._set_chemical_potentials({13: 16})
-        retval = self.ensemble.chemical_potentials
-        target = {13: 16, 31: -1}
-        self.assertEqual(retval, target)
-
         # test exceptions
         with self.assertRaises(TypeError) as context:
-            self.ensemble._set_chemical_potentials('xyz')
+            get_chemical_potentials('xyz')
         self.assertTrue('chemical_potentials has the wrong type'
                         in str(context.exception))
 
-        with self.assertRaises(ValueError) as context:
-            self.ensemble._set_chemical_potentials({'Ni': 3})
-        self.assertTrue('Unknown species'
-                        in str(context.exception))
+    def test_run(self):
+        """Test that run function runs. """
+        n = 50
+        self.ensemble.run(n)
+        self.assertEqual(self.ensemble.step, n)
 
     def test_do_trial_step(self):
         """Tests the do trial step."""
         # Do it many times and hopefully get both a reject and an accept
         for _ in range(10):
             self.ensemble._do_trial_step()
-
-        self.assertEqual(self.ensemble._total_trials, 10)
 
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
@@ -118,7 +103,7 @@ class TestEnsemble(unittest.TestCase):
 
         chemical_potentials = {13: 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator,
+            structure=self.structure, calculator=self.calculator,
             user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
@@ -127,7 +112,7 @@ class TestEnsemble(unittest.TestCase):
         # Test both int and str
         chemical_potentials = {'Al': 5, 31: 0}
         ensemble = SemiGrandCanonicalEnsemble(
-            atoms=self.atoms, calculator=self.calculator,
+            structure=self.structure, calculator=self.calculator,
             user_tag='test-ensemble',
             random_seed=42, temperature=self.temperature,
             chemical_potentials=chemical_potentials)
@@ -147,7 +132,7 @@ class TestEnsemble(unittest.TestCase):
     def test_get_ensemble_parameters(self):
         """Tests the get ensemble parameters method."""
         self.assertEqual(self.ensemble.ensemble_parameters['n_atoms'],
-                         len(self.atoms))
+                         len(self.structure))
         self.assertEqual(self.ensemble.ensemble_parameters['temperature'],
                          self.temperature)
         self.assertEqual(self.ensemble.ensemble_parameters['mu_Al'], 5)
@@ -155,7 +140,7 @@ class TestEnsemble(unittest.TestCase):
 
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['n_atoms'],
-            len(self.atoms))
+            len(self.structure))
         self.assertEqual(
             self.ensemble.data_container.ensemble_parameters['temperature'],
             self.temperature)
@@ -166,7 +151,7 @@ class TestEnsemble(unittest.TestCase):
 
     def test_write_interval_and_period(self):
         """Tests interval and period for writing data from ensemble."""
-        self.assertEqual(self.ensemble.data_container_write_period, 499.0)
+        self.assertEqual(self.ensemble._data_container_write_period, 499.0)
         self.assertEqual(self.ensemble._ensemble_data_write_interval, 25)
         self.assertEqual(self.ensemble._trajectory_write_interval, 40)
 

@@ -24,7 +24,7 @@ class BaseObserver(ABC):
         the observation interval
     """
 
-    def __init__(self, interval: int, return_type: type,
+    def __init__(self, return_type: type, interval: int = None,
                  tag: str = 'BaseObserver') -> None:
         self.tag = tag
         self.interval = interval
@@ -47,9 +47,8 @@ class BaseObserver(ABC):
         When implementing this method use the following names for the
         following types of data:
 
-        ASE atoms object : `atoms`.
+        ASE Atoms object : `structure`.
         list of chemical species : `species`.
-        icet structure object : `structure`.
         icet cluster expansion : `cluster_expansion`.
         mchammer calculator : `calculator`.
         """

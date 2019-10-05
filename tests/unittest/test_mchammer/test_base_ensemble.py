@@ -9,7 +9,7 @@ from pandas.testing import assert_frame_equal
 from icet import ClusterExpansion, ClusterSpace
 from mchammer.calculators.cluster_expansion_calculator import \
     ClusterExpansionCalculator
-from mchammer.ensembles.base_ensemble import BaseEnsemble
+from mchammer.ensembles.base_ensemble import BaseEnsemble, dicts_equal
 from mchammer.observers.base_observer import BaseObserver
 from mchammer import DataContainer
 
@@ -20,7 +20,7 @@ class AppleObserver(BaseObserver):
     def __init__(self, interval, tag='Apple'):
         super().__init__(interval=interval, return_type=float, tag=tag)
 
-    def get_observable(self, atoms):  # noqa
+    def get_observable(self, structure):  # noqa
         """Say 2.63323e+20."""
         return 2.63323e+20
 
@@ -30,7 +30,7 @@ class DictObserver(BaseObserver):
     def __init__(self, interval, tag='Ayaymama'):
         super().__init__(interval=interval, return_type=dict, tag=tag)
 
-    def get_observable(self, atoms):
+    def get_observable(self, structure):
         return {'value_1': 1.0, 'value_2': 2.0}
 
     def get_keys(self):
@@ -42,14 +42,14 @@ class DictObserver(BaseObserver):
 
 class ConcreteEnsemble(BaseEnsemble):
 
-    def __init__(self, atoms, calculator, temperature=None,
+    def __init__(self, structure, calculator, temperature=None,
                  user_tag=None, data_container=None,
                  data_container_write_period=np.inf, random_seed=None,
                  ensemble_data_write_interval=None,
                  trajectory_write_interval=None):
         self._ensemble_parameters = dict(temperature=temperature)
         super().__init__(
-            atoms=atoms, calculator=calculator, user_tag=user_tag,
+            structure=structure, calculator=calculator, user_tag=user_tag,
             data_container=data_container,
             data_container_write_period=data_container_write_period,
             random_seed=random_seed,
@@ -57,7 +57,7 @@ class ConcreteEnsemble(BaseEnsemble):
             trajectory_write_interval=trajectory_write_interval)
 
     def _do_trial_step(self):
-        pass
+        return 1
 
 
 class TestEnsemble(unittest.TestCase):
@@ -66,10 +66,10 @@ class TestEnsemble(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestEnsemble, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Al').repeat(3)
+        self.structure = bulk('Al').repeat(3)
         cutoffs = [5, 5, 4]
         elements = ['Al', 'Ga']
-        self.cs = ClusterSpace(self.atoms, cutoffs, elements)
+        self.cs = ClusterSpace(self.structure, cutoffs, elements)
         parameters = np.array([1.2 for _ in range(len(self.cs))])
         self.ce = ClusterExpansion(self.cs, parameters)
 
@@ -79,9 +79,9 @@ class TestEnsemble(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        self.calculator = ClusterExpansionCalculator(self.atoms, self.ce)
+        self.calculator = ClusterExpansionCalculator(self.structure, self.ce)
         self.ensemble = ConcreteEnsemble(
-            atoms=self.atoms, calculator=self.calculator, temperature=1000,
+            structure=self.structure, calculator=self.calculator, temperature=1000,
             user_tag='test-ensemble', random_seed=42)
 
         # Create an observer for testing.
@@ -95,30 +95,53 @@ class TestEnsemble(unittest.TestCase):
 
         with self.assertRaises(TypeError) as context:
             ConcreteEnsemble(calculator=self.calculator)
-        self.assertIn("required positional argument: 'atoms'",
+        self.assertIn("required positional argument: 'structure'",
                       str(context.exception))
 
         with self.assertRaises(TypeError) as context:
-            ConcreteEnsemble(atoms=self.atoms)
+            ConcreteEnsemble(structure=self.structure)
         self.assertIn("required positional argument: 'calculator'",
                       str(context.exception))
 
         # wrong path to data container file
         with self.assertRaises(FileNotFoundError) as context:
-            ConcreteEnsemble(atoms=self.atoms,
+            ConcreteEnsemble(structure=self.structure,
                              calculator=self.calculator,
                              data_container='path/to/nowhere/mydc')
 
         self.assertTrue('Path to data container file does not exist:'
                         ' path/to/nowhere' in str(context.exception))
 
+        # wrong occupations on structure
+        wrong_structure = self.structure.copy()
+        wrong_structure.numbers = [1]*len(self.structure)
+        with self.assertRaises(ValueError) as context:
+            ConcreteEnsemble(structure=wrong_structure,
+                             calculator=self.calculator)
+
+        self.assertTrue('Occupations of structure not compatible with '
+                        'the sublattice' in str(context.exception))
+
+    def test_init_fails_for_faulty_chemical_symbols(self):
+        """Tests that initialization fails if species exists  on
+        mutliple sublattices"""
+        structure = bulk('Al').repeat(2)
+        cutoffs = [4.0]
+        elements = [['Al', 'Ga']] * 4 + [['Al', 'Ge']] * 4
+        cs = ClusterSpace(structure, cutoffs, elements)
+        ce = ClusterExpansion(cs, np.arange(0, len(cs)))
+        calc = ClusterExpansionCalculator(structure, ce)
+        with self.assertRaises(ValueError) as context:
+            ConcreteEnsemble(structure, calc)
+        self.assertIn('found on multiple active sublattices', str(context.exception))
+
     def test_property_user_tag(self):
         """Tests name property."""
         self.assertEqual('test-ensemble', self.ensemble.user_tag)
 
-    def test_property_atoms(self):
-        """Tests atoms property."""
-        self.assertEqual(self.atoms, self.ensemble.atoms)
+    def test_property_structure(self):
+        """Tests structure property."""
+        self.assertEqual(self.structure, self.ensemble.structure)
 
     def test_property_random_seed(self):
         """Tests random seed property."""
@@ -130,23 +153,11 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble._accepted_trials += 1
         self.assertEqual(self.ensemble._accepted_trials, 1)
 
-    def test_property_totals_trials(self):
-        """Tests property accepted trials."""
-        self.assertEqual(self.ensemble._total_trials, 0)
-        self.ensemble._total_trials += 1
-        self.assertEqual(self.ensemble._total_trials, 1)
-
     def test_property_step(self):
         """Tests property accepted trials."""
         self.assertEqual(self.ensemble._step, 0)
         self.ensemble._step += 1
         self.assertEqual(self.ensemble._step, 1)
-
-    def test_property_acceptance_ratio(self):
-        """Tests property acceptance ratio."""
-        self.ensemble._total_trials = 30
-        self.ensemble._accepted_trials = 15
-        self.assertEqual(self.ensemble.acceptance_ratio, 0.5)
 
     def test_property_calculator(self):
         """Tests the calculator property."""
@@ -160,45 +171,33 @@ class TestEnsemble(unittest.TestCase):
     def test_run(self):
         """Tests the run method."""
 
-        n_iters = 364
-        self.ensemble.run(n_iters)
-        self.assertEqual(self.ensemble._step, n_iters)
+        n_steps1 = 364
+        self.ensemble.run(n_steps1)
+        self.assertEqual(self.ensemble._step, n_steps1)
+
         dc_data = self.ensemble.data_container.get_data('Apple2')
-
         number_of_observations = len([x for x in dc_data if x is not None])
-        # plus one since we also count step 0
-        self.assertEqual(
-            number_of_observations,
-            n_iters // self.ensemble.observers['Apple2'].interval + 1)
+        # plus one since we also observe at step 0
+        n_target_obs = n_steps1 // self.ensemble.observers['Apple2'].interval + 1
+        self.assertEqual(number_of_observations, n_target_obs)
 
-        # run it again to check that step is the same
-        n_iters = 50
-        self.ensemble.run(n_iters, reset_step=True)
-        self.assertEqual(self.ensemble._step, 50)
+        # run it again to check that step accumulates
+        n_steps2 = 68
+        self.ensemble.run(n_steps2)
+        self.assertEqual(self.ensemble._step, n_steps1+n_steps2)
 
-        # run it yet again to check that step accumulates
-        n_iters = 10
-        self.ensemble.run(n_iters, reset_step=False)
-        self.ensemble.run(n_iters, reset_step=False)
-        self.assertEqual(self.ensemble._step, 70)
+        dc_data = self.ensemble.data_container.get_data('Apple2')
+        number_of_observations = len([x for x in dc_data if x is not None])
+        n_target_obs = (n_steps1 + n_steps2) // self.ensemble.observers['Apple2'].interval + 1
+        self.assertEqual(number_of_observations, n_target_obs)
 
-        # Do a number of steps of continuous runs and see that
-        # we get the expected number of parakeet observations.
-        for i in range(30):
-            self.ensemble.reset_data_container()
-            run_iters = [1, 50, 100, 200, i]
-            for n_iter in run_iters:
-                self.ensemble.run(n_iter)
-            total_iters = sum(run_iters)
-            # Check that the number of iters are correct
-            self.assertEqual(self.ensemble._step, total_iters)
-            dc_data = self.ensemble.data_container.get_data('Apple2')
-            number_of_observations = len(
-                [x for x in dc_data if x is not None])
-            # plus one since we also count step 0
-            self.assertEqual(
-                number_of_observations,
-                total_iters // self.ensemble.observers['Apple2'].interval + 1)
+    def test_get_random_sublattice_index(self):
+        """Tests the random sublattice index method."""
+
+        with self.assertRaises(ValueError) as context:
+            self.ensemble.get_random_sublattice_index([1, 0])
+        self.assertIn("probability_distribution should have the same size as sublattices",
+                      str(context.exception))
 
     def test_run_with_dict_observer(self):
         """Tests the run method with a dict observer."""
@@ -222,7 +221,7 @@ class TestEnsemble(unittest.TestCase):
     def test_backup_file(self):
         """Tests data is being saved and can be read by the ensemble."""
         # set-up ensemble with a non-inf write period
-        ensemble = ConcreteEnsemble(atoms=self.atoms,
+        ensemble = ConcreteEnsemble(structure=self.structure,
                                     calculator=self.calculator,
                                     user_tag='this-ensemble',
                                     data_container='my-datacontainer.dc',
@@ -250,11 +249,11 @@ class TestEnsemble(unittest.TestCase):
 
         # write data container to tempfile
         temp_container_file = tempfile.NamedTemporaryFile()
-        dc_read._write(temp_container_file.name)
+        dc_read.write(temp_container_file.name)
 
         # initialise a new ensemble with dc file
         ensemble_reloaded = \
-            ConcreteEnsemble(atoms=self.atoms,
+            ConcreteEnsemble(structure=self.structure,
                              calculator=self.calculator,
                              data_container=temp_container_file.name,
                              ensemble_data_write_interval=14,
@@ -280,9 +279,7 @@ class TestEnsemble(unittest.TestCase):
                            check_dtype=False,
                            check_like=True)
 
-        self.assertEqual(
-            ensemble_reloaded.data_container.last_state['last_step'],
-            182 + 50)
+        self.assertEqual(ensemble_reloaded.data_container.last_state['last_step'], 182 + 50)
 
     def test_restart_different_parameters(self):
         """Tests that restarting ensemble from data container with different
@@ -293,13 +290,37 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.write_data_container(ensemble_T1000.name)
 
         with self.assertRaises(ValueError) as context:
-            ConcreteEnsemble(atoms=self.atoms,
+            ConcreteEnsemble(structure=self.structure,
                              calculator=self.calculator,
                              temperature=3000,
                              data_container=ensemble_T1000.name)
         self.assertIn("Ensemble parameters do not match with those stored in"
                       " DataContainer file: {('temperature', 1000)}",
                       str(context.exception))
+
+    def test_restart_with_inactive_sites(self):
+        """ Tests restart works with inactive sites """
+
+        chemical_symbols = [['C', 'Be'], ['W']]
+        prim = bulk('W', 'bcc', cubic=True, )
+        cs = ClusterSpace(structure=prim, chemical_symbols=chemical_symbols, cutoffs=[5])
+        parameters = [1] * len(cs)
+        ce = ClusterExpansion(cs, parameters)
+
+        size = 4
+        structure = ce._cluster_space.primitive_structure.repeat(size)
+        calculator = ClusterExpansionCalculator(structure, ce)
+
+        # Carry out Monte Carlo simulations
+        dc_file = tempfile.NamedTemporaryFile()
+        mc = ConcreteEnsemble(structure=structure, calculator=calculator)
+        mc.write_data_container(dc_file.name)
+        mc.run(10)
+
+        # and now restart
+        mc = ConcreteEnsemble(structure=structure, calculator=calculator,
+                              data_container=dc_file.name)
+        mc.run(10)
 
     def test_internal_run(self):
         """Tests the _run method."""
@@ -352,6 +373,10 @@ class TestEnsemble(unittest.TestCase):
         target = 5
         self.assertEqual(self.ensemble._get_gcd(input), target)
 
+        input = [1]
+        target = 1
+        self.assertEqual(self.ensemble._get_gcd(input), target)
+
     def test_get_property_change(self):
         """Tests the get property change method."""
 
@@ -389,12 +414,21 @@ class TestEnsemble(unittest.TestCase):
             'ConcreteEnsemble',
             self.ensemble.data_container.metadata['ensemble_name'])
 
-    def test_data_container_write_period(self):
-        """Tests property data container write container."""
-        self.assertTrue(np.isinf(self.ensemble.data_container_write_period))
+    def test_dicts_equal(self):
+        """Tests dicts_equal function."""
+        d1 = dict(T=300.25, phi=-0.1, kappa=200)
+        d2 = {k: v for k, v in d1.items()}
 
-        self.ensemble.data_container_write_period = 1e-2
-        self.assertAlmostEqual(self.ensemble.data_container_write_period, 1e-2)
+        # check dicts are equal
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts are equal even with small difference
+        d2['T'] += 1e-16
+        self.assertTrue(dicts_equal(d1, d2))
+
+        # check dicts differ when a larger difference is introduced
+        d2['T'] += 1e-10
+        self.assertFalse(dicts_equal(d1, d2))
 
 
 if __name__ == '__main__':

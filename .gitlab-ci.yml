@@ -25,14 +25,27 @@ tests:
     - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - coverage run tests/main.py
     - coverage report -m
-    - coverage html -d coverage
+    - coverage html
     - for f in benchmark/*.py; do python3 "$f"; done
-    - for f in tutorial/advanced/*.py; do python3 "$f">/dev/null; done
   coverage: '/TOTAL.+ ([0-9]{1,3}%)/'
   artifacts:
     expire_in: 14 days
     paths:
-      - coverage/
+      - htmlcov/
+
+
+test_benchmarks_examples:
+  stage: test
+  only:
+    - schedules
+  tags:
+    - linux
+  dependencies:
+    - build_linux
+  script:
+    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
+    - for f in benchmark/*.py; do echo $f ; python3 $f ; done
+    - for f in $(ls examples/*/*.py | grep -v __ | grep -v parallel_monte_carlo); do echo $f ; cd `dirname $f` ; python3 `basename $f` ; cd ../../ ; done
 
 
 style_check:
@@ -51,25 +64,56 @@ pages:
     - tests
   script:
     # prepare homepage
-    - mkdir public
-    # coverage report
-    - mv coverage/ public/
+    - mkdir -p public/dev
+    # code coverage report (actually for the master master (=development version)
+    # but that is the sensible one to show anyways)
+    - mv htmlcov/ public/
     # letsencrypt setup
     - fname=`awk '{split($0, s, "."); print s[1]}' doc/letsencrypt-setup.html`
     - mkdir -p public/.well-known/acme-challenge/
     - mv doc/letsencrypt-setup.html public/.well-known/acme-challenge/$fname
+    # prepare (tests are run on master branch (=development version) above, which
+    # is more sensible; running both master and release would be repetitive and wasteful)
+    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
+    # --------------------------
+    # STABLE VERSION
+    - tag=$(git tag | tail -1)
+    - echo "tag= $tag"
+    - git checkout $tag
     # C++ documentation (doxygen)
     - cd doc/apidoc/
     - doxygen Doxyfile
     - cd ../..
     - mv doc/apidoc/html/ public/apidoc/
     # user guide (sphinx)
-    - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
     - sphinx-build doc/userguide/source/ public/
-    # make tests and tutorial downloadable
-    - zip -rj public/basic_tutorial.zip tutorial/basic/
-    - zip -rj public/advanced_tutorial.zip tutorial/advanced/
-    - find tests/ -name '*.py' -print | zip public/tests.zip tests/structure_databases/*.db -@
+    # make tests and examples downloadable
+    - cd examples
+    - find tutorial/ -print | zip ../public/tutorial.zip -@
+    - find advanced_topics/ -print | zip ../public/advanced_topics.zip -@
+    - cd ..
+    - find tests/ -print | zip public/tests.zip tests/structure_databases/*.db -@
+    # --------------------------
+    # DEVELOPMENT VERSION
+    - git checkout master
+    - tag=$(git describe | tail -1)
+    - echo "tag= $tag"
+    # C++ documentation (doxygen)
+    - cd doc/apidoc/
+    - doxygen Doxyfile
+    - cd ../..
+    - mv doc/apidoc/html/ public/dev/apidoc/
+    # build user guide
+    - sed -i "s/version = ''/version = '$tag'/" doc/userguide/source/conf.py
+    - grep version doc/userguide/source/conf.py
+    - sphinx-build doc/userguide/source/ public/dev/
+    # make tests and examples downloadable
+    - cd examples
+    - find tutorial/ -print | zip ../public/dev/tutorial.zip -@
+    - find advanced_topics/ -print | zip ../public/dev/advanced_topics.zip -@
+    - cd ..
+    - find tests/ -print | zip public/dev/tests.zip tests/structure_databases/*.db -@
+    # --------------------------
     # clean up
     - ls -l public/.well-known/acme-challenge/
     - ls -l public/

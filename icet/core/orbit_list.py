@@ -1,3 +1,7 @@
+"""
+This module provides the OrbitList class.
+"""
+
 from typing import List
 
 import numpy as np
@@ -7,7 +11,7 @@ from ase import Atoms
 from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
 from icet.core.neighbor_list import get_neighbor_lists
 from icet.core.permutation_matrix import (_get_lattice_site_permutation_matrix,
-                                          permutation_matrix_from_atoms)
+                                          permutation_matrix_from_structure)
 from icet.core.structure import Structure
 from icet.io.logging import logger
 
@@ -16,30 +20,31 @@ logger = logger.getChild('orbit_list')
 
 class OrbitList(_OrbitList):
     """
-    The orbit list object has an internal list of orbits.
+    The orbit list object handles an internal list of orbits.
 
     An orbit has a list of equivalent sites with the restriction
     that at least one site is in the cell of the primitive structure.
 
     Parameters
     ----------
-    atoms : ASE Atoms object
-            This atoms object will be used to construct a primitive
-            structure on which all the lattice sites in the orbits
-            are based on.
+    structure : Atoms
+        This structure will be used to construct a primitive
+        structure on which all the lattice sites in the orbits
+        are based.
     cutoffs : list of float
-              cutoffs[i] is the cutoff for orbits with order i+2.
+        the i-th element of this list is the cutoff for orbits with
+        order i+2
     """
 
-    def __init__(self, atoms_in, cutoffs):
-        if isinstance(atoms_in, Structure):
-            atoms_in = atoms_in.to_atoms()
-        atoms = atoms_in.copy()
-        atoms.wrap()
+    def __init__(self, structure_in, cutoffs):
+        if isinstance(structure_in, Structure):
+            structure_in = structure_in.to_structure()
+        structure = structure_in.copy()
+        structure.wrap()
         max_cutoff = np.max(cutoffs)
         # Set up a permutation matrix
         permutation_matrix, prim_structure, _ \
-            = permutation_matrix_from_atoms(atoms, max_cutoff, find_prim=False)
+            = permutation_matrix_from_structure(structure, max_cutoff, find_prim=False)
 
         logger.info('Done getting permutation_matrix.')
 
@@ -80,28 +85,27 @@ class OrbitList(_OrbitList):
                 i, len(orbit), cluster_str)
         return nice_str
 
-    def get_supercell_orbit_list(self, atoms: Atoms):
+    def get_supercell_orbit_list(self, structure: Atoms):
         """
         Returns an orbit list for a supercell structure.
 
         Parameters
         ----------
-        atoms
+        structure
             supercell atomic structure
 
         Returns
         -------
         An OrbitList object
         """
-        structure = Structure.from_atoms(atoms)
-        log = LocalOrbitListGenerator(self, structure)
+        log = LocalOrbitListGenerator(self, Structure.from_atoms(structure))
 
         supercell_orbit_list = log.generate_full_orbit_list()
 
         return supercell_orbit_list
 
     def remove_inactive_orbits(self, allowed_species: List[List[str]]) -> None:
-        """ Removes orbits with inactive sites
+        """ Removes orbits with inactive sites.
 
         Parameters
         ----------

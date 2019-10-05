@@ -42,13 +42,13 @@ def init_cpp_orbit(number_of_sites):
 
     lattice_site_for_cluster = [
         LatticeSite(0, [i, 0, 0]) for i in range(3)]
-    atoms = bulk('Al')
+    structure = bulk('Al')
 
     pair_cluster = Cluster.from_python(
-        atoms, [lattice_site_for_cluster[0],
-                lattice_site_for_cluster[1]], True)
+        structure, [lattice_site_for_cluster[0],
+                    lattice_site_for_cluster[1]], True)
     triplet_cluster = Cluster.from_python(
-        atoms, lattice_site_for_cluster, True)
+        structure, lattice_site_for_cluster, True)
 
     orbit_pair_cpp = Orbit(pair_cluster)
     orbit_pair_cpp.equivalent_sites = lattice_sites_pairs_cpp

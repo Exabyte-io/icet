@@ -1,128 +1,86 @@
-#!/usr/bin/env python3
-
 import numpy as np
-import unittest
-
+from ase import Atom
+from ase.build import (bulk,
+                       make_supercell)
+from icet import ClusterSpace
 from icet.tools import map_structure_to_reference
-from icet.tools.structure_mapping import (_get_scaled_cell,
-                                          _get_transformation_matrix,
-                                          _rescale_structures)
 
+# Construct reference structure and corresponding cluster space
+a = 5.0
+reference = bulk('Y', a=a, crystalstructure='fcc')
+reference.append(Atom('O', (1 * a / 4., 1 * a / 4., 1 * a / 4.)))
+reference.append(Atom('O', (3 * a / 4., 3 * a / 4., 3 * a / 4.)))
+cs = ClusterSpace(reference, [5.0, 3.0], [['Y', 'Al'], ['O', 'X'], ['O', 'X']])
 
-class TestStructureMapping(unittest.TestCase):
-    '''
-    Container for tests of the class functionality
-    '''
+# Construct test structure
+P = [[4, 1, -3], [1, 3, 1], [-1, 1, 3]]
+structure = make_supercell(reference, P)
 
-    def __init__(self, *args, **kwargs):
-        from ase import Atom
-        from ase.build import bulk
+# Change some elements
+to_delete = []
+for atom in structure:
+    if atom.position[2] < 10.0:
+        if atom.symbol == 'Y':
+            atom.symbol = 'Al'
+        elif atom.symbol == 'O':
+            atom.symbol = 'X'
+del structure[to_delete]
 
-        reference = bulk('Au', a=4.0)
-        reference.append(Atom('H', (2, 2, 2)))
-        self.reference = reference
+# Calculate cluster vector of ideal mapped_structure
+cv_ideal = cs.get_cluster_vector(structure)
 
-        atoms = reference.repeat(2)
-        for i in [0, 4, 6, 2, 7, 3]:
-            if atoms[i].symbol == 'Au':
-                atoms[i].symbol = 'Pd'
-            elif atoms[i].symbol == 'H':
-                del atoms[i]
+# Add some strain
+A = [[1.04, 0.03, 0], [0, 1, 0], [0, 0, 1]]
+structure.set_cell(np.dot(structure.cell, A), scale_atoms=True)
 
-        # Displace the atoms somewhat
-        rattle = [[0.147, -0.037, -0.01],
-                  [-0.089, 0.084, -0.063],
-                  [0.256, -0.037, 0.097],
-                  [-0.048, 0.005, -0.093],
-                  [-0.159, -0.194, -0.03],
-                  [0.004, -0.041, -0.003],
-                  [-0.015, -0.014, -0.007],
-                  [-0.023, 0.094, -0.024],
-                  [-0.01, 0.075, -0.075],
-                  [0.029, -0.024, 0.079],
-                  [0.105, 0.172, -0.147],
-                  [-0.082, 0.073, 0.015],
-                  [-0.062, -0.066, 0.023],
-                  [0.081, 0.078, -0.014]]
+# Remove vacancies
+del structure[[atom.index for atom in structure if atom.symbol == 'X']]
 
-        atoms.positions = atoms.positions + rattle
-        atoms.set_cell(atoms.cell * 1.01, scale_atoms=True)
-        self.atoms = atoms
+# Rattle the structure
+rattle = [[-0.2056, 0.177, -0.586],
+          [-0.1087, -0.0637, 0.0402],
+          [0.2378, 0.0254, 0.1339],
+          [-0.0932, 0.1039, 0.1613],
+          [-0.3034, 0.03, 0.0373],
+          [0.1191, -0.4569, -0.2607],
+          [0.4468, -0.1684, 0.156],
+          [-0.2064, -0.2069, -0.1834],
+          [-0.1518, -0.1406, 0.0796],
+          [0.0735, 0.3443, 0.2036],
+          [-0.1934, 0.0082, 0.1599],
+          [-0.2035, -0.1698, -0.4892],
+          [0.2953, 0.1704, -0.114],
+          [0.1658, 0.2163, -0.2673],
+          [-0.2358, 0.0391, -0.0278],
+          [0.0549, -0.2883, -0.0088],
+          [-0.0484, 0.2817, 0.1408],
+          [0.0576, -0.0962, -0.062],
+          [-0.0288, 0.2464, 0.1156],
+          [-0.2742, -0.0108, -0.0102],
+          [-0.0195, 0.0503, 0.0098],
+          [-0.0663, -0.1356, 0.1544],
+          [-0.1901, -0.4753, 0.2122],
+          [0.1885, -0.1248, 0.0486],
+          [-0.2931, -0.2401, -0.1282],
+          [-0.163, 0.0505, 0.013],
+          [0.1473, -0.0321, 0.27],
+          [-0.0415, 0.068, 0.3321],
+          [0.2479, -0.4068, -0.1289],
+          [0.4214, 0.1869, -0.0758],
+          [-0.1135, 0.1379, -0.2678],
+          [0.1374, -0.2622, 0.0814],
+          [-0.0238, 0.1081, 0.211],
+          [0.4011, 0.0236, 0.2343],
+          [-0.2432, 0.1574, -0.1606],
+          [-0.116, -0.0166, 0.0354]]
 
-        super(TestStructureMapping, self).__init__(*args, **kwargs)
+structure.positions = structure.positions + rattle
 
-    def test_get_scaled_cell(self):
-        '''
-        Testing that the cell scaling retrieval works.
-        '''
-        modcell = _get_scaled_cell(self.atoms, self.reference,
-                                   vacancy_type='V',
-                                   inert_species=['Au', 'Pd'])
-        target = np.array([[0., 4., 4.],
-                           [4., 0., 4.],
-                           [4., 4., 0.]])
-        self.assertTrue(np.allclose(modcell, target))
+# Do the mapping
+mapped_structure, _ = map_structure_to_reference(structure, reference,
+                                                 inert_species=['Y', 'Al'])
 
-        modcell = _get_scaled_cell(self.atoms, self.reference,
-                                   vacancy_type='V')
-        target = np.array([[0., 4.04, 4.04],
-                           [4.04, 0., 4.04],
-                           [4.04, 4.04, 0.]])
-        self.assertTrue(np.allclose(modcell, target))
+# Calculate cluster vector and compare to expected value
+cv_mapped = cs.get_cluster_vector(mapped_structure)
 
-        modcell = _get_scaled_cell(self.atoms, self.reference)
-        target = np.array([[0., 3.82586237, 3.82586237],
-                           [3.82586237, 0., 3.82586237],
-                           [3.82586237, 3.82586237, 0.]])
-        self.assertTrue(np.allclose(modcell, target))
-
-    def test_get_transformation_matrix(self):
-        '''
-        Testing that transformation matrix calculation works.
-        '''
-        P = _get_transformation_matrix(self.atoms.cell, self.reference.cell)
-        target = np.array([[2., 0., 0.],
-                           [0., 2., 0.],
-                           [0., 0., 2.]])
-        self.assertTrue(np.allclose(P, target))
-
-    def test_rescale_structures(self):
-        '''
-        Testing that the structure rescaling works.
-        '''
-        P = np.array([[2., 0., 0.],
-                      [0., 2., 0.],
-                      [0., 0., 2.]])
-        scaled_structure, ideal_supercell = \
-            _rescale_structures(self.atoms, self.reference, P)
-        self.assertEqual(len(scaled_structure), 14)
-        self.assertEqual(len(ideal_supercell), 16)
-        self.assertTrue(np.allclose(scaled_structure.cell,
-                                    ideal_supercell.cell))
-
-    def test_map_structure_to_reference(self):
-        '''
-        Testing that the mapping works. This function will also invoke the
-        other ones.
-        '''
-        mapped, r_max, r_av = \
-            map_structure_to_reference(self.atoms, self.reference,
-                                       0.7,
-                                       vacancy_type='V',
-                                       inert_species=['Au', 'Pd'])
-        self.assertEqual(mapped.get_chemical_formula(), 'H6Au4Pd4V2')
-        self.assertTrue(r_av < r_max)
-
-
-def suite():
-    test_classes_to_run = [TestStructureMapping]
-    suites_list = []
-    for test_class in test_classes_to_run:
-        suite = unittest.defaultTestLoader.loadTestsFromTestCase(test_class)
-        suites_list.append(suite)
-    test_suite = unittest.TestSuite(suites_list)
-    return test_suite
-
-
-if __name__ == '__main__':
-    unittest.main()
+assert np.allclose(cv_mapped, cv_ideal), 'Cluster vector does not match target'

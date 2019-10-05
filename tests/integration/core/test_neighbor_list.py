@@ -5,7 +5,7 @@ from icet import Structure
 from _icet import NeighborList
 
 """
-This script compares the neighbor list computed for atoms in a database using
+This script compares the neighbor list computed for structures in a database using
 both icet.NeighborList and ase.neighborlist modules.
 """
 
@@ -15,17 +15,16 @@ neighbor_cutoff = 1.6
 
 for row in db.select('natoms>1'):
 
-    atoms_row = row.toatoms()
+    structure_row = row.toatoms()
     # ASE neighbor_list
-    ase_nl = ASENeighborList(len(atoms_row) * [neighbor_cutoff / 2], skin=1e-8,
+    ase_nl = ASENeighborList(len(structure_row) * [neighbor_cutoff / 2], skin=1e-8,
                              bothways=True, self_interaction=False)
-    ase_nl.update(atoms_row)
+    ase_nl.update(structure_row)
     ase_indices, ase_offsets = ase_nl.get_neighbors(1)
 
     # icet neighbor_list
-    structure = Structure.from_atoms(atoms_row)
     nl = NeighborList(neighbor_cutoff)
-    nl.build(structure)
+    nl.build(Structure.from_atoms(structure_row))
     neighbors = nl.get_neighbors(1)
     indices = []
     offsets = []
@@ -61,7 +60,7 @@ for row in db.select('natoms>1'):
 
     count_neighbors = {}
     inequiv_index = {}
-    dataset = spg.get_symmetry_dataset(atoms_row, symprec=1e-5,
+    dataset = spg.get_symmetry_dataset(structure_row, symprec=1e-5,
                                        angle_tolerance=-1.0, hall_number=0)
     for index, equiv_index in enumerate(dataset['equivalent_atoms']):
         neighbors = nl.get_neighbors(index)

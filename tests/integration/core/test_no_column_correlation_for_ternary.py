@@ -9,28 +9,28 @@ import numpy as np
 import random
 
 
-def generateRandomStructure(atoms_prim, subelements):
+def generateRandomStructure(structure_prim, subelements):
     """
-    Generate a random structure with atoms_prim as a base
+    Generate a random structure with structure_prim as a base
     and fill it randomly with elements in subelements
     """
 
-    atoms = atoms_prim.copy().repeat(8)
+    structure = structure_prim.copy().repeat(8)
 
-    for at in atoms:
+    for at in structure:
         element = random.choice(subelements)
         at.symbol = element
 
-    return atoms
+    return structure
 
 
-def generateCVSet(n, atoms_prim, subelements, clusterspace):
+def generateCVSet(n, structure_prim, subelements, clusterspace):
     """
     generate a set of clustervectors from clusterspace
     """
     clustervectors = []
     for i in range(n):
-        conf = generateRandomStructure(atoms_prim, subelements)
+        conf = generateRandomStructure(structure_prim, subelements)
         cv = clusterspace.get_cluster_vector(conf)
         clustervectors.append(cv)
 
@@ -72,10 +72,10 @@ def checkNoCorrelation(cvs, tol=0.99):
     assert no_correlated_columns
 
 
-subelements = ["H", "He", 'Pb']
-atoms_row = bulk("H", 'fcc', a=1.01)
+subelements = ['H', 'He', 'Pb']
+structure_row = bulk('H', 'fcc', a=1.01)
 cutoffs = [2.8] * 1
 
-clusterspace = ClusterSpace(atoms_row, cutoffs, subelements)
-cvs = generateCVSet(40, atoms_row, subelements, clusterspace)
+clusterspace = ClusterSpace(structure_row, cutoffs, subelements)
+cvs = generateCVSet(40, structure_row, subelements, clusterspace)
 checkNoCorrelation(cvs)

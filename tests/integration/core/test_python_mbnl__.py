@@ -3,7 +3,7 @@ from ase.neighbor_list import NeighborList
 from ase.db import connect
 from tests import many_body_neighbor_listTester
 
-'''
+"""
 Testing manybodyneighbor_list implemented in python (mblnl.tester) againts ASE
 neighbor_list
 
@@ -18,7 +18,7 @@ Raises
 ------
 AssertionError
     if lists of neighbors obatined from mbnl.tester and ASE are not the same
-'''
+"""
 
 mbnl_tester = many_body_neighbor_listTester.many_body_neighbor_listTester()
 
@@ -46,8 +46,8 @@ for row in db.select('natoms>1'):
         neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=True)
         if equiv_index in count_neighbors:
             assert count_neighbors[equiv_index] == len(neighbors), \
-                '''Testing number of neighbors from mbnl_tester with
-                bothways=True failed for {} when counts {}!={}'''.format(
+                """Testing number of neighbors from mbnl_tester with
+                bothways=True failed for {} when counts {}!={}""".format(
                     row.tag, len(neighbors), count_neighbors[equiv_index])
         else:
             count_neighbors[equiv_index] = len(neighbors)
@@ -59,8 +59,8 @@ for row in db.select('natoms>1'):
         neighbors = mbnl_tester.build(order * [ase_nl], index, bothways=False)
         if equiv_index in count_neighbors:
             assert count_neighbors[equiv_index] >= len(neighbors), \
-                '''Testing number of neighbors from mbnl_tester with
-                bothways=False failed for {} when counts {}<{}'''.format(
-                    row.tag, len(neighbors), count_neighbors[equiv_index])
+                ('Testing number of neighbors from mbnl_tester with'
+                 ' bothways=False failed for {} when counts {}<{}'
+                 .format(row.tag, len(neighbors), count_neighbors[equiv_index]))
         else:
             count_neighbors[equiv_index] = len(neighbors)

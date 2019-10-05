@@ -9,17 +9,18 @@ from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
 
 class TestLocalOrbitListGenerator(unittest.TestCase):
     """Container for test of class functionality."""
+
     def __init__(self, *args, **kwargs):
         super(TestLocalOrbitListGenerator, self).__init__(*args, **kwargs)
         # corner case: tilted structure
-        prim_atoms = bulk('Al')
+        prim_structure = bulk('Al')
         cutoffs = [4.2, 4.2]
-        self.orbit_list = OrbitList(prim_atoms, cutoffs)
+        self.orbit_list = OrbitList(prim_structure, cutoffs)
         self.primitive = self.orbit_list.get_primitive_structure()
-        super_atoms = make_supercell(prim_atoms, [[2, 0, 1000],
-                                                  [0, 2, 0],
-                                                  [0, 0, 2]])
-        self.supercell = Structure.from_atoms(super_atoms)
+        super_structure = make_supercell(prim_structure, [[2, 0, 1000],
+                                                          [0, 2, 0],
+                                                          [0, 0, 2]])
+        self.supercell = Structure.from_atoms(super_structure)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -129,16 +130,17 @@ class TestLocalOrbitListGeneratorHCP(unittest.TestCase):
     Container for test of class functionality for hcp structure,
     which contains two atoms per unitcell.
     """
+
     def __init__(self, *args, **kwargs):
         super(TestLocalOrbitListGeneratorHCP, self).__init__(*args, **kwargs)
-        prim_atoms = bulk('Ni', 'hcp', a=4.0)
+        prim_structure = bulk('Ni', 'hcp', a=4.0)
         cutoffs = [4.2, 4.2]
-        self.orbit_list = OrbitList(prim_atoms, cutoffs)
+        self.orbit_list = OrbitList(prim_structure, cutoffs)
         self.primitive = self.orbit_list.get_primitive_structure()
-        super_atoms = make_supercell(prim_atoms, [[2, 0, 1000],
-                                                  [0, 2, 0],
-                                                  [0, 0, 2]])
-        self.supercell = Structure.from_atoms(super_atoms)
+        super_structure = make_supercell(prim_structure, [[2, 0, 1000],
+                                                          [0, 2, 0],
+                                                          [0, 0, 2]])
+        self.supercell = Structure.from_atoms(super_structure)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""

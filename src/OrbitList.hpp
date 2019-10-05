@@ -145,11 +145,11 @@ class OrbitList
     /// Checks that the lattice neighbors do not have any unitcell offsets in a non-periodic direction.
     bool isSitesPBCCorrect(const std::vector<LatticeSite> &) const;
 
-    /// Removes from each orbit all sites in equivalent sites that involve the given index.
+    /// Removes from each orbit all sites in equivalent sites that involve the given site.
     void removeSitesContainingIndex(const int,
                                     bool);
 
-    /// Removes from each orbit all sites in equivalent sites that _do not_ involve the given index.
+    /// Removes from each orbit all sites in equivalent sites that _do not_ involve the given site.
     void removeSitesNotContainingIndex(const int, bool);
 
     /// Returns the first column of the permutation matrix used to construct the orbit list.

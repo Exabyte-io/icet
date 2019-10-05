@@ -4,6 +4,7 @@ from icet import ClusterSpace, ClusterExpansion
 from ase.build import bulk
 from io import StringIO
 import numpy as np
+import sys
 
 
 def strip_surrounding_spaces(input_string):
@@ -29,10 +30,10 @@ class TestClusterExpansion(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestClusterExpansion, self).__init__(*args, **kwargs)
-        self.atoms = bulk('Au')
+        self.structure = bulk('Au')
         self.cutoffs = [3.0] * 3
         chemical_symbols = ['Au', 'Pd']
-        self.cs = ClusterSpace(self.atoms, self.cutoffs, chemical_symbols)
+        self.cs = ClusterSpace(self.structure, self.cutoffs, chemical_symbols)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -56,7 +57,7 @@ class TestClusterExpansion(unittest.TestCase):
 
     def test_predict(self):
         """Tests predict function."""
-        predicted_val = self.ce.predict(self.atoms)
+        predicted_val = self.ce.predict(self.structure)
         self.assertEqual(predicted_val, 10.0)
 
     def test_property_orders(self):
@@ -71,9 +72,9 @@ class TestClusterExpansion(unittest.TestCase):
         self.assertIn('eci', df.columns)
         self.assertEqual(len(df), len(self.parameters))
 
-    def test_property_clusterspace(self):
-        """Tests cluster space property."""
-        self.assertEqual(self.ce.cluster_space, self.cs)
+    def test_get__clusterspace_copy(self):
+        """Tests get cluster space copy."""
+        self.assertEqual(str(self.ce.get_cluster_space_copy()), str(self.cs))
 
     def test_property_parameters(self):
         """Tests parameters properties."""
@@ -94,14 +95,20 @@ class TestClusterExpansion(unittest.TestCase):
         ce_read = ClusterExpansion.read(temp_file.name)
 
         # check cluster space
-        self.assertEqual(self.cs._atoms, ce_read.cluster_space._atoms)
-        self.assertEqual(self.cs._cutoffs, ce_read.cluster_space._cutoffs)
-        self.assertEqual(self.cs._chemical_symbols,
-                         ce_read.cluster_space._chemical_symbols)
+        self.assertEqual(self.cs._input_structure, ce_read._cluster_space._input_structure)
+        self.assertEqual(self.cs._cutoffs, ce_read._cluster_space._cutoffs)
+        self.assertEqual(
+            self.cs._input_chemical_symbols, ce_read._cluster_space._input_chemical_symbols)
 
-        self.assertIsInstance(ce_read.parameters, np.ndarray)
         # check parameters
+        self.assertIsInstance(ce_read.parameters, np.ndarray)
         self.assertEqual(list(ce_read.parameters), list(self.parameters))
+
+        # check metadata
+        self.assertEqual(len(self.ce.metadata), len(ce_read.metadata))
+        self.assertSequenceEqual(sorted(self.ce.metadata.keys()), sorted(ce_read.metadata.keys()))
+        for key in self.ce.metadata.keys():
+            self.assertEqual(self.ce.metadata[key], ce_read.metadata[key])
 
     def test_read_write_pruned(self):
         """Tests read and write functionalities."""
@@ -110,14 +117,14 @@ class TestClusterExpansion(unittest.TestCase):
         self.ce.prune(indices=[2, 3])
         self.ce.prune(tol=3)
         pruned_params = self.ce.parameters
-        pruned_cs_len = len(self.ce.cluster_space)
+        pruned_cs_len = len(self.ce._cluster_space)
         self.ce.write(temp_file.name)
 
         # read from file
         temp_file.seek(0)
         ce_read = ClusterExpansion.read(temp_file.name)
         params_read = ce_read.parameters
-        cs_len_read = len(ce_read.cluster_space)
+        cs_len_read = len(ce_read._cluster_space)
 
         # check cluster space
         self.assertEqual(cs_len_read, pruned_cs_len)
@@ -176,46 +183,57 @@ class TestClusterExpansion(unittest.TestCase):
 
         retval = self.ce.__repr__()
         target = """
-=================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+========================================== Cluster Expansion ===========================================
+ chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
-------------------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
-   1  |   1   |   0.0000 |        1     |       0     |          [0]           |         1
-   2  |   2   |   1.4425 |        6     |       1     |         [0, 0]         |         2
-   3  |   3   |   1.6657 |        8     |       2     |       [0, 0, 0]        |         3
-   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |         4
-==========================================================================================
+ total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of nonzero parameters: 4
+ number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
+--------------------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
+--------------------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .      |         0
+   1  |   1   |   0.0000 |        1     |       0     |          [0]           |      A      |         1
+   2  |   2   |   1.4425 |        6     |       1     |         [0, 0]         |     A-A     |         2
+   3  |   3   |   1.6657 |        8     |       2     |       [0, 0, 0]        |    A-A-A    |         3
+   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
+========================================================================================================
+
 """  # noqa
 
-        self.assertEqual(strip_surrounding_spaces(target),
-                         strip_surrounding_spaces(retval))
+        self.assertEqual(strip_surrounding_spaces(target), strip_surrounding_spaces(retval))
 
     def test_get_string_representation(self):
         """Tests _get_string_representation functionality."""
 
-        retval = self.ce._get_string_representation(print_threshold=2,
-                                                    print_minimum=1)
+        retval = self.ce._get_string_representation(print_threshold=2, print_minimum=1)
+
         target = """
-=================================== Cluster Expansion ====================================
- chemical species: ['Au', 'Pd']
+========================================== Cluster Expansion ===========================================
+ chemical species: ['Au', 'Pd'] (sublattice A)
  cutoffs: 3.0000 3.0000 3.0000
- total number of orbits: 5
- number of orbits by order: 0= 1  1= 1  2= 1  3= 1  4= 1
-------------------------------------------------------------------------------------------
-index | order |  radius  | multiplicity | orbit_index | multi_component_vector |    ECI
-------------------------------------------------------------------------------------------
-   0  |   0   |   0.0000 |        1     |      -1     |           .            |         0
+ total number of parameters: 5
+ number of parameters by order: 0= 1  1= 1  2= 1  3= 1  4= 1
+ total number of nonzero parameters: 4
+ number of nonzero parameters by order: 0= 0  1= 1  2= 1  3= 1  4= 1  
+--------------------------------------------------------------------------------------------------------
+index | order |  radius  | multiplicity | orbit_index | multi_component_vector | sublattices |    ECI   
+--------------------------------------------------------------------------------------------------------
+   0  |   0   |   0.0000 |        1     |      -1     |           .            |      .      |         0
  ...
-   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |         4
-==========================================================================================
+   4  |   4   |   1.7667 |        2     |       3     |      [0, 0, 0, 0]      |   A-A-A-A   |         4
+========================================================================================================
 """  # noqa
-        self.assertEqual(strip_surrounding_spaces(target),
-                         strip_surrounding_spaces(retval))
+        self.assertEqual(strip_surrounding_spaces(target), strip_surrounding_spaces(retval))
+
+    def test_print_overview(self):
+        """Tests print_overview functionality."""
+        with StringIO() as capturedOutput:
+            sys.stdout = capturedOutput  # redirect stdout
+            self.ce.print_overview()
+            sys.stdout = sys.__stdout__  # reset redirect
+            self.assertTrue('Cluster Expansion' in capturedOutput.getvalue())
 
 
 class TestClusterExpansionTernary(unittest.TestCase):
@@ -223,10 +241,10 @@ class TestClusterExpansionTernary(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super(TestClusterExpansionTernary, self).__init__(*args, **kwargs)
-        self.atoms = bulk('Au')
+        self.structure = bulk('Au')
         self.cutoffs = [3.0] * 3
         chemical_symbols = ['Au', 'Pd', 'Ag']
-        self.cs = ClusterSpace(self.atoms, self.cutoffs, chemical_symbols)
+        self.cs = ClusterSpace(self.structure, self.cutoffs, chemical_symbols)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -259,6 +277,23 @@ class TestClusterExpansionTernary(unittest.TestCase):
         df_new = self.ce.parameters_as_dataframe
         pair_indices_new = df_new.index[df_new['order'] == 2].tolist()
         self.assertEqual(pair_indices_new, [])
+
+    def test_property_metadata(self):
+        """ Test get metadata method. """
+
+        user_metadata = dict(parameters=[1, 2, 3], fit_method='ardr')
+        ce = ClusterExpansion(self.cs, self.parameters, metadata=user_metadata)
+        metadata = ce.metadata
+
+        # check for user metadata
+        self.assertIn('parameters', metadata.keys())
+        self.assertIn('fit_method', metadata.keys())
+
+        # check for default metadata
+        self.assertIn('date_created', metadata.keys())
+        self.assertIn('username', metadata.keys())
+        self.assertIn('hostname', metadata.keys())
+        self.assertIn('icet_version', metadata.keys())
 
 
 if __name__ == '__main__':

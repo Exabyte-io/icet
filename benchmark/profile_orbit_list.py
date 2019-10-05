@@ -6,11 +6,11 @@ import time
 
 if __name__ == '__main__':
 
-    atoms = bulk('Al')
+    structure = bulk('Al')
     cutoffs = [10, 7, 6]
 
     t = time.process_time()
-    orbit = OrbitList(atoms, cutoffs)  # noqa
+    orbit = OrbitList(structure, cutoffs)  # noqa
     elapsed_time = time.process_time() - t
 
     print('Time to initialize OrbitList with cutoffs: {}, {:.6} sec'

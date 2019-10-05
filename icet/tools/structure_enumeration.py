@@ -3,10 +3,11 @@ from itertools import product
 import numpy as np
 
 from ase import Atoms
+from ase.build import make_supercell
 from spglib import get_symmetry
 from spglib import niggli_reduce as spg_nigg_red
 from .structure_enumeration_support.hermite_normal_form \
-    import get_reduced_hnfs, HermiteNormalForm
+    import yield_reduced_hnfs, HermiteNormalForm
 from .structure_enumeration_support.smith_normal_form \
     import get_unique_snfs, SmithNormalForm
 from .structure_enumeration_support.labeling_generation \
@@ -15,11 +16,13 @@ from typing import Dict, List, Tuple, Generator
 
 
 def _translate_labelings(
-        labeling: tuple, snf: SmithNormalForm, nsites: int,
-        include_self: bool = False)-> Generator[Tuple[int], None, None]:
+        labeling: tuple,
+        snf: SmithNormalForm,
+        nsites: int,
+        include_self: bool = False) -> Generator[Tuple[int], None, None]:
     """
-    Yields labelings that are equivalent to the original labeling
-    under translations as dictated by the Smith normal form (SNF) provided.
+    Yields labelings that are equivalent to the original labeling under
+    translations as dictated by the Smith normal form (SNF) provided.
 
     Parameters
     ----------
@@ -59,13 +62,13 @@ def _get_all_labelings(snf: SmithNormalForm,
                        labeling_generator: LabelingGenerator,
                        nsites: int) -> List[tuple]:
     """
-    Returns inequivalent labelings corresponding to a Smith normal
-    form (SNF) matrix. Superperiodic labelings as well as labelings that
-    are equivalent under translations for this particular SNF will not
-    be included. However, labelings that are equivalent by rotations
-    that leave the cell (but not the labeling) unchanged will still be
-    included, since these have to be removed for each Hermite normal form (HNF)
-    separately.
+    Returns inequivalent labelings corresponding to a Smith normal form
+    (SNF) matrix. Superperiodic labelings as well as labelings that are
+    equivalent under translations for this particular SNF will not be
+    included. However, labelings that are equivalent by rotations that
+    leave the cell (but not the labeling) unchanged will still be
+    included, since these have to be removed for each Hermite normal
+    form (HNF) separately.
 
     Parameters
     ----------
@@ -112,7 +115,8 @@ def _permute_labeling(labeling: tuple, snf: SmithNormalForm,
     snf
         SmithNormalForm object
     transformation
-        transformation consisting of rotation, translation and basis shift
+        transformation consisting of rotation, translation and basis
+        shift
     nsites
         number of sites in the primitive cell
     """
@@ -150,9 +154,9 @@ def _yield_unique_labelings(labelings: List[int], snf: SmithNormalForm,
     Parameters
     ----------
     labelkeys
-        list of hash keys to labelings that may still contain labelings that
-        are equivalent under rotations that leave the supercell shape
-        unchanged
+        list of hash keys to labelings that may still contain labelings
+        that are equivalent under rotations that leave the supercell
+        shape unchanged
     snf
         SmithNormalForm object
     hnf
@@ -196,10 +200,10 @@ def _yield_unique_labelings(labelings: List[int], snf: SmithNormalForm,
             yield labeling
 
 
-def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
-                       new_cell: np.ndarray,
-                       basis: np.ndarray, chemical_symbols: List[str],
-                       pbc: List[bool]) -> Atoms:
+def _labeling_to_structure(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
+                           new_cell: np.ndarray,
+                           basis: np.ndarray, chemical_symbols: List[str],
+                           pbc: List[bool]) -> Atoms:
     """
     Returns structure object corresponding to the given labeling using
     labeling, HNF matrix and parent lattice.
@@ -240,13 +244,13 @@ def _labeling_to_atoms(labeling: tuple, hnf: np.ndarray, cell: np.ndarray,
                                      np.dot(cell.T, basis_vector))
                     symbols.append(chemical_symbols[labeling[count]])
                     count += 1
-    atoms = Atoms(symbols, positions, cell=new_cell, pbc=(True, True, True))
-    atoms.wrap()
-    atoms.pbc = pbc
-    return atoms
+    structure = Atoms(symbols, positions, cell=new_cell, pbc=(True, True, True))
+    structure.wrap()
+    structure.pbc = pbc
+    return structure
 
 
-def get_symmetry_operations(atoms: Atoms,
+def get_symmetry_operations(structure: Atoms,
                             tolerance: float = 1e-3) -> Dict[str, list]:
     """
     Returns symmetry operations permissable for a given structure as
@@ -257,25 +261,25 @@ def get_symmetry_operations(atoms: Atoms,
 
     Parameters
     ----------
-    atoms
+    structure
         structure for which symmetry operations are sought
     tolerance
         numerical tolerance imposed during symmetry analysis
     """
 
-    symmetries = get_symmetry(atoms)
+    symmetries = get_symmetry(structure)
     assert symmetries, ('spglib.get_symmetry() failed. Please make sure that'
-                        ' the atoms object is sensible.')
+                        ' the structure object is sensible.')
     rotations = symmetries['rotations']
     translations = symmetries['translations']
 
-    basis = atoms.get_scaled_positions()
+    basis = structure.get_scaled_positions()
 
     # Calculate how atoms within the primitive cell are shifted (from one site
     # to another) and translated (from one primtive cell to another) upon
     # operation with rotation matrix. Note that the translations are needed
     # here because different sites translate differently.
-    basis_shifts = np.zeros((len(rotations), len(atoms)), dtype='int64')
+    basis_shifts = np.zeros((len(rotations), len(structure)), dtype='int64')
     sites_translations = []
     for i, rotation in enumerate(rotations):
         translation = translations[i]
@@ -323,19 +327,21 @@ def get_symmetry_operations(atoms: Atoms,
     return symmetries
 
 
-def enumerate_structures(atoms: Atoms, sizes: List[int],
+def enumerate_structures(structure: Atoms, sizes: List[int],
                          chemical_symbols: list,
                          concentration_restrictions: dict = None,
                          niggli_reduce: bool = None) -> Atoms:
-    """Yields a sequence of enumerated structures. The function generates
+    """
+    Yields a sequence of enumerated structures. The function generates
     *all* inequivalent structures that are permissible given a certain
-    lattice. Using the ``chemical_symbols`` and ``concentration_restrictions``
-    keyword arguments it is possible to specify which chemical_symbols are to
-    be included on which site and in which concentration range.
+    lattice. Using the ``chemical_symbols`` and
+    ``concentration_restrictions`` keyword arguments it is possible to
+    specify which chemical_symbols are to be included on which site and
+    in which concentration range.
 
     The function is sensitive to the boundary conditions of the input
-    structure. An enumeration of, for example, a surface can thus be performed
-    by setting ``atoms.pbc = [True, True, False]``.
+    structure. An enumeration of, for example, a surface can thus be
+    performed by setting ``structure.pbc = [True, True, False]``.
 
     The algorithm implemented here was developed by Gus L. W. Hart and
     Rodney W. Forcade in Phys. Rev. B **77**, 224115 (2008)
@@ -343,14 +349,14 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
 
     Parameters
     ----------
-    atoms
-        primitive structure from which derivative superstructures should be
-        generated
+    structure
+        primitive structure from which derivative superstructures should
+        be generated
     sizes
-        number of sites (included in the enumeration)
+        number of sites (included in enumeration)
     chemical_symbols
-        chemical species with which to decorate the structure, e.g., ``['Au',
-        'Ag']``; see below for more examples
+        chemical species with which to decorate the structure, e.g.,
+        ``['Au', 'Ag']``; see below for more examples
     concentration_restrictions
         allowed concentration range for one or more element in
         `chemical_symbols`, e.g., ``{'Au': (0, 0.2)}`` will only
@@ -359,9 +365,9 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
         atoms of the specified kind divided by the number of *all*
         atoms.
     niggli_reduction
-        if True perform a Niggli reduction with spglib for each structure;
-        the default is ``True`` if ``atoms`` is periodic in all directions,
-        ``False`` otherwise.
+        if True perform a Niggli reduction with spglib for each
+        structure; the default is ``True`` if ``structure`` is periodic in
+        all directions, ``False`` otherwise.
 
     Examples
     --------
@@ -372,13 +378,13 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
 
         from ase.build import bulk
         prim = bulk('Ag')
-        enumerate_structures(atoms=prim, sizes=range(1, 7),
+        enumerate_structures(structure=prim, sizes=range(1, 7),
                              chemical_symbols=['Ag', 'Au'])
 
     To limit the concentration range to 10 to 40% Au the code should
     be modified as follows::
 
-        enumerate_structures(atoms=prim, sizes=range(1, 7),
+        enumerate_structures(structure=prim, sizes=range(1, 7),
                              chemical_symbols=['Ag', 'Au'],
                              concentration_restrictions={'Au': (0.1, 0.4)})
 
@@ -387,13 +393,13 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
     Ga(1-x)Al(x)As alloy as follows::
 
         prim = bulk('GaAs', crystalstructure='zincblende', a=5.65)
-        enumerate_structures(atoms=prim, sizes=range(1, 9),
+        enumerate_structures(structure=prim, sizes=range(1, 9),
                              chemical_symbols=[['Ga', 'Al'], ['As']])
 
     """
 
-    nsites = len(atoms)
-    basis = atoms.get_scaled_positions()
+    nsites = len(structure)
+    basis = structure.get_scaled_positions()
 
     # Construct descriptor of where species are allowed to be
     if isinstance(chemical_symbols[0], str):
@@ -435,27 +441,89 @@ def enumerate_structures(atoms: Atoms, sizes: List[int],
     # Niggli reduce by default if all directions have
     # periodic boundary conditions
     if niggli_reduce is None:
-        niggli_reduce = (sum(atoms.pbc) == 3)
+        niggli_reduce = (sum(structure.pbc) == 3)
 
-    symmetries = get_symmetry_operations(atoms)
+    symmetries = get_symmetry_operations(structure)
 
     # Loop over each cell size
     for ncells in sizes:
         if ncells == 0:
             continue
 
-        hnfs = get_reduced_hnfs(ncells, symmetries, atoms.pbc)
+        hnfs = list(yield_reduced_hnfs(ncells, symmetries, structure.pbc))
         snfs = get_unique_snfs(hnfs)
 
         for snf in snfs:
             labelings = _get_all_labelings(snf, labeling_generator, nsites)
             for hnf in snf.hnfs:
                 if niggli_reduce:
-                    new_cell = spg_nigg_red(np.dot(atoms.cell.T, hnf.H).T)
+                    new_cell = spg_nigg_red(np.dot(structure.cell.T, hnf.H).T)
+                    if new_cell is None:
+                        new_cell = np.dot(structure.cell.T, hnf.H).T
                 else:
-                    new_cell = np.dot(atoms.cell.T, hnf.H).T
+                    new_cell = np.dot(structure.cell.T, hnf.H).T
                 for labeling in _yield_unique_labelings(labelings, snf, hnf,
                                                         nsites):
-                    yield _labeling_to_atoms(labeling, hnf, atoms.cell,
-                                             new_cell, basis, elements,
-                                             atoms.pbc)
+                    yield _labeling_to_structure(labeling, hnf, structure.cell,
+                                                 new_cell, basis, elements,
+                                                 structure.pbc)
+
+
+def enumerate_supercells(structure: Atoms, sizes: List[int],
+                         niggli_reduce: bool = None) -> Atoms:
+    """
+    Yields a sequence of enumerated supercells. The function generates
+    *all* inequivalent supercells that are permissible given a certain
+    lattice. Any supercell can be reduced to one of the supercells
+    generated.
+
+    The function is sensitive to the boundary conditions of the input
+    structure. An enumeration of, for example, a surface can thus be
+    performed by setting ``structure.pbc = [True, True, False]``.
+
+    The algorithm is based on Gus L. W. Hart and
+    Rodney W. Forcade in Phys. Rev. B **77**, 224115 (2008)
+    [HarFor08]_ and Phys. Rev. B **80**, 014120 (2009) [HarFor09]_.
+
+    Parameters
+    ----------
+    structure
+        primitive structure from which supercells should be
+        generated
+    sizes
+        number of sites (included in enumeration)
+    niggli_reduction
+        if True perform a Niggli reduction with spglib for each
+        supercell; the default is ``True`` if ``structure`` is periodic in
+        all directions, ``False`` otherwise.
+
+    Examples
+    --------
+
+    The following code snippet illustrates how to enumerate supercells
+    with up to 6 atoms in the unit cell::
+
+        from ase.build import bulk
+        prim = bulk('Ag')
+        enumerate_supercells(structure=prim, sizes=range(1, 7))
+    """
+
+    # Niggli reduce by default if all directions have
+    # periodic boundary conditions
+    if niggli_reduce is None:
+        niggli_reduce = (sum(structure.pbc) == 3)
+
+    symmetries = get_symmetry_operations(structure)
+
+    for ncells in sizes:
+        for hnf in yield_reduced_hnfs(ncells, symmetries, structure.pbc):
+            supercell = make_supercell(structure, hnf.H)
+            if niggli_reduce:
+                new_cell = spg_nigg_red(np.dot(structure.cell.T, hnf.H).T)
+                if new_cell is None:  # Happens when spglib fails to Niggli reduce
+                    yield supercell
+                else:
+                    Pprim = np.dot(new_cell, np.linalg.inv(structure.cell))
+                    yield make_supercell(structure, Pprim)
+            else:
+                yield supercell

@@ -1,9 +1,13 @@
+"""
+This module provides the ConvexHull class.
+"""
+
 import itertools
 import numpy as np
+from typing import List, Union
 from scipy.interpolate import griddata
 from scipy.spatial import ConvexHull as ConvexHullSciPy
 from scipy.spatial.qhull import QhullError
-from typing import List, Union
 
 
 class ConvexHull:
@@ -15,23 +19,23 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
     Parameters
     ----------
-    concentrations : list of floats / list of lists of floats
+    concentrations : list(float) or list(list(float))
         concentrations for each structure listed as ``[[c1, c2], [c1, c2],
         ...]``; for binaries, in which case there is only one independent
         concentration, the format ``[c1, c2, c3, ...]`` works as well.
-    energies : list of floats
+    energies : list(float)
         energy (or energy of mixing) for each structure
 
     Attributes
     ----------
-    concentrations : NumPy array (N, dimensions)
+    concentrations : np.ndarray
         concentrations of the `N` structures on the convex hull
-    energies : NumPy array
+    energies : np.ndarray
         energies of the `N` structures on the convex hull
     dimensions : int
         number of independent concentrations needed to specify a point in
         concentration space (1 for binaries, 2 for ternaries etc.)
-    structures : list of int
+    structures : list(int)
         indices of structures that constitute the convex hull (indices are
         defined by the order of their concentrations and energies are fed when
         initializing the ConvexHull object)
@@ -52,7 +56,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
         low_energy_structures = hull.extract_low_energy_structures(
             data['concentration'], data['mixing_energy'],
-            tolerance=0.005, structures=list_of_structures)
+            energy_tolerance=0.005)
 
     A complete example can be found in the :ref:`basic tutorial
     <tutorial_enumerate_structures>`.
@@ -212,10 +216,9 @@ generated/scipy.spatial.ConvexHull.html>`_.
                                       Union[List[float],
                                             List[List[float]]],
                                       energies: List[float],
-                                      energy_tolerance: float, structures:
-                                      list = None) -> List[int]:
-        """Returns structures that lie within a certain tolerance of the convex
-        hull.
+                                      energy_tolerance: float) -> List[int]:
+        """Returns the indices of energies that lie within a certain
+        tolerance of the convex hull.
 
         Parameters
         ----------
@@ -231,29 +234,22 @@ generated/scipy.spatial.ConvexHull.html>`_.
         energy_tolerance
             include structures with an energy that is at most this far
             from the convex hull
-        structures
-            list of candidate structures, e.g., :class:`ASE Atoms
-            <ase.Atoms>` objects, corresponding to ``concentrations``
-            and ``energies``
-
-            The list will be returned, but with the objects too
-            far from the convex hull removed. If `None`, a list of
-            indices is returned instead.
-
         """
-        number_of_candidates = len(concentrations)
-        assert len(energies) == number_of_candidates
-        if structures is None:
-            structures = list(range(number_of_candidates))
-        assert len(structures) == number_of_candidates
+        # Convert to numpy arrays, can be necessary if, for example,
+        # they are Pandas Series with "gaps"
+        concentrations = np.array(concentrations)
+        energies = np.array(energies)
+
+        n_points = len(concentrations)
+        if len(energies) != n_points:
+            raise ValueError('concentrations and energies must have '
+                             'the same length')
 
         # Calculate energy at convex hull for specified concentrations
         hull_energies = self.get_energy_at_convex_hull(concentrations)
 
-        # Check which ones were close enough
-        close_to_hull_structures = []
-        for i in range(number_of_candidates):
-            if energies[i] <= hull_energies[i] + energy_tolerance:
-                close_to_hull_structures.append(structures[i])
+        # Extract those that are close enough
+        close_to_hull = [i for i in range(n_points)
+                         if energies[i] <= hull_energies[i] + energy_tolerance]
 
-        return close_to_hull_structures
+        return close_to_hull

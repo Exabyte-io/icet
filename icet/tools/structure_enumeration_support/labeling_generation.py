@@ -120,10 +120,14 @@ class LabelingGenerator():
             for species_group in product:
                 for species in self.concentrations.keys():
                     counts[species] += species_group.count(species)
+            conc_restr_violation = False
             for species, conc_range in self.concentrations.items():
-                if counts[species] / natoms > conc_range[0] - self.tol and \
-                   counts[species] / natoms < conc_range[1] + self.tol:
-                    yield product
+                if counts[species] / natoms < conc_range[0] - self.tol or \
+                   counts[species] / natoms > conc_range[1] + self.tol:
+                    conc_restr_violation = True
+                    break
+            if not conc_restr_violation:
+                yield product
 
     def yield_unique_permutations(self, unique_species, permutation,
                                   position):

@@ -10,7 +10,7 @@ from icet import OrbitList
 from icet import Structure
 from icet.tools.geometry import get_permutation
 from icet.core.permutation_matrix import (_get_lattice_site_permutation_matrix,
-                                          permutation_matrix_from_atoms)
+                                          permutation_matrix_from_structure)
 
 
 class TestOrbitList(unittest.TestCase):
@@ -19,17 +19,16 @@ class TestOrbitList(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestOrbitList, self).__init__(*args, **kwargs)
         self.cutoffs = [4.2]
-        self.atoms = bulk('Ag', 'sc', a=4.09)
+        self.structure = bulk('Ag', 'sc', a=4.09)
 
         # representative clusters for testing
-        structure = Structure.from_atoms(self.atoms)
         # for singlet
-        self.cluster_singlet = Cluster(
-            structure, [LatticeSite(0, [0, 0, 0])])
+        self.cluster_singlet = Cluster(Structure.from_atoms(self.structure),
+                                       [LatticeSite(0, [0, 0, 0])])
         # for pair
         lattice_sites = [LatticeSite(0, [i, 0, 0]) for i in range(3)]
-        self.cluster_pair = Cluster(
-            structure, [lattice_sites[0], lattice_sites[1]], True)
+        self.cluster_pair = Cluster(Structure.from_atoms(self.structure),
+                                    [lattice_sites[0], lattice_sites[1]], True)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -37,18 +36,18 @@ class TestOrbitList(unittest.TestCase):
 
     def setUp(self):
         """Instantiate class before each test."""
-        self.orbit_list = OrbitList(self.atoms, self.cutoffs)
+        self.orbit_list = OrbitList(self.structure, self.cutoffs)
 
     def test_init(self):
         """Test the different initializers."""
         orbit_list = OrbitList(
-            self.atoms, self.cutoffs)
+            self.structure, self.cutoffs)
         self.assertIsInstance(orbit_list, OrbitList)
 
     def test_property_permutation_matrix(self):
         """Tests permutation matrix property."""
         permutation_matrix, prim_structure, _ = \
-            permutation_matrix_from_atoms(self.atoms, self.cutoffs[0])
+            permutation_matrix_from_structure(self.structure, self.cutoffs[0])
         pm_lattice_site = _get_lattice_site_permutation_matrix(
             prim_structure, permutation_matrix, prune=True)
 
@@ -144,9 +143,9 @@ class TestOrbitList(unittest.TestCase):
     def test_get_supercell_orbit_list(self):
         """Tests orbit list is returned for the given supercell."""
         # TODO : Tests fails for an actual supercell of the testing structure
-        atoms_supercell = self.atoms.copy()
+        structure_supercell = self.structure.copy()
         orbit_list_super = \
-            self.orbit_list.get_supercell_orbit_list(atoms_supercell)
+            self.orbit_list.get_supercell_orbit_list(structure_supercell)
         orbit_list_super.sort()
         self.orbit_list.sort()
         for k in range(len(orbit_list_super)):
@@ -225,7 +224,7 @@ class TestOrbitList(unittest.TestCase):
             for k, sites in enumerate(translated_sites):
                 self.assertEqual(columns[k + 2 * i], sites)
 
-    def _test_allowed_permutations(self, atoms):
+    def _test_allowed_permutations(self, structure):
         """Tests allowed permutations of orbits in orbit list.
 
         This test works in the following fashion.
@@ -241,7 +240,7 @@ class TestOrbitList(unittest.TestCase):
         5. Check allowed_perm list is equal to orbit.allowed_permutation.
         """
         cutoffs = [1.6, 1.6]
-        orbit_list = OrbitList(atoms, cutoffs)
+        orbit_list = OrbitList(structure, cutoffs)
 
         pm = orbit_list.permutation_matrix
         column1 = [row[0] for row in pm]
@@ -277,12 +276,12 @@ class TestOrbitList(unittest.TestCase):
             self.assertEqual(sorted(allowed_perm),
                              sorted(orbit.allowed_permutations))
 
-    def _test_equivalent_sites(self, atoms):
+    def _test_equivalent_sites(self, structure):
         """
         Tests permutations taken equivalent sites to representative sites.
         """
         cutoffs = [1.6, 1.6]
-        orbit_list = OrbitList(atoms, cutoffs)
+        orbit_list = OrbitList(structure, cutoffs)
 
         pm = orbit_list.permutation_matrix
         column1 = [row[0] for row in pm]
@@ -308,26 +307,26 @@ class TestOrbitList(unittest.TestCase):
                         match_repr_site = True
             self.assertTrue(match_repr_site)
 
-    def test_orbit_permutations_for_atoms_in_database(self):
+    def test_orbit_permutations_for_structure_in_database(self):
         """
         Tests allowed_permutation and equivalent_sites of orbits in orbit_list
-        for atoms in database (only atoms with pbc=True).
+        for structure in database (only structures with pbc=True).
         """
         db = ase_connect("structures_for_testing.db")
         for row in db.select('pbc=TTT'):
-            atoms = row.toatoms()
-            with self.subTest(atoms_tag=row.tag):
-                self._test_allowed_permutations(atoms)
-                self._test_equivalent_sites(atoms)
+            structure = row.toatoms()
+            with self.subTest(structure_tag=row.tag):
+                self._test_allowed_permutations(structure)
+                self._test_equivalent_sites(structure)
 
     def test_orbit_list_fcc(self):
         """
         Tests orbit list has the right number of singlet and pairs for
         a fcc structure.
         """
-        atoms = bulk('Al', 'fcc', a=3.0)
+        structure = bulk('Al', 'fcc', a=3.0)
         cutoffs = [2.5]
-        orbit_list = OrbitList(atoms, cutoffs)
+        orbit_list = OrbitList(structure, cutoffs)
         # only a singlet and a pair are expected
         self.assertEqual(len(orbit_list), 2)
         # singlet
@@ -345,9 +344,9 @@ class TestOrbitList(unittest.TestCase):
         Tests orbit list has the right number  of singlet and pairs for
         a bcc structure.
         """
-        atoms = bulk('Al', 'bcc', a=3.0)
+        structure = bulk('Al', 'bcc', a=3.0)
         cutoffs = [3.0]
-        orbit_list = OrbitList(atoms, cutoffs)
+        orbit_list = OrbitList(structure, cutoffs)
         # one singlet and two pairs expected
         self.assertEqual(len(orbit_list), 3)
         # singlet
@@ -368,9 +367,9 @@ class TestOrbitList(unittest.TestCase):
         Tests orbit list has the right number of singlet and pairs for
         a hcp structure.
         """
-        atoms = bulk('Ni', 'hcp', a=3.0)
+        structure = bulk('Ni', 'hcp', a=3.0)
         cutoffs = [3.1]
-        orbit_list = OrbitList(atoms, cutoffs)
+        orbit_list = OrbitList(structure, cutoffs)
         # only one singlet and one pair expected
         self.assertEqual(len(orbit_list), 3)
         # singlet

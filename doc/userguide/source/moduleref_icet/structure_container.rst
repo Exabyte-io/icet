@@ -5,6 +5,7 @@
 Structures
 ==========
 
+
 .. index::
    single: Function reference; Structure container
    single: Class reference; Structure container
@@ -16,6 +17,7 @@ StructureContainer
    :members:
    :undoc-members:
    :inherited-members:
+
 
 .. index::
    single: Function reference; Structure

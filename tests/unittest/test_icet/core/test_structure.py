@@ -28,9 +28,10 @@ def strip_surrounding_spaces(input_string):
 
 class TestStructure(unittest.TestCase):
     """Container for test of the module functionality."""
+
     def __init__(self, *args, **kwargs):
         super(TestStructure, self).__init__(*args, **kwargs)
-        self.atoms = bulk('Ag', 'hcp', a=2.0)
+        self.ase_atoms = bulk('Ag', 'hcp', a=2.0)
         self.noise = 1e-6
         self.positions = [[0., 0., 0.],
                           [0., 1.15470054, 1.63299316]]
@@ -45,7 +46,7 @@ class TestStructure(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        self.structure = Structure(
+        self.icet_structure = Structure(
             positions=self.positions,
             chemical_symbols=self.chemical_symbols,
             cell=self.cell,
@@ -54,53 +55,53 @@ class TestStructure(unittest.TestCase):
 
     def test_positions(self):
         """Tests positions of atoms in structure."""
-        for i, vec in enumerate(self.structure.positions):
+        for i, vec in enumerate(self.icet_structure.positions):
             self.assertListEqual(vec.tolist(), self.positions[i])
 
     def test_chemical_symbols(self):
         """Tests chemical symbols of atoms in structure."""
-        self.assertListEqual(self.structure.chemical_symbols,
+        self.assertListEqual(self.icet_structure.chemical_symbols,
                              self.chemical_symbols)
 
     def test_atomic_numbers(self):
         """Tests atomic numbers."""
-        self.assertListEqual(self.structure.atomic_numbers,
+        self.assertListEqual(self.icet_structure.atomic_numbers,
                              [47, 47])
 
     def test_cell(self):
         """Tests cell."""
-        for i, vec in enumerate(self.structure.cell):
+        for i, vec in enumerate(self.icet_structure.cell):
             self.assertListEqual(vec.tolist(), self.cell[i])
 
     def test_pbc(self):
         """Tests periodic boundary conditions."""
-        self.assertListEqual(self.structure.pbc, [True, True, True])
+        self.assertListEqual(self.icet_structure.pbc, [True, True, True])
 
     def test_unique_sites(self):
         """Tests unique sites."""
-        self.assertListEqual(self.structure.unique_sites,
+        self.assertListEqual(self.icet_structure.unique_sites,
                              [0, 0])
 
     def test_set_and_get_positions(self):
         """Tests set and get positions."""
         new_positions = [[0., 0., 0.001],
                          [0., 1.15470054, 1.63299316]]
-        self.structure.set_positions(new_positions)
-        retval = self.structure.get_positions()
+        self.icet_structure.set_positions(new_positions)
+        retval = self.icet_structure.get_positions()
         for i, vec in enumerate(retval):
             self.assertListEqual(vec.tolist(), new_positions[i])
 
     def test_set_and_get_chemical_symbols(self):
         """Tests set and get chemical symbols."""
         new_chemical_symbols = ['Au', 'Au']
-        self.structure.set_chemical_symbols(new_chemical_symbols)
-        retval = self.structure.get_chemical_symbols()
+        self.icet_structure.set_chemical_symbols(new_chemical_symbols)
+        retval = self.icet_structure.get_chemical_symbols()
         self.assertListEqual(retval, new_chemical_symbols)
 
     def test_set_and_get_atomic_numbers(self):
         """Tests set and get atomic numbers."""
-        self.structure.set_atomic_numbers([48, 47])
-        retval = self.structure.get_atomic_numbers()
+        self.icet_structure.set_atomic_numbers([48, 47])
+        retval = self.icet_structure.get_atomic_numbers()
         self.assertListEqual(retval, [48, 47])
 
     def test_set_and_get_cell(self):
@@ -108,35 +109,35 @@ class TestStructure(unittest.TestCase):
         new_cell = [[2., 0., 0.],
                     [-1., 2., 0.],
                     [0., 0., 4.]]
-        self.structure.set_cell(new_cell)
-        retval = self.structure.get_cell()
+        self.icet_structure.set_cell(new_cell)
+        retval = self.icet_structure.get_cell()
         for i, vec in enumerate(retval):
             self.assertListEqual(vec.tolist(), new_cell[i])
 
     def test_set_and_get_pbc(self):
         """Tests set and get pbc."""
-        self.structure.set_pbc([True, True, False])
-        retval = self.structure.get_pbc()
+        self.icet_structure.set_pbc([True, True, False])
+        retval = self.icet_structure.get_pbc()
         self.assertListEqual(retval, [True, True, False])
 
     def test_set_and_get_unique_sites(self):
         """Tests set and get unique sites."""
-        self.structure.set_unique_sites([0, 1])
-        retval = self.structure.get_unique_sites()
+        self.icet_structure.set_unique_sites([0, 1])
+        retval = self.icet_structure.get_unique_sites()
         self.assertListEqual(retval, [0, 1])
 
     def test_get_position(self):
         """Tests get_position functionality."""
-        retval = self.structure.get_position(LatticeSite(1, [0, 0, 0]))
+        retval = self.icet_structure.get_position(LatticeSite(1, [0, 0, 0]))
         self.assertListEqual(retval.tolist(), self.positions[1])
 
     def test_get_distance(self):
         """Tests get_distance functionality."""
-        retval = self.structure.get_distance(0, 1,
-                                             [0., 0., 0.],
-                                             [0., 0., 0.])
+        retval = self.icet_structure.get_distance(0, 1,
+                                                  [0., 0., 0.],
+                                                  [0., 0., 0.])
 
-        target = self.atoms.get_distance(0, 1)
+        target = self.icet_structure.get_distance(0, 1)
         self.assertAlmostEqual(retval, target)
 
     def test_find_lattice_site_by_position_simple(self):
@@ -163,11 +164,11 @@ class TestStructure(unittest.TestCase):
         positions = []
         for i, site in enumerate(lattice_sites):
             # Get position with a little noise
-            pos = self.structure.get_position(site)
+            pos = self.icet_structure.get_position(site)
             pos = pos + np.array(noise_position[i])
             positions.append(pos)
         for site, pos in zip(lattice_sites, positions):
-            found_site = self.structure.find_lattice_site_by_position(pos)
+            found_site = self.icet_structure.find_lattice_site_by_position(pos)
             self.assertEqual(site, found_site)
 
     def test_find_lattice_site_by_position_medium(self):
@@ -180,9 +181,9 @@ class TestStructure(unittest.TestCase):
         3. Find lattice site from the position and assert that it should
            be equivalent to the original lattice site.
         """
-        atoms = self.atoms.repeat([3, 2, 5])
+        ase_atoms = self.ase_atoms.repeat([3, 2, 5])
 
-        structure = Structure.from_atoms(atoms)
+        icet_structure = Structure.from_atoms(ase_atoms)
         lattice_sites = []
         unit_cell_range = 1000
         noise_position = []
@@ -190,18 +191,18 @@ class TestStructure(unittest.TestCase):
         for j in range(5000):
             offset = [random.randint(-unit_cell_range, unit_cell_range)
                       for i in range(3)]
-            index = random.randint(0, len(atoms) - 1)
+            index = random.randint(0, len(ase_atoms) - 1)
             noise_position.append(
                 [self.noise * random.uniform(-1, 1) for i in range(3)])
             lattice_sites.append(LatticeSite(index, offset))
 
         positions = []
         for i, site in enumerate(lattice_sites):
-            pos = structure.get_position(site)
+            pos = icet_structure.get_position(site)
             pos = pos + np.array(noise_position[i])
             positions.append(pos)
         for site, pos in zip(lattice_sites, positions):
-            found_site = structure.find_lattice_site_by_position(pos)
+            found_site = icet_structure.find_lattice_site_by_position(pos)
 
             self.assertEqual(site, found_site)
 
@@ -215,12 +216,12 @@ class TestStructure(unittest.TestCase):
         3. Find lattice site from the position and assert that it should
            be equivalent to the original lattice site.
         """
-        atoms = self.atoms.repeat([3, 5, 5])
+        ase_atoms = self.ase_atoms.repeat([3, 5, 5])
 
         # Set pbc false in Z-direction and add vacuum
-        atoms.pbc = [True, True, False]
-        atoms.center(30, axis=[2])
-        structure = Structure.from_atoms(atoms)
+        ase_atoms.pbc = [True, True, False]
+        ase_atoms.center(30, axis=[2])
+        icet_structure = Structure.from_atoms(ase_atoms)
         noise_position = []
 
         lattice_sites = []
@@ -229,7 +230,7 @@ class TestStructure(unittest.TestCase):
             offset = [random.randint(-unit_cell_range, unit_cell_range)
                       for i in range(3)]
             offset[2] = 0
-            index = random.randint(0, len(atoms) - 1)
+            index = random.randint(0, len(ase_atoms) - 1)
             noise_position.append(
                 [self.noise * random.uniform(-1, 1) for i in range(3)])
 
@@ -237,39 +238,39 @@ class TestStructure(unittest.TestCase):
 
         positions = []
         for i, site in enumerate(lattice_sites):
-            pos = structure.get_position(site)
+            pos = icet_structure.get_position(site)
             pos += np.array(noise_position[i])
             positions.append(pos)
         for site, pos in zip(lattice_sites, positions):
-            found_site = structure.find_lattice_site_by_position(pos)
+            found_site = icet_structure.find_lattice_site_by_position(pos)
             self.assertEqual(site, found_site)
 
     def test_structure_from_atoms(self):
         """Tests ASE Atoms-to-icet Structure conversion."""
-        structure = Structure.from_atoms(self.atoms)
+        icet_structure = Structure.from_atoms(self.ase_atoms)
 
-        positions = structure.get_positions()
-        ase_positions = self.atoms.get_positions()
-        for pos, ase_pos in zip(positions, ase_positions):
-            self.assertListEqual(pos.tolist(), ase_pos.tolist())
+        icet_positions = icet_structure.get_positions()
+        ase_positions = self.ase_atoms.get_positions()
+        for icet_pos, ase_pos in zip(icet_positions, ase_positions):
+            self.assertListEqual(icet_pos.tolist(), ase_pos.tolist())
 
-        chem_symbols = structure.get_chemical_symbols()
+        chem_symbols = icet_structure.get_chemical_symbols()
         self.assertListEqual(chem_symbols, ['Ag', 'Ag'])
 
     def test_structure_to_atoms(self):
         """Tests icet Structure-to-ASE Atoms conversion."""
-        atoms = Structure.to_atoms(self.structure)
-        positions = atoms.get_positions()
-        struc_positions = self.structure.get_positions()
-        for pos, struc_pos in zip(positions, struc_positions):
-            self.assertListEqual(pos.tolist(), struc_pos.tolist())
+        ase_structure = Structure.to_atoms(self.icet_structure)
+        ase_positions = ase_structure.get_positions()
+        icet_positions = self.icet_structure.get_positions()
+        for ase_pos, icet_pos in zip(ase_positions, icet_positions):
+            self.assertListEqual(ase_pos.tolist(), icet_pos.tolist())
 
-        chem_symbols = atoms.get_chemical_symbols()
+        chem_symbols = ase_structure.get_chemical_symbols()
         self.assertListEqual(chem_symbols, ['Ag', 'Ag'])
 
     def test_repr_function(self):
         """Tests string representation."""
-        retval = self.structure.__repr__()
+        retval = self.icet_structure.__repr__()
         target = """
 Cell:
 [[ 2.          0.          0.        ]

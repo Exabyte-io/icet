@@ -14,7 +14,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestManyBodyNeighborList, self).__init__(*args, **kwargs)
 
-        self.atoms = bulk('Ni', 'hcp', a=3.0).repeat([2, 2, 1])
+        self.structure = bulk('Ni', 'hcp', a=3.0).repeat([2, 2, 1])
         self.cutoffs = [5.0, 5.0]
 
     def shortDescription(self):
@@ -24,33 +24,33 @@ class TestManyBodyNeighborList(unittest.TestCase):
     def setUp(self):
         """Instantiates class before each test."""
         self.mbnl = ManyBodyNeighborList()
-        structure = Structure.from_atoms(self.atoms)
+        structure = Structure.from_atoms(self.structure)
         self.neighbor_lists = get_neighbor_lists(structure, self.cutoffs)
 
     def test_build(self):
         """Tests build."""
-        for index in range(len(self.atoms)):
+        for index in range(len(self.structure)):
             self.mbnl.build(self.neighbor_lists, index, True)
 
     def test_bothways_true(self):
         """
         Build the mbnl with bothways = True and assert that
-        each index in the atoms object have the same number
+        each index in the structure object have the same number
         of neighbors.
         """
         mbnl_size = len(self.mbnl.build(self.neighbor_lists, 0, True))
-        for index in range(1, len(self.atoms)):
+        for index in range(1, len(self.structure)):
             self.assertEqual(mbnl_size, len(self.mbnl.build(
                 self.neighbor_lists, index, True)))
 
     def test_bothways_false(self):
         """
         Build the mbnl with bothways = False and assert that mbnl
-        built on the first index in the atoms object do not have
+        built on the first index in the structure object do not have
         the same number of neighbors as the other atoms.
         """
         mbnl_size = len(self.mbnl.build(self.neighbor_lists, 0, False))
-        for index in range(1, len(self.atoms)):
+        for index in range(1, len(self.structure)):
             self.assertNotEqual(mbnl_size, len(self.mbnl.build(
                 self.neighbor_lists, index, False)))
 
@@ -59,7 +59,7 @@ class TestManyBodyNeighborList(unittest.TestCase):
         Tests that every singlet lattice site is listed
         in the many-body neighbor list.
         """
-        for index in range(len(self.atoms)):
+        for index in range(len(self.structure)):
             target = tuple(([LatticeSite(index, [0., 0., 0.])], []))
             singlet = self.mbnl.build(self.neighbor_lists, index, False)[0]
             self.assertEqual(singlet, target)
@@ -114,10 +114,9 @@ class TestManyBodyNeighborList(unittest.TestCase):
 
     def test_mbnl_non_pbc(self):
         """Tests many-body neighbor list for non-pbc structure."""
-        atoms = self.atoms.copy()
-        atoms.set_pbc([False])
-        structure = Structure.from_atoms(atoms)
-        neighbor_lists = get_neighbor_lists(structure, self.cutoffs)
+        structure = self.structure.copy()
+        structure.set_pbc([False])
+        neighbor_lists = get_neighbor_lists(Structure.from_atoms(structure), self.cutoffs)
 
         mbnl = ManyBodyNeighborList()
 
@@ -148,11 +147,10 @@ class TestManyBodyNeighborList(unittest.TestCase):
         Tests that corners sites in a large cubic cell have
         only three neighbors in many-body neighbor list.
         """
-        atoms = bulk('Al', 'sc', a=4.0).repeat(4)
-        atoms.set_pbc(False)
+        structure = bulk('Al', 'sc', a=4.0).repeat(4)
+        structure.set_pbc(False)
 
-        structure = Structure.from_atoms(atoms)
-        neighbor_lists = get_neighbor_lists(structure, self.cutoffs)
+        neighbor_lists = get_neighbor_lists(Structure.from_atoms(structure), self.cutoffs)
 
         mbnl = ManyBodyNeighborList()
         # atomic indices located at the corner of structure
