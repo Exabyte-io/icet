@@ -95,8 +95,8 @@ def generate_target_structure(cluster_space: ClusterSpace, max_size: int,
         # fulfill the target concentrations
         for supercell in enumerate_supercells(cluster_space.primitive_structure,
                                               [size]):
-            _occupy_structure_randomly(supercell, cluster_space,
-                                       target_concentrations)
+            occupy_structure_randomly(supercell, cluster_space,
+                                      target_concentrations)
             supercells.append(supercell)
             calculators.append(TargetVectorCalculator(supercell, cluster_space,
                                                       target_cluster_vector,
@@ -260,10 +260,10 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace, max_size: int,
     return best_structure
 
 
-def _occupy_structure_randomly(structure: Atoms, cluster_space: ClusterSpace,
-                               target_concentrations: dict):
+def occupy_structure_randomly(structure: Atoms, cluster_space: ClusterSpace,
+                              target_concentrations: dict):
     """
-    Occupy a structure with "random" order but fulfilling
+    Occupy a structure with quasirandom order but fulfilling
     ``target_concentrations``.
 
     Parameters
@@ -271,13 +271,12 @@ def _occupy_structure_randomly(structure: Atoms, cluster_space: ClusterSpace,
     structure
         ASE Atoms object that will be occupied randomly
     cluster_space
-        cluster space (becuse it carries information about sublattices
-        etc)
+        cluster space (needed as it carries information about sublattices)
     target_concentrations
         concentration of each species in the target structure (for
         example `{'Ag': 0.5, 'Pd': 0.5}`
 
-        Concentrations are always expressed with respect to all structure in
+        Concentrations are always expressed with respect to all atoms in
         the supercell, which implies that the sum of all concentrations
         should always be 1. In the case of multiple sublattices, a valid
         specification would thus be `{'Au': 0.25, 'Pd': 0.25, 'H': 0.1,
@@ -289,25 +288,24 @@ def _occupy_structure_randomly(structure: Atoms, cluster_space: ClusterSpace,
                                                            target_concentrations))
 
     # symbols_all will hold chemical_symbols of all sublattices
-    symbols_all = [0] * len(structure)
+    symbols_all = [''] * len(structure)
     for sublattice in cluster_space.get_sublattices(structure):
         symbols = []  # chemical_symbols in one sublattice
         for chemical_symbol in sublattice.chemical_symbols:
-            n_symbol = int(
-                round(len(structure) * target_concentrations[chemical_symbol]))
+            n_symbol = int(round(len(structure) * target_concentrations[chemical_symbol]))
             symbols += [chemical_symbol] * n_symbol
 
         # Should not happen but you never know
         assert len(symbols) == len(sublattice.indices)
 
-        # Shuffle to introduce some randomness
+        # Shuffle to introduce randomness
         random.shuffle(symbols)
 
         # Assign symbols to the right indices
         for symbol, lattice_site in zip(symbols, sublattice.indices):
             symbols_all[lattice_site] = symbol
 
-    assert symbols_all.count(0) == 0
+    assert symbols_all.count('') == 0
     structure.set_chemical_symbols(symbols_all)
 
 
