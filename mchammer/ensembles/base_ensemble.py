@@ -191,7 +191,7 @@ class BaseEnsemble(ABC):
             initial_step += first_run_interval
 
         step = initial_step
-        while step < final_step:
+        while step < final_step and not self._terminate_sampling():
             uninterrupted_steps = min(self.observer_interval, final_step - step)
             if self.step % self.observer_interval == 0:
                 self._observe(self.step)
@@ -406,7 +406,7 @@ class BaseEnsemble(ABC):
         """
 
         if len(probability_distribution) != len(self.sublattices):
-            raise ValueError("probability_distribution should have the same size as sublattices")
+            raise ValueError('probability_distribution should have the same size as sublattices')
         pick = np.random.choice(len(self.sublattices), p=probability_distribution)
         return pick
 
@@ -457,6 +457,14 @@ class BaseEnsemble(ABC):
     def sublattices(self) -> Sublattices:
         """sublattices for the configuration being sampled"""
         return self.configuration.sublattices
+
+    def _terminate_sampling(self):
+        """This method is called from the run method to determine whether the MC
+        sampling loop should be terminated for a reason other than having exhausted
+        the number of iterations. The method can be overriden by child classes in
+        order to provide an alternative exit mechanism.
+        """
+        return False
 
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
