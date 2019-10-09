@@ -82,13 +82,29 @@ class WangLandauEnsemble(BaseEnsemble):
             self._swap_sublattice_probabilities = sublattice_probabilities
 
         # intialize Wang-Landau algorithm
-        self._converged = False
-        self._last_visit = {}
-        self._histogram = {}
-        self._entropy = {}
-        self._fill_factor = 1
+        if not hasattr(self, '_converged'):
+            self._converged = False
+        if not hasattr(self, '_fill_factor'):
+            self._fill_factor = 1
+        if not hasattr(self, '_histogram'):
+            self._histogram = {}
+        if not hasattr(self, '_last_visit'):
+            self._last_visit = {}
+        if not hasattr(self, '_entropy'):
+            self._entropy = {}
         self._potential = self.calculator.calculate_total(
             occupations=self.configuration.occupations)
+
+    def _restart_ensemble(self):
+        """ Restarts ensemble using the last state saved in DataContainer file.
+        """
+        super()._restart_ensemble()
+        last_saved = self.data_container.data.iloc[-1]
+        self._converged = last_saved.converged
+        self._fill_factor = last_saved.fill_factor
+        self._histogram = last_saved.histogram.copy()
+        self._last_visit = last_saved.last_visit.copy()
+        self._entropy = last_saved.entropy.copy()
 
     def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> int:
         """ Carries out one Monte Carlo trial step. This method
@@ -146,15 +162,15 @@ class WangLandauEnsemble(BaseEnsemble):
         """
 
         # acceptance/rejection step
-        ix_cur = int(self._potential / self._energy_spacing)
-        ix_new = int((self._potential + potential_diff) / self._energy_spacing)
-        if potential_diff <= 0:
+        ix_cur = int(np.around(self._potential / self._energy_spacing))
+        ix_new = int(np.around((self._potential + potential_diff) / self._energy_spacing))
+        S_cur = self._entropy.get(ix_cur, 0)
+        S_new = self._entropy.get(ix_new, 0)
+        delta = np.exp(S_cur - S_new)
+        if delta > 1 or delta > self._next_random_number():
             accept = True
         else:
-            S_cur = self._entropy.get(ix_cur, 0)
-            S_new = self._entropy.get(ix_new, 0)
-            accept = (np.exp(S_cur - S_new) > self._next_random_number())
-        if accept:
+            accept = False
             self._potential += potential_diff
             ix_cur = ix_new
 
@@ -165,8 +181,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
         # check flatness of histogram
         if self._step > 0 and self._step % self._fill_factor_update_interval == 0:
-            # only include histogram bins that have been visited within
-            # a reasonable time (see doi:10.1016/j.cpc.2018.09.017)
+            # only include histogram bins that have been visited within a reasonable time
             histogram_masked = np.ma.masked_where(
                 np.array(list(self._last_visit.values())) > self._step - self._last_visit_limit,
                 np.array(list(self._histogram.values())))
@@ -189,6 +204,7 @@ class WangLandauEnsemble(BaseEnsemble):
         data['fill_factor'] = self._fill_factor
         data['histogram'] = OrderedDict(sorted(self._histogram.items()))
         data['entropy'] = OrderedDict(sorted(self._entropy.items()))
+        data['last_visit'] = OrderedDict(sorted(self._last_visit.items()))
         return data
 
     def _terminate_sampling(self):
@@ -198,27 +214,32 @@ class WangLandauEnsemble(BaseEnsemble):
         return self._converged
 
 
-def get_wang_landau_entropy(dc: DataContainer, tag: str = 'entropy', step: int = -1,
-                            normalize: bool = True) -> DataFrame:
-    """ Returns either the entropy or the histogram from a Wang-Landau simulation.
+def get_wang_landau_data(dc: DataContainer, tag: str = 'entropy', step: int = -1,
+                         normalize: bool = True) -> DataFrame:
+    """ Returns density of states, entropy or histogram from a Wang-Landau simulation.
 
     Parameters
     ----------
     dc
         data container from a Wang-Landau simulation
     tag
-        type of data returned; can be either 'entropy' or 'histogram'
+        type of data returned; can be either 'density', 'entropy' or 'histogram'
     step
         Monte Carlo trial step for which to return data
     normalize
         if True the data will be normalized
     """
-    if tag not in ['histogram', 'entropy']:
+    if tag not in ['density', 'histogram', 'entropy']:
         raise ValueError('tag ({}) must be either "histogram" or "entropy"'.format(tag))
     energy_spacing = dc.ensemble_parameters['energy_spacing']
-    data = OrderedDict(sorted(dc.data[tag].iloc[step].items()))
+    if tag == 'density':
+        data = OrderedDict(sorted(dc.data['entropy'].iloc[step].items()))
+    else:
+        data = OrderedDict(sorted(dc.data[tag].iloc[step].items()))
     energies = energy_spacing * np.array(list(data.keys()))
     data = np.array(list(data.values()))
+    if tag == 'density':
+        data = np.exp(-data)
     if normalize:
         data = data / np.sum(data)
     return DataFrame(data={'energy': energies, 'data': data})
