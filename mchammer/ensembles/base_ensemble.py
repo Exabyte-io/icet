@@ -173,7 +173,16 @@ class BaseEnsemble(ABC):
         reset_step
             if True the MC trial step counter and the data container will
             be reset to zero and empty, respectively.
+
+        Raises
+        ------
+        TypeError
+            if `number_of_trial_steps` is not an int
         """
+
+        if not isinstance(number_of_trial_steps, int):
+            raise TypeError('number_of_trial_steps must be an integer ({})'
+                            .format(number_of_trial_steps))
 
         last_write_time = time()
 
