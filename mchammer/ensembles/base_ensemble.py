@@ -212,9 +212,12 @@ class BaseEnsemble(ABC):
             self._run(uninterrupted_steps)
             step += uninterrupted_steps
 
-        # If we end on an observation interval we also observe
+        # if we end on an observation interval we also observe
         if self.step % self.observer_interval == 0:
             self._observe(self.step)
+
+        # allow ensembles a chance to go clean
+        self._finalize()
 
         if self._data_container_filename is not None:
             self.write_data_container(self._data_container_filename)
@@ -467,7 +470,7 @@ class BaseEnsemble(ABC):
         """sublattices for the configuration being sampled"""
         return self.configuration.sublattices
 
-    def _terminate_sampling(self):
+    def _terminate_sampling(self) -> bool:
         """This method is called from the run method to determine whether the MC
         sampling loop should be terminated for a reason other than having exhausted
         the number of iterations. The method can be overriden by child classes in
@@ -475,8 +478,18 @@ class BaseEnsemble(ABC):
         """
         return False
 
+    def _finalize(self) -> None:
+        """This method is called from the run method after the conclusion of
+        the MC cycles but before the data container is written. This
+        method can be used by child classes to carry out clean-up
+        tasks, including e.g., adding "left-over" data to the data
+        container.
+        """
+        pass
+
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
+
     """Returns True (False) if two dicts are equal (not equal), if
     float or integers are in the dicts then atol is used for comparing them."""
     if len(dict1) != len(dict2):

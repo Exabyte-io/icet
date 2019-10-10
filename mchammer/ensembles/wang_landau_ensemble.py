@@ -1,7 +1,7 @@
 """Definition of the Wang-Landau multi-canonical ensemble class."""
 
 from collections import OrderedDict
-from typing import List
+from typing import Dict, List
 
 import numpy as np
 
@@ -30,10 +30,10 @@ class WangLandauEnsemble(BaseEnsemble):
                  structure: Atoms,
                  calculator: BaseCalculator,
                  energy_spacing: float,
-                 fill_factor_update_interval: int = 1e4,
-                 fill_factor_limit: float = 1e-7,
-                 flatness_threshold: float = 0.8,
-                 last_visit_limit: int = 1e4,
+                 fill_factor_update_interval: int = 1e3,
+                 fill_factor_limit: float = 1e-8,
+                 flatness_threshold: float = 0.9,
+                 last_visit_limit: int = None,
                  user_tag: str = None,
                  data_container: DataContainer = None,
                  random_seed: int = None,
@@ -48,12 +48,18 @@ class WangLandauEnsemble(BaseEnsemble):
         self._fill_factor_limit = fill_factor_limit
         self._flatness_threshold = flatness_threshold
         self._last_visit_limit = last_visit_limit
+
         self._ensemble_parameters = {}
         self._ensemble_parameters['energy_spacing'] = energy_spacing
-        self._ensemble_parameters['fill_factor_update_interval'] = self._fill_factor_update_interval
-        self._ensemble_parameters['fill_factor_limit'] = self._fill_factor_limit
-        self._ensemble_parameters['flatness_threshold'] = self._flatness_threshold
-        self._ensemble_parameters['last_visit_limit'] = self._last_visit_limit
+        # The following parameters are _intentionally excluded_ from
+        # the ensemble_parameters dict as it would prevent users from
+        # changing their values between restarts. The latter is advantageous
+        # as these runs can require restarts as well as parameter adjustments
+        # to achieve convergence.
+        #  * fill_factor_update_interval
+        #  * fill_factor_limit
+        #  * flatness_threshold
+        #  * last_visit_limit
 
         # add species count to ensemble parameters
         symbols = set([symbol for sub in calculator.sublattices
@@ -81,7 +87,9 @@ class WangLandauEnsemble(BaseEnsemble):
         else:
             self._swap_sublattice_probabilities = sublattice_probabilities
 
-        # intialize Wang-Landau algorithm
+        # initialize Wang-Landau algorithm; in the case of a restart
+        # these quantities are read from the data container file; the
+        # if-conditions prevent these values from being overwritten
         if not hasattr(self, '_converged'):
             self._converged = False
         if not hasattr(self, '_fill_factor'):
@@ -92,23 +100,29 @@ class WangLandauEnsemble(BaseEnsemble):
             self._last_visit = {}
         if not hasattr(self, '_entropy'):
             self._entropy = {}
+        self._fraction_flat_histogram = None
         self._potential = self.calculator.calculate_total(
             occupations=self.configuration.occupations)
 
     def _restart_ensemble(self):
-        """ Restarts ensemble using the last state saved in DataContainer file.
+        """Restarts ensemble using the last state saved in DataContainer
+        file.  Note that this method does _not_ use the last_state
+        property of the data container but rather uses the last data
+        written the data frame.
         """
         super()._restart_ensemble()
-        last_saved = self.data_container.data.iloc[-1]
+        df = self.data_container.data
+        index = df[df['entropy'].notna()].index[-1]
+        last_saved = df.iloc[index]
         self._converged = last_saved.converged
         self._fill_factor = last_saved.fill_factor
-        self._histogram = last_saved.histogram.copy()
-        self._last_visit = last_saved.last_visit.copy()
-        self._entropy = last_saved.entropy.copy()
+        self._histogram = last_saved.histogram
+        self._last_visit = last_saved.last_visit
+        self._entropy = last_saved.entropy
 
     def do_canonical_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> int:
         """ Carries out one Monte Carlo trial step. This method
-        has been taken from CanonicalEnsemble.
+        has been copied without modification from CanonicalEnsemble.
 
         Parameters
         ---------
@@ -130,8 +144,9 @@ class WangLandauEnsemble(BaseEnsemble):
         return 0
 
     def _get_swap_sublattice_probabilities(self) -> List[float]:
-        """ Returns sublattice probabilities suitable for swaps. This method
-        has been taken from CanonicalEnsemble. """
+        """Returns sublattice probabilities suitable for swaps. This method
+        has been copied without modification from CanonicalEnsemble.
+        """
         sublattice_probabilities = []
         for i, sl in enumerate(self.sublattices):
             if self.configuration.is_swap_possible(i):
@@ -145,8 +160,9 @@ class WangLandauEnsemble(BaseEnsemble):
         return sublattice_probabilities
 
     def _do_trial_step(self):
-        """ Carries out one Monte Carlo trial step. This method
-        has been taken from CanonicalEnsemble. """
+        """Carries out one Monte Carlo trial step. This method has been
+        copied without modification from CanonicalEnsemble.
+        """
         sublattice_index = self.get_random_sublattice_index(self._swap_sublattice_probabilities)
         return self.do_canonical_swap(sublattice_index=sublattice_index)
 
@@ -167,7 +183,7 @@ class WangLandauEnsemble(BaseEnsemble):
         S_cur = self._entropy.get(ix_cur, 0)
         S_new = self._entropy.get(ix_new, 0)
         delta = np.exp(S_cur - S_new)
-        if delta > 1 or delta > self._next_random_number():
+        if delta >= 1 or delta >= self._next_random_number():
             accept = True
             self._potential += potential_diff
             ix_cur = ix_new
@@ -177,46 +193,86 @@ class WangLandauEnsemble(BaseEnsemble):
         # update histogram and entropy
         self._entropy[ix_cur] = self._entropy.get(ix_cur, 0) + self._fill_factor
         self._histogram[ix_cur] = self._histogram.get(ix_cur, 0) + 1
-        self._last_visit[ix_cur] = self._step
+        self._last_visit[ix_cur] = self.step
 
         # check flatness of histogram
-        if self._step > 0 and self._step % self._fill_factor_update_interval == 0:
+        if self.step % self._fill_factor_update_interval == 0 and self.step > 0:
+
             # only include histogram bins that have been visited within a reasonable time
-            histogram_masked = np.ma.masked_where(
-                np.array(list(self._last_visit.values())) > self._step - self._last_visit_limit,
-                np.array(list(self._histogram.values())))
-            limit = self._flatness_threshold * np.average(histogram_masked)
-            if np.all(histogram_masked > limit):
-                self._fill_factor /= 2
-                self._histogram = {}
-                self._last_visit = {}
+            if self._last_visit_limit is not None:
+                histogram = np.ma.masked_where(
+                    np.array(list(self._last_visit.values())) < self.step - self._last_visit_limit,
+                    np.array(list(self._histogram.values())))
+            else:
+                histogram = np.array(list(self._histogram.values()))
+            limit = self._flatness_threshold * np.average(histogram)
+            self._fraction_flat_histogram = np.sum(histogram > limit) / len(self._histogram)
+
+            if np.all(histogram > limit):
+
+                # check whether the Wang-Landau algorithm has converged
                 if self._fill_factor <= self._fill_factor_limit:
                     self._converged = True
+                else:
+                    # add current histogram, entropy, and related data to data container
+                    self._add_histograms_to_data_container()
+                    # update fill factor and reset histogram
+                    self._fill_factor /= 2
+                    self._histogram = dict.fromkeys(self._histogram, 0)
+                    self._last_visit = dict.fromkeys(self._last_visit, 0)
+                    self._fraction_flat_histogram = None
 
         return accept
 
-    def _get_ensemble_data(self) -> dict:
-        """ Returns the default ensemble data of the parent class as well as
-        the data related to the Wang-Landau algorithm."""
-        data = super()._get_ensemble_data()
-        self._potential = data['potential']
-        data['converged'] = self._converged
-        data['fill_factor'] = self._fill_factor
-        data['histogram'] = OrderedDict(sorted(self._histogram.items()))
-        data['entropy'] = OrderedDict(sorted(self._entropy.items()))
-        data['last_visit'] = OrderedDict(sorted(self._last_visit.items()))
-        return data
+    def _add_histograms_to_data_container(self):
+        """This method adds information regarding the current state of the
+        convergence of the Wang-Landau algorithm to the data
+        container.
+        """
+        row_dict = {}
+        row_dict['potential'] = self._potential
+        row_dict['fraction_flat_histogram'] = self._fraction_flat_histogram
+        row_dict['converged'] = self._converged
+        row_dict['fill_factor'] = self._fill_factor
+        row_dict['histogram'] = OrderedDict(sorted(self._histogram.items()))
+        row_dict['entropy'] = OrderedDict(sorted(self._entropy.items()))
+        row_dict['last_visit'] = OrderedDict(sorted(self._last_visit.items()))
+        self._data_container.append(mctrial=self.step, record=row_dict)
 
-    def _terminate_sampling(self):
-        """ Returns whether the Wang-Landau algorithm has converged. This is
-        used in the run method implemented in the BaseEnsemble to evaluate
-        whether the sampling loop should be terminated. """
+    def _finalize(self) -> None:
+        """This method is called from the run method after the conclusion of
+        the MC cycles but before the data container is written. Here
+        it is used to add the final state of the Wang-Landau algorithm
+        to the data container in order to enable direct restarts.
+        """
+        self._add_histograms_to_data_container()
+
+    def _terminate_sampling(self) -> bool:
+        """Returns True if the Wang-Landau algorithm has converged. This is
+        used in the run method implemented of BaseEnsemble to
+        evaluate whether the sampling loop should be terminated.
+        """
         return self._converged
+
+    def _get_ensemble_data(self) -> Dict:
+        """Returns the data associated with the ensemble. For the Wang-Landau
+        this specifically includes the fraction of bins that satisfy
+        the flatness condition.
+        """
+        data = super()._get_ensemble_data()
+        if hasattr(self, '_fraction_flat_histogram'):
+            data['fraction_flat_histogram'] = self._fraction_flat_histogram
+        return data
 
 
 def get_wang_landau_data(dc: DataContainer, tag: str = 'entropy', step: int = -1,
                          normalize: bool = True) -> DataFrame:
-    """ Returns density of states, entropy or histogram from a Wang-Landau simulation.
+    """Returns density of states, entropy or histogram from a Wang-Landau
+    simulation.
+
+    Todo
+    ----
+    * it says step but it is actually the index
 
     Parameters
     ----------
@@ -233,9 +289,9 @@ def get_wang_landau_data(dc: DataContainer, tag: str = 'entropy', step: int = -1
         raise ValueError('tag ({}) must be either "density", "histogram" or "entropy"'.format(tag))
     energy_spacing = dc.ensemble_parameters['energy_spacing']
     if tag == 'density':
-        data = OrderedDict(sorted(dc.data['entropy'].iloc[step].items()))
+        data = OrderedDict(sorted(dc.data.iloc[step]['entropy'].items()))
     else:
-        data = OrderedDict(sorted(dc.data[tag].iloc[step].items()))
+        data = OrderedDict(sorted(dc.data.iloc[step][tag].items()))
     energies = energy_spacing * np.array(list(data.keys()))
     data = np.array(list(data.values()))
     if tag == 'density':
