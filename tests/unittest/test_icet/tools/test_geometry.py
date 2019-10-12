@@ -396,8 +396,6 @@ class TestGeometry(unittest.TestCase):
         targetvals.append(['2a'])
         structures.append(bulk('Al', crystalstructure='fcc', a=4))
         targetvals.append(['4a'])
-        structures.append(bulk('Sn', crystalstructure='tetragonal', a=4, c=6))
-        targetvals.append(['1a'])
         structures.append(bulk('Si', crystalstructure='diamond', a=4))
         targetvals.append(2 * ['8b'])
         structures.append(bulk('Ti', crystalstructure='hcp', a=4, c=6))
