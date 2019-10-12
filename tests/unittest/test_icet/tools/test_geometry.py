@@ -396,8 +396,6 @@ class TestGeometry(unittest.TestCase):
         targetvals.append(['2a'])
         structures.append(bulk('Al', crystalstructure='fcc', a=4))
         targetvals.append(['4a'])
-        structures.append(bulk('Si', crystalstructure='diamond', a=4))
-        targetvals.append(2 * ['8b'])
         structures.append(bulk('Ti', crystalstructure='hcp', a=4, c=6))
         targetvals.append(2 * ['2d'])
         structures.append(bulk('SiC', crystalstructure='zincblende', a=4))
@@ -407,10 +405,10 @@ class TestGeometry(unittest.TestCase):
         structures.append(bulk('ZnO', crystalstructure='wurtzite', a=4, c=5))
         targetvals.append(4 * ['2b'])
 
-        structures.append(bulk('Al', cubic=True))
+        structures.append(bulk('Al', crystalstructure='fcc', a=4, cubic=True))
         targetvals.append(4 * ['4a'])
-        structures.append(bulk('Si', cubic=True))
-        targetvals.append(8 * ['8b'])
+        structures.append(bulk('SiC', crystalstructure='zincblende', a=4, cubic=True))
+        targetvals.append(4 * ['4a', '4c'])
 
         structures.append(bulk('Al').repeat(2))
         targetvals.append(8 * ['4a'])
