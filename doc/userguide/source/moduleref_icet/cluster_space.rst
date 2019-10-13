@@ -50,7 +50,7 @@ keep the Cl lattice fixed it can be achived via::
 2D systems
 ``````````
 
-:prog:`icet` requires input structures to have periodic boundary
+:program:`icet` requires input structures to have periodic boundary
 conditions (PBCs).  In order to treat two-dimensional systems, or more
 generally without PBCs in at least one direction, one has to surround
 the prototype structure with vacuum and then apply PBCs in all

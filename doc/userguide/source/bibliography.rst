@@ -83,6 +83,12 @@ Bibliography
    | Calphad **42**, 13 (2013)
    | `doi: 10.1016/j.calphad.2013.06.006 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
 
+.. [WanLan01]
+   | F. Wang and D. P. Landau
+   | *Efficient, Multiple-Range Random Walk Algorithm to Calculate the Density of States*
+   | Phys. Rev. Lett. **86**, 2050 (2001)
+   | `doi: 10.1103/PhysRevLett.86.2050 <https://doi.org/10.1103/PhysRevLett.86.2050>`_
+
 .. [ZunWeiFer90]
    | A. Zunger, S.-H. Wei, L. G. Ferreira, and J. E. Bernard.
    | *Special quasirandom structures*
