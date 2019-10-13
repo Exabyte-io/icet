@@ -6,7 +6,9 @@ from .hybrid_ensemble import HybridEnsemble
 from .semi_grand_canonical_ensemble import SemiGrandCanonicalEnsemble
 from .sgc_annealing import SGCAnnealing
 from .vcsgc_ensemble import VCSGCEnsemble
-from .wang_landau_ensemble import WangLandauEnsemble
+from .wang_landau_ensemble import (WangLandauEnsemble,
+                                   get_averages_wang_landau,
+                                   get_density_wang_landau)
 from .target_cluster_vector_annealing import TargetClusterVectorAnnealing
 
 __all__ = ['CanonicalEnsemble',
@@ -16,4 +18,6 @@ __all__ = ['CanonicalEnsemble',
            'SGCAnnealing',
            'TargetClusterVectorAnnealing',
            'VCSGCEnsemble',
-           'WangLandauEnsemble']
+           'WangLandauEnsemble',
+           'get_averages_wang_landau',
+           'get_density_wang_landau']

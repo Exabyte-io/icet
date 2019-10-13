@@ -60,8 +60,8 @@ class WangLandauEnsemble(BaseEnsemble):
 
     .. math::
 
-       \\left<E\\right> = \\frac{\\sum_E \\rho(E)
-       \\exp(-E / k_B T)}{\\sum_E \\rho(E) \\exp(-E / k_B T)}
+       \\left<E\\right> = \\frac{\\sum_E E \\rho(E) \\exp(-E / k_B T)}{
+       \\sum_E \\rho(E) \\exp(-E / k_B T)}
 
     Parameters
     ----------
@@ -438,8 +438,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
 def get_averages_wang_landau(dc: DataContainer,
                              temperature: Union[float, List[float]],
-                             iteration: int = -1,
-                             n_ground_states: int = 1) -> DataFrame:
+                             iteration: int = -1) -> DataFrame:
     """Returns the average and the standard deviation of the energy for
     the temperature(s) specified.
 

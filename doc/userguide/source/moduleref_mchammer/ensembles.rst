@@ -99,3 +99,7 @@ Wang-Landau ensemble
    :members:
    :undoc-members:
    :inherited-members:
+
+.. autofunction:: mchammer.ensembles.get_averages_wang_landau
+
+.. autofunction:: mchammer.ensembles.get_density_wang_landau
