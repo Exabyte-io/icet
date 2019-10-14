@@ -466,10 +466,10 @@ def get_averages_wang_landau(dc: DataContainer,
     n_atoms = dc.ensemble_parameters['n_atoms']
     if type(temperature) == float:
         temps = [temperature]
-    elif type(temperature) == List[float]:
+    elif type(temperature) == list:
         temps = temperature
     else:
-        raise TypeError('temperature must be either a float or a list of floats')
+        raise TypeError('temperature must be either a float or a list of floats.')
     if 'entropy' not in dc.data.columns:
         raise ValueError('data container must contain "entropy" column')
 
@@ -493,17 +493,16 @@ def get_averages_wang_landau(dc: DataContainer,
         for _, row in df.iterrows():
             boltz = np.exp(-row.energy / temperature)
             sumint += row.density * boltz
-            enavg += row.density * boltz * row.energy
-            enstd += row.density * boltz * row.energy ** 2
+            enavg += row.density * boltz * (row.energy / n_atoms)
+            enstd += row.density * boltz * (row.energy / n_atoms) ** 2
         enavg /= sumint
         enstd = np.sqrt(enstd / sumint - enavg ** 2)
-        averages[temperature] = {'mean': enavg / n_atoms,
-                                 'stddev': enstd / np.sqrt(n_atoms)}
+        averages[temperature] = {'mean': enavg, 'stddev': enstd}
     return DataFrame.from_dict(averages).T
 
 
 def get_density_wang_landau(dc: DataContainer,
-                            temperature: Union[float, List[float]],
+                            temperature: Union[float, List[float]] = None,
                             iteration: int = -1) -> DataFrame:
     """Returns the total and temperature weighted density of states from a
     Wang-Landau simulation.
@@ -530,12 +529,13 @@ def get_density_wang_landau(dc: DataContainer,
 
     # preparations
     n_ground_states = 1
-    if type(temperature) == float:
-        temps = [temperature]
-    elif type(temperature) == List[float]:
-        temps = temperature
-    else:
-        raise TypeError('temperature must be either a float or a list of floats')
+    if temperature is not None:
+        if type(temperature) == float:
+            temps = [temperature]
+        elif type(temperature) == list:
+            temps = temperature
+        else:
+            raise TypeError('temperature must be either a float or a list of floats')
     if 'entropy' not in dc.data.columns:
         raise ValueError('data container must contain "entropy" column')
 
@@ -553,9 +553,11 @@ def get_density_wang_landau(dc: DataContainer,
     df['density'] = df.apply(lambda row: np.exp(row.entropy) / density_total, axis=1)
 
     # temperature weighted densities of states
-    for temperature in temps:
-        df[f'weighted_density_{temperature}'] = \
-            df.apply(lambda row: row.density * np.exp(-row.energy/temperature), axis=1)
-        df[f'weighted_density_{temperature}'] /= np.sum(df[f'weighted_density_{temperature}'])
+    if temperature is not None:
+        for temp in temps:
+            temp = round(temp, 5)
+            df[f'weighted_density_{temp}'] = \
+                df.apply(lambda row: row.density * np.exp(-row.energy/temp), axis=1)
+            df[f'weighted_density_{temp}'] /= np.sum(df[f'weighted_density_{temp}'])
 
     return df

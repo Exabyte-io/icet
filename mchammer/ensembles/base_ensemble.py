@@ -216,7 +216,7 @@ class BaseEnsemble(ABC):
         if self.step % self.observer_interval == 0:
             self._observe(self.step)
 
-        # allow ensembles a chance to go clean
+        # allow ensemble a chance to go clean
         self._finalize()
 
         if self._data_container_filename is not None:
