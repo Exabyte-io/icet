@@ -5,7 +5,7 @@ from icet.tools.structure_generation import (_get_sqs_cluster_vector,
                                              _validate_concentrations,
                                              _concentrations_fit_atom_count,
                                              _concentrations_fit_structure,
-                                             _occupy_structure_randomly,
+                                             occupy_structure_randomly,
                                              generate_target_structure,
                                              generate_sqs,
                                              generate_sqs_by_enumeration)
@@ -91,15 +91,15 @@ class TestStructureGenerationBinaryFCC(unittest.TestCase):
         """Tests random occupation of ASE Atoms object"""
         structure = self.prim.repeat(2)
         target_concentrations = {'Au': 0.5, 'Pd': 0.5}
-        _occupy_structure_randomly(structure, self.cs,
-                                   target_concentrations)
+        occupy_structure_randomly(structure, self.cs,
+                                  target_concentrations)
         syms = structure.get_chemical_symbols()
         self.assertEqual(syms.count('Au'), len(structure) // 2)
 
         structure = self.prim.repeat(3)
         target_concentrations = {'Au': 1 / 3, 'Pd': 2 / 3}
-        _occupy_structure_randomly(structure, self.cs,
-                                   target_concentrations)
+        occupy_structure_randomly(structure, self.cs,
+                                  target_concentrations)
         syms = structure.get_chemical_symbols()
         self.assertEqual(syms.count('Au'), len(structure) // 3)
         self.assertEqual(syms.count('Pd'), 2 * len(structure) // 3)
@@ -224,8 +224,8 @@ class TestStructureGenerationTernaryFCC(unittest.TestCase):
         """Tests random occupation of structure object"""
         structure = self.prim.repeat(2)
         target_concentrations = {'Cu': 0.25, 'Au': 0.25, 'Pd': 0.5}
-        _occupy_structure_randomly(structure, self.cs,
-                                   target_concentrations)
+        occupy_structure_randomly(structure, self.cs,
+                                  target_concentrations)
         syms = structure.get_chemical_symbols()
         self.assertEqual(syms.count('Cu'), len(structure) // 4)
         self.assertEqual(syms.count('Au'), len(structure) // 4)
@@ -288,8 +288,8 @@ class TestStructureGenerationHCP(unittest.TestCase):
         """Tests random occupation of ASE Atoms object"""
         structure = self.prim.repeat(3)
         target_concentrations = {'Pd': 1 / 3, 'Au': 2 / 3}
-        _occupy_structure_randomly(structure, self.cs,
-                                   target_concentrations)
+        occupy_structure_randomly(structure, self.cs,
+                                  target_concentrations)
         syms = structure.get_chemical_symbols()
         self.assertEqual(syms.count('Au'), 2 * len(structure) // 3)
         self.assertEqual(syms.count('Pd'), len(structure) // 3)
@@ -378,8 +378,8 @@ class TestStructureGenerationSublatticesFCC(unittest.TestCase):
         structure = self.prim.repeat(2)
         target_concentrations = {'Cu': 1 / 8, 'Au': 2 / 8, 'Pd': 1 / 8,
                                  'H': 3 / 8, 'V': 1 / 8}
-        _occupy_structure_randomly(structure, self.cs,
-                                   target_concentrations)
+        occupy_structure_randomly(structure, self.cs,
+                                  target_concentrations)
         syms = structure.get_chemical_symbols()
         self.assertEqual(syms.count('Cu'), len(structure) // 8)
         self.assertEqual(syms.count('Au'), len(structure) // 4)
