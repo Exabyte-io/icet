@@ -1,7 +1,7 @@
-.. _example_data_container:
+.. _advanced_topics_data_container:
 .. highlight:: python
 .. index::
-   single: Examples; Data container
+   single: Advanced topics; Data container
 
 Data container
 ==============

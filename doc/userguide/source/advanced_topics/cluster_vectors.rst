@@ -1,7 +1,7 @@
-.. _example_get_cluster_vector:
+.. _advanced_topics_get_cluster_vector:
 .. highlight:: python
 .. index::
-   single: Examples; Cluster vectors
+   single: Advanced topics; Cluster vectors
 
 Cluster vectors
 ===============

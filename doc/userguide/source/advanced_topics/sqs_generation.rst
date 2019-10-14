@@ -1,7 +1,7 @@
-.. _example_structure_enumeration:
+.. _advanced_topics_structure_enumeration:
 .. highlight:: python
 .. index::
-   single: Examples; Special quasirandom structures
+   single: Advanced topics; Special quasirandom structures
 
 Special quasirandom structures
 ==============================

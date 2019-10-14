@@ -20,6 +20,7 @@ command line::
 
    structure_enumeration
    mapping_structures
+   wang_landau_simulations
    parallel_monte_carlo
    sqs_generation
    cluster_counts
