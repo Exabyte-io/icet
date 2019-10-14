@@ -51,7 +51,7 @@ def get_primitive_structure(structure: Atoms,
                             to_primitive: bool = True,
                             symprec: float = 1e-5) -> Atoms:
     """
-    Determines primitive structure using spglib.
+    Returns the primitive structure using spglib.
 
     Parameters
     ----------
@@ -63,11 +63,6 @@ def get_primitive_structure(structure: Atoms,
         convert to primitive structure
     symprec
         tolerance imposed when analyzing the symmetry using spglib
-
-    Returns
-    -------
-    structure_prim
-        primitive structure
     """
     structure_cpy = structure.copy()
     structure_as_tuple = ase_atoms_to_spglib_cell(structure_cpy)
@@ -271,3 +266,78 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
 
     numbers = [chemical_symbols.index(symbols) for symbols in symbols]
     return numbers
+
+
+def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
+    """Returns the Wyckoff symbols of the input structure. The Wyckoff
+    sites are of general interest for symmetry analysis but can be
+    especially useful when setting up, e.g., a
+    :class:`SiteOccupancyObserver
+    <mchammer.observers.SiteOccupancyObserver>`.
+    The Wyckoff labels can be conveniently attached as an array to the
+    structure object as demonstrated in the Examples section below.
+
+    Note
+    ----
+    The occupation of the sites is part of the symmetry
+    analysis. Usually it is the symmetry of the "ideally" occupied
+    lattice that is of interest. Hence, be mindful of the occupation
+    when using this function.
+
+    Parameters
+    ----------
+    structure
+        input structure, note that the occupation of the sites is
+        included in the symmetry analysis
+    symprec
+        tolerance parameter handed over to spglib
+
+    Examples
+    --------
+    Wyckoff sites of a hexagonal-close packed structure::
+
+        from ase.build import bulk
+        from icet.tools import get_wyckoff_sites
+
+        structure = bulk('Ti')
+        wyckoff_sites = get_wyckoff_sites(structure)
+        print(wyckoff_sites)
+
+    Running the snippet above will produce the following output::
+
+        >> ['2d', '2d']
+
+    The Wyckoff labels can also be attached as an array to the
+    structure, in which case the information is also included when
+    storing the Atoms object::
+
+        from ase.io import write
+        structure.new_array('wyckoff_sites', wyckoff_sites, str)
+        write('structure.xyz', structure)
+
+    The function can also be applied to supercells::
+
+        structure = bulk('SiC', crystalstructure='zincblende', a=3.0).repeat(2)
+        wyckoff_sites = get_wyckoff_sites(structure)
+        print(wyckoff_sites)
+
+    This snippet will produce the following output::
+
+        >> ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
+            '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
+
+    """
+    dataset = spglib.get_symmetry_dataset((structure.get_cell(),
+                                           structure.get_scaled_positions(),
+                                           structure.get_atomic_numbers()),
+                                          symprec=symprec)
+    n_unitcells = np.linalg.det(dataset['transformation_matrix'])
+
+    equivalent_atoms = list(dataset['equivalent_atoms'])
+    wyckoffs = {}
+    for index in set(equivalent_atoms):
+        multiplicity = list(dataset['equivalent_atoms']).count(index) / n_unitcells
+        multiplicity = int(round(multiplicity))
+        wyckoffs[index] = '{}{}'.format(multiplicity, dataset["wyckoffs"][index])
+
+    return [wyckoffs[equivalent_atoms[a.index]] for a in structure]

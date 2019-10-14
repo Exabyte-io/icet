@@ -12,10 +12,9 @@ Tools
 Convex hull construction
 ------------------------
 
-.. automodule:: icet.tools.convex_hull
-   :members:
-   :undoc-members:
-   :inherited-members:
+.. automodule:: icet.tools
+   :members: ConvexHull
+
 
 .. index::
    single: Function reference; Structure mapping
@@ -23,10 +22,8 @@ Convex hull construction
 Mapping structures
 ------------------
 
-.. automodule:: icet.tools.structure_mapping
-   :members:
-   :undoc-members:
-   :inherited-members:
+.. autofunction:: icet.tools.map_structure_to_reference
+
 
 .. _structure_enumeration:
 
@@ -37,15 +34,33 @@ Mapping structures
 Structure enumeration
 ---------------------
 
-.. automodule:: icet.tools.structure_enumeration
-   :members:
-   :undoc-members:
-   :inherited-members:
+.. autofunction:: icet.tools.enumerate_structures
+.. autofunction:: icet.tools.enumerate_supercells
 
-Structure generation and SQS
-----------------------------
+
+.. index::
+   single: Function reference; SQS generation
+   single: Class reference; SQS generation
+   single: Function reference; Special structures
+   single: Class reference; Special structures
+
+Generation of special structures
+--------------------------------
 
 .. automodule:: icet.tools.structure_generation
    :members:
    :undoc-members:
    :inherited-members:
+
+
+.. index::
+   single: Function reference; Wyckoff sites
+   single: Class reference; Wyckoff sites
+   single: Function reference; Other structure tools
+   single: Class reference; Other structure tools
+
+Other structure tools
+---------------------
+
+.. autofunction:: icet.tools.get_primitive_structure
+.. autofunction:: icet.tools.get_wyckoff_sites
