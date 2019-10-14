@@ -268,13 +268,14 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
     return numbers
 
 
-def add_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> None:
-    """Determines the Wyckoff site symbols of the input structure and
-    attaches this information in the form of an array to the structure
-    object. This is generally of interest for symmetry analysis but
-    can be especially useful when setting up, e.g., a
+def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
+    """Returns the Wyckoff symbols of the input structure. The Wyckoff
+    sites are of general interest for symmetry analysis but can be
+    especially useful when setting up, e.g., a
     :class:`SiteOccupancyObserver
     <mchammer.ensembles.SiteOccupancyObserver>`.
+    The Wyckoff labels can be conveniently attached as an array to the
+    structure object as demonstrated in the example below
 
     Parameters
     ----------
@@ -289,28 +290,40 @@ def add_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> None:
     Wyckoff sites of a hexagonal-close packed structure::
 
         from ase.build import bulk
-        from icet.tools import add_wyckoff_sites
+        from icet.tools import get_wyckoff_sites
 
         structure = bulk('Ti')
-        add_wyckoff_sites(structure)
-        print(structure.get_array('wyckoff_sites'))
+        wyckoff_sites = get_wyckoff_sites(structure)
+        print(wyckoff_sites)
 
     Running the snippet above will produce the following output::
 
-        ['2d' '2d']
+        >> ['2d', '2d']
+
+    The Wyckoff labels can also be attached as an array to the
+    structure, in which case the information is also included when
+    storing the Atoms object.
+
+        from ase.io import write
+        structure.new_array('wyckoff_sites', wyckoff_sites, str)
+        write('structure.xyz', structure)
 
     The function can also be applied to supercells::
 
-        structure = bulk('SiC', crystalstructure='zincblence', a=3.0).repeat(2)
-        add_wyckoff_sites(structure)
-        print(structure.get_array('wyckoff_sites'))
+        structure = bulk('SiC', crystalstructure='zincblende', a=3.0).repeat(2)
+        wyckoff_sites = get_wyckoff_sites(structure)
+        print(wyckoff_sites)
 
     This snippet will produce the following output::
 
-        ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
-         '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
+        >> ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
+            '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
+
     """
-    dataset = spglib.get_symmetry_dataset(structure, symprec=symprec)
+    dataset = spglib.get_symmetry_dataset((structure.get_cell(),
+                                           structure.get_scaled_positions(),
+                                           structure.get_atomic_numbers()),
+                                          symprec=symprec)
     n_unitcells = np.linalg.det(dataset['transformation_matrix'])
 
     equivalent_atoms = list(dataset['equivalent_atoms'])
@@ -320,5 +333,4 @@ def add_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> None:
         multiplicity = int(round(multiplicity))
         wyckoffs[index] = '{}{}'.format(multiplicity, dataset["wyckoffs"][index])
 
-    wyckoff_sites = [wyckoffs[equivalent_atoms[a.index]] for a in structure]
-    structure.new_array('wyckoff_sites', wyckoff_sites, str)
+    return [wyckoffs[equivalent_atoms[a.index]] for a in structure]

@@ -7,7 +7,7 @@ from ase.build import bulk
 from ase.neighborlist import NeighborList
 
 from icet.core.lattice_site import LatticeSite
-from icet.tools.geometry import (add_wyckoff_sites,
+from icet.tools.geometry import (get_wyckoff_sites,
                                  ase_atoms_to_spglib_cell,
                                  atomic_number_to_chemical_symbol,
                                  chemical_symbols_to_numbers,
@@ -378,15 +378,8 @@ class TestGeometry(unittest.TestCase):
         retval = atomic_number_to_chemical_symbol(numbers)
         self.assertEqual(expected_symbols, retval)
 
-    def test_add_wyckoff_sites(self):
-        """Tests add_wyckoff_sites method."""
-        tag = 'wyckoff_sites'
-
-        # does addition of array work
-        structure = bulk('Al')
-        add_wyckoff_sites(structure)
-        self.assertTrue(structure.has(tag),
-                        msg='ASE Atoms object does not have array {}'.format(tag))
+    def test_get_wyckoff_sites(self):
+        """Tests get_wyckoff_sites method."""
 
         # structures and reference data to test
         structures, targetvals = [], []
@@ -421,8 +414,7 @@ class TestGeometry(unittest.TestCase):
         targetvals.append(['2a', '4b', '8c', '8c', '8c', '8c', '4b', '2a'])
 
         for structure, targetval in zip(structures, targetvals):
-            add_wyckoff_sites(structure)
-            retval = structure.get_array(tag).tolist()
+            retval = get_wyckoff_sites(structure)
             self.assertEqual(targetval, retval)
 
 
