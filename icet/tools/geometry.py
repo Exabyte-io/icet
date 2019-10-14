@@ -268,17 +268,17 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
     return numbers
 
 
-def add_wyckoff_sites(atoms: Atoms, symprec: float = 1e-4) -> None:
+def add_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> None:
     """Determines the Wyckoff site symbols of the input structure and
     attaches this information in the form of an array to the structure
-    object. This is generally of interst for symmetry analysis but
+    object. This is generally of interest for symmetry analysis but
     can be especially useful when setting up, e.g., a
     :class:`SiteOccupancyObserver
     <mchammer.ensembles.SiteOccupancyObserver>`.
 
     Parameters
     ----------
-    atoms
+    structure
         input structure, note that the occupation of the sites is
         included in the symmetry analysis
     symprec
@@ -310,7 +310,7 @@ def add_wyckoff_sites(atoms: Atoms, symprec: float = 1e-4) -> None:
         ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
          '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
     """
-    dataset = spglib.get_symmetry_dataset(atoms, symprec=symprec)
+    dataset = spglib.get_symmetry_dataset(structure, symprec=symprec)
     n_unitcells = np.linalg.det(dataset['transformation_matrix'])
 
     equivalent_atoms = list(dataset['equivalent_atoms'])
@@ -318,7 +318,7 @@ def add_wyckoff_sites(atoms: Atoms, symprec: float = 1e-4) -> None:
     for index in set(equivalent_atoms):
         multiplicity = list(dataset['equivalent_atoms']).count(index) / n_unitcells
         multiplicity = int(round(multiplicity))
-        wyckoffs[index] = f'{multiplicity}{dataset["wyckoffs"][index]}'
+        wyckoffs[index] = '{}{}'.format(multiplicity, dataset["wyckoffs"][index])
 
-    wyckoff_sites = [wyckoffs[equivalent_atoms[a.index]] for a in atoms]
-    atoms.new_array('wyckoff_sites', wyckoff_sites, str)
+    wyckoff_sites = [wyckoffs[equivalent_atoms[a.index]] for a in structure]
+    structure.new_array('wyckoff_sites', wyckoff_sites, str)
