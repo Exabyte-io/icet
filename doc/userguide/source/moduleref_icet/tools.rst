@@ -22,8 +22,7 @@ Convex hull construction
 Mapping structures
 ------------------
 
-.. automodule:: icet.tools
-   :members: map_structure_to_reference
+.. autofunction:: icet.tools.map_structure_to_reference
 
 
 .. _structure_enumeration:
@@ -35,8 +34,8 @@ Mapping structures
 Structure enumeration
 ---------------------
 
-.. automodule:: icet.tools
-   :members: enumerate_structures, enumerate_supercells
+.. autofunction:: icet.tools.enumerate_structures
+.. autofunction:: icet.tools.enumerate_supercells
 
 
 .. index::
@@ -63,5 +62,5 @@ Generation of special structures
 Other structure tools
 ---------------------
 
-.. automodule:: icet.tools
-   :members: add_wyckoff_sites, get_symmetry_operations, get_primitive_structure
+.. autofunction:: icet.tools.get_primitive_structure
+.. autofunction:: icet.tools.get_wyckoff_sites

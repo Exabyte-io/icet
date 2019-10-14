@@ -273,9 +273,16 @@ def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
     sites are of general interest for symmetry analysis but can be
     especially useful when setting up, e.g., a
     :class:`SiteOccupancyObserver
-    <mchammer.ensembles.SiteOccupancyObserver>`.
+    <mchammer.observers.SiteOccupancyObserver>`.
     The Wyckoff labels can be conveniently attached as an array to the
-    structure object as demonstrated in the example below
+    structure object as demonstrated in the Examples section below.
+
+    Note
+    ----
+    The occupation of the sites is part of the symmetry
+    analysis. Usually it is the symmetry of the "ideally" occupied
+    lattice that is of interest. Hence, be mindful of the occupation
+    when using this function.
 
     Parameters
     ----------
@@ -302,7 +309,7 @@ def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
 
     The Wyckoff labels can also be attached as an array to the
     structure, in which case the information is also included when
-    storing the Atoms object.
+    storing the Atoms object::
 
         from ase.io import write
         structure.new_array('wyckoff_sites', wyckoff_sites, str)
