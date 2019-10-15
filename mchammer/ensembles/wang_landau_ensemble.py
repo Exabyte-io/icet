@@ -6,6 +6,7 @@ from typing import Dict, List, Union
 import numpy as np
 
 from ase import Atoms
+from ase.units import kB
 from pandas import DataFrame
 
 from .. import DataContainer
@@ -438,6 +439,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
 def get_averages_wang_landau(dc: DataContainer,
                              temperature: Union[float, List[float]],
+                             boltzmann_constant: float = kB,
                              iteration: int = -1) -> DataFrame:
     """Returns the average and the standard deviation of the energy for
     the temperature(s) specified.
@@ -448,6 +450,11 @@ def get_averages_wang_landau(dc: DataContainer,
         data container, from which to extract the density of states
     temperature
         temperature(s), for which to compute the averages
+    boltzmann_constant : float
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
     iteration
         iteration of Wang-Landau algorithm, from which to use the
         microcanonical entropy; by default the last iteration is used
@@ -487,11 +494,12 @@ def get_averages_wang_landau(dc: DataContainer,
     df['density'] = df.apply(lambda row: np.exp(row.entropy) / density_total, axis=1)
 
     # compute mean and standard deviation of energy
+    enref = np.min(df.energy)
     averages = {}
     for temperature in temps:
         enavg, enstd, sumint = 0, 0, 0
         for _, row in df.iterrows():
-            boltz = np.exp(-row.energy / temperature)
+            boltz = np.exp(- (row.energy - enref) / temperature / boltzmann_constant)
             sumint += row.density * boltz
             enavg += row.density * boltz * (row.energy / n_atoms)
             enstd += row.density * boltz * (row.energy / n_atoms) ** 2
@@ -503,6 +511,7 @@ def get_averages_wang_landau(dc: DataContainer,
 
 def get_density_wang_landau(dc: DataContainer,
                             temperature: Union[float, List[float]] = None,
+                            boltzmann_constant: float = kB,
                             iteration: int = -1) -> DataFrame:
     """Returns the total and temperature weighted density of states from a
     Wang-Landau simulation.
@@ -513,6 +522,11 @@ def get_density_wang_landau(dc: DataContainer,
         data container, from which to extract the density of states
     temperature
         temperature(s), for which to compute the averages
+    boltzmann_constant : float
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
     iteration
         iteration of Wang-Landau algorithm, from which to use the
         microcanonical entropy; by default the last iteration is used
@@ -554,10 +568,13 @@ def get_density_wang_landau(dc: DataContainer,
 
     # temperature weighted densities of states
     if temperature is not None:
+        enref = np.min(df.energy)
         for temp in temps:
             temp = round(temp, 5)
             df[f'weighted_density_{temp}'] = \
-                df.apply(lambda row: row.density * np.exp(-row.energy/temp), axis=1)
+                df.apply(lambda row:
+                         row.density * np.exp(- (row.energy - enref) / temp / boltzmann_constant),
+                         axis=1)
             df[f'weighted_density_{temp}'] /= np.sum(df[f'weighted_density_{temp}'])
 
     return df
