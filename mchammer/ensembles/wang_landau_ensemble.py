@@ -164,7 +164,7 @@ class WangLandauEnsemble(BaseEnsemble):
                  calculator: BaseCalculator,
                  energy_spacing: float,
                  trial_move: str = 'swap',
-                 fill_factor_limit: float = 1e-8,
+                 fill_factor_limit: float = 1e-6,
                  flatness_check_interval: int = None,
                  flatness_limit: float = 0.8,
                  user_tag: str = None,
@@ -237,8 +237,7 @@ class WangLandauEnsemble(BaseEnsemble):
         # initialize Wang-Landau algorithm; in the case of a restart
         # these quantities are read from the data container file; the
         # if-conditions prevent these values from being overwritten
-        if not hasattr(self, '_converged'):
-            self._converged = False
+        self._converged = False
         if not hasattr(self, '_fill_factor'):
             self._fill_factor = 1
         if not hasattr(self, '_histogram'):
@@ -437,78 +436,6 @@ class WangLandauEnsemble(BaseEnsemble):
         return data
 
 
-def get_averages_wang_landau(dc: DataContainer,
-                             temperature: Union[float, List[float]],
-                             boltzmann_constant: float = kB,
-                             iteration: int = -1) -> DataFrame:
-    """Returns the average and the standard deviation of the energy for
-    the temperature(s) specified.
-
-    Parameters
-    ----------
-    dc
-        data container, from which to extract the density of states
-    temperature
-        temperature(s), for which to compute the averages
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    iteration
-        iteration of Wang-Landau algorithm, from which to use the
-        microcanonical entropy; by default the last iteration is used
-
-    Raises
-    ------
-    TypeError
-        if ``temperature`` is provided in the wrong format
-    ValueError
-        if ``dc`` does not contain required data from Wang-Landau
-        simulation
-    """
-
-    # preparations
-    n_ground_states = 1
-    n_atoms = dc.ensemble_parameters['n_atoms']
-    if type(temperature) == float:
-        temps = [temperature]
-    elif type(temperature) == list:
-        temps = temperature
-    else:
-        raise TypeError('temperature must be either a float or a list of floats.')
-    if 'entropy' not in dc.data.columns:
-        raise ValueError('data container must contain "entropy" column')
-
-    # collect entropy
-    energy_spacing = dc.ensemble_parameters['energy_spacing']
-    last_index = dc.data[dc.data['entropy'].notna()].index[iteration]
-    data = OrderedDict(sorted(dc.data.iloc[last_index]['entropy'].items()))
-    df = DataFrame(data={'energy': energy_spacing * np.array(list(data.keys())),
-                         'entropy': np.array(list(data.values()))})
-    # normalize entropy (this helps primarily with the numerics)
-    df.entropy -= df.entropy.iloc[0] - np.log(n_ground_states)
-
-    # density of states
-    density_total = np.sum(np.exp(df.entropy))
-    df['density'] = df.apply(lambda row: np.exp(row.entropy) / density_total, axis=1)
-
-    # compute mean and standard deviation of energy
-    enref = np.min(df.energy)
-    averages = {}
-    for temperature in temps:
-        enavg, enstd, sumint = 0, 0, 0
-        for _, row in df.iterrows():
-            boltz = np.exp(- (row.energy - enref) / temperature / boltzmann_constant)
-            sumint += row.density * boltz
-            enavg += row.density * boltz * (row.energy / n_atoms)
-            enstd += row.density * boltz * (row.energy / n_atoms) ** 2
-        enavg /= sumint
-        enstd = np.sqrt(enstd / sumint - enavg ** 2)
-        averages[temperature] = {'mean': enavg, 'stddev': enstd}
-    return DataFrame.from_dict(averages).T
-
-
 def get_density_wang_landau(dc: DataContainer,
                             temperature: Union[float, List[float]] = None,
                             boltzmann_constant: float = kB,
@@ -522,7 +449,7 @@ def get_density_wang_landau(dc: DataContainer,
         data container, from which to extract the density of states
     temperature
         temperature(s), for which to compute the averages
-    boltzmann_constant : float
+    boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
         units, i.e. units that are consistent
         with the underlying cluster expansion
@@ -558,13 +485,13 @@ def get_density_wang_landau(dc: DataContainer,
     last_index = dc.data[dc.data['entropy'].notna()].index[iteration]
     data = OrderedDict(sorted(dc.data.iloc[last_index]['entropy'].items()))
     df = DataFrame(data={'energy': energy_spacing * np.array(list(data.keys())),
-                         'entropy': np.array(list(data.values()))})
+                         'entropy': np.array(list(data.values()))},
+                   index=list(data.keys()))
     # normalize entropy
     df.entropy -= df.entropy.iloc[0] - np.log(n_ground_states)
 
     # density of states
-    density_total = np.sum(np.exp(df.entropy))
-    df['density'] = df.apply(lambda row: np.exp(row.entropy) / density_total, axis=1)
+    df['density'] = np.exp(df.entropy) / np.sum(np.exp(df.entropy))
 
     # temperature weighted densities of states
     if temperature is not None:
@@ -578,3 +505,107 @@ def get_density_wang_landau(dc: DataContainer,
             df[f'weighted_density_{temp}'] /= np.sum(df[f'weighted_density_{temp}'])
 
     return df
+
+
+def get_averages_wang_landau(dc: DataContainer,
+                             temperatures: Union[float, List[float]],
+                             properties: Union[str, List[str]] = None,
+                             boltzmann_constant: float = kB,
+                             iteration: int = -1) -> DataFrame:
+    """Returns the average and the standard deviation of the energy for the
+    temperature(s) specified. If the `properties` keyword argument is specified
+    the function will also return the mean and standard deviation of the
+    specified properties.
+
+    Parameters
+    ----------
+    dc
+        data container, from which to extract the density of states
+    temperatures
+        temperature(s), at which to compute the averages
+    properties
+        propertie(s), for which to compute the averages; the properties must
+        refer to fields in the data container
+    boltzmann_constant
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
+    iteration
+        iteration of Wang-Landau algorithm, from which to use the
+        microcanonical entropy; by default the last iteration is used
+
+    Raises
+    ------
+    TypeError
+        if ``temperature`` is provided in the wrong format
+    ValueError
+        if ``dc`` does not contain required data from Wang-Landau
+        simulation
+    ValueError
+        if ``dc`` does not contain requeste property
+    """
+
+    # preparations
+    n_atoms = dc.ensemble_parameters['n_atoms']
+    if type(temperatures) in [float, int]:
+        temps = [temperatures]
+    elif type(temperatures) == list:
+        temps = temperatures
+    else:
+        raise TypeError('temperatures ({}) must be either a float or a list of floats.'
+                        .format(temperatures))
+
+    if properties is not None:
+        if type(properties) == str:
+            props = [properties]
+        elif type(properties) == list and all([type(p) == str for p in properties]):
+            props = properties
+        else:
+            raise TypeError('properties ({}) must be either a string or a list of strings.'
+                            .format(properties))
+
+    for prop in props:
+        if prop not in dc.data.columns:
+            raise ValueError('property ({}) not in data container.\n'
+                             'Available properties: {}'.format(prop, dc.data.columns))
+
+    # get density vs energy
+    df = get_density_wang_landau(dc, temperature=None,
+                                 boltzmann_constant=boltzmann_constant,
+                                 iteration=iteration)
+
+    # compute density for each row in data container
+    if properties is not None:
+        energy_spacing = dc.ensemble_parameters['energy_spacing']
+        data_density = list(df.density[
+            np.array(np.round(dc.data.potential / energy_spacing), dtype=int)])
+
+    enref = np.min(df.energy)
+    averages = []
+    for temperature in temps:
+
+        # mean and standard deviation of energy
+        boltz = np.exp(- (df.energy - enref) / temperature / boltzmann_constant)
+        sumint = np.sum(df.density * boltz)
+        en_mean = np.sum(df.energy / n_atoms * df.density * boltz) / sumint
+        en_std = np.sum((df.energy / n_atoms) ** 2 * df.density * boltz) / sumint
+        en_std = np.sqrt(en_std - en_mean ** 2)
+        record = {'temperature': temperature,
+                  'potential_mean': en_mean,
+                  'potential_std': en_std}
+
+        # mean and standard deviation of other properties
+        if properties is not None:
+            boltz = np.exp(- (dc.data.potential - enref) / temperature / boltzmann_constant)
+            sumint = np.sum(data_density * boltz)
+            for prop in props:
+                prop_mean = np.sum(data_density * boltz * dc.data[prop]) / sumint
+                prop_std = np.sum(data_density * boltz * dc.data[prop] ** 2) / sumint
+                prop_std = np.sqrt(prop_std - prop_mean ** 2)
+                record['{}_mean'.format(prop)] = prop_mean
+                record['{}_std'.format(prop)] = prop_std
+
+        averages.append(record)
+
+    return DataFrame.from_dict(averages)
