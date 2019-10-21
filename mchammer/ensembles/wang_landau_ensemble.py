@@ -393,6 +393,10 @@ class WangLandauEnsemble(BaseEnsemble):
                     self._fill_factor /= 2
                     self._histogram = dict.fromkeys(self._histogram, 0)
                     self._fraction_flat_histogram = None
+                    # center entropy counter in order to avoid overflow
+                    entropy_ref = np.average(list(self._entropy.values()))
+                    for k in self._entropy:
+                        self._entropy[k] -= entropy_ref
 
         return accept
 
@@ -564,11 +568,10 @@ def get_averages_wang_landau(dc: DataContainer,
         else:
             raise TypeError('properties ({}) must be either a string or a list of strings.'
                             .format(properties))
-
-    for prop in props:
-        if prop not in dc.data.columns:
-            raise ValueError('property ({}) not in data container.\n'
-                             'Available properties: {}'.format(prop, dc.data.columns))
+        for prop in props:
+            if prop not in dc.data.columns:
+                raise ValueError('property ({}) not in data container.\n'
+                                 'Available properties: {}'.format(prop, dc.data.columns))
 
     # get density vs energy
     df = get_density_wang_landau(dc, temperature=None,
