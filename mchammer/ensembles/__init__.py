@@ -8,7 +8,8 @@ from .sgc_annealing import SGCAnnealing
 from .vcsgc_ensemble import VCSGCEnsemble
 from .wang_landau_ensemble import (WangLandauEnsemble,
                                    get_averages_wang_landau,
-                                   get_density_wang_landau)
+                                   get_density_wang_landau,
+                                   run_patched_wang_landau_simulation)
 from .target_cluster_vector_annealing import TargetClusterVectorAnnealing
 
 __all__ = ['CanonicalEnsemble',
@@ -20,4 +21,5 @@ __all__ = ['CanonicalEnsemble',
            'VCSGCEnsemble',
            'WangLandauEnsemble',
            'get_averages_wang_landau',
-           'get_density_wang_landau']
+           'get_density_wang_landau',
+           'run_patched_wang_landau_simulation']

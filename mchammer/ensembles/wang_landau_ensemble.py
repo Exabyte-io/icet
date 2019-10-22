@@ -1,7 +1,8 @@
 """Definition of the Wang-Landau multi-canonical ensemble class."""
 
-from collections import OrderedDict
-from typing import Dict, List, Union
+from collections import Counter, OrderedDict
+from multiprocessing import Pool
+from typing import Dict, List, Tuple, Union
 
 import numpy as np
 
@@ -72,7 +73,7 @@ class WangLandauEnsemble(BaseEnsemble):
     calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
         calculator to be used for calculating the potential changes
         that enter the evaluation of the Metropolis criterion
-    trial_move
+    trial_move : str
         One can choose between two different trial moves for
         generating new configurations. In a 'swap' move two sites are
         selected and their occupations are swapped; in a 'flip' move
@@ -80,20 +81,22 @@ class WangLandauEnsemble(BaseEnsemble):
         different species. While 'swap' moves conserve the
         concentrations of the species in the system, 'flip' moves
         allow one in principle to sample the full composition space.
-    energy_spacing
-        defines the bin size of the energy grid on which the
-        microcanonical entropy :math:`S(E)`, and thus the density
-        :math:`\\exp S(E)`, is evaluated
-    fill_factor_limit
+    energy_spacing : float
+        defines the bin size of the energy grid on which the microcanonical
+        entropy :math:`S(E)`, and thus the density :math:`\\exp S(E)`, is
+        evaluated; the spacing should be small enough to capture the features
+        of the density of states; too small values will, however, render the
+        convergence very tedious if not possible
+    fill_factor_limit : float
         If the fill_factor :math:`f` falls below this value, the
         algorithm is terminated.
-    flatness_check_interval
+    flatness_check_interval : int
         For computational efficiency the flatness condition is only
         evaluated every ``flatness_check_interval``-th trial step. By
         default (``None``) ``flatness_check_interval`` is set to 1000
         times the number of sites in ``structure``, i.e. 1000 Monte
         Carlo sweeps.
-    flatness_limit
+    flatness_limit : float
         The histogram :math:`H(E)` is deemed sufficiently flat if
         :math:`H(E) > \\chi \\left<H(E)\\right>\\,\\forall
         E`. ``flatness_limit`` is the parameter :math:`\\chi`.
@@ -163,6 +166,8 @@ class WangLandauEnsemble(BaseEnsemble):
                  structure: Atoms,
                  calculator: BaseCalculator,
                  energy_spacing: float,
+                 energy_limit_left: float = None,
+                 energy_limit_right: float = None,
                  trial_move: str = 'swap',
                  fill_factor_limit: float = 1e-6,
                  flatness_check_interval: int = None,
@@ -190,15 +195,29 @@ class WangLandauEnsemble(BaseEnsemble):
         if flatness_check_interval is None:
             flatness_check_interval = len(structure) * 1e3
 
-        # ensemble parameters
+        # parameters pertaining to construction of entropy and histogram
         self._energy_spacing = energy_spacing
         self._fill_factor_limit = fill_factor_limit
         self._flatness_check_interval = flatness_check_interval
         self._flatness_limit = flatness_limit
 
+        # energy window
+        self._bin_left = self._get_bin_index(energy_limit_left)
+        self._bin_right = self._get_bin_index(energy_limit_right)
+        if self._bin_left is not None and \
+                self._bin_right is not None and self._bin_left >= self._bin_right:
+            raise ValueError('invalid energy window: left boundary ({}, {}) must be'
+                             ' smaller than right boundary ({}, {})'
+                             .format(energy_limit_left, self._bin_left,
+                                     energy_limit_right, self._bin_right))
+        self._reached_energy_window = self._bin_left is None and self._bin_right is None
+
+        # ensemble parameters
         self._ensemble_parameters = {}
         self._ensemble_parameters['energy_spacing'] = energy_spacing
         self._ensemble_parameters['trial_move'] = trial_move
+        self._ensemble_parameters['bin_left'] = self._bin_left
+        self._ensemble_parameters['bin_right'] = self._bin_right
         # The following parameters are _intentionally excluded_ from
         # the ensemble_parameters dict as it would prevent users from
         # changing their values between restarts. The latter is advantageous
@@ -262,6 +281,122 @@ class WangLandauEnsemble(BaseEnsemble):
         self._fill_factor = last_saved.fill_factor
         self._histogram = last_saved.histogram
         self._entropy = last_saved.entropy
+
+    def _acceptance_condition(self, potential_diff: float) -> bool:
+        """
+        Evaluates Metropolis acceptance criterion.
+
+        Parameters
+        ----------
+        potential_diff
+            change in the thermodynamic potential associated
+            with the trial step
+        """
+
+        # acceptance/rejection step
+        bin_cur = self._get_bin_index(self._potential)
+        bin_new = self._get_bin_index(self._potential + potential_diff)
+        if self._allow_move(bin_cur, bin_new):
+            S_cur = self._entropy.get(bin_cur, 0)
+            S_new = self._entropy.get(bin_new, 0)
+            delta = np.exp(S_cur - S_new)
+            if delta >= 1 or delta >= self._next_random_number():
+                accept = True
+                self._potential += potential_diff
+                bin_cur = bin_new
+            else:
+                accept = False
+        else:
+            accept = False
+
+        if not self._reached_energy_window:
+            # check whether the target energy window has been reached
+            self._reached_energy_window = self._inside_energy_window(bin_cur)
+            # if the target window has been reached remove unused bins
+            # from histogram and entropy counters
+            if self._reached_energy_window:
+                self._entropy = {k: self._entropy[k]
+                                 for k in self._entropy if self._inside_energy_window(k)}
+                self._histogram = {k: self._histogram[k]
+                                   for k in self._histogram if self._inside_energy_window(k)}
+
+        # update histograms and entropy counters
+        self._accumulate_entropy(bin_cur)
+
+        return accept
+
+    def _get_bin_index(self, energy: float) -> int:
+        """ Returns bin index for histogram and entropy dictionaries. """
+        if np.isnan(energy):
+            return None
+        return int(np.around(energy / self._energy_spacing))
+
+    def _allow_move(self, bin_cur: int, bin_new: int) -> bool:
+        """Returns True if the current move is to be included in the
+        accumulation of histogram and entropy. This logic has been
+        moved into a separate function in order to enhance
+        readability.
+        """
+        if self._bin_left is None and self._bin_right is None:
+            # no limits on energy window
+            return True
+        if self._bin_left is not None:
+            if bin_cur < self._bin_left:
+                # not yet in window (left limit)
+                return True
+            if bin_new < self._bin_left:
+                # imposing left limit
+                return False
+        if self._bin_right is not None:
+            if bin_cur > self._bin_right:
+                # not yet in window (right limit)
+                return True
+            if bin_new > self._bin_right:
+                # imposing right limit
+                return False
+        return True
+
+    def _inside_energy_window(self, bin_k: int) -> bool:
+        """Returns True if bin_k is inside the energy window specified for
+        this simulation."""
+        if self._bin_left is not None and bin_k < self._bin_left:
+            return False
+        if self._bin_right is not None and bin_k > self._bin_right:
+            return False
+        return True
+
+    def _accumulate_entropy(self, bin_cur: int) -> None:
+        """Updates counters for histogram and entropy, checks histogram
+        flatness, and updates fill factor if indicated."""
+
+        # update histogram and entropy
+        self._entropy[bin_cur] = self._entropy.get(bin_cur, 0) + self._fill_factor
+        self._histogram[bin_cur] = self._histogram.get(bin_cur, 0) + 1
+
+        # check flatness of histogram
+        if self.step % self._flatness_check_interval == 0 and \
+                self.step > 0 and self._reached_energy_window:
+
+            histogram = np.array(list(self._histogram.values()))
+            limit = self._flatness_limit * np.average(histogram)
+            self._fraction_flat_histogram = np.sum(histogram > limit) / len(self._histogram)
+
+            if np.all(histogram > limit):
+
+                # check whether the Wang-Landau algorithm has converged
+                if self._fill_factor <= self._fill_factor_limit:
+                    self._converged = True
+                else:
+                    # add current histogram, entropy, and related data to data container
+                    self._add_histograms_to_data_container()
+                    # update fill factor and reset histogram
+                    self._fill_factor /= 2
+                    self._histogram = dict.fromkeys(self._histogram, 0)
+                    self._fraction_flat_histogram = None
+                    # shift entropy counter in order to avoid overflow
+                    entropy_ref = np.min(list(self._entropy.values()))
+                    for k in self._entropy:
+                        self._entropy[k] -= entropy_ref
 
     def _do_trial_step(self):
         """ Carries out one Monte Carlo trial step. """
@@ -346,60 +481,6 @@ class WangLandauEnsemble(BaseEnsemble):
         sublattice_probabilities = [p / norm for p in sublattice_probabilities]
         return sublattice_probabilities
 
-    def _acceptance_condition(self, potential_diff: float) -> bool:
-        """
-        Evaluates Metropolis acceptance criterion.
-
-        Parameters
-        ----------
-        potential_diff
-            change in the thermodynamic potential associated
-            with the trial step
-        """
-
-        # acceptance/rejection step
-        ix_cur = int(np.around(self._potential / self._energy_spacing))
-        ix_new = int(np.around((self._potential + potential_diff) / self._energy_spacing))
-        S_cur = self._entropy.get(ix_cur, 0)
-        S_new = self._entropy.get(ix_new, 0)
-        delta = np.exp(S_cur - S_new)
-        if delta >= 1 or delta >= self._next_random_number():
-            accept = True
-            self._potential += potential_diff
-            ix_cur = ix_new
-        else:
-            accept = False
-
-        # update histogram and entropy
-        self._entropy[ix_cur] = self._entropy.get(ix_cur, 0) + self._fill_factor
-        self._histogram[ix_cur] = self._histogram.get(ix_cur, 0) + 1
-
-        # check flatness of histogram
-        if self.step % self._flatness_check_interval == 0 and self.step > 0:
-
-            histogram = np.array(list(self._histogram.values()))
-            limit = self._flatness_limit * np.average(histogram)
-            self._fraction_flat_histogram = np.sum(histogram > limit) / len(self._histogram)
-
-            if np.all(histogram > limit):
-
-                # check whether the Wang-Landau algorithm has converged
-                if self._fill_factor <= self._fill_factor_limit:
-                    self._converged = True
-                else:
-                    # add current histogram, entropy, and related data to data container
-                    self._add_histograms_to_data_container()
-                    # update fill factor and reset histogram
-                    self._fill_factor /= 2
-                    self._histogram = dict.fromkeys(self._histogram, 0)
-                    self._fraction_flat_histogram = None
-                    # center entropy counter in order to avoid overflow
-                    entropy_ref = np.average(list(self._entropy.values()))
-                    for k in self._entropy:
-                        self._entropy[k] -= entropy_ref
-
-        return accept
-
     def _add_histograms_to_data_container(self):
         """This method adds information regarding the current state of the
         convergence of the Wang-Landau algorithm to the data
@@ -416,7 +497,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
     def _finalize(self) -> None:
         """This method is called from the run method after the conclusion of
-        the MC cycles but before the data container is written. Here
+        the MC cycle but before the data container is written. Here
         it is used to add the final state of the Wang-Landau algorithm
         to the data container in order to enable direct restarts.
         """
@@ -440,32 +521,21 @@ class WangLandauEnsemble(BaseEnsemble):
         return data
 
 
-def get_density_wang_landau(dc: DataContainer,
-                            temperature: Union[float, List[float]] = None,
-                            boltzmann_constant: float = kB,
-                            iteration: int = -1) -> DataFrame:
-    """Returns the total and temperature weighted density of states from a
-    Wang-Landau simulation.
+def __get_entropy_from_data_container(dc: DataContainer,
+                                      iteration: int = -1) -> DataFrame:
+    """Returns the (relative) entropy from a _single_ data container
+    produced during a Wang-Landau simulation.
 
     Parameters
     ----------
     dc
         data container, from which to extract the density of states
-    temperature
-        temperature(s), for which to compute the averages
-    boltzmann_constant
-        Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
-        with the underlying cluster expansion
-        and the temperature units [default: eV/K]
     iteration
         iteration of Wang-Landau algorithm, from which to use the
         microcanonical entropy; by default the last iteration is used
 
     Raises
     ------
-    TypeError
-        if ``temperature`` is provided in the wrong format
     ValueError
         if ``dc`` does not contain required data from Wang-Landau
         simulation
@@ -473,16 +543,8 @@ def get_density_wang_landau(dc: DataContainer,
     """
 
     # preparations
-    n_ground_states = 1
-    if temperature is not None:
-        if type(temperature) == float:
-            temps = [temperature]
-        elif type(temperature) == list:
-            temps = temperature
-        else:
-            raise TypeError('temperature must be either a float or a list of floats')
     if 'entropy' not in dc.data.columns:
-        raise ValueError('data container must contain "entropy" column')
+        raise ValueError('Data container must contain "entropy" column.')
 
     # collect entropy
     energy_spacing = dc.ensemble_parameters['energy_spacing']
@@ -491,8 +553,126 @@ def get_density_wang_landau(dc: DataContainer,
     df = DataFrame(data={'energy': energy_spacing * np.array(list(data.keys())),
                          'entropy': np.array(list(data.values()))},
                    index=list(data.keys()))
-    # normalize entropy
-    df.entropy -= df.entropy.iloc[0] - np.log(n_ground_states)
+    # shift entropy for numerical stability
+    df.entropy -= np.min(df.entropy)
+
+    return df
+
+
+def get_density_wang_landau(dcs: Union[DataContainer, List[DataContainer]],
+                            temperature: Union[float, List[float]] = None,
+                            boltzmann_constant: float = kB) -> Tuple[DataFrame, dict]:
+    """Returns a DataFrame with the total and temperature weighted density of
+    states from a Wang-Landau simulation. The second element of the tuple is a
+    dictionary that contains the standard deviation between the entropy of
+    neighboring data containers in the overlap region. These errors should be
+    small compared to the variation of the entropy across each energy bin.
+
+    The function can handle both a single data container
+    and a list thereof. In the latter case the data containers must cover a
+    contiguous energy range and must at least partially overlap.
+
+    Parameters
+    ----------
+    dcs
+        data container(s), from which to extract the density of states
+    temperature
+        temperature(s), for which to compute the averages
+    boltzmann_constant
+        Boltzmann constant :math:`k_B` in appropriate
+        units, i.e. units that are consistent
+        with the underlying cluster expansion
+        and the temperature units [default: eV/K]
+
+    Raises
+    ------
+    TypeError
+        if ``temperature`` or ``dcs`` are provided in the wrong format
+    ValueError
+        if multiple data containers are provided and there are inconsistencies
+        with regard to basic simulation parameters such as system size or
+        energy spacing
+    ValueError
+        if multiple data containers are provided and there is at least
+        one energy region without overlap
+    """
+
+    # preparations
+    if temperature is not None:
+        if type(temperature) == float:
+            temps = [temperature]
+        elif type(temperature) == list:
+            temps = temperature
+        else:
+            raise TypeError('temperature must be either a float or a list of floats.')
+
+    if isinstance(dcs, DataContainer):
+        # fetch raw entropy data from data container
+        df = __get_entropy_from_data_container(dcs)
+        errors = None
+
+    elif isinstance(dcs, dict) and isinstance(dcs[next(iter(dcs))], DataContainer):
+        # minimal consistency checks
+        tags = list(dcs.keys())
+        tagref = tags[0]
+        dcref = dcs[tagref]
+        for tag in tags:
+            dc = dcs[tag]
+            if len(dc.structure) != len(dcref.structure):
+                raise ValueError('Number of atoms differs between data containers ({}: {}, {}: {})'
+                                 .format(tagref, dcref.ensemble_parameters['n_atoms'],
+                                         tag, dc.ensemble_parameters['n_atoms']))
+            for param in ['energy_spacing', 'trial_move']:
+                if dc.ensemble_parameters[param] != dcref.ensemble_parameters[param]:
+                    raise ValueError('{} differs between data containers ({}: {}, {}: {})'
+                                     .format(param,
+                                             tagref, dcref.ensemble_parameters['n_atoms'],
+                                             tag, dc.ensemble_parameters['n_atoms']))
+
+        # fetch raw entropy data from data containers
+        entropies = {}
+        for tag, dc in dcs.items():
+            entropies[tag] = __get_entropy_from_data_container(dc)
+
+        # sort entropies by energy
+        entropies = OrderedDict(sorted(entropies.items(), key=lambda row: row[1].energy.iloc[0]))
+
+        # line up entropy data
+        errors = {}
+        tags = list(entropies.keys())
+        for tag1, tag2 in zip(tags[:-1], tags[1:]):
+            df1 = entropies[tag1]
+            df2 = entropies[tag2]
+            left_lim = np.min(df2.energy)
+            right_lim = np.max(df1.energy)
+            if left_lim >= right_lim:
+                raise ValueError('No overlap in the energy range {}...{}.\n'
+                                 .format(right_lim, left_lim) +
+                                 ' The closest data containers have tags "{}" and "{}".'
+                                 .format(tag1, tag2))
+            df1_ = df1[(df1.energy >= left_lim) & (df1.energy <= right_lim)]
+            df2_ = df2[(df2.energy >= left_lim) & (df2.energy <= right_lim)]
+            offset = np.average(df2_.entropy - df1_.entropy)
+            errors['{}-{}'.format(tag1, tag2)] = np.std(df2_.entropy - df1_.entropy)
+            entropies[tag2].entropy = entropies[tag2].entropy - offset
+
+        # compile entropy over the entire energy range
+        data = {}
+        counts = Counter()
+        for df in entropies.values():
+            for en, ent in zip(df.energy, df.entropy):
+                data[en] = data.get(en, 0) + ent
+                counts[en] += 1
+        for en in data:
+            data[en] = data[en] / counts[en]
+
+        # center entropy to prevent possible numerical issues
+        entmin = np.min(list(data.values()))
+        df = DataFrame(data={'energy': np.array(list(data.keys())),
+                             'entropy': np.array(np.array(list(data.values()))) - entmin})
+    else:
+        raise TypeError('dcs ({}) must be either a DataContainer or a list of DataContainer objects'
+                        .format(type(dcs)))
 
     # density of states
     df['density'] = np.exp(df.entropy) / np.sum(np.exp(df.entropy))
@@ -502,13 +682,13 @@ def get_density_wang_landau(dc: DataContainer,
         enref = np.min(df.energy)
         for temp in temps:
             temp = round(temp, 5)
-            df[f'weighted_density_{temp}'] = \
+            df['weighted_density_{}'.format(temp)] = \
                 df.apply(lambda row:
                          row.density * np.exp(- (row.energy - enref) / temp / boltzmann_constant),
                          axis=1)
-            df[f'weighted_density_{temp}'] /= np.sum(df[f'weighted_density_{temp}'])
+            df['weighted_density_{}'.format(temp)] /= np.sum(df['weighted_density_{}'.format(temp)])
 
-    return df
+    return df, errors
 
 
 def get_averages_wang_landau(dc: DataContainer,
@@ -547,7 +727,7 @@ def get_averages_wang_landau(dc: DataContainer,
         if ``dc`` does not contain required data from Wang-Landau
         simulation
     ValueError
-        if ``dc`` does not contain requeste property
+        if ``dc`` does not contain requested property
     """
 
     # preparations
@@ -612,3 +792,141 @@ def get_averages_wang_landau(dc: DataContainer,
         averages.append(record)
 
     return DataFrame.from_dict(averages)
+
+
+def run_patched_wang_landau_simulation(structure: Atoms,
+                                       calculator: BaseCalculator,
+                                       energy_spacing: float,
+                                       n_patches: int,
+                                       minimum_energy: float,
+                                       maximum_energy: float,
+                                       n_steps: int,
+                                       data_container_template: str,
+                                       n_processes: int,
+                                       overlap: float = 4,
+                                       trial_move: str = 'swap',
+                                       fill_factor_limit: float = 1e-6,
+                                       flatness_check_interval: int = None,
+                                       flatness_limit: float = 0.8,
+                                       random_seed: int = None,
+                                       data_container_write_period: float = np.inf,
+                                       ensemble_data_write_interval: int = None,
+                                       trajectory_write_interval: int = None,
+                                       sublattice_probabilities: List[float] = None) -> None:
+    """Runs a series of Wang-Landau simulations that each cover a
+    different energy range. Splitting the sampling of the energy range
+    into multiple segments has two crucial advantages:
+
+    1. Since the variation of the density across a segment is much
+       less extreme than over the entire range, simulations converge
+       faster.
+    2. Since the different segments can be run independently, they can
+       be trivially parallelized.
+
+    After the individual simulations have been completed the entire
+    density must be reconstructed by patching the energy segments
+    together. To this end, one should use the XXXX function.
+
+    Todo
+    ----
+    name XXXX
+
+    This function internally calls the :class:`WangLandauEnsemble` and
+    many parameters of this function are simply forwarded to the
+    class. For documentation concerning these parameters please
+    consult the :class:`WangLandauEnsemble` class. Here, only the
+    mandatory parameters and function specific arguments are
+    described.
+
+    Parameters
+    ----------
+    structure
+        atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector
+    calculator
+        calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion
+    energy_spacing
+        defines the bin size of the energy grid on which the microcanonical
+        entropy :math:`S(E)`, and thus the density :math:`\\exp S(E)`, is
+        evaluated; the spacing should be small enough to capture the features
+        of the density of states; too small values will, however, render the
+        convergence very tedious if not possible
+    n_patches
+        number of segments into which the energy axis is divided
+    minimum_energy
+        estimate for the lower bound of the energy range that will be
+        encountered
+    maximum_energy
+        estimate for the upper bound of the energy range that will be
+        encountered
+    n_steps
+        number of MC trial steps to run in total
+    data_container_template
+        template for the file the data container will be written to;
+        internally the bin index as well as the file ending ".dc" will
+        be appended; if the file exists it will be read, the data
+        container will be appended, and the file will be
+        updated/overwritten
+    n_processes
+        number of processes that can be run in parallel; typically
+        this is the number of available cores
+    overlap
+        number of bins, by which two neighboring segments should
+        overlap; this value should not be too small; larger values
+        imply larger overlap between segments and less efficient load
+        distribution
+
+    Raises
+    ------
+    ValueError
+        if n_patches is too small
+    ValueError
+        if the energy window (`maximum_energy - minimum_energy`) is too small
+        to accommodate the specified number of patches
+    """
+
+    def run_simulation(args: dict) -> None:
+        mc = WangLandauEnsemble(structure=structure,
+                                calculator=calculator,
+                                energy_spacing=energy_spacing,
+                                energy_limit_left=args['energy_limit_left'],
+                                energy_limit_right=args['energy_limit_right'],
+                                trial_move=trial_move,
+                                fill_factor_limit=fill_factor_limit,
+                                flatness_limit=flatness_limit,
+                                flatness_check_interval=flatness_check_interval,
+                                data_container=data_container,
+                                random_seed=random_seed,
+                                data_container_write_period=data_container_write_period,
+                                ensemble_data_write_interval=ensemble_data_write_interval,
+                                trajectory_write_interval=trajectory_write_interval,
+                                sublattice_probabilities=sublattice_probabilities)
+        mc.run(number_of_trial_steps=n_steps)
+
+    if n_patches < 2:
+        raise ValueError('n_patches ({}) must be at least 2'.format(n_patches))
+
+    # set up MC simulations
+    limits = np.linspace(minimum_energy, maximum_energy, n_patches + 1)
+    limits[0], limits[-1] = None, None
+    args = []
+    for k, (energy_limit_left, energy_limit_right) in enumerate(zip(limits[:-1], limits[1:])):
+        if energy_limit_left is not None and energy_limit_right is not None:
+            if (maximum_energy - minimum_energy) / energy_spacing < 2 * overlap:
+                raise ValueError('Energy window too small. min/max: {}/{}'
+                                 .format(minimum_energy, maximum_energy) +
+                                 ' Try decreasing n_patches ({}) and/or overlap ({}).'
+                                 .format(n_patches, overlap))
+        if energy_limit_left is not None:
+            energy_limit_left -= overlap * energy_spacing
+        if energy_limit_right is not None:
+            energy_limit_right += overlap * energy_spacing
+        data_container = '{}-{}.dc'.format(data_container_template)
+        args.append({'energy_limit_left': energy_limit_left,
+                     'energy_limit_right': energy_limit_right,
+                     'data_container': data_container})
+
+    # run MC simulations
+    pool = Pool(processes=n_processes)
+    pool.map(run_simulation, args)
