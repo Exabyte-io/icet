@@ -1,6 +1,6 @@
 import numpy as np
 import spglib
-from typing import Tuple, List, Sequence, TypeVar
+from typing import List, Sequence, Tuple, TypeVar
 from ase import Atoms
 from ase.data import chemical_symbols
 from icet.core.lattice_site import LatticeSite
@@ -268,7 +268,8 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
     return numbers
 
 
-def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
+def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4,
+                      map_occupations: List[List[str]] = None) -> List[str]:
     """Returns the Wyckoff symbols of the input structure. The Wyckoff
     sites are of general interest for symmetry analysis but can be
     especially useful when setting up, e.g., a
@@ -277,12 +278,17 @@ def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
     The Wyckoff labels can be conveniently attached as an array to the
     structure object as demonstrated in the Examples section below.
 
-    Note
-    ----
-    The occupation of the sites is part of the symmetry
-    analysis. Usually it is the symmetry of the "ideally" occupied
-    lattice that is of interest. Hence, be mindful of the occupation
-    when using this function.
+    By default the occupation of the sites is part of the symmetry
+    analysis. If a chemically disordered structure is provided this
+    will usually reduce the symmetry substantially. If one is
+    interested in the symmetry of the underlying structure one can
+    control how occupations are handled. To this end, one can provide
+    the ``map_occupations`` keyword argument. The latter must be a
+    list, each entry of which is a list of species that should be
+    treated as indistinguishable. As a shortcut, if *all* species
+    should be treated as indistinguishable one can provide an empty
+    list. Examples that illustrate the usage of the keyword are given
+    below.
 
     Parameters
     ----------
@@ -291,45 +297,92 @@ def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
         included in the symmetry analysis
     symprec
         tolerance parameter handed over to spglib
+    map_occupations
+        each sublist in this list specifies a group of chemical
+        species that shall be treated as indistinguishable for the
+        purpose of the symmetry analysis
 
     Examples
     --------
     Wyckoff sites of a hexagonal-close packed structure::
 
-        from ase.build import bulk
-        from icet.tools import get_wyckoff_sites
+        >> from ase.build import bulk
+        >> from icet.tools import get_wyckoff_sites
 
-        structure = bulk('Ti')
-        wyckoff_sites = get_wyckoff_sites(structure)
-        print(wyckoff_sites)
+        >> structure = bulk('Ti')
+        >> wyckoff_sites = get_wyckoff_sites(structure)
+        >> print(wyckoff_sites)
 
     Running the snippet above will produce the following output::
 
-        >> ['2d', '2d']
+        ['2d', '2d']
 
     The Wyckoff labels can also be attached as an array to the
     structure, in which case the information is also included when
     storing the Atoms object::
 
-        from ase.io import write
-        structure.new_array('wyckoff_sites', wyckoff_sites, str)
-        write('structure.xyz', structure)
+        >> from ase.io import write
+        >> structure.new_array('wyckoff_sites', wyckoff_sites, str)
+        >> write('structure.xyz', structure)
 
     The function can also be applied to supercells::
 
-        structure = bulk('SiC', crystalstructure='zincblende', a=3.0).repeat(2)
-        wyckoff_sites = get_wyckoff_sites(structure)
-        print(wyckoff_sites)
+        >> structure = bulk('GaAs', crystalstructure='zincblende', a=3.0).repeat(2)
+        >> wyckoff_sites = get_wyckoff_sites(structure)
+        >> print(wyckoff_sites)
 
     This snippet will produce the following output::
 
-        >> ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
-            '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
+        ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
+         '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
 
+    Now assume that one is given a supercell of a (Ga,Al)As
+    alloy. Applying the function directly yields much lower symmetry
+    since the symmetry of the original structure is broken::
+
+        >> structure.set_chemical_symbols(
+               ['Ga', 'As', 'Al', 'As', 'Ga', 'As', 'Al', 'As',
+                'Ga', 'As', 'Ga', 'As', 'Al', 'As', 'Ga', 'As'])
+        >> print(get_wyckoff_sites(structure))
+
+        ['8g', '8i', '4e', '8i', '8g', '8i', '2c', '8i',
+         '2d', '8i', '8g', '8i', '4e', '8i', '8g', '8i']
+
+    Since Ga and Al occupy the same sublattice, they should, however,
+    be treated as indistinguishable for the purpose of the symmetry
+    analysis, which can be achieved via the ``map_occupations``
+    keyword::
+
+        >> print(get_wyckoff_sites(structure, map_occupations=[['Ga', 'Al'], ['As']]))
+
+        ['4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c',
+         '4a', '4c', '4a', '4c', '4a', '4c', '4a', '4c']
+
+    If occupations are to ignored entirely, one can simply provide an
+    empty list. In the present case, this turns the zincblende lattice
+    into a diamond lattice, on which case there is only one Wyckoff
+    site::
+
+        >> print(get_wyckoff_sites(structure, map_occupations=[]))
+
+        ['8a', '8a', '8a', '8a', '8a', '8a', '8a', '8a',
+         '8a', '8a', '8a', '8a', '8a', '8a', '8a', '8a']
     """
-    dataset = spglib.get_symmetry_dataset((structure.get_cell(),
-                                           structure.get_scaled_positions(),
-                                           structure.get_atomic_numbers()),
+    structure_copy = structure.copy()
+    if map_occupations is not None:
+        if len(map_occupations) > 0:
+            new_symbols = []
+            for symb in structure_copy.get_chemical_symbols():
+                for group in map_occupations:
+                    if symb in group:
+                        new_symbols.append(group[0])
+                        break
+        else:
+            new_symbols = len(structure) * ['H']
+        structure_copy.set_chemical_symbols(new_symbols)
+    dataset = spglib.get_symmetry_dataset((structure_copy.get_cell(),
+                                           structure_copy.get_scaled_positions(),
+                                           structure_copy.get_atomic_numbers()),
                                           symprec=symprec)
     n_unitcells = np.linalg.det(dataset['transformation_matrix'])
 
@@ -338,6 +391,6 @@ def get_wyckoff_sites(structure: Atoms, symprec: float = 1e-4) -> List[str]:
     for index in set(equivalent_atoms):
         multiplicity = list(dataset['equivalent_atoms']).count(index) / n_unitcells
         multiplicity = int(round(multiplicity))
-        wyckoffs[index] = '{}{}'.format(multiplicity, dataset["wyckoffs"][index])
+        wyckoffs[index] = '{}{}'.format(multiplicity, dataset['wyckoffs'][index])
 
-    return [wyckoffs[equivalent_atoms[a.index]] for a in structure]
+    return [wyckoffs[equivalent_atoms[a.index]] for a in structure_copy]

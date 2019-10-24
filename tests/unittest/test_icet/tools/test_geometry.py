@@ -417,6 +417,24 @@ class TestGeometry(unittest.TestCase):
             retval = get_wyckoff_sites(structure)
             self.assertEqual(targetval, retval)
 
+        structure = bulk('GaAs', crystalstructure='zincblende', a=3.0).repeat(2)
+        structure.set_chemical_symbols(
+               ['Ga', 'As', 'Al', 'As', 'Ga', 'As', 'Al', 'As',
+                'Ga', 'As', 'Ga', 'As', 'Al', 'As', 'Ga', 'As'])
+
+        retval = get_wyckoff_sites(structure)
+        targetval = ['8g', '8i', '4e', '8i', '8g', '8i', '2c', '8i',
+                     '2d', '8i', '8g', '8i', '4e', '8i', '8g', '8i']
+        self.assertEqual(targetval, retval)
+
+        retval = get_wyckoff_sites(structure, map_occupations=[['Ga', 'Al'], ['As']])
+        targetval = 8 * ['4a', '4c']
+        self.assertEqual(targetval, retval)
+
+        retval = get_wyckoff_sites(structure, map_occupations=[])
+        targetval = len(structure) * ['8a']
+        self.assertEqual(targetval, retval)
+
 
 if __name__ == '__main__':
     unittest.main()
