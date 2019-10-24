@@ -498,7 +498,8 @@ def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
         if key not in dict2:
             return False
         if isinstance(dict1[key], (int, float)) and isinstance(dict2[key], (int, float)):
-            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol):
+            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol) and \
+                   not np.isnan(dict1[key]) and not np.isnan(dict2[key]):
                 return False
         else:
             if dict1[key] != dict2[key]:
