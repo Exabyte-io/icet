@@ -1,4 +1,4 @@
-"""Definition of the Wang-Landau multi-canonical ensemble class."""
+"""Definition of the Wang-Landau algorithm class."""
 
 from collections import Counter, OrderedDict
 from multiprocessing import Pool
@@ -182,7 +182,7 @@ class WangLandauEnsemble(BaseEnsemble):
                  flatness_check_interval: int = None,
                  flatness_limit: float = 0.8,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
@@ -277,10 +277,9 @@ class WangLandauEnsemble(BaseEnsemble):
             occupations=self.configuration.occupations)
 
     def _restart_ensemble(self):
-        """Restarts ensemble using the last state saved in DataContainer
-        file.  Note that this method does _not_ use the last_state
-        property of the data container but rather uses the last data
-        written the data frame.
+        """Restarts ensemble using the last state saved in the data container
+        file. Note that this method does _not_ use the last_state property of
+        the data container but rather uses the last data written the data frame.
         """
         super()._restart_ensemble()
         df = self.data_container.data
@@ -335,7 +334,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
     def _get_bin_index(self, energy: float) -> int:
         """ Returns bin index for histogram and entropy dictionaries. """
-        if np.isnan(energy):
+        if energy is None or np.isnan(energy):
             return None
         return int(np.around(energy / self._energy_spacing))
 
@@ -599,9 +598,6 @@ def get_density_wang_landau(dcs: Union[DataContainer, dict],
         one energy region without overlap
     """
 
-    from time import time
-    time0 = time()
-
     # preparations
     if isinstance(dcs, DataContainer):
         # fetch raw entropy data from data container
@@ -625,17 +621,14 @@ def get_density_wang_landau(dcs: Union[DataContainer, dict],
                                      .format(param,
                                              tagref, dcref.ensemble_parameters['n_atoms'],
                                              tag, dc.ensemble_parameters['n_atoms']))
-        print(f'time 1: {time() - time0:9.4f}') ; time0 = time()
 
         # fetch raw entropy data from data containers
         entropies = {}
         for tag, dc in dcs.items():
             entropies[tag] = __get_entropy_from_data_container(dc, iteration)
-            print(f'time 2: {time() - time0:9.4f} {tag}') ; time0 = time()
 
         # sort entropies by energy
         entropies = OrderedDict(sorted(entropies.items(), key=lambda row: row[1].energy.iloc[0]))
-        print(f'time 3: {time() - time0:9.4f}') ; time0 = time()
 
         # line up entropy data
         errors = {}
@@ -655,7 +648,6 @@ def get_density_wang_landau(dcs: Union[DataContainer, dict],
             offset = np.average(df2_.entropy - df1_.entropy)
             errors['{}-{}'.format(tag1, tag2)] = np.std(df2_.entropy - df1_.entropy)
             entropies[tag2].entropy = entropies[tag2].entropy - offset
-        print(f'time 4: {time() - time0:9.4f}') ; time0 = time()
 
         # compile entropy over the entire energy range
         data = {}
@@ -668,21 +660,18 @@ def get_density_wang_landau(dcs: Union[DataContainer, dict],
                 indices[en] = index
         for en in data:
             data[en] = data[en] / counts[en]
-        print(f'time 5: {time() - time0:9.4f}') ; time0 = time()
 
         # center entropy to prevent possible numerical issues
         entmin = np.min(list(data.values()))
         df = DataFrame(data={'energy': np.array(list(data.keys())),
                              'entropy': np.array(np.array(list(data.values()))) - entmin},
                        index=list(indices.values()))
-        print(f'time 6: {time() - time0:9.4f}') ; time0 = time()
     else:
         raise TypeError('dcs ({}) must be either a DataContainer or a list of DataContainer objects'
                         .format(type(dcs)))
 
     # density of states
     df['density'] = np.exp(df.entropy) / np.sum(np.exp(df.entropy))
-    print(f'time 7: {time() - time0:9.4f}') ; time0 = time()
 
     return df, errors
 
@@ -735,7 +724,7 @@ def get_averages_wang_landau(dcs: Union[DataContainer, dict],
                                  'Available observables: {}'.format(observables, dc.data.columns))
 
     # preparation of observables
-    columns_to_keep = ['energy', 'density']
+    columns_to_keep = ['potential', 'density']
     if observables is not None:
         columns_to_keep.extend(observables)
 
@@ -748,7 +737,7 @@ def get_averages_wang_landau(dcs: Union[DataContainer, dict],
         check_observables(dcs, observables)
         df_combined = dcs.data.filter(columns_to_keep)
         dcref = dcs
-    if isinstance(dcs, dict):
+    elif isinstance(dcs, dict):
         for dc in dcs.values():
             check_observables(dc, observables)
         df_combined = pd_concat([dc.data for dc in dcs.values()],
@@ -804,6 +793,7 @@ def run_binned_wang_landau_simulation(structure: Atoms,
                                       maximum_energy: float,
                                       n_steps: int,
                                       n_processes: int,
+                                      patch_selection: List[int] = None,
                                       bin_size_exponent: float = 0.5,
                                       data_container_template: str = '',
                                       overlap: float = 4,
@@ -855,6 +845,12 @@ def run_binned_wang_landau_simulation(structure: Atoms,
         convergence very tedious if not possible
     n_patches
         number of segments into which the energy axis is divided
+    patch_selection
+        list of bin indices to be run (or restarted). By default all bins are
+        run. This argument allows one to run only selected bins. This is
+        useful when restarting only some of the runs, e.g., since they did not
+        converge during the initially alloted number of MC steps or because
+        the convergence conditions should be tightened.
     bin_size_exponent
         controls the distribution of bin sizes along the energy axis. The
         outermost regions of the entropy usually exhibit the largest
@@ -895,6 +891,8 @@ def run_binned_wang_landau_simulation(structure: Atoms,
     ------
     ValueError
         if n_patches is too small
+    TypeError
+        if patch_selection is not a list
     ValueError
         if the energy window (`maximum_energy - minimum_energy`) is too small
         to accommodate the specified number of patches
@@ -902,19 +900,25 @@ def run_binned_wang_landau_simulation(structure: Atoms,
 
     if n_patches < 2:
         raise ValueError('n_patches ({}) must be at least 2'.format(n_patches))
+    if patch_selection is not None and not isinstance(patch_selection, list):
+        raise TypeError('patch_selection ({}) must be given in the form of a list'
+                        .format(patch_selection))
 
-    # set up MC simulations
-    half_seg = 0.5 * np.linspace(0, 1, int(n_patches / 2) + 1) ** bin_size_exponent
-    limits = np.array(list(reversed(-half_seg))[:-1] + list(half_seg))
+    # set bin boundaries
+    limits = np.linspace(-1, 1, n_patches + 1)
+    limits = np.sign(limits) * np.abs(limits) ** bin_size_exponent
     limits *= maximum_energy - minimum_energy
     limits += 0.5 * (maximum_energy + minimum_energy)
     limits[0], limits[-1] = None, None
+
     # Below, the calculator is made available within the scope of the entire
     # module in order for the multiprocessing module to work. If the
     # calculator is handed over to __run_simulation as an argument, an error
     # is raised that states that the calculator class cannot be pickled.
     global __calculator
     __calculator = calculator
+
+    # set up MC simulations
     args = []
     for k, (energy_limit_left, energy_limit_right) in enumerate(zip(limits[:-1], limits[1:])):
         if energy_limit_left is not None and energy_limit_right is not None:
@@ -947,7 +951,14 @@ def run_binned_wang_landau_simulation(structure: Atoms,
 
     # run MC simulations
     pool = Pool(processes=n_processes)
-    pool.map(__run_simulation, args)
+    if args is None:
+        pool.map(__run_simulation, args)
+    else:
+        if np.any(np.array(patch_selection) < 0) or np.any(np.array(patch_selection) > len(args)):
+            raise ValueError('Invalid patch index in patch_selection ({});'
+                             ' allowed values: 0 ... {}.'
+                             .format(patch_selection, len(args)))
+        pool.map(__run_simulation, [a for k, a in enumerate(args) if k in patch_selection])
 
 
 def __run_simulation(args: dict) -> None:
