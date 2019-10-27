@@ -9,7 +9,6 @@ from ase.data import atomic_numbers, chemical_symbols
 from ase.units import kB
 from typing import Dict, Union, List
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
@@ -172,7 +171,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
                  kappa: float,
                  boltzmann_constant: float = kB,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,

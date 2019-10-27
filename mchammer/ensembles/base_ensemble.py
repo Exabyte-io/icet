@@ -57,7 +57,7 @@ class BaseEnsemble(ABC):
                  structure: Atoms,
                  calculator: BaseCalculator,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,

@@ -7,7 +7,6 @@ from ase import Atoms
 from ase.units import kB
 from ase.data import atomic_numbers, chemical_symbols
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 from .vcsgc_ensemble import get_phis
@@ -179,12 +178,15 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         mc.run(100)  # carry out 100 trial steps
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
                  temperature: float,
                  ensemble_specs: List[Dict],
                  probabilities: List[float] = None,
                  boltzmann_constant: float = kB,
-                 user_tag: str = None, data_container: DataContainer = None,
+                 user_tag: str = None,
+                 data_container: str = None,
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,

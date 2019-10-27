@@ -6,7 +6,6 @@ from ase import Atoms
 from ase.units import kB
 from typing import Dict, List
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
@@ -91,12 +90,17 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
 
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
-                 T_start: float, T_stop: float, n_steps: int,
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
+                 T_start: float,
+                 T_stop: float,
+                 n_steps: int,
                  cooling_function: str = 'exponential',
                  user_tag: str = None,
                  boltzmann_constant: float = kB,
-                 data_container: DataContainer = None, random_seed: int = None,
+                 data_container: str = None,
+                 random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
