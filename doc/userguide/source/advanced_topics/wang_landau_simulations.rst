@@ -126,7 +126,7 @@ A WL simulation is set up and run similar to a thermodynamic ensemble.
 
 In this simple example, we only need to set the energy spacing
 (``energy_spacing=1``). In the case of this very simple model, the energy
-spectrum is discret and the choice of the energy spacing is straightforward.
+spectrum is discrete and the choice of the energy spacing is straightforward.
 While for arbitrary CEs the energy spectrum is technically discrete it is
 practically continuous and the choice of the energy sapcing requires more care
 as illustrated below.
