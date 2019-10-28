@@ -19,7 +19,7 @@ from .thermodynamic_base_ensemble import BaseEnsemble
 class WangLandauEnsemble(BaseEnsemble):
     """Instances of this class allow one to sample a system using the
     Wang-Landau (WL) algorithm, see Phys. Rev. Lett. **86**, 2050
-    (2001) [WanLan01]_. The WL algorithm enables one to acquire the
+    (2001) [WanLan01a]_. The WL algorithm enables one to acquire the
     density of states (DOS) as a function of energy, from which one
     can readily calculate many thermodynamic observables as a function
     of temperature. To this end, the WL algorithm accumulates both the
@@ -145,16 +145,15 @@ class WangLandauEnsemble(BaseEnsemble):
     Ising model, one of the systems studied in the original work by
     Wang and Landau::
 
-        from ase.build import bulk
+        from ase import Atoms
         from icet import ClusterExpansion, ClusterSpace
         from mchammer.calculators import ClusterExpansionCalculator
         from mchammer.ensembles import WangLandauEnsemble
 
         # prepare cluster expansion
-        prim = bulk('Au', crystalstructure='sc', a=1.0)
-        prim.set_cell([1, 1, 10])
+        prim = Atoms('Au', positions=[[0, 0, 0]], cell=[1, 1, 10], pbc=True)
         cs = ClusterSpace(prim, cutoffs=[1.1], chemical_symbols=['Ag', 'Au'])
-        ce = ClusterExpansion(cs, [0, 0, 1])
+        ce = ClusterExpansion(cs, [0, 0, 2])
 
         # prepare initial configuration
         structure = prim.repeat((4, 4, 1))
@@ -167,7 +166,7 @@ class WangLandauEnsemble(BaseEnsemble):
                                 calculator=calculator,
                                 energy_spacing=1,
                                 data_container='ising_2d_run.dc')
-        mc.run(number_of_trial_steps=len(structure)*10000)  # carry out 10,000,000 MC sweeps
+        mc.run(number_of_trial_steps=len(structure)*10000)  # carry out 10,000 MC sweeps
 
     """
 

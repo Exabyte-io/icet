@@ -99,7 +99,7 @@ observations are said to be uncorrelated, providing an estimate of the
 correlation length.
 
 .. figure::
-    autocorrelation.svg
+    _static/autocorrelation.svg
 
 An `error estimate <https://en.wikipedia.org/wiki/Standard_error>`_ of the
 average can be calculated via
