@@ -6,7 +6,6 @@ from ase import Atoms
 from ase.units import kB
 from typing import List
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
@@ -134,7 +133,7 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
                  temperature: float,
                  user_tag: str = None,
                  boltzmann_constant: float = kB,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
@@ -152,7 +151,9 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
             self._ensemble_parameters[key] = count
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,

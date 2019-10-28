@@ -1,7 +1,7 @@
-.. _example_get_cluster_count:
+.. _advanced_topics_get_cluster_count:
 .. highlight:: python
 .. index::
-   single: Examples; Cluster counts
+   single: Advanced topics; Cluster counts
 
 Cluster counts
 ===============

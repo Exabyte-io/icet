@@ -10,7 +10,6 @@ from ase.units import kB
 from collections import OrderedDict
 from typing import Dict, Union, List
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
@@ -152,10 +151,14 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
     * add check that chemical symbols in chemical potentials are allowed
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
-                 temperature: float, chemical_potentials: Dict[str, float],
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
+                 temperature: float,
+                 chemical_potentials: Dict[str, float],
                  user_tag: str = None,
-                 data_container: DataContainer = None, random_seed: int = None,
+                 data_container: str = None,
+                 random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,

@@ -57,7 +57,7 @@ class BaseEnsemble(ABC):
                  structure: Atoms,
                  calculator: BaseCalculator,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
@@ -173,7 +173,16 @@ class BaseEnsemble(ABC):
         reset_step
             if True the MC trial step counter and the data container will
             be reset to zero and empty, respectively.
+
+        Raises
+        ------
+        TypeError
+            if `number_of_trial_steps` is not an int
         """
+
+        if not isinstance(number_of_trial_steps, int):
+            raise TypeError('number_of_trial_steps must be an integer ({})'
+                            .format(number_of_trial_steps))
 
         last_write_time = time()
 
@@ -191,7 +200,7 @@ class BaseEnsemble(ABC):
             initial_step += first_run_interval
 
         step = initial_step
-        while step < final_step:
+        while step < final_step and not self._terminate_sampling():
             uninterrupted_steps = min(self.observer_interval, final_step - step)
             if self.step % self.observer_interval == 0:
                 self._observe(self.step)
@@ -203,9 +212,12 @@ class BaseEnsemble(ABC):
             self._run(uninterrupted_steps)
             step += uninterrupted_steps
 
-        # If we end on an observation interval we also observe
+        # if we end on an observation interval we also observe
         if self.step % self.observer_interval == 0:
             self._observe(self.step)
+
+        # allow ensemble a chance to go clean
+        self._finalize()
 
         if self._data_container_filename is not None:
             self.write_data_container(self._data_container_filename)
@@ -406,7 +418,7 @@ class BaseEnsemble(ABC):
         """
 
         if len(probability_distribution) != len(self.sublattices):
-            raise ValueError("probability_distribution should have the same size as sublattices")
+            raise ValueError('probability_distribution should have the same size as sublattices')
         pick = np.random.choice(len(self.sublattices), p=probability_distribution)
         return pick
 
@@ -458,8 +470,26 @@ class BaseEnsemble(ABC):
         """sublattices for the configuration being sampled"""
         return self.configuration.sublattices
 
+    def _terminate_sampling(self) -> bool:
+        """This method is called from the run method to determine whether the MC
+        sampling loop should be terminated for a reason other than having exhausted
+        the number of iterations. The method can be overriden by child classes in
+        order to provide an alternative exit mechanism.
+        """
+        return False
+
+    def _finalize(self) -> None:
+        """This method is called from the run method after the conclusion of
+        the MC cycles but before the data container is written. This
+        method can be used by child classes to carry out clean-up
+        tasks, including e.g., adding "left-over" data to the data
+        container.
+        """
+        pass
+
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
+
     """Returns True (False) if two dicts are equal (not equal), if
     float or integers are in the dicts then atol is used for comparing them."""
     if len(dict1) != len(dict2):
@@ -468,7 +498,8 @@ def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
         if key not in dict2:
             return False
         if isinstance(dict1[key], (int, float)) and isinstance(dict2[key], (int, float)):
-            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol):
+            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol) and \
+                   not np.isnan(dict1[key]) and not np.isnan(dict2[key]):
                 return False
         else:
             if dict1[key] != dict2[key]:

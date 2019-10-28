@@ -7,7 +7,6 @@ from ase import Atoms
 from ase.units import kB
 from ase.data import chemical_symbols
 
-from .. import DataContainer
 from ..calculators.base_calculator import BaseCalculator
 from .base_ensemble import BaseEnsemble
 
@@ -59,7 +58,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
                  calculator: BaseCalculator,
                  user_tag: str = None,
                  boltzmann_constant: float = kB,
-                 data_container: DataContainer = None,
+                 data_container: str = None,
                  random_seed: int = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
@@ -68,7 +67,9 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,

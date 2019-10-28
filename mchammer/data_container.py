@@ -33,7 +33,7 @@ class DataContainer:
 
     Parameters
     ----------
-    structure : ASE Atoms object
+    structure : ase.Atoms
         reference atomic structure associated with the data container
 
     ensemble_parameters : dict
