@@ -17,7 +17,7 @@ class ScriptTestCase(unittest.TestCase):
             raise RuntimeError('Keyboard interrupt')
         except ImportError as ex:
             module = ex.args[0].split()[-1].replace("'", '').split('.')[0]
-            if module in ['scipy', 'matplotlib']:
+            if module in ['scipy', 'matplotlib', 'mip']:
                 raise unittest.SkipTest('no {} module'.format(module))
             else:
                 raise

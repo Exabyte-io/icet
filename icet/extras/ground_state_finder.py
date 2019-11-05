@@ -2,8 +2,9 @@ try:
     from mip import Model, minimize, xsum
     from mip.constants import BINARY
 except ImportError:
-    raise Exception('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in order'
-                    ' to use the GroundStateFinder')
+    print('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in order'
+          ' to use the GroundStateFinder.')
+    raise
 
 import numpy as np
 from itertools import combinations

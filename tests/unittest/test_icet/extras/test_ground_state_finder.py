@@ -155,7 +155,8 @@ class TestGroundStateFinder(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             GroundStateFinder(self.ce, species_to_count=species_to_count)
         self.assertTrue('The specified species {} is not found on the active sublattice'
-                        ' ({})'.format(species_to_count, self.chemical_symbols) in str(cm.exception))
+                        ' ({})'.format(species_to_count, self.chemical_symbols)
+                        in str(cm.exception))
 
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
@@ -260,7 +261,8 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         with self.assertRaises(ValueError) as cm:
             GroundStateFinder(self.ce, species_to_count=species_to_count)
         self.assertTrue('The specified species {} is not found on the active sublattice'
-                        ' ({})'.format(species_to_count, self.chemical_symbols[0]) in str(cm.exception))
+                        ' ({})'.format(species_to_count, self.chemical_symbols[0])
+                        in str(cm.exception))
 
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
