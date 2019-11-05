@@ -9,12 +9,10 @@ from .structure_enumeration import (enumerate_structures,
                                     get_symmetry_operations)
 from .geometry import get_primitive_structure
 from .structure_mapping import map_structure_to_reference
-#from .ground_state_finder import GroundStateFinder
 
 __all__ = ['ConvexHull',
            'enumerate_structures',
            'enumerate_supercells',
            'get_symmetry_operations',
            'get_primitive_structure',
-           'map_structure_to_reference',]
- #          'GroundStateFinder']
+           'map_structure_to_reference']
