@@ -26,7 +26,14 @@ import unittest
 from ase import Atom
 from ase.build import bulk
 from icet import ClusterExpansion, ClusterSpace
-from icet.extras.ground_state_finder import GroundStateFinder, is_sites_in_orbit
+try:
+    from icet.extras.ground_state_finder import GroundStateFinder, is_sites_in_orbit
+except ImportError as ex:
+    module = ex.args[0].split()[0]
+    if module == 'Python-MIP':
+        raise unittest.SkipTest('no mip module'.format(module))
+    else:
+        raise
 
 
 def strip_surrounding_spaces(input_string):
