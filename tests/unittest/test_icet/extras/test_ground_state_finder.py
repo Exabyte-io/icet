@@ -25,6 +25,7 @@ import unittest
 
 from ase import Atom
 from ase.build import bulk
+from ase.build import fcc111
 from icet import ClusterExpansion, ClusterSpace
 try:
     from icet.extras.ground_state_finder import GroundStateFinder, is_sites_in_orbit
@@ -133,8 +134,12 @@ class TestGroundStateFinder(unittest.TestCase):
         gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0])
         self.assertIsInstance(gsf, GroundStateFinder)
 
+        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[1])
+        self.assertIsInstance(gsf, GroundStateFinder)
+
     def test_init_fails_for_quaternary_with_two_active_sublattices(self):
-        """Tests that initialization fails if there are two active sublattices."""
+        """Tests that initialization fails if there are two active
+        sublattices."""
         a = 4.0
         structure_prim = bulk('Au', a=a)
         structure_prim.append(Atom('H', position=(a / 2, a / 2, a / 2)))
@@ -221,7 +226,8 @@ class TestGroundStateFinder(unittest.TestCase):
 
 
 class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
-    """Container for test of the class functionality."""
+    """Container for test of the class functionality for a system with an
+    inactive sublattice."""
 
     def __init__(self, *args, **kwargs):
         super(TestGroundStateFinderInactiveSublattice, self).__init__(*args, **kwargs)
@@ -260,6 +266,9 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         """Tests that initialization of tested class work."""
         # initialize from GroundStateFinder instance
         gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0][0])
+        self.assertIsInstance(gsf, GroundStateFinder)
+
+        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0][1])
         self.assertIsInstance(gsf, GroundStateFinder)
 
     def test_init_fails_for_faulty_species_to_count(self):
@@ -311,6 +320,48 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
             [0, 0, 4, 0],
             [0, 0, 0, 4]]
         self.assertEqual(target, retval.tolist())
+
+
+class TestGroundStateFinderSlab(unittest.TestCase):
+    """Container for test of the class functionality for a slab."""
+
+    def __init__(self, *args, **kwargs):
+        super(TestGroundStateFinderSlab, self).__init__(*args, **kwargs)
+        self.chemical_symbols = ['Au', 'Pd']
+        self.cutoffs = [3.0]
+        structure_prim = fcc111('Au', a=4.0, size=(1, 1, 10), vacuum=10, periodic=True)
+        structure_prim.wrap()
+        self.structure_prim = structure_prim
+        self.cs = ClusterSpace(self.structure_prim, self.cutoffs, self.chemical_symbols)
+        ecis = [0.0] * 6 + [0.1] * 10
+        self.ce = ClusterExpansion(self.cs, ecis)
+        self.all_possible_structures = []
+        self.supercell = self.structure_prim.repeat((3, 3, 1))
+        for i in range(len(self.supercell)):
+            structure = self.supercell.copy()
+            structure.symbols[i] = self.chemical_symbols[1]
+            self.all_possible_structures.append(structure)
+
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
+    def setUp(self):
+        """Setup before each test."""
+        self.gsf = GroundStateFinder(self.ce)
+
+    def test_init(self):
+        """Tests that initialization of tested class work."""
+        # initialize from ClusterExpansion instance
+        gsf = GroundStateFinder(self.ce)
+        self.assertIsInstance(gsf, GroundStateFinder)
+
+    def test_get_ground_state(self):
+        """Tests get_ground_state functionality."""
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=1, verbose=0)
+        predicted_val = self.ce.predict(ground_state)
+        target_val = min([self.ce.predict(structure) for structure in self.all_possible_structures])
+        self.assertEqual(predicted_val, target_val)
 
 
 if __name__ == '__main__':

@@ -92,7 +92,7 @@ class GroundStateFinder():
                 raise ValueError('The specified species {} is not found on the active sublattice'
                                  ' ({})'.format(species_to_count, species))
             if species[-1] == species_to_count:
-                species = reversed(species)
+                species = list(reversed(species))
         self._species = species
 
         # Define cluster functions for elements
