@@ -5,6 +5,7 @@ except ImportError:
     raise ImportError('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in'
                       '  order to use the GroundStateFinder.')
 
+from math import inf
 import numpy as np
 from itertools import combinations, permutations
 
@@ -277,6 +278,8 @@ class GroundStateFinder():
 
     def get_ground_state(self, structure: Atoms,
                          species_count: Dict[str, float],
+                         solver_name: str = "",
+                         max_seconds: float = inf,
                          verbose: int = 1) -> Atoms:
         """
         Find the ground state for a given structure and species count, which
@@ -287,7 +290,13 @@ class GroundStateFinder():
         structure
             atomic configuration
         species_count
-            dictionary with count for one of the species on the active sublattice
+            dictionary with count for one of the species on the active
+            sublattice
+        solver_name
+            gurobi or cbc, searches for which solver is available if not
+            informed
+        max_seconds
+            maximum runtime in seconds (default: inf)
         verbose
             0 to disable solver messages printed on the screen, 1 to enable
         """
@@ -309,7 +318,7 @@ class GroundStateFinder():
 
         self._create_cluster_maps(structure)
         # Initiate MIP model
-        prob = Model("CE")
+        prob = Model("CE", solver_name=solver_name)
 
         # Set verbosity
         prob.verbose = verbose
@@ -329,10 +338,6 @@ class GroundStateFinder():
         # The objective function is added to 'prob' first
         prob.objective = minimize(xsum(self._get_total_energy(ys)))
 
-        # The constant term is removed
-        constant_term = prob.objective_const
-        prob.objective_const = 0.0
-
         # The five constraints are entered
         prob.add_constr(xsum(xs) == xcount, "Species count")
 
@@ -351,7 +356,7 @@ class GroundStateFinder():
 
         # The problem is solved using python-MIPs choice of solver, which is Girubi, if available,
         # and COIN-OR Branch-and-Cut, otherwise
-        status = prob.optimize()
+        status = prob.optimize(max_seconds=max_seconds)
 
         # The status of the solution is printed to the screen
         if str(status) != 'OptimizationStatus.OPTIMAL':
@@ -366,8 +371,12 @@ class GroundStateFinder():
                 index = int(v.name.split('_')[-1])
                 gs[index].symbol = self._reverse_id_map[int(v.x)]
 
-        assert abs(constant_term + prob.objective_value
-                   - self._cluster_expansion.predict(gs)) < 1e-6
+        # Assert that the solution agrees with the prediction
+        if prob.solver_name.upper() in ["GUROBI", "GRB"]:
+            assert abs(prob.objective_value - self._cluster_expansion.predict(gs)) < 1e-6
+        elif prob.solver_name.upper() == "CBC":
+            assert abs(prob.objective_const + prob.objective_value
+                       - self._cluster_expansion.predict(gs)) < 1e-6
 
         return gs
 

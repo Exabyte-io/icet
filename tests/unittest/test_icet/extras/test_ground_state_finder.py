@@ -195,8 +195,21 @@ class TestGroundStateFinder(unittest.TestCase):
         ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
                                                  verbose=0)
         predicted_species1 = self.ce.predict(ground_state)
-        self.assertEqual(predicted_species1, target_val)
         self.assertEqual(predicted_species0, predicted_species1)
+
+        # Set the solver explicitely
+        species_count = {self.chemical_symbols[0]: 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 solver_name='CBC', verbose=0)
+        predicted_solver_name = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species0, predicted_solver_name)
+
+        # Provide counts for second species
+        species_count = {self.chemical_symbols[0]: 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 max_seconds=0.5, verbose=0)
+        predicted_max_seconds = self.ce.predict(ground_state)
+        self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
 
     def test_get_ground_state_fails_for_faulty_species_to_count(self):
         """Tests that get_ground_state fails if species_to_count is faulty."""
@@ -343,7 +356,6 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
                                                  verbose=0)
         predicted_species1 = self.ce.predict(ground_state)
-        self.assertEqual(predicted_species1, target_val)
         self.assertEqual(predicted_species0, predicted_species1)
 
     def test_get_ground_state_fails_for_faulty_species_to_count(self):
@@ -410,14 +422,14 @@ class TestGroundStateFinderTriplets(unittest.TestCase):
         super(TestGroundStateFinderTriplets, self).__init__(*args, **kwargs)
         self.chemical_symbols = ['Au', 'Pd']
         self.cutoffs = [3.0, 3.0]
-        structure_prim = fcc111('Au', a=4.0, size=(1, 1, 10), vacuum=10, periodic=True)
+        structure_prim = fcc111('Au', a=4.0, size=(1, 1, 6), vacuum=10, periodic=True)
         structure_prim.wrap()
         self.structure_prim = structure_prim
         self.cs = ClusterSpace(self.structure_prim, self.cutoffs, self.chemical_symbols)
-        ecis = [0.0] * 6 + [0.1] * 10 + [-0.02] * 19
+        ecis = [0.0] * 4 + [0.1] * 6 + [-0.02] * 11
         self.ce = ClusterExpansion(self.cs, ecis)
         self.all_possible_structures = []
-        self.supercell = self.structure_prim.repeat((3, 3, 1))
+        self.supercell = self.structure_prim.repeat((2, 2, 1))
         for i in range(len(self.supercell)):
             structure = self.supercell.copy()
             structure.symbols[i] = self.chemical_symbols[1]
@@ -453,7 +465,6 @@ class TestGroundStateFinderTriplets(unittest.TestCase):
         ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
                                                  verbose=0)
         predicted_species1 = self.ce.predict(ground_state)
-        self.assertEqual(predicted_species1, target_val)
         self.assertEqual(predicted_species0, predicted_species1)
 
     def test_is_sites_in_orbit(self):
@@ -461,14 +472,14 @@ class TestGroundStateFinderTriplets(unittest.TestCase):
 
         # Check that a pair for which all sites have the different indices and but the same offset
         # gives true
-        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [4, 5])
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [2, 3])
         for i in range(len(sites)):
             sites[i].unitcell_offset += np.array([-2., -2., -2.])
         self.assertTrue(is_sites_in_orbit(orbit, sites))
 
         # Check that a pair for which all sites have the different indices and one has been offset
         # still gives true
-        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [4, 5])
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [2, 3])
         sites[0].unitcell_offset += np.array([-2., -2., -2.])
         self.assertFalse(is_sites_in_orbit(orbit, sites))
 
