@@ -329,6 +329,10 @@ class GroundStateFinder():
         # The objective function is added to 'prob' first
         prob.objective = minimize(xsum(self._get_total_energy(ys)))
 
+        # The constant term is removed
+        constant_term = prob.objective_const
+        prob.objective_const = 0.0
+
         # The five constraints are entered
         prob.add_constr(xsum(xs) == xcount, "Species count")
 
@@ -362,7 +366,7 @@ class GroundStateFinder():
                 index = int(v.name.split('_')[-1])
                 gs[index].symbol = self._reverse_id_map[int(v.x)]
 
-        assert abs(prob.objective_value + prob.objective_const
+        assert abs(constant_term + prob.objective_value
                    - self._cluster_expansion.predict(gs)) < 1e-6
 
         return gs
