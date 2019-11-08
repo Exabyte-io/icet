@@ -2,20 +2,21 @@ try:
     from mip import Model, minimize, xsum
     from mip.constants import BINARY
 except ImportError:
-    raise ImportError('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in order'
-                      ' to use the GroundStateFinder.')
+    raise ImportError('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in'
+                      '  order to use the GroundStateFinder.')
 
 import numpy as np
-from itertools import combinations
+from itertools import combinations, permutations
 
 from ase import Atoms
+from ase.data import chemical_symbols as periodic_table
 from icet import ClusterExpansion
 from icet.core.orbit_list import OrbitList
 from icet.core.orbit import Orbit
 from icet.core.lattice_site import LatticeSite
 from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
 from icet.core.structure import Structure
-from typing import List
+from typing import List, Dict
 
 
 class GroundStateFinder():
@@ -33,11 +34,6 @@ class GroundStateFinder():
     ----------
     cluster_expansion : ClusterExpansion
         cluster expansion that shall be used to find the ground state
-    species_to_count : str
-        chemical symbol representing the species that will be counted when
-        distinguishing between different configurations. Otherwise the first
-        species in the list of chemical symbols on the, single, active
-        sublattice is used.
 
     Example
     -------
@@ -64,14 +60,13 @@ class GroundStateFinder():
         structure = prim.repeat(3)
 
         # set up the ground state finder and calculate the ground state energy
-        gsf = GroundStateFinder(ce, species_to_count='Ag')
-        ground_state = gsf.get_ground_state(structure, 5)
+        gsf = GroundStateFinder(ce)
+        ground_state = gsf.get_ground_state(structure, {'Ag': 5})
         print('Ground state energy:', ce.predict(ground_state))
     """
 
     def __init__(self,
-                 cluster_expansion: ClusterExpansion,
-                 species_to_count: str = None) -> None:
+                 cluster_expansion: ClusterExpansion) -> None:
 
         # Check that there is only one active sublattice
         self._cluster_expansion = cluster_expansion
@@ -85,18 +80,14 @@ class GroundStateFinder():
         species = list(sublattices.active_sublattices[0].chemical_symbols)
         if len(species) > 2:
             raise NotImplementedError('Only binaries are implemented as of yet.')
-
-        # Reorder the species if a specific species shall be counted
-        if species_to_count is not None:
-            if species_to_count not in species:
-                raise ValueError('The specified species {} is not found on the active sublattice'
-                                 ' ({})'.format(species_to_count, species))
-            if species[-1] == species_to_count:
-                species = list(reversed(species))
         self._species = species
 
         # Define cluster functions for elements
-        self._id_map = {i: sym for i, sym in enumerate(reversed(self._species))}
+        species_map = cluster_space.species_maps[0]
+        self._id_map = {periodic_table[n]: 1 - species_map[n] for n in species_map.keys()}
+        self._reverse_id_map = {}
+        for key, value in self._id_map.items():
+            self._reverse_id_map[value] = key
 
         # Generate orbit list
         primitive_structure.set_chemical_symbols(
@@ -285,7 +276,7 @@ class GroundStateFinder():
         return E
 
     def get_ground_state(self, structure: Atoms,
-                         species_count: float,
+                         species_count: Dict[str, float],
                          verbose: int = 1) -> Atoms:
         """
         Find the ground state for a given structure and species count, which
@@ -296,10 +287,26 @@ class GroundStateFinder():
         structure
             atomic configuration
         species_count
-            species count in the desired configuration
+            dictionary with count for one of the species on the active sublattice
         verbose
             0 to disable solver messages printed on the screen, 1 to enable
         """
+
+        # Check that the species_count is consistent with the cluster space
+        if len(species_count) != 1:
+            raise ValueError('Provide counts for one of the species on the active sublattice ({}),'
+                             ' not {}!'.format(self._species, list(species_count.keys())))
+        species_to_count = list(species_count.keys())[0]
+        if species_to_count not in self._species:
+            raise ValueError('The species {} is not present on the active sublattice'
+                             ' ({})'.format(species_to_count, self._species))
+        if self._id_map[species_to_count] == 1:
+            xcount = species_count[species_to_count]
+        else:
+            active_count = len([sym for sym in structure.get_chemical_symbols() if sym in
+                               self._species])
+            xcount = active_count - species_count[species_to_count]
+
         self._create_cluster_maps(structure)
         # Initiate MIP model
         prob = Model("CE")
@@ -323,20 +330,20 @@ class GroundStateFinder():
         prob.objective = minimize(xsum(self._get_total_energy(ys)))
 
         # The five constraints are entered
-        prob.add_constr(xsum(xs) == species_count, "Species count")
+        prob.add_constr(xsum(xs) == xcount, "Species count")
 
-        count = 0
+        ycount = 0
         for i, cluster in enumerate(self._cluster_to_sites_map):
             for atom in cluster:
                 prob.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                "Decoration -> cluster {}".format(count))
-                count += 1
+                                "Decoration -> cluster {}".format(ycount))
+                ycount += 1
 
         for i, cluster in enumerate(self._cluster_to_sites_map):
             prob.add_constr(ys[i] >= 1 - len(cluster) +
                             xsum(xs[site_to_active_index_map[atom]] for atom in cluster),
-                            "Decoration -> cluster {}".format(count))
-            count += 1
+                            "Decoration -> cluster {}".format(ycount))
+            ycount += 1
 
         # The problem is solved using python-MIPs choice of solver, which is Girubi, if available,
         # and COIN-OR Branch-and-Cut, otherwise
@@ -353,7 +360,7 @@ class GroundStateFinder():
             if 'atom' in v.name:
                 # print(v.name)
                 index = int(v.name.split('_')[-1])
-                gs[index].symbol = self._id_map[int(v.x)]
+                gs[index].symbol = self._reverse_id_map[int(v.x)]
 
         assert abs(prob.objective_value + prob.objective_const
                    - self._cluster_expansion.predict(gs)) < 1e-6
@@ -371,24 +378,35 @@ def is_sites_in_orbit(orbit: Orbit, sites: List[LatticeSite]) -> bool:
     sites
         list of lattice sites
     """
-    if orbit.order == len(sites):
-        equivalent_sites = orbit.get_equivalent_sites()
-        if set(sites) in [set(es) for es in equivalent_sites]:
-            return True
-        sites_indices = [s.index for s in sites]
-        for orbit_sites in equivalent_sites:
-            orbit_sites_indices = [s.index for s in orbit_sites]
-            if set(sites_indices) != set(orbit_sites_indices):
+
+    # Ensure that the number of sites matches the order of the orbit
+    if len(sites) != orbit.order:
+        return False
+
+    equivalent_sites = orbit.get_equivalent_sites()
+
+    # Check if the set of lattice sites is found among the equivalent sites
+    if set(sites) in [set(es) for es in equivalent_sites]:
+        return True
+
+    # Go through all equivalent sites
+    sites_indices = [s.index for s in sites]
+    for orbit_sites in equivalent_sites:
+        orbit_sites_indices = [s.index for s in orbit_sites]
+
+        # Skip if the site indices do not match
+        if set(sites_indices) != set(orbit_sites_indices):
+            continue
+
+        # Loop over all possible ways of pairing sites from the two lists
+        for comb_sites in [list(zip(sites, pos)) for pos in permutations(orbit_sites)]:
+
+            # Skip all cases that include pairs of sites with different site indices
+            if any(cs[0].index != cs[1].index for cs in comb_sites):
                 continue
-            relative_offsets = []
-            matched_sites = []
-            for i in range(len(sites)):
-                for j in range(len(orbit_sites)):
-                    if sites[i].index == orbit_sites[j].index and j not in matched_sites:
-                        relative_offsets.append(
-                            sites[i].unitcell_offset - orbit_sites[j].unitcell_offset)
-                        matched_sites.append(j)
-                        break
+
+            # If the relative offsets for all pairs of sites match, the two clusters are equivalent
+            relative_offsets = [cs[0].unitcell_offset - cs[1].unitcell_offset for cs in comb_sites]
             if all(np.array_equal(ro, relative_offsets[0]) for ro in relative_offsets):
                 return True
     return False

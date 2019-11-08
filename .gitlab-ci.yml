@@ -23,6 +23,7 @@ tests:
     - build_linux
   script:
     - export PYTHONPATH=$PWD:$PWD/build/:$PYTHONPATH
+    - python3 -m pip install mip
     - coverage run tests/main.py
     - coverage report -m
     - coverage html

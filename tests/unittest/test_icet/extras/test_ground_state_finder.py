@@ -22,6 +22,7 @@ the cluster_space.py file
 
 from io import StringIO
 import unittest
+import numpy as np
 
 from ase import Atom
 from ase.build import bulk
@@ -35,6 +36,32 @@ except ImportError as ex:
         raise unittest.SkipTest('no mip module'.format(module))
     else:
         raise
+
+
+def find_orbit_and_equivalent_site_with_indices(orbit_list, site_indices):
+    """
+    Go through the orbit list and find the equivalent with the specified list of site indices
+    ----------
+    orbit_list
+        list of orbits
+    site_indices
+        list of lattice sites indices
+    """
+
+    for i in range(len(orbit_list)):
+        orbit = orbit_list.get_orbit(i)
+
+        # Check if the number of sites matches the order of the orbit
+        if len(site_indices) != orbit.order:
+            continue
+
+        for sites in orbit.get_equivalent_sites():
+
+            # Check if the list of site indices matches those for the equivalent site
+            if all(sites[j].index == site_indices[j] for j in range(len(site_indices))):
+                return orbit, sites
+
+        return None, None
 
 
 def strip_surrounding_spaces(input_string):
@@ -128,15 +155,6 @@ class TestGroundStateFinder(unittest.TestCase):
         gsf = GroundStateFinder(self.ce)
         self.assertIsInstance(gsf, GroundStateFinder)
 
-    def test_init_with_species_to_count(self):
-        """Tests that initialization of tested class work."""
-        # initialize from GroundStateFinder instance
-        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0])
-        self.assertIsInstance(gsf, GroundStateFinder)
-
-        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[1])
-        self.assertIsInstance(gsf, GroundStateFinder)
-
     def test_init_fails_for_quaternary_with_two_active_sublattices(self):
         """Tests that initialization fails if there are two active
         sublattices."""
@@ -161,21 +179,44 @@ class TestGroundStateFinder(unittest.TestCase):
             GroundStateFinder(ce)
         self.assertTrue('Only binaries are implemented as of yet.' in str(cm.exception))
 
-    def test_init_fails_for_faulty_species_to_count(self):
-        """Tests that initialization fails if species_to_count is faulty."""
-        species_to_count = 'H'
-        with self.assertRaises(ValueError) as cm:
-            GroundStateFinder(self.ce, species_to_count=species_to_count)
-        self.assertTrue('The specified species {} is not found on the active sublattice'
-                        ' ({})'.format(species_to_count, self.chemical_symbols)
-                        in str(cm.exception))
-
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
         target_val = min([self.ce.predict(structure) for structure in self.all_possible_structures])
-        ground_state = self.gsf.get_ground_state(self.supercell, species_count=1, verbose=0)
-        predicted_val = self.ce.predict(ground_state)
-        self.assertEqual(predicted_val, target_val)
+
+        # Provide counts for first species
+        species_count = {self.chemical_symbols[0]: 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species0 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species0, target_val)
+
+        # Provide counts for second species
+        species_count = {self.chemical_symbols[1]: len(self.supercell) - 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species1 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species1, target_val)
+        self.assertEqual(predicted_species0, predicted_species1)
+
+    def test_get_ground_state_fails_for_faulty_species_to_count(self):
+        """Tests that get_ground_state fails if species_to_count is faulty."""
+        # Check that get_ground_state fails if counts are provided for multiple species
+        species_count = {self.chemical_symbols[0]: 1,
+                         self.chemical_symbols[1]: len(self.supercell) - 1}
+        with self.assertRaises(ValueError) as cm:
+            self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0)
+        self.assertTrue('Provide counts for one of the species on the active sublattice ({}),'
+                        ' not {}!'.format(self.gsf._species, list(species_count.keys()))
+                        in str(cm.exception))
+
+        # Check that get_ground_state fails if counts are provided for a species not found on the
+        # active sublattice
+        species_count = {'H': 1}
+        with self.assertRaises(ValueError) as cm:
+            self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0)
+        self.assertTrue('The species {} is not present on the active sublattice'
+                        ' ({})'.format(list(species_count.keys())[0], self.gsf._species)
+                        in str(cm.exception))
 
     def test_create_cluster_maps(self):
         """Tests _create_cluster_maps functionality """
@@ -213,15 +254,37 @@ class TestGroundStateFinder(unittest.TestCase):
 
     def test_is_sites_in_orbit(self):
         """Tests is_sites_in_orbit functionality """
+        # Check that one of the equivalent sites is in the, first order, orbit
+        orbit = self.cs.get_orbit(0)
+        sites = orbit.get_equivalent_sites()[0]
+        self.assertTrue(is_sites_in_orbit(orbit, sites))
+
+        # Check that a singlet with an offset gives true
+        orbit = self.cs.get_orbit(0)
+        sites = orbit.get_equivalent_sites()[0]
+        sites[0].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertTrue(is_sites_in_orbit(orbit, sites))
+
+        # Check that one of the equivalent sites is in the orbit
         orbit = self.cs.get_orbit(2)
         sites = orbit.get_equivalent_sites()[0]
         self.assertTrue(is_sites_in_orbit(orbit, sites))
 
-        orbit = self.cs.get_orbit(1)
-        self.assertFalse(is_sites_in_orbit(orbit, sites))
-
+        # Check that a singlet gives false for a second order orbit
         orbit = self.cs.get_orbit(2)
         sites = orbit.get_equivalent_sites()[0][0:1]
+        self.assertFalse(is_sites_in_orbit(orbit, sites))
+
+        # Check that a pair for which all sites have the same indices and offset gives true
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0])
+        for i in range(len(sites)):
+            sites[i].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertTrue(is_sites_in_orbit(orbit, sites))
+
+        # Check that a pair for which all sites have the same indices but one has a different offset
+        # gives false
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0])
+        sites[0].unitcell_offset += np.array([-2., -2., -2.])
         self.assertFalse(is_sites_in_orbit(orbit, sites))
 
 
@@ -262,30 +325,47 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         gsf = GroundStateFinder(self.ce)
         self.assertIsInstance(gsf, GroundStateFinder)
 
-    def test_init_with_species_to_count(self):
-        """Tests that initialization of tested class work."""
-        # initialize from GroundStateFinder instance
-        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0][0])
-        self.assertIsInstance(gsf, GroundStateFinder)
-
-        gsf = GroundStateFinder(self.ce, species_to_count=self.chemical_symbols[0][1])
-        self.assertIsInstance(gsf, GroundStateFinder)
-
-    def test_init_fails_for_faulty_species_to_count(self):
-        """Tests that initialization fails if species_to_count is faulty."""
-        species_to_count = self.chemical_symbols[1][0]
-        with self.assertRaises(ValueError) as cm:
-            GroundStateFinder(self.ce, species_to_count=species_to_count)
-        self.assertTrue('The specified species {} is not found on the active sublattice'
-                        ' ({})'.format(species_to_count, self.chemical_symbols[0])
-                        in str(cm.exception))
-
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
         target_val = min([self.ce.predict(structure) for structure in self.all_possible_structures])
-        ground_state = self.gsf.get_ground_state(self.supercell, species_count=1, verbose=0)
-        predicted_val = self.ce.predict(ground_state)
-        self.assertEqual(predicted_val, target_val)
+
+        # Provide counts for first species
+        species_count = {self.chemical_symbols[0][0]: 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species0 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species0, target_val)
+
+        # Provide counts for second species
+        species_count = {self.chemical_symbols[0][1]:
+                         len([sym for sym in self.supercell.get_chemical_symbols() if sym in
+                              self.chemical_symbols[0]]) - 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species1 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species1, target_val)
+        self.assertEqual(predicted_species0, predicted_species1)
+
+    def test_get_ground_state_fails_for_faulty_species_to_count(self):
+        """Tests that get_ground_state fails if species_to_count is faulty."""
+        # Check that get_ground_state fails if counts are provided for multiple species
+        species_count = {self.chemical_symbols[0][0]: 1,
+                         self.chemical_symbols[0][1]: len([sym for sym in self.supercell if sym in
+                                                           self.chemical_symbols[0]]) - 1}
+        with self.assertRaises(ValueError) as cm:
+            self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0)
+        self.assertTrue('Provide counts for one of the species on the active sublattice ({}),'
+                        ' not {}!'.format(self.gsf._species, list(species_count.keys()))
+                        in str(cm.exception))
+
+        # Check that get_ground_state fails if counts are provided for a species not found on the
+        # active sublattice
+        species_count = {'H': 1}
+        with self.assertRaises(ValueError) as cm:
+            self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0)
+        self.assertTrue('The species {} is not present on the active sublattice'
+                        ' ({})'.format(list(species_count.keys())[0], self.gsf._species)
+                        in str(cm.exception))
 
     def test_create_cluster_maps(self):
         """Tests _create_cluster_maps functionality """
@@ -322,18 +402,19 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         self.assertEqual(target, retval.tolist())
 
 
-class TestGroundStateFinderSlab(unittest.TestCase):
-    """Container for test of the class functionality for a slab."""
+class TestGroundStateFinderTriplets(unittest.TestCase):
+    """Container for test of the class functionality for a system with
+    triplets."""
 
     def __init__(self, *args, **kwargs):
-        super(TestGroundStateFinderSlab, self).__init__(*args, **kwargs)
+        super(TestGroundStateFinderTriplets, self).__init__(*args, **kwargs)
         self.chemical_symbols = ['Au', 'Pd']
-        self.cutoffs = [3.0]
+        self.cutoffs = [3.0, 3.0]
         structure_prim = fcc111('Au', a=4.0, size=(1, 1, 10), vacuum=10, periodic=True)
         structure_prim.wrap()
         self.structure_prim = structure_prim
         self.cs = ClusterSpace(self.structure_prim, self.cutoffs, self.chemical_symbols)
-        ecis = [0.0] * 6 + [0.1] * 10
+        ecis = [0.0] * 6 + [0.1] * 10 + [-0.02] * 19
         self.ce = ClusterExpansion(self.cs, ecis)
         self.all_possible_structures = []
         self.supercell = self.structure_prim.repeat((3, 3, 1))
@@ -358,10 +439,49 @@ class TestGroundStateFinderSlab(unittest.TestCase):
 
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
-        ground_state = self.gsf.get_ground_state(self.supercell, species_count=1, verbose=0)
-        predicted_val = self.ce.predict(ground_state)
         target_val = min([self.ce.predict(structure) for structure in self.all_possible_structures])
-        self.assertEqual(predicted_val, target_val)
+
+        # Provide counts for first species
+        species_count = {self.chemical_symbols[0]: len(self.supercell) - 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species0 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species0, target_val)
+
+        # Provide counts for second species
+        species_count = {self.chemical_symbols[1]: 1}
+        ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
+                                                 verbose=0)
+        predicted_species1 = self.ce.predict(ground_state)
+        self.assertEqual(predicted_species1, target_val)
+        self.assertEqual(predicted_species0, predicted_species1)
+
+    def test_is_sites_in_orbit(self):
+        """Tests is_sites_in_orbit functionality """
+
+        # Check that a pair for which all sites have the different indices and but the same offset
+        # gives true
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [4, 5])
+        for i in range(len(sites)):
+            sites[i].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertTrue(is_sites_in_orbit(orbit, sites))
+
+        # Check that a pair for which all sites have the different indices and one has been offset
+        # still gives true
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [4, 5])
+        sites[0].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertFalse(is_sites_in_orbit(orbit, sites))
+
+        # Check that a triplet for which all sites have the same offset gives true
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0, 0])
+        for i in range(len(sites)):
+            sites[i].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertTrue(is_sites_in_orbit(orbit, sites))
+
+        # Check that a triplet in which one site has a different offset gives false
+        orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0, 0])
+        sites[0].unitcell_offset += np.array([-2., -2., -2.])
+        self.assertFalse(is_sites_in_orbit(orbit, sites))
 
 
 if __name__ == '__main__':
