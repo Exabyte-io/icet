@@ -1,40 +1,40 @@
+from itertools import combinations, permutations
+from math import inf
+from typing import List, Dict
+
+import numpy as np
+
+from ase import Atoms
+from ase.data import chemical_symbols as periodic_table
+from .. import ClusterExpansion
+from ..core.orbit_list import OrbitList
+from ..core.orbit import Orbit
+from ..core.lattice_site import LatticeSite
+from ..core.local_orbit_list_generator import LocalOrbitListGenerator
+from ..core.structure import Structure
+
 try:
     from mip import Model, minimize, xsum
     from mip.constants import BINARY
 except ImportError:
     raise ImportError('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in'
-                      '  order to use the GroundStateFinder.')
-
-from math import inf
-import numpy as np
-from itertools import combinations, permutations
-
-from ase import Atoms
-from ase.data import chemical_symbols as periodic_table
-from icet import ClusterExpansion
-from icet.core.orbit_list import OrbitList
-from icet.core.orbit import Orbit
-from icet.core.lattice_site import LatticeSite
-from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
-from icet.core.structure import Structure
-from typing import List, Dict
+                      ' order to use the ground state finder.')
 
 
-class GroundStateFinder():
+class GroundStateFinder:
 
     """This class provides functionality for determining the ground states
-    using a binary cluster expansion. This is efficiently achieved through
-    through the use of mixed integer programming, based on the method presented
-    by `Larsen et al
-    <https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.120.256101>`_.
-    This class is, therefore, heavily reliant on the `Python-MIP package
+    using a binary cluster expansion. This is efficiently achieved through the use
+    of mixed integer programming (MIP), as shown by Larsen *et al.*, `Phys. Rev.
+    Lett. 120, 256101 (2018)
+    <https://doi.org/10.1103/PhysRevLett.120.256101>`_. This class, therefore,
+    relies on the `Python-MIP package
     <https://python-mip.readthedocs.io/en/latest/>`_.
-
 
     Parameters
     ----------
     cluster_expansion : ClusterExpansion
-        cluster expansion that shall be used to find the ground state
+        cluster expansion for which to find ground states
 
     Example
     -------
@@ -46,7 +46,7 @@ class GroundStateFinder():
 
         from ase.build import bulk
         from icet import ClusterExpansion, ClusterSpace
-        from icet.extras.ground_state_finder import GroundStateFinder
+        from icet.tools.ground_state_finder import GroundStateFinder
 
         # prepare cluster expansion
         # the setup emulates a second nearest-neighbor (NN) Ising model
@@ -174,16 +174,18 @@ class GroundStateFinder():
 
     def _get_transformation_matrix(self, structure: Atoms) -> np.ndarray:
         """
-        Determine the matrix that transforms the cluster functions in the form
+        Determines the matrix that transforms the cluster functions in the form
         of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their binary
         equivalents, (:math:`x_i\\in\\{0,1\\}`). The form is obtained by
         performing the substitution (:math:`\\sigma_i=1-2x_i`) in the
-        expression for cluster expansion of the total energy
+        cluster expansion expression of the total energy.
+
         Parameters
         ----------
         structure
             atomic configuration
         """
+
         # Generate full orbit list
         lolg = LocalOrbitListGenerator(self._orbit_list,
                                        Structure.from_atoms(structure))
@@ -218,7 +220,7 @@ class GroundStateFinder():
                             sub_orbit = full_orbit_list.get_orbit(sub_index)
                             if sub_orbit.order != sub_order:
                                 continue
-                            if is_sites_in_orbit(sub_orbit, sub_sites):
+                            if _is_sites_in_orbit(sub_orbit, sub_sites):
                                 transformation[j, i] += (-2.0) ** (sub_order)
                                 n_terms_actual += 1
                 # check that the number of contributions matches the number
@@ -237,6 +239,8 @@ class GroundStateFinder():
         form of of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their
         equivalents for the case of binary variables,
         (:math:`x_i\\in\\{0,1\\}`).
+
+        Parameters
         ----------
         structure
             atomic configuration
@@ -249,7 +253,7 @@ class GroundStateFinder():
     def _get_total_energy(self, cluster_instance_activities: List[int]
                           ) -> List[float]:
         """
-        Calculate the total energy using the expression based on binary
+        Calculates the total energy using the expression based on binary
         variables
 
         .. math::
@@ -259,7 +263,9 @@ class GroundStateFinder():
             \\in{\\boldsymbol C}_j}E_jy_{{\\boldsymbol c}},
 
         where (:math:`y_{{\\boldsymbol c}}=
-        \\prod\\limits_{i\\in{\\boldsymbol c}}x_i`)
+        \\prod\\limits_{i\\in{\\boldsymbol c}}x_i`).
+
+        Parameters
         ----------
         cluster_instance_activities
             list of cluster instance activities, (:math:`y_{{\\boldsymbol c}}`)
@@ -281,11 +287,12 @@ class GroundStateFinder():
                          solver_name: str = "",
                          max_seconds: float = inf,
                          verbose: int = 1) -> Atoms:
-        """
-        Find the ground state for a given structure and species count, which
+        """Finds the ground state for a given structure and species count, which
         refers to the `count_species`, if provided when initializing the
         instance of this class, or the first species in the list of chemical
         symbols for the active sublattice.
+
+        Parameters
         ----------
         structure
             atomic configuration
@@ -381,10 +388,11 @@ class GroundStateFinder():
         return gs
 
 
-def is_sites_in_orbit(orbit: Orbit, sites: List[LatticeSite]) -> bool:
-    """
-    Check if the list of lattice sites is found among the equivalent sites for
-    the orbit
+def _is_sites_in_orbit(orbit: Orbit, sites: List[LatticeSite]) -> bool:
+    """Checks if the list of lattice sites is found among the equivalent
+    sites for the orbit.
+
+    Parameters
     ----------
     orbit
         orbit

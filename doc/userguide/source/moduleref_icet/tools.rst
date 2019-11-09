@@ -5,16 +5,6 @@
 Tools
 =====
 
-.. index::
-   single: Function reference; Convex hull
-   single: Class reference; Convex hull
-
-Convex hull construction
-------------------------
-
-.. automodule:: icet.tools
-   :members: ConvexHull
-
 
 .. index::
    single: Function reference; Structure mapping
@@ -51,6 +41,30 @@ Generation of special structures
    :members:
    :undoc-members:
    :inherited-members:
+
+
+.. index::
+   single: Function reference; Ground state finder
+   single: Class reference; Ground state finder
+
+Ground state finder
+-------------------
+
+.. autoclass:: icet.tools.ground_state_finder.GroundStateFinder
+   :members:
+   :undoc-members:
+   :inherited-members:
+
+
+.. index::
+   single: Function reference; Convex hull
+   single: Class reference; Convex hull
+
+Convex hull construction
+------------------------
+
+.. automodule:: icet.tools
+   :members: ConvexHull
 
 
 .. index::
