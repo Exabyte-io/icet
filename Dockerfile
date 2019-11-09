@@ -29,6 +29,7 @@ RUN pip3 install --upgrade \
 # Packages needed for icet
 RUN pip3 install --upgrade \
   ase \
+  mip \
   numpy \
   pandas \
   scikit-learn \
