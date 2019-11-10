@@ -29,7 +29,7 @@ from ase.build import bulk
 from ase.build import fcc111
 from icet import ClusterExpansion, ClusterSpace
 try:
-    from icet.extras.ground_state_finder import GroundStateFinder, is_sites_in_orbit
+    from icet.tools.ground_state_finder import GroundStateFinder, _is_sites_in_orbit
 except ImportError as ex:
     module = ex.args[0].split()[0]
     if module == 'Python-MIP':
@@ -266,39 +266,39 @@ class TestGroundStateFinder(unittest.TestCase):
         self.assertEqual(target, retval.tolist())
 
     def test_is_sites_in_orbit(self):
-        """Tests is_sites_in_orbit functionality """
+        """Tests _is_sites_in_orbit functionality """
         # Check that one of the equivalent sites is in the, first order, orbit
         orbit = self.cs.get_orbit(0)
         sites = orbit.get_equivalent_sites()[0]
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that a singlet with an offset gives true
         orbit = self.cs.get_orbit(0)
         sites = orbit.get_equivalent_sites()[0]
         sites[0].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that one of the equivalent sites is in the orbit
         orbit = self.cs.get_orbit(2)
         sites = orbit.get_equivalent_sites()[0]
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that a singlet gives false for a second order orbit
         orbit = self.cs.get_orbit(2)
         sites = orbit.get_equivalent_sites()[0][0:1]
-        self.assertFalse(is_sites_in_orbit(orbit, sites))
+        self.assertFalse(_is_sites_in_orbit(orbit, sites))
 
         # Check that a pair for which all sites have the same indices and offset gives true
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0])
         for i in range(len(sites)):
             sites[i].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that a pair for which all sites have the same indices but one has a different offset
         # gives false
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0])
         sites[0].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertFalse(is_sites_in_orbit(orbit, sites))
+        self.assertFalse(_is_sites_in_orbit(orbit, sites))
 
 
 class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
@@ -468,31 +468,31 @@ class TestGroundStateFinderTriplets(unittest.TestCase):
         self.assertEqual(predicted_species0, predicted_species1)
 
     def test_is_sites_in_orbit(self):
-        """Tests is_sites_in_orbit functionality """
+        """Tests _is_sites_in_orbit functionality """
 
         # Check that a pair for which all sites have the different indices and but the same offset
         # gives true
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [2, 3])
         for i in range(len(sites)):
             sites[i].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that a pair for which all sites have the different indices and one has been offset
         # still gives true
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [2, 3])
         sites[0].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertFalse(is_sites_in_orbit(orbit, sites))
+        self.assertFalse(_is_sites_in_orbit(orbit, sites))
 
         # Check that a triplet for which all sites have the same offset gives true
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0, 0])
         for i in range(len(sites)):
             sites[i].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertTrue(is_sites_in_orbit(orbit, sites))
+        self.assertTrue(_is_sites_in_orbit(orbit, sites))
 
         # Check that a triplet in which one site has a different offset gives false
         orbit, sites = find_orbit_and_equivalent_site_with_indices(self.cs.orbit_list, [0, 0, 0])
         sites[0].unitcell_offset += np.array([-2., -2., -2.])
-        self.assertFalse(is_sites_in_orbit(orbit, sites))
+        self.assertFalse(_is_sites_in_orbit(orbit, sites))
 
 
 if __name__ == '__main__':
