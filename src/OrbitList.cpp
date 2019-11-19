@@ -225,6 +225,8 @@ Algorithm
 
 For each orbit:
 
+@todo review this algorithm; address question marks
+
 1. Take representative sites
 2. Find the rows these sites belong to (also find the unit cell offsets equivalent sites??)
 3. Get all columns for these rows, i.e the sites that are directly equivalent, call these p_equal.
