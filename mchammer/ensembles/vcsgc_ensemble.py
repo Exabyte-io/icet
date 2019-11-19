@@ -165,9 +165,12 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         mc.run(100)  # carry out 100 trial swaps
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
-                 temperature: float, phis: Dict[str, float],
-                 kappa: float, boltzmann_constant: float = kB,
+    def __init__(self, structure: Atoms,
+                 calculator: BaseCalculator,
+                 temperature: float,
+                 phis: Dict[str, float],
+                 kappa: float,
+                 boltzmann_constant: float = kB,
                  user_tag: str = None,
                  data_container: DataContainer = None,
                  random_seed: int = None,
@@ -190,7 +193,9 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
             self._ensemble_parameters[phi_sym] = phi
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,
@@ -211,7 +216,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
                     count_specified_elements += 1
             if count_specified_elements != len(sl.atomic_numbers) - 1:
                 raise ValueError('phis must be set for N - 1 elements on a '
-                                 'sublattice with N elements')
+                                 'sublattice with N species')
 
         if sublattice_probabilities is None:
             self._flip_sublattice_probabilities = self._get_flip_sublattice_probabilities()
@@ -233,7 +238,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     @property
     def phis(self) -> Dict[int, float]:
         """
-        phis :math:`\\phi_i`, one for each species but their sum must be
+        phis :math:`\\phi_i`; one for each species but their sum must be
         :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
         """
         return self._phis
@@ -269,7 +274,7 @@ def get_phis(phis: Dict[Union[int, str], float]) -> Dict[int, float]:
     ----------
     phis
         the phis that will be transformed to the format
-        the ensemble use.
+        used by the ensemble
     """
     if not isinstance(phis, dict):
         raise TypeError('phis has the wrong type: {}'.format(type(phis)))

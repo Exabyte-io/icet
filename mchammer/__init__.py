@@ -8,21 +8,22 @@ mchammer - Monte Carlo simulation module
 """
 
 __project__ = 'icet-mchammer'
-__description__ = 'A Pythonic approach to cluster expansions'
+__description__ = 'icet Monte Carlo simulations module'
 __authors__ = ['Mattias Ångqvist',
-               'William Armando Muñoz',
+               'William A. Muñoz',
+               'J. Magnus Rahm',
+               'Erik Fransson',
+               'Céline Durniak',
+               'Piotr Rozyczko',
                'Thomas Holm Rod',
                'Paul Erhart']
-__copyright__ = '2018'
-__license__ = 'MIT'
-__credits__ = ['Mattias Ångqvist',
-               'William Armando Muñoz',
-               'Thomas Holm Rod',
-               'Paul Erhart']
-__version__ = '0.1'
+__copyright__ = '2019'
+__license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
+__version__ = '1.0'
+__maintainer__ = 'The icet developers team'
+__email__ = 'icet@materialsmodeling.org'
+__status__ = 'Stable'
+__url__ = 'http://icet.materialsmodeling.org/'
+
 __all__ = ['ConfigurationManager',
            'DataContainer']
-__maintainer__ = 'The icet developers team'
-__maintainer_email__ = 'icet@materialsmodeling.org'
-__status__ = 'alpha-version'
-__url__ = 'http://icet.materialsmodeling.org/'

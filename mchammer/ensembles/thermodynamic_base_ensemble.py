@@ -68,7 +68,9 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         self._boltzmann_constant = boltzmann_constant
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             data_container=data_container,
             random_seed=random_seed,
             data_container_write_period=data_container_write_period,

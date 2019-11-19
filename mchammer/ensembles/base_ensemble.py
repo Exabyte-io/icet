@@ -406,7 +406,7 @@ class BaseEnsemble(ABC):
         """
 
         if len(probability_distribution) != len(self.sublattices):
-            raise ValueError("probability_distribution should have the same size as sublattices")
+            raise ValueError('probability_distribution should have the same size as sublattices')
         pick = np.random.choice(len(self.sublattices), p=probability_distribution)
         return pick
 

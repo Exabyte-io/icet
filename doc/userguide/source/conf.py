@@ -49,7 +49,7 @@ copyright = re.search("__copyright__ = '(.*)'", lines).group(1)
 project = re.search("__project__ = '(.*)'", lines).group(1)
 author = re.search("__maintainer__ = '(.*)'", lines).group(1)
 
-site_url = 'https://icet.materialsmodeling.org/'
+site_url = 'https://icet.materialsmodeling.org'
 html_logo = "_static/logo.png"
 html_favicon = "_static/logo.ico"
 html_theme = 'sphinx_rtd_theme'
@@ -62,7 +62,7 @@ html_context = {
         [('latest stable release',
           '{}'.format(site_url)),
          ('development version',
-          '{}/dev'.format(site_url).replace('//', ''))]}
+          '{}/dev'.format(site_url))]}
 htmlhelp_basename = 'icetdoc'
 intersphinx_mapping = \
     {'ase': ('https://wiki.fysik.dtu.dk/ase', None),
