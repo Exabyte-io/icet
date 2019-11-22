@@ -241,8 +241,8 @@ class GroundStateFinder:
                 # check that the number of contributions matches the number
                 # of subclusters
                 if n_terms_actual != n_terms_target:
-                    raise Exception("Fewer matches ({}) than expected ({}) for"
-                                    " sub-cluster: {}".format(n_terms_actual,
+                    raise Exception('Fewer matches ({}) than expected ({}) for'
+                                    ' sub-cluster: {}'.format(n_terms_actual,
                                                               n_terms_target,
                                                               sub_sites))
 
@@ -299,7 +299,7 @@ class GroundStateFinder:
 
     def get_ground_state(self, structure: Atoms,
                          species_count: Dict[str, float],
-                         solver_name: str = "",
+                         solver_name: str = '',
                          max_seconds: float = inf,
                          verbose: int = 1) -> Atoms:
         """Finds the ground state for a given structure and species count, which
@@ -342,7 +342,7 @@ class GroundStateFinder:
         self._create_cluster_maps(structure)
 
         # Initiate MIP model
-        self._model = model = Model("CE", solver_name=solver_name)
+        self._model = model = Model('CE', solver_name=solver_name)
         model.solver.set_mip_gap(0)   # avoid stopping prematurely
         model.solver.set_emphasis(2)  # focus on finding optimal solution
         model.preprocess = 2          # maximum preprocessing
@@ -356,29 +356,29 @@ class GroundStateFinder:
         for i, sym in enumerate(structure.get_chemical_symbols()):
             if sym in self._species:
                 site_to_active_index_map[i] = len(xs)
-                xs.append(model.add_var(name="atom_{}".format(i), var_type=BINARY))
+                xs.append(model.add_var(name='atom_{}'.format(i), var_type=BINARY))
 
         ys = []
         for i in range(len(self._cluster_to_orbit_map)):
-            ys.append(model.add_var(name="cluster_{}".format(i), var_type=BINARY))
+            ys.append(model.add_var(name='cluster_{}'.format(i), var_type=BINARY))
 
         # The objective function is added to 'model' first
         model.objective = minimize(xsum(self._get_total_energy(ys)))
 
         # The five constraints are entered
-        model.add_constr(xsum(xs) == xcount, "Species count")
+        model.add_constr(xsum(xs) == xcount, 'Species count')
 
         ycount = 0
         for i, cluster in enumerate(self._cluster_to_sites_map):
             for atom in cluster:
                 model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                 "Decoration -> cluster {}".format(ycount))
+                                 'Decoration -> cluster {}'.format(ycount))
                 ycount += 1
 
         for i, cluster in enumerate(self._cluster_to_sites_map):
             model.add_constr(ys[i] >= 1 - len(cluster) +
                              xsum(xs[site_to_active_index_map[atom]] for atom in cluster),
-                             "Decoration -> cluster {}".format(ycount))
+                             'Decoration -> cluster {}'.format(ycount))
             ycount += 1
 
         # The modellem is solved using python-MIPs choice of solver, which is Girobi, if available,
@@ -399,9 +399,9 @@ class GroundStateFinder:
                 gs[index].symbol = self._reverse_id_map[int(v.x)]
 
         # Assert that the solution agrees with the prediction
-        if model.solver_name.upper() in ["GUROBI", "GRB"]:
+        if model.solver_name.upper() in ['GUROBI', 'GRB']:
             assert abs(model.objective_value - self._cluster_expansion.predict(gs)) < 1e-6
-        elif model.solver_name.upper() == "CBC":
+        elif model.solver_name.upper() == 'CBC':
             assert abs(model.objective_const + model.objective_value
                        - self._cluster_expansion.predict(gs)) < 1e-6
 
