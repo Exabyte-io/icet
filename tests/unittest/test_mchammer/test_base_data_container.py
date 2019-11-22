@@ -197,18 +197,6 @@ class TestBaseDataContainer(unittest.TestCase):
         self.assertIn('hostname', metadata.keys())
         self.assertIn('icet_version', metadata.keys())
 
-    def test_property_last_state(self):
-        """Tests last_state property."""
-        self.dc._update_last_state(last_step=10001,
-                                   occupations=[13] * len(self.structure),
-                                   accepted_trials=12,
-                                   random_state=random.getstate())
-        self.assertEqual(self.dc.last_state,
-                         dict([('last_step', 10001),
-                               ('occupations', [13] * len(self.structure)),
-                               ('accepted_trials', 12),
-                               ('random_state', random.getstate())]))
-
     def test_get_data(self):
         """
         Tests the returned data is a list of list and the options provided by
