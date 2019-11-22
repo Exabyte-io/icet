@@ -60,8 +60,7 @@ class DataContainer:
         self._observables = set()
         self._data_list = []
 
-    def append(self, mctrial: int,
-               record: Dict[str, Union[int, float, list]]):
+    def append(self, mctrial: int, record: Dict[str, Union[int, float, list]]):
         """
         Appends data to data container.
 
@@ -319,11 +318,6 @@ class DataContainer:
     def metadata(self) -> dict:
         """ metadata associated with data container """
         return self._metadata
-
-    @property
-    def last_state(self) -> Dict[str, Union[int, List[int]]]:
-        """ last state to be used to restart Monte Carlo simulation """
-        return self._last_state
 
     def get_number_of_entries(self, tag: str = None) -> int:
         """
