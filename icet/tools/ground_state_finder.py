@@ -31,6 +31,17 @@ class GroundStateFinder:
     relies on the `Python-MIP package
     <https://python-mip.readthedocs.io/en/latest/>`_.
 
+    Warning
+    -------
+    In order to be able to use Gurobi with python-mip one must ensure that `GUROBI_HOME should point
+    to the installation directory (``<installdir>``)
+    <https://doi.org/10.1103/PhysRevLett.120.256101>`_::
+        export GUROBI_HOME=<installdir>
+    Alternatively include this command in ``.bashrc``::
+        echo export GUROBI_HOME=<installdir> >> .bashrc
+    or ``.bash_profile``::
+        echo export GUROBI_HOME=<installdir> >> .bashrc
+
     Parameters
     ----------
     cluster_expansion : ClusterExpansion
@@ -98,6 +109,10 @@ class GroundStateFinder:
 
         # Transform the ECIs
         self._transform_ECIs(primitive_structure)
+
+        # Properties that are defined when searching for a ground state
+        self._model = None
+        self._optimization_status = None
 
     def _create_cluster_maps(self, structure: Atoms) -> None:
         """
@@ -323,12 +338,17 @@ class GroundStateFinder:
                                self._species])
             xcount = active_count - species_count[species_to_count]
 
+        # Create cluster maps
         self._create_cluster_maps(structure)
+
         # Initiate MIP model
-        prob = Model("CE", solver_name=solver_name)
+        self._model = model = Model("CE", solver_name=solver_name)
+        model.solver.set_mip_gap(0)   # avoid stopping prematurely
+        model.solver.set_emphasis(2)  # focus on finding optimal solution
+        model.preprocess = 2          # maximum preprocessing
 
         # Set verbosity
-        prob.verbose = verbose
+        model.verbose = verbose
 
         # Spin variables (remapped) for all atoms in the structure
         xs = []
@@ -336,56 +356,66 @@ class GroundStateFinder:
         for i, sym in enumerate(structure.get_chemical_symbols()):
             if sym in self._species:
                 site_to_active_index_map[i] = len(xs)
-                xs.append(prob.add_var(name="atom_{}".format(i), var_type=BINARY))
+                xs.append(model.add_var(name="atom_{}".format(i), var_type=BINARY))
 
         ys = []
         for i in range(len(self._cluster_to_orbit_map)):
-            ys.append(prob.add_var(name="cluster_{}".format(i), var_type=BINARY))
+            ys.append(model.add_var(name="cluster_{}".format(i), var_type=BINARY))
 
-        # The objective function is added to 'prob' first
-        prob.objective = minimize(xsum(self._get_total_energy(ys)))
+        # The objective function is added to 'model' first
+        model.objective = minimize(xsum(self._get_total_energy(ys)))
 
         # The five constraints are entered
-        prob.add_constr(xsum(xs) == xcount, "Species count")
+        model.add_constr(xsum(xs) == xcount, "Species count")
 
         ycount = 0
         for i, cluster in enumerate(self._cluster_to_sites_map):
             for atom in cluster:
-                prob.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                "Decoration -> cluster {}".format(ycount))
+                model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
+                                 "Decoration -> cluster {}".format(ycount))
                 ycount += 1
 
         for i, cluster in enumerate(self._cluster_to_sites_map):
-            prob.add_constr(ys[i] >= 1 - len(cluster) +
-                            xsum(xs[site_to_active_index_map[atom]] for atom in cluster),
-                            "Decoration -> cluster {}".format(ycount))
+            model.add_constr(ys[i] >= 1 - len(cluster) +
+                             xsum(xs[site_to_active_index_map[atom]] for atom in cluster),
+                             "Decoration -> cluster {}".format(ycount))
             ycount += 1
 
-        # The problem is solved using python-MIPs choice of solver, which is Girubi, if available,
+        # The modellem is solved using python-MIPs choice of solver, which is Girobi, if available,
         # and COIN-OR Branch-and-Cut, otherwise
-        status = prob.optimize(max_seconds=max_seconds)
+        self._optimization_status = model.optimize(max_seconds=max_seconds)
 
         # The status of the solution is printed to the screen
-        if str(status) != 'OptimizationStatus.OPTIMAL':
-            raise RuntimeError('No optimal solution found.')
+        if str(self._optimization_status) != 'OptimizationStatus.OPTIMAL':
+            print('No optimal solution found.')
 
         # Each of the variables is printed with it's resolved optimum value
         gs = structure.copy()
 
-        for v in prob.vars:
+        for v in model.vars:
             if 'atom' in v.name:
                 # print(v.name)
                 index = int(v.name.split('_')[-1])
                 gs[index].symbol = self._reverse_id_map[int(v.x)]
 
         # Assert that the solution agrees with the prediction
-        if prob.solver_name.upper() in ["GUROBI", "GRB"]:
-            assert abs(prob.objective_value - self._cluster_expansion.predict(gs)) < 1e-6
-        elif prob.solver_name.upper() == "CBC":
-            assert abs(prob.objective_const + prob.objective_value
+        if model.solver_name.upper() in ["GUROBI", "GRB"]:
+            assert abs(model.objective_value - self._cluster_expansion.predict(gs)) < 1e-6
+        elif model.solver_name.upper() == "CBC":
+            assert abs(model.objective_const + model.objective_value
                        - self._cluster_expansion.predict(gs)) < 1e-6
 
         return gs
+
+    @property
+    def model(self) -> float:
+        """ Python-MIP model """
+        return self._model
+
+    @property
+    def optimization_status(self) -> float:
+        """ Optimization status """
+        return self._optimization_status
 
 
 def _is_sites_in_orbit(orbit: Orbit, sites: List[LatticeSite]) -> bool:

@@ -179,6 +179,30 @@ class TestGroundStateFinder(unittest.TestCase):
             GroundStateFinder(ce)
         self.assertTrue('Only binaries are implemented as of yet.' in str(cm.exception))
 
+    def test_model_property(self):
+        """Tests the model property."""
+
+        # Check that the module is None initially
+        self.assertIsNone(self.gsf.model)
+
+        species_count = {self.chemical_symbols[0]: 1}
+        self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0,
+                                  solver_name='CBC')
+        self.assertEqual(self.gsf.model.name, 'CE')
+        self.assertEqual(self.gsf.model.solver_name, 'CBC')
+        self.assertEqual(self.gsf.model.preprocess, 2)
+        self.assertEqual(self.gsf.model.verbose, 0)
+
+    def test_optimization_status_property(self):
+        """Tests the optimization_status property."""
+
+        # Check that the module is None initially
+        self.assertIsNone(self.gsf.optimization_status)
+
+        species_count = {self.chemical_symbols[0]: 1}
+        self.gsf.get_ground_state(self.supercell, species_count=species_count, verbose=0)
+        self.assertEqual(str(self.gsf.optimization_status), 'OptimizationStatus.OPTIMAL')
+
     def test_get_ground_state(self):
         """Tests get_ground_state functionality."""
         target_val = min([self.ce.predict(structure) for structure in self.all_possible_structures])
@@ -204,7 +228,7 @@ class TestGroundStateFinder(unittest.TestCase):
         predicted_solver_name = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, predicted_solver_name)
 
-        # Provide counts for second species
+        # Set the maximum run time
         species_count = {self.chemical_symbols[0]: 1}
         ground_state = self.gsf.get_ground_state(self.supercell, species_count=species_count,
                                                  max_seconds=0.5, verbose=0)
