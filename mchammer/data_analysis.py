@@ -32,7 +32,8 @@ def analyze_data(data: np.ndarray, max_lag: int = None) -> dict:
 def get_autocorrelation_function(data: np.ndarray, max_lag: int = None) -> np.ndarray:
     """ Returns autocorrelation function.
 
-    The autocorrelation function is computed using Pandas.Series.autocorr
+    The autocorrelation function is computed using `pandas.Series.autocorr
+    <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.autocorr.html>`_.
 
     Parameters
     ----------
@@ -58,14 +59,14 @@ def get_correlation_length(data: np.ndarray) -> int:
     """ Returns estimate of the correlation length of data.
 
     The correlation length is taken as the first point where the
-    autocorrelation functions is less than exp(-2).
-
-    If correlation function never goes below exp(-2) then np.nan is returned
+    autocorrelation functions is less than :math:`\\exp(-2)`. If the
+    correlation function never drops below :math:`\\exp(-2)` ``np.nan`` is
+    returned.
 
     Parameters
     ----------
     data
-        data series to compute autocorrelation function for
+        data series for which to the compute autocorrelation function
 
     Returns
     -------
@@ -78,17 +79,21 @@ def get_correlation_length(data: np.ndarray) -> int:
 
 
 def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> float:
-    """ Returns estimate of standard error with confidence interval.
+    """ Returns estimate of standard error :math:`\\mathrm{error}`
+    with confidence interval.
 
-    error = t_factor * std(data) / sqrt(Ns)
-    where t_factor is the factor corresponding to the confidence interval
-    Ns is the number of independent measurements (with correlation taken
-    into account)
+    .. math::
+
+       \\mathrm{error} = t_\\mathrm{factor} * \\mathrm{std}(\\mathrm{data}) / \\sqrt{N_s}
+
+    where :math:`t_{factor}` is the factor corresponding to the confidence
+    interval and :math:`N_s` is the number of independent measurements
+    (with correlation taken into account).
 
     Parameters
     ----------
     data
-        data series to to estimate error for
+        data series for which to estimate the error
 
     Returns
     -------
@@ -100,7 +105,7 @@ def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> float:
 
 
 def _estimate_correlation_length_from_acf(acf: np.ndarray) -> int:
-    """ Estimate correlation length from acf """
+    """ Estimates correlation length from acf. """
     for i, a in enumerate(acf):
         if a < np.exp(-2):
             return i
@@ -109,7 +114,7 @@ def _estimate_correlation_length_from_acf(acf: np.ndarray) -> int:
 
 def _estimate_error(data: np.ndarray, correlation_length: int,
                     confidence: float) -> float:
-    """ Estimate error using correlation length"""
+    """ Estimates error using correlation length. """
     t_factor = scipy.stats.t.ppf((1 + confidence) / 2, len(data)-1)
     error = t_factor * np.std(data) / np.sqrt(len(data) / correlation_length)
     return error

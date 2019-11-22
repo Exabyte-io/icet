@@ -12,3 +12,41 @@
 .toggle .header.open:after {
     content: " ▲";
 }
+
+/* Custom colors */
+
+.wy-side-nav-search, .wy-nav-top { /* above navigation, behind logo */
+    background: #e7cee4; 
+}
+
+.icon.icon-home { /* link above logo */
+    color: #8e4585;
+}
+
+.version { /* version spec under logo */
+    color: #8e4585 !important;
+}
+
+.highlight { /* code blocks */
+    background: #faf7fa;
+} 
+
+.admonition-title { /* notes, title */
+    background: #8e4585 !important; 
+}
+
+.admonition { /* notes */
+    background: #e7cee4 !important;
+}
+
+.rst-content dl:not(.docutils) dt { /* class definitions */
+    background: #e6f5f1;
+    color: black;
+    border-top: solid 3px #00c895;
+}
+
+.rst-content dl:not(.docutils) dl dt{ /* functions */
+    border-left:solid 3px #00c895;
+    background: #e6f5f1;
+    color: black;
+}

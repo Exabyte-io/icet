@@ -84,3 +84,20 @@ Hybrid ensemble
    :members:
    :undoc-members:
    :inherited-members:
+
+
+.. _wang_landau_ensemble:
+
+.. index::
+   single: Class reference; WangLandauEnsemble
+   single: Monte Carlo; Wang-Landau ensemble
+
+Wang-Landau ensemble
+--------------------
+
+For analysis functions see :ref:`here <data_container_analysis_functions>`.
+
+.. autoclass:: WangLandauEnsemble
+   :members:
+   :undoc-members:
+   :inherited-members:

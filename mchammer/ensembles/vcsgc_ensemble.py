@@ -105,24 +105,24 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         and the temperature units [default: eV/K]
     user_tag : str
         human-readable tag for ensemble [default: None]
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
-        includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
     data_container_write_period : float
         period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
         the data [default: np.inf]
+    ensemble_data_write_interval : int
+        interval at which data is written to the data container; this
+        includes for example the current value of the calculator
+        (i.e. usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
@@ -165,12 +165,15 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
         mc.run(100)  # carry out 100 trial swaps
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
-                 temperature: float, phis: Dict[str, float],
-                 kappa: float, boltzmann_constant: float = kB,
+    def __init__(self, structure: Atoms,
+                 calculator: BaseCalculator,
+                 temperature: float,
+                 phis: Dict[str, float],
+                 kappa: float,
+                 boltzmann_constant: float = kB,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
                  random_seed: int = None,
+                 data_container: str = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
@@ -190,9 +193,12 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
             self._ensemble_parameters[phi_sym] = phi
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
-            data_container=data_container,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             random_seed=random_seed,
+            data_container=data_container,
+            data_container_class=DataContainer,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval,
@@ -211,7 +217,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
                     count_specified_elements += 1
             if count_specified_elements != len(sl.atomic_numbers) - 1:
                 raise ValueError('phis must be set for N - 1 elements on a '
-                                 'sublattice with N elements')
+                                 'sublattice with N species')
 
         if sublattice_probabilities is None:
             self._flip_sublattice_probabilities = self._get_flip_sublattice_probabilities()
@@ -233,7 +239,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     @property
     def phis(self) -> Dict[int, float]:
         """
-        phis :math:`\\phi_i`, one for each species but their sum must be
+        phis :math:`\\phi_i`; one for each species but their sum must be
         :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
         """
         return self._phis
@@ -269,7 +275,7 @@ def get_phis(phis: Dict[Union[int, str], float]) -> Dict[int, float]:
     ----------
     phis
         the phis that will be transformed to the format
-        the ensemble use.
+        used by the ensemble
     """
     if not isinstance(phis, dict):
         raise TypeError('phis has the wrong type: {}'.format(type(phis)))

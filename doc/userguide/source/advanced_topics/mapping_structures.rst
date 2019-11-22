@@ -1,8 +1,8 @@
-.. _example_map_structure_to_reference:
+.. _advanced_topics_map_structure_to_reference:
 .. highlight:: python
 .. index::
-   single: Examples; Structure mapping
-   single: Examples; Mapping structures
+   single: Advanced topics; Structure mapping
+   single: Advanced topics; Mapping structures
 
 Mapping structures
 ==================

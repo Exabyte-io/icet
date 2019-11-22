@@ -49,7 +49,7 @@ Optimization and machine learning
    Cross validation
         `Cross validation (CV)
         <https://en.wikipedia.org/wiki/Cross-validation_(statistics)>`_
-        is commonly employed to evaluated the transferability and accuracy of 
+        is commonly employed to evaluated the transferability and accuracy of
 	linear problems.
 
    LASSO
@@ -114,16 +114,31 @@ Cluster expansions
    Cluster expansion
    CE
    CEs
-   	:ref:`Cluster expansions <cluster_expansions>` provide a
-   	mapping between a configuration and a property of interest
-   	that can be many orders of magnitude faster than the
-   	underlying reference calculations from e.g., :term:`DFT`.
+   	     :ref:`Cluster expansions <cluster_expansions>` (CEs) provide a
+   	     mapping between a configuration and a property of interest
+   	     that can be many orders of magnitude faster than the
+   	     underlying reference calculations from e.g., :term:`DFT`.
+
+   DOS
+         density of states
 
    ECI
    ECIs
-	The parameters of a :term:`CE` are usually referred to as
-	:ref:`effective cluster interactions (ECIs) <cluster_expansions>`.
+	       The parameters of a :term:`CE` are usually referred to as
+	       :ref:`effective cluster interactions (ECIs) <cluster_expansions>`.
 
    MC
-        Monte Carlo (MC) simulations are an effective method for
-	sampling a multi-dimensional space.
+         Monte Carlo (MC) simulations are an effective method for
+         sampling a multi-dimensional space.
+
+   MCS
+   MCSs
+         A Monte Carlo sweep (MCS) is defined as :math:`N_{sites}` MC trial
+         steps, where :math:`N_{sites}` is the number of sites in the system.
+
+   WL
+         The `Wang-Landau (WL) algorithm
+         <https://en.wikipedia.org/wiki/Wang_and_Landau_algorithm>`_
+         allows one to extract the microcanonical :term:`density of states
+         (DOS) <DOS>`, from which many other thermodynamic quantities
+         can be calculated [WanLan01a]_.

@@ -21,7 +21,7 @@ the reference data is provided in the form of an `ASE
 :func:`ase.db.connect() <ase.db.core.connect>` function. Furthermore, the
 :program:`icet` classes :class:`ClusterSpace <icet.ClusterSpace>`,
 :class:`StructureContainer <icet.StructureContainer>`,
-:class:`CrossValidationEstimator <icet.CrossValidationEstimator>` and
+:class:`CrossValidationEstimator <icet.fitting.CrossValidationEstimator>` and
 :class:`ClusterExpansion <icet.ClusterExpansion>` are
 used, :ref:`in sequence <workflow>`, during preparation, compilation and
 training of the cluster expansion followed by the extraction of information in
@@ -63,8 +63,8 @@ in the case below. If there are multiple sites that are to be occupied in
 different fashion, one has to provide instead a list of lists, where the outer
 list must contain as many elements as there are sites in the primitive
 structure and each "inner" list specifies the occupation for the respective
-site. Examples for this approach can be found in the :class:`ClusterSpace`
-documentation.
+site. Examples for this approach can be found in the :class:`ClusterSpace
+<icet.ClusterSpace>` documentation.
 
 
 .. literalinclude:: ../../../../examples/tutorial/1_construct_cluster_expansion.py

@@ -1,7 +1,7 @@
-.. _example_structure_enumeration:
+.. _advanced_topics_structure_enumeration:
 .. highlight:: python
 .. index::
-   single: Examples; Structure enumeration
+   single: Advanced topics; Structure enumeration
 
 Structure enumeration
 =====================

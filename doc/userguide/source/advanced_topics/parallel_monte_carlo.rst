@@ -1,7 +1,7 @@
-.. _tutorial_parallel_monte_carlo_simulations:
+.. _advanced_topics_parallel_monte_carlo_simulations:
 .. highlight:: python
 .. index::
-   single: Tutorial; Parallel Monte Carlo simulations
+   single: Advanced topics; Parallel Monte Carlo simulations
 
 Parallel Monte Carlo simulations
 ================================

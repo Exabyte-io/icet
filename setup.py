@@ -61,11 +61,14 @@ class BuildExt(build_ext):
     }
 
     if sys.platform == 'darwin':
-        c_opts['unix'] += ['-stdlib=libc++', '-mmacosx-version-min=10.7']
+        c_opts['unix'] += ['-mmacosx-version-min=10.7']
 
     def build_extensions(self):
         ct = self.compiler.compiler_type
         opts = self.c_opts.get(ct, [])
+        if sys.platform == 'darwin':
+            if has_flag(self.compiler, '-stdlib=libc++'):
+                opts.append('-stdlib=libc++')
         if ct == 'unix':
             opts.append("-DVERSION_INFO='{}'"
                         .format(self.distribution.get_version()))
@@ -117,7 +120,7 @@ url = re.search("__url__ = '(.*)'", lines).group(1)
 license = re.search("__license__ = '(.*)'", lines).group(1)
 
 classifiers = [
-    'Development Status :: 5 - Stable',
+    'Development Status :: 5 - Production/Stable',
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: 3',

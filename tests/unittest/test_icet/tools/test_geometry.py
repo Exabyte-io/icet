@@ -400,8 +400,6 @@ class TestGeometry(unittest.TestCase):
 
         structures.append(bulk('Al', crystalstructure='fcc', a=4, cubic=True))
         targetvals.append(4 * ['4a'])
-        structures.append(bulk('SiC', crystalstructure='zincblende', a=4, cubic=True))
-        targetvals.append(4 * ['4a', '4c'])
 
         structures.append(bulk('Al').repeat(2))
         targetvals.append(8 * ['4a'])

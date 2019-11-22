@@ -1,28 +1,18 @@
 # -*- coding: utf-8 -*-
 
 from .configuration_manager import ConfigurationManager
-from .data_container import DataContainer
+from .data_containers.data_container import DataContainer
+from .data_containers.wang_landau_data_container import WangLandauDataContainer
 
 """
 mchammer - Monte Carlo simulation module
 """
 
 __project__ = 'icet-mchammer'
-__description__ = 'A Pythonic approach to cluster expansions'
-__authors__ = ['Mattias Ångqvist',
-               'William Armando Muñoz',
-               'Thomas Holm Rod',
-               'Paul Erhart']
-__copyright__ = '2018'
-__license__ = 'MIT'
-__credits__ = ['Mattias Ångqvist',
-               'William Armando Muñoz',
-               'Thomas Holm Rod',
-               'Paul Erhart']
-__version__ = '0.1'
+__description__ = 'icet Monte Carlo simulations module'
 __all__ = ['ConfigurationManager',
-           'DataContainer']
+           'DataContainer',
+           'WangLandauDataContainer']
 __maintainer__ = 'The icet developers team'
 __maintainer_email__ = 'icet@materialsmodeling.org'
-__status__ = 'alpha-version'
 __url__ = 'http://icet.materialsmodeling.org/'

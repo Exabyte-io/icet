@@ -22,6 +22,7 @@ ClusterExpansionCalculator
    :undoc-members:
    :inherited-members:
 
+
 .. _target_vector_calculator:
 
 .. index::
@@ -32,7 +33,9 @@ ClusterExpansionCalculator
 TargetVectorCalculator
 --------------------------
 
-.. automodule:: mchammer.calculators.target_vector_calculator
+.. autoclass:: mchammer.calculators.TargetVectorCalculator
    :members:
    :undoc-members:
    :inherited-members:
+
+.. autofunction:: mchammer.calculators.compare_cluster_vectors

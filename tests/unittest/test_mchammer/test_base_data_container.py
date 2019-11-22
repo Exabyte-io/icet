@@ -1,8 +1,11 @@
 import unittest
+import tempfile
+import random
 import numpy as np
+import pandas as pd
 from ase.build import bulk
 from collections import OrderedDict
-from mchammer.data_containers.data_container import DataContainer
+from mchammer.data_containers.base_data_container import BaseDataContainer
 from mchammer.observers.base_observer import BaseObserver
 
 
@@ -16,11 +19,11 @@ class ConcreteObserver(BaseObserver):
         return structure.get_chemical_symbols().count('Al')
 
 
-class TestDataContainer(unittest.TestCase):
+class TestBaseDataContainer(unittest.TestCase):
     """Container for the tests of the class functionality."""
 
     def __init__(self, *args, **kwargs):
-        super(TestDataContainer, self).__init__(*args, **kwargs)
+        super(TestBaseDataContainer, self).__init__(*args, **kwargs)
         self.structure = bulk('Al').repeat(2)
         self.ensemble_parameters = {'number_of_atoms': len(self.structure),
                                     'temperature': 375.15}
@@ -32,21 +35,21 @@ class TestDataContainer(unittest.TestCase):
     def setUp(self):
         """Setup before each test case."""
         self.dc = \
-            DataContainer(structure=self.structure,
-                          ensemble_parameters=self.ensemble_parameters,
-                          metadata=OrderedDict(ensemble_name='test-ensemble',
-                                               seed=144))
+            BaseDataContainer(structure=self.structure,
+                              ensemble_parameters=self.ensemble_parameters,
+                              metadata=OrderedDict(ensemble_name='test-ensemble',
+                                                   seed=144))
 
     def test_init(self):
-        """Tests initializing DataContainer."""
-        self.assertIsInstance(self.dc, DataContainer)
+        """Tests initializing BaseDataContainer."""
+        self.assertIsInstance(self.dc, BaseDataContainer)
 
         # test fails with a non ASE Atoms type
         with self.assertRaises(TypeError) as context:
-            DataContainer(structure='structure',
-                          ensemble_parameters=self.ensemble_parameters,
-                          metadata=OrderedDict(ensemble_name='test-ensemble',
-                                               seed=144))
+            BaseDataContainer(structure='structure',
+                              ensemble_parameters=self.ensemble_parameters,
+                              metadata=OrderedDict(ensemble_name='test-ensemble',
+                                                   seed=144))
 
         self.assertTrue('structure is not an ASE Atoms object'
                         in str(context.exception))
@@ -97,6 +100,28 @@ class TestDataContainer(unittest.TestCase):
             self.dc.append(110, 'tst')
         self.assertTrue('record has the wrong type'
                         in str(context.exception))
+
+    def test_str(self):
+        """Tests __str__ method."""
+        data_rows = OrderedDict([
+            (0, {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
+            (10, {'potential': -1.35}),
+            (20, {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
+            (30, {'potential': -1.07}),
+            (40, {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
+            (50, {'potential': -1.4}),
+            (60, {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
+        ret = str(self.dc)
+        self.assertIn('n_rows_in_data', ret)
+        self.assertIn('icet_version', ret)
+        self.assertIn('data_container_type', ret)
+        self.assertIn('BaseDataContainer', ret)
 
     def test_update_last_state(self):
         """Tests update_last_state functionality."""
@@ -171,6 +196,18 @@ class TestDataContainer(unittest.TestCase):
         self.assertIn('username', metadata.keys())
         self.assertIn('hostname', metadata.keys())
         self.assertIn('icet_version', metadata.keys())
+
+    def test_property_last_state(self):
+        """Tests last_state property."""
+        self.dc._update_last_state(last_step=10001,
+                                   occupations=[13] * len(self.structure),
+                                   accepted_trials=12,
+                                   random_state=random.getstate())
+        self.assertEqual(self.dc.last_state,
+                         dict([('last_step', 10001),
+                               ('occupations', [13] * len(self.structure)),
+                               ('accepted_trials', 12),
+                               ('random_state', random.getstate())]))
 
     def test_get_data(self):
         """
@@ -271,64 +308,104 @@ class TestDataContainer(unittest.TestCase):
         self.assertTrue('No observable named xyz'
                         in str(context.exception))
 
-    def test_analyze_data(self):
-        """Tests analyze_data functionality."""
+    def test_get_trajectory(self):
+        """Tests get_trajectory functionality."""
+        data_rows = OrderedDict([
+            (0, {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
+            (10, {'potential': -1.35}),
+            (20, {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
+            (30, {'potential': -1.07}),
+            (40, {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
+            (50, {'potential': -1.4}),
+            (60, {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
 
-        # set up a random list of values with a normal distribution
-        n_iter, mu, sigma = 100, 1.0, 0.1
-        np.random.seed(12)
-        for mctrial in range(n_iter):
-            row = {'obs1': np.random.normal(mu, sigma), 'obs2': 4.0}
-            self.dc.append(mctrial, record=row)
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
 
-        # check obs1
-        summary1 = self.dc.analyze_data('obs1')
-        mean1 = self.dc.get_data('obs1').mean()
-        std1 = self.dc.get_data('obs1').std()
-        self.assertEqual(summary1['mean'], mean1)
-        self.assertEqual(summary1['std'], std1)
-        self.assertEqual(summary1['correlation_length'], 1)
+        # only trajectory
+        occupations = \
+            pd.DataFrame(data_rows).T.occupations.dropna().tolist()
+        structure_list = self.dc.get_data('trajectory')
+        for structure, occupation in zip(structure_list, occupations):
+            self.assertEqual(structure.numbers.tolist(), occupation)
 
-        # check obs2
-        summary2 = self.dc.analyze_data('obs2')
-        self.assertTrue(np.isnan(summary2['correlation_length']))
+        atoms_list, potential = self.dc._get_trajectory('potential')
+        for atoms, occupation in zip(atoms_list, occupations):
+            self.assertEqual(atoms.numbers.tolist(), occupation)
 
-    def test_get_average_and_standard_deviation(self):
-        """Tests get average functionality."""
-        # set up a random list of values with a normal distribution
-        n_iter, mu, sigma = 100, 1.0, 0.1
-        np.random.seed(12)
-        obs_val = np.random.normal(mu, sigma, n_iter).tolist()
+        # trajectory and properties
+        mctrial, structure_list, energies = self.dc.get_data('mctrial', 'trajectory', 'potential')
 
-        # append above random data to data container
-        for mctrial in range(n_iter):
-            self.dc.append(mctrial, record={'obs1': obs_val[mctrial]})
+        self.assertEqual(mctrial.tolist(), [0, 20, 40, 60])
+        self.assertEqual(energies.tolist(), [-1.32, -1.33, -1.02, -1.3])
+        self.assertIsInstance(structure_list, list)
 
-        # get average over all mctrials
-        mean = self.dc.get_average('obs1')
-        self.assertAlmostEqual(mean, 0.9855693, places=7)
-
-        # get average over slice of data
-        mean = self.dc.get_average('obs1', start=60)
-        self.assertAlmostEqual(mean, 0.9851106, places=7)
-
-        mean = self.dc.get_average('obs1', stop=60)
-        self.assertAlmostEqual(mean, 0.9876534, places=7)
-
-        mean = self.dc.get_average('obs1', start=40, stop=60)
-        self.assertAlmostEqual(mean, 1.0137074, places=7)
-
-        # test fails for non-existing data
+        # test fails for non skip_none fill method
         with self.assertRaises(ValueError) as context:
-            self.dc.get_average('temperature')
-        self.assertTrue('No observable named temperature'
+            self.dc.get_data('trajectory', fill_method='fill_backward')
+        self.assertTrue('Only skip_none fill method is avaliable'
+                        ' when trajectory is requested'
                         in str(context.exception))
 
-        # test fails for non-scalar data
-        with self.assertRaises(ValueError) as context:
-            self.dc.get_average('trajectory')
-        self.assertTrue('trajectory is not scalar'
+    def test_write_trajectory(self):
+        """Tests write trajectory functionality."""
+        # append data
+        data_rows = OrderedDict([
+            (0, {'potential': -1.32,
+                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
+            (10, {'potential': -1.35}),
+            (20, {'potential': -1.33,
+                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
+            (30, {'potential': -1.07}),
+            (40, {'potential': -1.02,
+                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
+            (50, {'potential': -1.4}),
+            (60, {'potential': -1.3,
+                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
+
+        for mctrial in data_rows:
+            self.dc.append(mctrial, data_rows[mctrial])
+
+        temp_file = tempfile.NamedTemporaryFile()
+        self.dc.write_trajectory(temp_file.name)
+
+    def test_read_and_write(self):
+        """Tests write and read functionalities of data container."""
+
+        # append data for testing
+        row_data = {}
+        row_data['obs1'] = 64
+        row_data['occupations'] = [13, 13, 13]
+        for mctrial in range(1, 101):
+            self.dc.append(mctrial, row_data)
+
+        temp_file = tempfile.NamedTemporaryFile()
+
+        # check before with a non-tar file
+        with self.assertRaises(TypeError) as context:
+            BaseDataContainer.read(temp_file.name)
+        self.assertTrue('{} is not a tar file'.format(str(temp_file.name))
                         in str(context.exception))
+
+        # save to file
+        self.dc.write(temp_file.name)
+
+        # read from file object
+        dc_read = BaseDataContainer.read(temp_file)
+
+        # check properties and metadata
+        self.assertEqual(self.structure, dc_read.structure)
+        self.assertEqual(self.dc.metadata, dc_read.metadata)
+        self.assertEqual(self.dc.ensemble_parameters,
+                         dc_read.ensemble_parameters)
+
+        # check data
+        pd.testing.assert_frame_equal(
+            self.dc.data, dc_read.data, check_dtype=False)
 
 
 if __name__ == '__main__':
