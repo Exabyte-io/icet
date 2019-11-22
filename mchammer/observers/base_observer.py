@@ -24,8 +24,7 @@ class BaseObserver(ABC):
         the observation interval
     """
 
-    def __init__(self, return_type: type, interval: int = None,
-                 tag: str = 'BaseObserver') -> None:
+    def __init__(self, return_type: type, interval: int = None, tag: str = 'BaseObserver') -> None:
         self.tag = tag
         self.interval = interval
         self._return_type = return_type

@@ -40,7 +40,7 @@ class ClusterCountObserver(BaseObserver):
     """
 
     def __init__(self, cluster_space, structure: Atoms,
-                 interval: int) -> None:
+                 interval: int = None) -> None:
         super().__init__(interval=interval, return_type=dict, tag='ClusterCountObserver')
 
         self._cluster_space = cluster_space

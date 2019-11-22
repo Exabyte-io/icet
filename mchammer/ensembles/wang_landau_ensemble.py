@@ -183,7 +183,7 @@ class WangLandauEnsemble(BaseEnsemble):
                  user_tag: str = None,
                  data_container: str = None,
                  random_seed: int = None,
-                 data_container_write_period: float = np.inf,
+                 data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
                  sublattice_probabilities: List[float] = None) -> None:

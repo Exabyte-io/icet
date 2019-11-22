@@ -189,7 +189,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
                  user_tag: str = None,
                  random_seed: int = None,
                  data_container: str = None,
-                 data_container_write_period: float = np.inf,
+                 data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None) -> None:
 
