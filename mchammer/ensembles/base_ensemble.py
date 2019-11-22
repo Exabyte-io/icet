@@ -432,10 +432,10 @@ class BaseEnsemble(ABC):
         """
 
         # Restart step
-        self._step = self.data_container.last_state['last_step']
+        self._step = self.data_container._last_state['last_step']
 
         # Update configuration
-        occupations = self.data_container.last_state['occupations']
+        occupations = self.data_container._last_state['occupations']
         active_sites = []
         for sl in self.sublattices.active_sublattices:
             active_sites.extend(sl.indices)
@@ -443,10 +443,10 @@ class BaseEnsemble(ABC):
         self.update_occupations(active_sites, active_occupations)
 
         # Restart number of total and accepted trial steps
-        self._accepted_trials = self.data_container.last_state['accepted_trials']
+        self._accepted_trials = self.data_container._last_state['accepted_trials']
 
         # Restart state of random number generator
-        random.setstate(self.data_container.last_state['random_state'])
+        random.setstate(self.data_container._last_state['random_state'])
 
     def write_data_container(self, outfile: Union[str, BinaryIO, TextIO]):
         """Updates last state of the Monte Carlo simulation and

@@ -278,7 +278,7 @@ class TestEnsemble(unittest.TestCase):
                            check_dtype=False,
                            check_like=True)
 
-        self.assertEqual(ensemble_reloaded.data_container.last_state['last_step'], 182 + 50)
+        self.assertEqual(ensemble_reloaded.data_container._last_state['last_step'], 182 + 50)
 
     def test_restart_different_parameters(self):
         """Tests that restarting ensemble from data container with different

@@ -361,10 +361,10 @@ class WangLandauEnsemble(BaseEnsemble):
         the data container but rather uses the last data written the data frame.
         """
         super()._restart_ensemble()
-        self._fill_factor = self.data_container.last_state['fill_factor']
-        self._fill_factor_history = self.data_container.last_state['fill_factor_history']
-        self._histogram = self.data_container.last_state['histogram']
-        self._entropy = self.data_container.last_state['entropy']
+        self._fill_factor = self.data_container._last_state['fill_factor']
+        self._fill_factor_history = self.data_container._last_state['fill_factor_history']
+        self._histogram = self.data_container._last_state['histogram']
+        self._entropy = self.data_container._last_state['entropy']
 
     def write_data_container(self, outfile: Union[str, BinaryIO, TextIO]):
         """Updates last state of the Wang-Landau simulation and
