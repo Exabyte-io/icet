@@ -3,6 +3,7 @@ import unittest
 import os
 import tempfile
 import numpy as np
+from ase import Atoms
 from ase.build import bulk
 from pandas.testing import assert_frame_equal
 
@@ -11,7 +12,7 @@ from mchammer.calculators.cluster_expansion_calculator import \
     ClusterExpansionCalculator
 from mchammer.ensembles.base_ensemble import BaseEnsemble, dicts_equal
 from mchammer.observers.base_observer import BaseObserver
-from mchammer import DataContainer
+from mchammer.data_containers.base_data_container import BaseDataContainer
 
 
 class AppleObserver(BaseObserver):
@@ -66,12 +67,10 @@ class TestEnsemble(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestEnsemble, self).__init__(*args, **kwargs)
 
-        self.structure = bulk('Al').repeat(3)
-        cutoffs = [5, 5, 4]
-        elements = ['Al', 'Ga']
-        self.cs = ClusterSpace(self.structure, cutoffs, elements)
-        parameters = np.array([1.2 for _ in range(len(self.cs))])
-        self.ce = ClusterExpansion(self.cs, parameters)
+        prim = Atoms('Au', positions=[[0, 0, 0]], cell=[1, 1, 1], pbc=True)
+        self.structure = prim.repeat(3)
+        self.cs = ClusterSpace(prim, cutoffs=[1.1], chemical_symbols=['Ag', 'Au'])
+        self.ce = ClusterExpansion(self.cs, [0, 0, 2])
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -237,7 +236,7 @@ class TestEnsemble(unittest.TestCase):
         try:
             n_iters = 182
             ensemble.run(n_iters)
-            dc_read = DataContainer.read('my-datacontainer.dc')
+            dc_read = BaseDataContainer.read('my-datacontainer.dc')
         finally:
             os.remove('my-datacontainer.dc')
 
@@ -294,8 +293,8 @@ class TestEnsemble(unittest.TestCase):
                              calculator=self.calculator,
                              temperature=3000,
                              data_container=ensemble_T1000.name)
-        self.assertIn("Ensemble parameters do not match with those stored in"
-                      " DataContainer file: {('temperature', 1000)}",
+        self.assertIn("Ensemble parameters do not match those stored in"
+                      " data container file: {('temperature', 1000)}",
                       str(context.exception))
 
     def test_restart_with_inactive_sites(self):
@@ -353,7 +352,7 @@ class TestEnsemble(unittest.TestCase):
 
     def test_property_data_container(self):
         """Tests the data container property."""
-        self.assertIsInstance(self.ensemble.data_container, DataContainer)
+        self.assertIsInstance(self.ensemble.data_container, BaseDataContainer)
 
     def test_find_minimum_observation_interval(self):
         """Tests the method to find the minimum observation interval."""
@@ -383,17 +382,17 @@ class TestEnsemble(unittest.TestCase):
         initial_occupations = self.ensemble.configuration.occupations
 
         indices = [0, 1, 2, 3, 4]
-        elements = [13, 31, 13, 31, 13]
+        elements = [79, 79, 47, 79, 79]
 
         prop_diff = self.ensemble._get_property_change(indices, elements)
-        self.assertAlmostEqual(prop_diff, 56)
+        self.assertAlmostEqual(prop_diff, -8)
 
         # Tests that the method doesn't change the occupation.
         self.assertListEqual(list(initial_occupations),
                              list(self.ensemble.configuration.occupations))
 
         with self.assertRaises(ValueError) as context:
-            self.ensemble.update_occupations(indices, elements + [31])
+            self.ensemble.update_occupations(indices, elements + [79])
 
         self.assertTrue('sites and species must have the same length.'
                         in str(context.exception))

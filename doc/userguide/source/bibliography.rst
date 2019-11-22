@@ -41,6 +41,12 @@ Bibliography
    | Physical Review B **80**, 014120 (2009)
    | `doi: 10.1103/PhysRevB.80.014120 <http://dx.doi.org/10.1103/PhysRevB.80.014120>`_
 
+.. [LanTsaExl04]
+   | D. P. Landau, S.-H. Tsai, and M. Exler
+   | *A new approach to Monte Carlo simulations in statistical physics: Wang-Landau sampling*
+   | Am. J. Phys. **72**, 1294 (2004)
+   | `doi: 10.1119/1.1707017 <https://doi.org/10.1119/1.1707017>`_
+
 .. [NelHarZho13]
    | L. J. Nelson, G. L. W. Hart, F. Zhou, and V. Ozoliņš
    | *Compressive sensing as a new paradigm for model building*
@@ -82,6 +88,18 @@ Bibliography
    | *Efficient stochastic generation of special quasirandom structures*
    | Calphad **42**, 13 (2013)
    | `doi: 10.1016/j.calphad.2013.06.006 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+
+.. [WanLan01a]
+   | F. Wang and D. P. Landau
+   | *Efficient, Multiple-Range Random Walk Algorithm to Calculate the Density of States*
+   | Phys. Rev. Lett. **86**, 2050 (2001)
+   | `doi: 10.1103/PhysRevLett.86.2050 <https://doi.org/10.1103/PhysRevLett.86.2050>`_
+
+.. [WanLan01b]
+   | F. Wang and D. P. Landau
+   | *Determining the density of states for classical statistical models: A random walk algorithm to produce a flat histogram*
+   | Phys. Rev. E **64**, 056101 (2001)
+   | `doi: 10.1103/PhysRevE.64.056101 <https://doi.org/10.1103/PhysRevE.64.056101>`_
 
 .. [ZunWeiFer90]
    | A. Zunger, S.-H. Wei, L. G. Ferreira, and J. E. Bernard.

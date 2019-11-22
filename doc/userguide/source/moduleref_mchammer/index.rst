@@ -14,5 +14,5 @@
    calculators
    ensembles
    observers
-   data_container
+   data_containers
    configuration_manager

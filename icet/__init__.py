@@ -26,7 +26,7 @@ __authors__ = ['Mattias Ångqvist',
                'Paul Erhart']
 __copyright__ = '2019'
 __license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
-__version__ = '1.0'
+__version__ = '1.1.1'
 __maintainer__ = 'The icet developers team'
 __email__ = 'icet@materialsmodeling.org'
 __status__ = 'Stable'

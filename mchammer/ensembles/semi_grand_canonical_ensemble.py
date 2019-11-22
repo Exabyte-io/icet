@@ -91,24 +91,24 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
         and the temperature units [default: eV/K]
     user_tag : str
         human-readable tag for ensemble [default: None]
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
-        includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
     data_container_write_period : float
         period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
         the data [default: np.inf]
+    ensemble_data_write_interval : int
+        interval at which data is written to the data container; this
+        includes for example the current value of the calculator
+        (i.e. usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
@@ -152,14 +152,18 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
     * add check that chemical symbols in chemical potentials are allowed
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
-                 temperature: float, chemical_potentials: Dict[str, float],
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
+                 temperature: float,
+                 chemical_potentials: Dict[str, float],
+                 boltzmann_constant: float = kB,
                  user_tag: str = None,
-                 data_container: DataContainer = None, random_seed: int = None,
+                 random_seed: int = None,
+                 data_container: str = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None,
-                 boltzmann_constant: float = kB,
                  sublattice_probabilities: List[float] = None) -> None:
 
         self._ensemble_parameters = dict(temperature=temperature)
@@ -174,8 +178,9 @@ class SemiGrandCanonicalEnsemble(ThermodynamicBaseEnsemble):
 
         super().__init__(
             structure=structure, calculator=calculator, user_tag=user_tag,
-            data_container=data_container,
             random_seed=random_seed,
+            data_container=data_container,
+            data_container_class=DataContainer,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
             trajectory_write_interval=trajectory_write_interval,

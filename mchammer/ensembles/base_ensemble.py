@@ -1,3 +1,5 @@
+"""Definition of the abstract base ensemble class."""
+
 import os
 import random
 from abc import ABC, abstractmethod
@@ -13,7 +15,7 @@ from icet.core.sublattices import Sublattices
 
 from ..calculators.base_calculator import BaseCalculator
 from ..configuration_manager import ConfigurationManager
-from ..data_container import DataContainer
+from ..data_containers.base_data_container import BaseDataContainer
 from ..observers.base_observer import BaseObserver
 
 
@@ -30,38 +32,42 @@ class BaseEnsemble(ABC):
         that enter the evaluation of the Metropolis criterion
     user_tag : str
         human-readable tag for ensemble [default: None]
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     data_container : str
         name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
         updated/overwritten
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
-        includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
+    data_container_class : BaseDataContainer
+        used to initialize custom (ensemble specific) data container objects;
+        by default the class uses the generic BaseDataContainer class
     data_container_write_period : float
         period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
         the data.
+    ensemble_data_write_interval : int
+        interval at which data is written to the data container; this
+        includes for example the current value of the calculator
+        (i.e. usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species
     trajectory_write_interval : int
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
     """
 
     def __init__(self,
                  structure: Atoms,
                  calculator: BaseCalculator,
                  user_tag: str = None,
-                 data_container: DataContainer = None,
+                 random_seed: int = None,
+                 data_container: str = None,
+                 data_container_class: BaseDataContainer = BaseDataContainer,
                  data_container_write_period: float = 600,
                  ensemble_data_write_interval: int = None,
-                 trajectory_write_interval: int = None,
-                 random_seed: int = None) -> None:
+                 trajectory_write_interval: int = None) -> None:
 
         # initialize basic variables
         self._accepted_trials = 0
@@ -100,13 +106,13 @@ class BaseEnsemble(ABC):
         self._data_container_filename = data_container
 
         if data_container is not None and os.path.isfile(data_container):
-            self._data_container = DataContainer.read(data_container)
+            self._data_container = BaseDataContainer.read(data_container)
 
             dc_ensemble_parameters = self.data_container.ensemble_parameters
             if not dicts_equal(self.ensemble_parameters,
                                dc_ensemble_parameters):
-                raise ValueError('Ensemble parameters do not match with those'
-                                 ' stored in DataContainer file: {}'.format(
+                raise ValueError('Ensemble parameters do not match those'
+                                 ' stored in data container file: {}'.format(
                                      set(dc_ensemble_parameters.items()) -
                                      set(self.ensemble_parameters.items())))
             self._restart_ensemble()
@@ -117,9 +123,10 @@ class BaseEnsemble(ABC):
                 if filedir and not os.path.isdir(filedir):
                     raise FileNotFoundError('Path to data container file does'
                                             ' not exist: {}'.format(filedir))
-            self._data_container = DataContainer(structure=structure,
-                                                 ensemble_parameters=self.ensemble_parameters,
-                                                 metadata=metadata)
+            self._data_container = data_container_class(
+                structure=structure,
+                ensemble_parameters=self.ensemble_parameters,
+                metadata=metadata)
 
         # interval for writing data and further preparation of data container
         self._default_interval = len(structure)
@@ -143,7 +150,7 @@ class BaseEnsemble(ABC):
         return self.configuration.structure.copy()
 
     @property
-    def data_container(self) -> DataContainer:
+    def data_container(self) -> BaseDataContainer:
         """ data container associated with ensemble """
         return self._data_container
 
@@ -173,7 +180,16 @@ class BaseEnsemble(ABC):
         reset_step
             if True the MC trial step counter and the data container will
             be reset to zero and empty, respectively.
+
+        Raises
+        ------
+        TypeError
+            if `number_of_trial_steps` is not an int
         """
+
+        if not isinstance(number_of_trial_steps, int):
+            raise TypeError('number_of_trial_steps must be an integer ({})'
+                            .format(number_of_trial_steps))
 
         last_write_time = time()
 
@@ -181,17 +197,17 @@ class BaseEnsemble(ABC):
         final_step = self.step + number_of_trial_steps
         # run Monte Carlo simulation such that we start at an
         # interval which lands on the observer interval
-        if not initial_step == 0:
+        if initial_step != 0:
             first_run_interval = self.observer_interval -\
                 (initial_step -
                  (initial_step // self.observer_interval) *
-                    self.observer_interval)
+                 self.observer_interval)
             first_run_interval = min(first_run_interval, number_of_trial_steps)
             self._run(first_run_interval)
             initial_step += first_run_interval
 
         step = initial_step
-        while step < final_step:
+        while step < final_step and not self._terminate_sampling():
             uninterrupted_steps = min(self.observer_interval, final_step - step)
             if self.step % self.observer_interval == 0:
                 self._observe(self.step)
@@ -203,9 +219,12 @@ class BaseEnsemble(ABC):
             self._run(uninterrupted_steps)
             step += uninterrupted_steps
 
-        # If we end on an observation interval we also observe
+        # if we end on an observation interval we also observe
         if self.step % self.observer_interval == 0:
             self._observe(self.step)
+
+        # allow ensemble a chance to go clean
+        self._finalize()
 
         if self._data_container_filename is not None:
             self.write_data_container(self._data_container_filename)
@@ -299,9 +318,7 @@ class BaseEnsemble(ABC):
             self._observer_interval = self._get_gcd(intervals)
 
     def _get_gcd(self, values: List[int]) -> int:
-        """
-        Finds the greatest common denominator (GCD) from a list.
-        """
+        """ Finds the greatest common denominator (GCD) from a list of integers. """
         if len(values) == 1:
             return values[0]
 
@@ -411,7 +428,7 @@ class BaseEnsemble(ABC):
         return pick
 
     def _restart_ensemble(self):
-        """Restarts ensemble using the last state saved in DataContainer file.
+        """Restarts ensemble using the last state saved in data container file.
         """
 
         # Restart step
@@ -433,7 +450,7 @@ class BaseEnsemble(ABC):
 
     def write_data_container(self, outfile: Union[str, BinaryIO, TextIO]):
         """Updates last state of the Monte Carlo simulation and
-        writes DataContainer to file.
+        writes data container to file.
 
         Parameters
         ----------
@@ -458,8 +475,26 @@ class BaseEnsemble(ABC):
         """sublattices for the configuration being sampled"""
         return self.configuration.sublattices
 
+    def _terminate_sampling(self) -> bool:
+        """This method is called from the run method to determine whether the MC
+        sampling loop should be terminated for a reason other than having exhausted
+        the number of iterations. The method can be overriden by child classes in
+        order to provide an alternative exit mechanism.
+        """
+        return False
+
+    def _finalize(self) -> None:
+        """This method is called from the run method after the conclusion of
+        the MC cycles but before the data container is written. This
+        method can be used by child classes to carry out clean-up
+        tasks, including e.g., adding "left-over" data to the data
+        container.
+        """
+        pass
+
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
+
     """Returns True (False) if two dicts are equal (not equal), if
     float or integers are in the dicts then atol is used for comparing them."""
     if len(dict1) != len(dict2):
@@ -468,7 +503,8 @@ def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
         if key not in dict2:
             return False
         if isinstance(dict1[key], (int, float)) and isinstance(dict2[key], (int, float)):
-            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol):
+            if not np.isclose(dict1[key], dict2[key], rtol=0.0, atol=atol) and \
+                   not np.isnan(dict1[key]) and not np.isnan(dict2[key]):
                 return False
         else:
             if dict1[key] != dict2[key]:

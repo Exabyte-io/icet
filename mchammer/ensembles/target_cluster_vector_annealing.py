@@ -9,7 +9,7 @@ from icet.io.logging import logger
 logger = logger.getChild('target_cluster_vector_annealing')
 
 
-class TargetClusterVectorAnnealing():
+class TargetClusterVectorAnnealing:
     """
     Instances of this class allow one to carry out simulated annealing
     towards a target cluster vector. Because it is impossible

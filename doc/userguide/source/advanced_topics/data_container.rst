@@ -1,7 +1,7 @@
-.. _example_data_container:
+.. _advanced_topics_data_container:
 .. highlight:: python
 .. index::
-   single: Examples; Data container
+   single: Advanced topics; Data container
 
 Data container
 ==============
@@ -99,7 +99,7 @@ observations are said to be uncorrelated, providing an estimate of the
 correlation length.
 
 .. figure::
-    autocorrelation.svg
+    _static/autocorrelation.svg
 
 An `error estimate <https://en.wikipedia.org/wiki/Standard_error>`_ of the
 average can be calculated via
@@ -114,4 +114,4 @@ adjusted depending on the desired confidence interval.
 
 Obtaining the autocorrelation function directly or carrying out error estimates
 can be done via functionality provided in the :ref:`data_analysis
-<data_container_supporting_functions>` module.
+<data_container_analysis_functions>` module.

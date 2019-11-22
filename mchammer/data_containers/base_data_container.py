@@ -1,21 +1,24 @@
+""" Base data container class. """
+
 import getpass
 import json
 import numbers
-import numpy as np
-import pandas as pd
 import tarfile
 import tempfile
 import socket
 
-from ase import Atoms
-from ase.io import Trajectory
-from ase.io import write as ase_write, read as ase_read
 from collections import OrderedDict
 from datetime import datetime
 from typing import BinaryIO, Dict, List, TextIO, Tuple, Union
+
+import numpy as np
+import pandas as pd
+
+from ase import Atoms
+from ase.io import read as ase_read, Trajectory
+from ase.io import write as ase_write
 from icet import __version__ as icet_version
-from .data_analysis import analyze_data
-from .observers.base_observer import BaseObserver
+from ..observers.base_observer import BaseObserver
 
 
 class Int64Encoder(json.JSONEncoder):
@@ -26,9 +29,9 @@ class Int64Encoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 
-class DataContainer:
+class BaseDataContainer:
     """
-    Data container for storing information concerned with
+    Base data container for storing information concerned with
     Monte Carlo simulations performed with mchammer.
 
     Parameters
@@ -43,10 +46,11 @@ class DataContainer:
         metadata associated with the data container
     """
 
-    def __init__(self, structure: Atoms, ensemble_parameters: dict,
+    def __init__(self, structure: Atoms,
+                 ensemble_parameters: dict,
                  metadata: dict = OrderedDict()):
         """
-        Initializes a DataContainer object.
+        Initializes a BaseDataContainer object.
         """
         if not isinstance(structure, Atoms):
             raise TypeError('structure is not an ASE Atoms object')
@@ -348,82 +352,6 @@ class DataContainer:
                 raise ValueError('No observable named {} in data container'.format(tag))
             return data[tag].count()
 
-    def analyze_data(self, tag: str, start: int = None,
-                     stop: int = None, max_lag: int = None) -> dict:
-        """
-        Returns detailed analysis of a scalar observerable.
-
-        Parameters
-        ----------
-        tag
-            tag of field over which to average
-        start
-            minimum value of trial step to consider; by default the
-            smallest value in the mctrial column will be used.
-        stop
-            maximum value of trial step to consider; by default the
-            largest value in the mctrial column will be used.
-        max_lag
-            maximum lag between two points in data series, by default the
-            largest length of the data series will be used.
-            Used for computing autocorrelation
-        Raises
-        ------
-        ValueError
-            if observable is requested that is not in data container
-        ValueError
-            if observable is not scalar
-        ValueError
-            if observations is not evenly spaced
-
-        Returns
-        -------
-        dict
-            calculated properties of the data including mean,
-            standard_deviation, correlation_length and error_estimate
-            (95% confidence)
-        """
-        if tag in ['trajectory', 'occupations']:
-            raise ValueError('{} is not scalar'.format(tag))
-        steps, data = self.get_data('mctrial', tag, start=start, stop=stop)
-
-        # check that steps are evenly spaced
-        diff = np.diff(steps)
-        step_length = diff[0]
-        if not np.allclose(step_length, diff):
-            raise ValueError('data records must be evenly spaced.')
-
-        summary = analyze_data(data, max_lag=max_lag)
-        summary['correlation_length'] *= step_length  # in mc-trials
-        return summary
-
-    def get_average(self, tag: str, start: int = None, stop: int = None) -> float:
-        """
-        Returns average of a scalar observable.
-
-        Parameters
-        ----------
-        tag
-            tag of field over which to average
-        start
-            minimum value of trial step to consider; by default the
-            smallest value in the mctrial column will be used.
-        stop
-            maximum value of trial step to consider; by default the
-            largest value in the mctrial column will be used.
-
-        Raises
-        ------
-        ValueError
-            if observable is requested that is not in data container
-        ValueError
-            if observable is not scalar
-        """
-        if tag in ['trajectory', 'occupations']:
-            raise ValueError('{} is not scalar'.format(tag))
-        data = self.get_data(tag, start=start, stop=stop)
-        return np.mean(data)
-
     def get_trajectory(self, start: int = None, stop: int = None, interval: int = 1) -> List[Atoms]:
         """ Returns trajectory as a list of ASE Atoms objects.
 
@@ -511,10 +439,78 @@ class DataContainer:
             traj.write(atoms=structure, energy=energy)
         traj.close()
 
-    @staticmethod
-    def read(infile: Union[str, BinaryIO, TextIO], old_format: bool = False):
+    def write(self, outfile: Union[str, BinaryIO, TextIO]):
         """
-        Reads DataContainer object from file.
+        Writes BaseDataContainer object to file.
+
+        Parameters
+        ----------
+        outfile
+            file to which to write
+        """
+        self._metadata['date_last_backup'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+
+        # Save reference atomic structure
+        reference_structure_file = tempfile.NamedTemporaryFile()
+        ase_write(reference_structure_file.name, self.structure, format='json')
+
+        # Save reference data
+        data_container_type = str(self.__class__).split('.')[-1].replace("'>", '')
+        reference_data = {'parameters': self._ensemble_parameters,
+                          'metadata': self._metadata,
+                          'last_state': self._last_state,
+                          'data_container_type': data_container_type}
+
+        reference_data_file = tempfile.NamedTemporaryFile()
+        with open(reference_data_file.name, 'w') as handle:
+            json.dump(reference_data, handle, cls=Int64Encoder)
+
+        # Save runtime data
+        runtime_data_file = tempfile.NamedTemporaryFile()
+        np.savez_compressed(runtime_data_file, self._data_list)
+
+        with tarfile.open(outfile, mode='w') as handle:
+            handle.add(reference_structure_file.name, arcname='atoms')
+            handle.add(reference_data_file.name, arcname='reference_data')
+            handle.add(runtime_data_file.name, arcname='runtime_data')
+        runtime_data_file.close()
+
+    def _add_default_metadata(self):
+        """Adds default metadata to metadata dict."""
+
+        self._metadata['date_created'] = \
+            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
+        self._metadata['username'] = getpass.getuser()
+        self._metadata['hostname'] = socket.gethostname()
+        self._metadata['icet_version'] = icet_version
+
+    def __str__(self):
+        """ string representation of data container """
+        width = 80
+        s = []  # type: List
+        s += ['{s:=^{n}}'.format(s=' Data Container ', n=width)]
+        data_container_type = str(self.__class__).split('.')[-1].replace("'>", '')
+        s += [' {:22}: {}'.format('data_container_type', data_container_type)]
+        for key, value in self._last_state.items():
+            if isinstance(value, int) or isinstance(value, float) or isinstance(value, str):
+                s += [' {:22}: {}'.format(key, value)]
+        for key, value in sorted(self._ensemble_parameters.items()):
+            s += [' {:22}: {}'.format(key, value)]
+        for key, value in sorted(self._metadata.items()):
+            s += [' {:22}: {}'.format(key, value)]
+        s += [' {:22}: {}'.format('columns_in_data', self.data.columns.tolist())]
+        s += [' {:22}: {}'.format('n_rows_in_data', len(self.data))]
+        s += [''.center(width, '=')]
+        return '\n'.join(s)
+
+    @classmethod
+    # todo: cls and the return should be type hinted as BaseDataContainer.
+    # Unfortunately, this requires from __future__ import annotations, which
+    # in turn requires Python 3.8.
+    def read(cls,
+             infile: Union[str, BinaryIO, TextIO],
+             old_format: bool = False):
+        """Reads data container from file.
 
         Parameters
         ----------
@@ -556,8 +552,8 @@ class DataContainer:
                 reference_data = json.load(fd)
 
             # init DataContainer
-            dc = DataContainer(structure=structure,
-                               ensemble_parameters=reference_data['parameters'])
+            dc = cls(structure=structure,
+                     ensemble_parameters=reference_data['parameters'])
 
             # overwrite metadata
             dc._metadata = reference_data['metadata']
@@ -565,7 +561,12 @@ class DataContainer:
             for tag, value in reference_data['last_state'].items():
                 if tag == 'random_state':
                     value = tuple(tuple(x) if isinstance(x, list) else x for x in value)
-                dc._last_state[tag] = value
+                if tag in ['histogram', 'entropy']:
+                    # the following accounts for the fact that the keys of dicts are converted to
+                    # str when writing to json and have to converted back into numerical values
+                    dc._last_state[tag] = {int(k): v for k, v in value.items()}
+                else:
+                    dc._last_state[tag] = value
 
             # add runtime data from file
             runtime_data_file.write(tar_file.extractfile('runtime_data').read())
@@ -581,46 +582,3 @@ class DataContainer:
         dc._observables = dc._observables - {'mctrial'}
 
         return dc
-
-    def write(self, outfile: Union[str, BinaryIO, TextIO]):
-        """
-        Writes DataContainer object to file.
-
-        Parameters
-        ----------
-        outfile
-            file to which to write
-        """
-        self._metadata['date_last_backup'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-
-        # Save reference atomic structure
-        reference_structure_file = tempfile.NamedTemporaryFile()
-        ase_write(reference_structure_file.name, self.structure, format='json')
-
-        # Save reference data
-        reference_data = {'parameters': self._ensemble_parameters,
-                          'metadata': self._metadata,
-                          'last_state': self._last_state}
-
-        reference_data_file = tempfile.NamedTemporaryFile()
-        with open(reference_data_file.name, 'w') as handle:
-            json.dump(reference_data, handle, cls=Int64Encoder)
-
-        # Save runtime data
-        runtime_data_file = tempfile.NamedTemporaryFile()
-        np.savez_compressed(runtime_data_file, self._data_list)
-
-        with tarfile.open(outfile, mode='w') as handle:
-            handle.add(reference_structure_file.name, arcname='atoms')
-            handle.add(reference_data_file.name, arcname='reference_data')
-            handle.add(runtime_data_file.name, arcname='runtime_data')
-        runtime_data_file.close()
-
-    def _add_default_metadata(self):
-        """Adds default metadata to metadata dict."""
-
-        self._metadata['date_created'] = \
-            datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
-        self._metadata['username'] = getpass.getuser()
-        self._metadata['hostname'] = socket.gethostname()
-        self._metadata['icet_version'] = icet_version

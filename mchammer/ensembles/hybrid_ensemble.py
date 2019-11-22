@@ -99,25 +99,25 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         expansion and the temperature units [default: eV/K]
     user_tag : str
         human-readable tag for ensemble [default: None]
+    random_seed : int
+        seed for the random number generator used in the Monte Carlo
+        simulation
     data_container : str
         name of file the data container associated with the
         ensemble will be written to; if the file
         exists it will be read, the data container will be appended,
         and the file will be updated/overwritten
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
+    data_container_write_period : float
+        period in units of seconds at which the data container is
+        written to file; writing periodically to file provides both
+        a way to examine the progress of the simulation and to
+        back up the data [default: np.inf]
     ensemble_data_write_interval : int
         interval at which data is written to the data container;
         this includes for example the current value of the
         calculator (i.e. usually the energy) as well as ensembles
         specific fields such as temperature or the number of atoms
         of different species
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
-        a way to examine the progress of the simulation and to
-        back up the data [default: np.inf]
     trajectory_write_interval : int
         interval at which the current occupation vector of the
         atomic configuration is written to the data container.
@@ -179,13 +179,16 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         mc.run(100)  # carry out 100 trial steps
     """
 
-    def __init__(self, structure: Atoms, calculator: BaseCalculator,
+    def __init__(self,
+                 structure: Atoms,
+                 calculator: BaseCalculator,
                  temperature: float,
                  ensemble_specs: List[Dict],
                  probabilities: List[float] = None,
                  boltzmann_constant: float = kB,
-                 user_tag: str = None, data_container: DataContainer = None,
+                 user_tag: str = None,
                  random_seed: int = None,
+                 data_container: str = None,
                  data_container_write_period: float = np.inf,
                  ensemble_data_write_interval: int = None,
                  trajectory_write_interval: int = None) -> None:
@@ -206,13 +209,16 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         self._process_ensemble_specs(ensemble_specs)
 
         super().__init__(
-            structure=structure, calculator=calculator, user_tag=user_tag,
-            data_container=data_container,
+            structure=structure,
+            calculator=calculator,
+            user_tag=user_tag,
             random_seed=random_seed,
+            boltzmann_constant=boltzmann_constant,
+            data_container=data_container,
+            data_container_class=DataContainer,
             data_container_write_period=data_container_write_period,
             ensemble_data_write_interval=ensemble_data_write_interval,
-            trajectory_write_interval=trajectory_write_interval,
-            boltzmann_constant=boltzmann_constant)
+            trajectory_write_interval=trajectory_write_interval)
 
         # postprocess the list of ensembles and parameters
         self._postprocess_ensemble_args()

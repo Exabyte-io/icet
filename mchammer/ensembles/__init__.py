@@ -7,11 +7,13 @@ from .semi_grand_canonical_ensemble import SemiGrandCanonicalEnsemble
 from .sgc_annealing import SGCAnnealing
 from .target_cluster_vector_annealing import TargetClusterVectorAnnealing
 from .vcsgc_ensemble import VCSGCEnsemble
+from .wang_landau_ensemble import WangLandauEnsemble
 
-__all__ = ['CanonicalAnnealing',
-           'CanonicalEnsemble',
+__all__ = ['CanonicalEnsemble',
+           'CanonicalAnnealing',
            'HybridEnsemble',
            'SemiGrandCanonicalEnsemble',
            'SGCAnnealing',
            'TargetClusterVectorAnnealing',
-           'VCSGCEnsemble']
+           'VCSGCEnsemble',
+           'WangLandauEnsemble']
