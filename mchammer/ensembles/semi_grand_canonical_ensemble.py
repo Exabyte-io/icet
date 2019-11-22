@@ -2,8 +2,6 @@
 Definition of the semi-grand canonical ensemble class.
 """
 
-import numpy as np
-
 from ase import Atoms
 from ase.data import atomic_numbers, chemical_symbols
 from ase.units import kB

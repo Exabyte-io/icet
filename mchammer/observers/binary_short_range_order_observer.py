@@ -82,7 +82,7 @@ class BinaryShortRangeOrderObserver(BaseObserver):
     """
 
     def __init__(self, cluster_space, structure: Atoms,
-                 interval: int = None, radius: float) -> None:
+                 radius: float, interval: int = None) -> None:
         super().__init__(interval=interval, return_type=dict,
                          tag='BinaryShortRangeOrderObserver')
 

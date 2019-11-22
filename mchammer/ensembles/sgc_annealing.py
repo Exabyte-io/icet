@@ -1,7 +1,5 @@
 """Definition of the canonical annealing class."""
 
-import numpy as np
-
 from ase import Atoms
 from ase.data import chemical_symbols
 from ase.units import kB
