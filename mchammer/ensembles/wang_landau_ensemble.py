@@ -362,7 +362,7 @@ class WangLandauEnsemble(BaseEnsemble):
         """
         super()._restart_ensemble()
         self._fill_factor = self.data_container._last_state['fill_factor']
-        self._fill_factor_history = self.data_container.last_state['fill_factor_history']
+        self._fill_factor_history = self.data_container._last_state['fill_factor_history']
         self._histogram = self.data_container._last_state['histogram']
         self._entropy = self.data_container._last_state['entropy']
 
