@@ -1,41 +1,38 @@
-from itertools import combinations, permutations
+import warnings
 from math import inf
 from typing import List, Dict
-
-import numpy as np
 
 from ase import Atoms
 from ase.data import chemical_symbols as periodic_table
 from .. import ClusterExpansion
 from ..core.orbit_list import OrbitList
-from ..core.orbit import Orbit
-from ..core.lattice_site import LatticeSite
 from ..core.local_orbit_list_generator import LocalOrbitListGenerator
 from ..core.structure import Structure
+from .variable_transformation import transform_ECIs
 
 try:
     from mip import Model, minimize, xsum
     from mip.constants import BINARY
 except ImportError:
-    raise ImportError('Python-MIP (https://python-mip.readthedocs.io/en/latest/) is required in'
-                      ' order to use the ground state finder.')
+    raise ImportError('Python-MIP '
+                      '(https://python-mip.readthedocs.io/en/latest/) is '
+                      'required in order to use the ground state finder.')
 
 
 class GroundStateFinder:
-
     """This class provides functionality for determining the ground states
-    using a binary cluster expansion. This is efficiently achieved through the use
-    of mixed integer programming (MIP), as shown by Larsen *et al.*, `Phys. Rev.
-    Lett. 120, 256101 (2018)
+    using a binary cluster expansion. This is efficiently achieved through the
+    use of mixed integer programming (MIP), as shown by Larsen *et al.*,
+    `Phys. Rev. Lett. 120, 256101 (2018)
     <https://doi.org/10.1103/PhysRevLett.120.256101>`_. This class, therefore,
     relies on the `Python-MIP package
     <https://python-mip.readthedocs.io/en/latest/>`_.
 
     Warning
     -------
-    In order to be able to use Gurobi with python-mip one must ensure that `GUROBI_HOME should point
-    to the installation directory (``<installdir>``)
-    <https://doi.org/10.1103/PhysRevLett.120.256101>`_::
+    In order to be able to use Gurobi with python-mip one must ensure that
+    `GUROBI_HOME` should point to the installation directory
+    (``<installdir>``)::
         export GUROBI_HOME=<installdir>
     Alternatively include this command in ``.bashrc``::
         echo export GUROBI_HOME=<installdir> >> .bashrc
@@ -46,6 +43,13 @@ class GroundStateFinder:
     ----------
     cluster_expansion : ClusterExpansion
         cluster expansion for which to find ground states
+    structure : Atoms
+        atomic configuration
+    solver_name : str, optional
+        'gurobi' or 'cbc', searches for available solvers if not informed
+    verbose : bool, optional
+        whether to display solver messages on the screen (default: True)
+
 
     Example
     -------
@@ -72,31 +76,35 @@ class GroundStateFinder:
         structure = prim.repeat(3)
 
         # set up the ground state finder and calculate the ground state energy
-        gsf = GroundStateFinder(ce)
-        ground_state = gsf.get_ground_state(structure, {'Ag': 5})
+        gsf = GroundStateFinder(ce, structure)
+        ground_state = gsf.get_ground_state({'Ag': 5})
         print('Ground state energy:', ce.predict(ground_state))
     """
-
     def __init__(self,
-                 cluster_expansion: ClusterExpansion) -> None:
-
+                 cluster_expansion: ClusterExpansion,
+                 structure: Atoms,
+                 solver_name: str = '',
+                 verbose: bool = True) -> None:
         # Check that there is only one active sublattice
         self._cluster_expansion = cluster_expansion
         cluster_space = self._cluster_expansion.get_cluster_space_copy()
         primitive_structure = cluster_space.primitive_structure
         sublattices = cluster_space.get_sublattices(primitive_structure)
         if len(sublattices.active_sublattices) > 1:
-            raise NotImplementedError('Only binaries are implemented as of yet.')
+            raise NotImplementedError('Only binaries are implemented '
+                                      'as of yet.')
 
         # Check that there are no more than two allowed species
         species = list(sublattices.active_sublattices[0].chemical_symbols)
         if len(species) > 2:
-            raise NotImplementedError('Only binaries are implemented as of yet.')
+            raise NotImplementedError('Only binaries are implemented '
+                                      'as of yet.')
         self._species = species
 
         # Define cluster functions for elements
         species_map = cluster_space.species_maps[0]
-        self._id_map = {periodic_table[n]: 1 - species_map[n] for n in species_map.keys()}
+        self._id_map = {periodic_table[n]: 1 - species_map[n]
+                        for n in species_map.keys()}
         self._reverse_id_map = {}
         for key, value in self._id_map.items():
             self._reverse_id_map[value] = key
@@ -107,12 +115,96 @@ class GroundStateFinder:
         cutoffs = cluster_space.cutoffs
         self._orbit_list = OrbitList(primitive_structure, cutoffs)
 
+        # Generate full orbit list
+        lolg = LocalOrbitListGenerator(self._orbit_list,
+                                       Structure.from_atoms(primitive_structure))
+        full_orbit_list = lolg.generate_full_orbit_list()
+
+        # Determine the number of active orbits
+        active_orbit_indices = self._get_active_orbit_indices(primitive_structure)
+
         # Transform the ECIs
-        self._transform_ECIs(primitive_structure)
+        binary_ecis = transform_ECIs(primitive_structure,
+                                     full_orbit_list,
+                                     active_orbit_indices,
+                                     self._cluster_expansion.parameters)
+        self._transformed_parameters = binary_ecis
+        self._model = self._build_model(structure, solver_name, verbose)
+        self.structure = structure
 
         # Properties that are defined when searching for a ground state
-        self._model = None
         self._optimization_status = None
+
+    def _build_model(self, structure: Atoms, solver_name: str,
+                    verbose: bool, xcount: int = -1) -> Model:
+
+        # Create cluster maps
+        self._create_cluster_maps(structure)
+
+        # Initiate MIP model
+        model = Model('CE', solver_name=solver_name)
+        model.solver.set_mip_gap(0)   # avoid stopping prematurely
+        model.solver.set_emphasis(2)  # focus on finding optimal solution
+        model.preprocess = 2          # maximum preprocessing
+
+        # Set verbosity
+        model.verbose = int(verbose)
+
+        # Spin variables (remapped) for all atoms in the structure
+        xs = []
+        site_to_active_index_map = {}
+        for i, sym in enumerate(structure.get_chemical_symbols()):
+            if sym in self._species:
+                site_to_active_index_map[i] = len(xs)
+                xs.append(model.add_var(name='atom_{}'.format(i),
+                                        var_type=BINARY))
+        self.xs = xs
+
+        ys = []
+        for i in range(len(self._cluster_to_orbit_map)):
+            ys.append(model.add_var(name='cluster_{}'.format(i),
+                                    var_type=BINARY))
+
+        # The objective function is added to 'model' first
+        model.objective = minimize(xsum(self._get_total_energy(ys)))
+
+        # The five constraints are entered
+        # TODO: don't create cluster constraints for singlets
+        ycount = 0
+        for i, cluster in enumerate(self._cluster_to_sites_map):
+
+            # Test whether constraint can be binding
+            orbit = self._cluster_to_orbit_map[i]
+            ECI = self._transformed_parameters[orbit + 1]
+            if len(cluster) >= 2 and ECI > 0:  # no "downwards" pressure
+                continue
+
+            for atom in cluster:
+                model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
+                                 'Decoration -> cluster {}'.format(ycount))
+                ycount += 1
+
+        for i, cluster in enumerate(self._cluster_to_sites_map):
+
+            # Test whether constraint can be binding
+            orbit = self._cluster_to_orbit_map[i]
+            ECI = self._transformed_parameters[orbit + 1]
+            if len(cluster) >= 2 and ECI < 0:  # no "upwards" pressure
+                continue
+
+            model.add_constr(ys[i] >= 1 - len(cluster) +
+                             xsum(xs[site_to_active_index_map[atom]]
+                             for atom in cluster),
+                             'Decoration -> cluster {}'.format(ycount))
+            ycount += 1
+
+        # Set species constraint
+        model.add_constr(xsum(xs) == xcount, 'Species count')
+
+        # Update the model so that variables and constraints can be queried
+        if model.solver_name.upper() in ['GRB', 'GUROBI']:
+            model.solver.update()
+        return model
 
     def _create_cluster_maps(self, structure: Atoms) -> None:
         """
@@ -187,84 +279,6 @@ class GroundStateFinder:
 
         return active_orbit_indices
 
-    def _get_transformation_matrix(self, structure: Atoms) -> np.ndarray:
-        """
-        Determines the matrix that transforms the cluster functions in the form
-        of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their binary
-        equivalents, (:math:`x_i\\in\\{0,1\\}`). The form is obtained by
-        performing the substitution (:math:`\\sigma_i=1-2x_i`) in the
-        cluster expansion expression of the total energy.
-
-        Parameters
-        ----------
-        structure
-            atomic configuration
-        """
-
-        # Generate full orbit list
-        lolg = LocalOrbitListGenerator(self._orbit_list,
-                                       Structure.from_atoms(structure))
-        full_orbit_list = lolg.generate_full_orbit_list()
-
-        # Determine the number of active orbits
-        active_orbit_indices = self._get_active_orbit_indices(structure)
-
-        # Go through all clusters associated with each active orbit and
-        # determine its contribution to each orbit
-        transformation = np.zeros((len(active_orbit_indices) + 1,
-                                   len(active_orbit_indices) + 1))
-        transformation[0, 0] = 1.0
-        for i, orb_index in enumerate(active_orbit_indices, 1):
-            orbit = full_orbit_list.get_orbit(orb_index)
-            rep_sites = orbit.get_representative_sites()
-            # add contributions to the lower order orbits to which the
-            # subclusters belong
-            for sub_order in range(orbit.order + 1):
-                n_terms_target = len(list(combinations(rep_sites, sub_order)))
-                n_terms_actual = 0
-                if sub_order == 0:
-                    transformation[0, i] += 1.0
-                    n_terms_actual += 1
-                if sub_order == orbit.order:
-                    transformation[i, i] += (-2.0) ** (sub_order)
-                    n_terms_actual += 1
-                else:
-                    comb_sub_sites = combinations(rep_sites, sub_order)
-                    for sub_sites in comb_sub_sites:
-                        for j, sub_index in enumerate(active_orbit_indices, 1):
-                            sub_orbit = full_orbit_list.get_orbit(sub_index)
-                            if sub_orbit.order != sub_order:
-                                continue
-                            if _is_sites_in_orbit(sub_orbit, sub_sites):
-                                transformation[j, i] += (-2.0) ** (sub_order)
-                                n_terms_actual += 1
-                # check that the number of contributions matches the number
-                # of subclusters
-                if n_terms_actual != n_terms_target:
-                    raise Exception('Fewer matches ({}) than expected ({}) for'
-                                    ' sub-cluster: {}'.format(n_terms_actual,
-                                                              n_terms_target,
-                                                              sub_sites))
-
-        return transformation
-
-    def _transform_ECIs(self, structure: Atoms) -> None:
-        """
-        Transforms the list of ECIs, obtained using cluster functions in the
-        form of of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their
-        equivalents for the case of binary variables,
-        (:math:`x_i\\in\\{0,1\\}`).
-
-        Parameters
-        ----------
-        structure
-            atomic configuration
-        """
-        ecis = self._cluster_expansion.parameters
-        A = self._get_transformation_matrix(structure)
-
-        self._transformed_parameters = np.dot(A, ecis)
-
     def _get_total_energy(self, cluster_instance_activities: List[int]
                           ) -> List[float]:
         """
@@ -294,14 +308,11 @@ class GroundStateFinder:
 
         E = [E[orbit] * self._transformed_parameters[orbit] / self._nclusters_per_orbit[orbit]
              for orbit in range(len(self._transformed_parameters))]
-
         return E
 
-    def get_ground_state(self, structure: Atoms,
+    def get_ground_state(self,
                          species_count: Dict[str, float],
-                         solver_name: str = '',
-                         max_seconds: float = inf,
-                         verbose: int = 1) -> Atoms:
+                         max_seconds: float = inf) -> Atoms:
         """Finds the ground state for a given structure and species count, which
         refers to the `count_species`, if provided when initializing the
         instance of this class, or the first species in the list of chemical
@@ -309,155 +320,73 @@ class GroundStateFinder:
 
         Parameters
         ----------
-        structure
-            atomic configuration
         species_count
             dictionary with count for one of the species on the active
             sublattice
-        solver_name
-            gurobi or cbc, searches for which solver is available if not
-            informed
         max_seconds
             maximum runtime in seconds (default: inf)
-        verbose
-            0 to disable solver messages printed on the screen, 1 to enable
         """
-
         # Check that the species_count is consistent with the cluster space
         if len(species_count) != 1:
-            raise ValueError('Provide counts for one of the species on the active sublattice ({}),'
-                             ' not {}!'.format(self._species, list(species_count.keys())))
+            raise ValueError('Provide counts for one of the species on the '
+                             'active sublattice ({}), '
+                             'not {}!'.format(self._species,
+                                              list(species_count.keys())))
         species_to_count = list(species_count.keys())[0]
         if species_to_count not in self._species:
-            raise ValueError('The species {} is not present on the active sublattice'
+            raise ValueError('The species {} is not present on the active '
+                             'sublattice'
                              ' ({})'.format(species_to_count, self._species))
         if self._id_map[species_to_count] == 1:
             xcount = species_count[species_to_count]
         else:
-            active_count = len([sym for sym in structure.get_chemical_symbols() if sym in
-                               self._species])
+            active_count = len([sym for sym in self.structure.get_chemical_symbols()
+                                if sym in self._species])
             xcount = active_count - species_count[species_to_count]
 
-        # Create cluster maps
-        self._create_cluster_maps(structure)
+        # The model is solved using python-MIPs choice of solver, which is
+        # Gurobi, if available, and COIN-OR Branch-and-Cut, otherwise.
+        model = self._model
 
-        # Initiate MIP model
-        self._model = model = Model('CE', solver_name=solver_name)
-        model.solver.set_mip_gap(0)   # avoid stopping prematurely
-        model.solver.set_emphasis(2)  # focus on finding optimal solution
-        model.preprocess = 2          # maximum preprocessing
+        # Update the species count
+        # temporary hack until python-mip supports setting RHS directly:
+        if model.solver_name.upper() in ['GUROBI', 'GRB']:
+            # remove the old constraint and add a new one
+            idx = model.solver.constr_get_index('Species count')
+            model.solver.remove_constrs([idx])
+            model.add_constr(xsum(self.xs) == xcount, 'Species count')
+        else:
+            # rebuild the whole model
+            self._model = model = self._build_model(self.structure,
+                                                    model.solver_name,
+                                                    bool(model.verbose),
+                                                    xcount=xcount)
 
-        # Set verbosity
-        model.verbose = verbose
-
-        # Spin variables (remapped) for all atoms in the structure
-        xs = []
-        site_to_active_index_map = {}
-        for i, sym in enumerate(structure.get_chemical_symbols()):
-            if sym in self._species:
-                site_to_active_index_map[i] = len(xs)
-                xs.append(model.add_var(name='atom_{}'.format(i), var_type=BINARY))
-
-        ys = []
-        for i in range(len(self._cluster_to_orbit_map)):
-            ys.append(model.add_var(name='cluster_{}'.format(i), var_type=BINARY))
-
-        # The objective function is added to 'model' first
-        model.objective = minimize(xsum(self._get_total_energy(ys)))
-
-        # The five constraints are entered
-        model.add_constr(xsum(xs) == xcount, 'Species count')
-
-        ycount = 0
-        for i, cluster in enumerate(self._cluster_to_sites_map):
-            for atom in cluster:
-                model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                 'Decoration -> cluster {}'.format(ycount))
-                ycount += 1
-
-        for i, cluster in enumerate(self._cluster_to_sites_map):
-            model.add_constr(ys[i] >= 1 - len(cluster) +
-                             xsum(xs[site_to_active_index_map[atom]] for atom in cluster),
-                             'Decoration -> cluster {}'.format(ycount))
-            ycount += 1
-
-        # The modellem is solved using python-MIPs choice of solver, which is Girobi, if available,
-        # and COIN-OR Branch-and-Cut, otherwise
+        # Optimize the model
         self._optimization_status = model.optimize(max_seconds=max_seconds)
 
         # The status of the solution is printed to the screen
         if str(self._optimization_status) != 'OptimizationStatus.OPTIMAL':
-            print('No optimal solution found.')
+            warnings.warn('No optimal solution found.')
 
         # Each of the variables is printed with it's resolved optimum value
-        gs = structure.copy()
+        gs = self.structure.copy()
 
         for v in model.vars:
             if 'atom' in v.name:
-                # print(v.name)
                 index = int(v.name.split('_')[-1])
                 gs[index].symbol = self._reverse_id_map[int(v.x)]
 
         # Assert that the solution agrees with the prediction
+        prediction = self._cluster_expansion.predict(gs)
         if model.solver_name.upper() in ['GUROBI', 'GRB']:
-            assert abs(model.objective_value - self._cluster_expansion.predict(gs)) < 1e-6
+            assert abs(model.objective_value - prediction) < 1e-6
         elif model.solver_name.upper() == 'CBC':
-            assert abs(model.objective_const + model.objective_value
-                       - self._cluster_expansion.predict(gs)) < 1e-6
-
+            assert abs(model.objective_const +
+                       model.objective_value - prediction) < 1e-6
         return gs
 
     @property
-    def model(self) -> float:
-        """ Python-MIP model """
-        return self._model
-
-    @property
-    def optimization_status(self) -> float:
-        """ Optimization status """
+    def optimization_status(self) -> int:
+        """Optimization status"""
         return self._optimization_status
-
-
-def _is_sites_in_orbit(orbit: Orbit, sites: List[LatticeSite]) -> bool:
-    """Checks if the list of lattice sites is found among the equivalent
-    sites for the orbit.
-
-    Parameters
-    ----------
-    orbit
-        orbit
-    sites
-        list of lattice sites
-    """
-
-    # Ensure that the number of sites matches the order of the orbit
-    if len(sites) != orbit.order:
-        return False
-
-    equivalent_sites = orbit.get_equivalent_sites()
-
-    # Check if the set of lattice sites is found among the equivalent sites
-    if set(sites) in [set(es) for es in equivalent_sites]:
-        return True
-
-    # Go through all equivalent sites
-    sites_indices = [s.index for s in sites]
-    for orbit_sites in equivalent_sites:
-        orbit_sites_indices = [s.index for s in orbit_sites]
-
-        # Skip if the site indices do not match
-        if set(sites_indices) != set(orbit_sites_indices):
-            continue
-
-        # Loop over all possible ways of pairing sites from the two lists
-        for comb_sites in [list(zip(sites, pos)) for pos in permutations(orbit_sites)]:
-
-            # Skip all cases that include pairs of sites with different site indices
-            if any(cs[0].index != cs[1].index for cs in comb_sites):
-                continue
-
-            # If the relative offsets for all pairs of sites match, the two clusters are equivalent
-            relative_offsets = [cs[0].unitcell_offset - cs[1].unitcell_offset for cs in comb_sites]
-            if all(np.array_equal(ro, relative_offsets[0]) for ro in relative_offsets):
-                return True
-    return False
