@@ -339,7 +339,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         self.assertTrue('Provide counts for one of the species on the active '
                         'sublattice ({}), '
                         'not {}!'.format(self.gsf._species,
-                                          list(species_count.keys()))
+                                         list(species_count.keys()))
                         in str(cm.exception))
 
         # Check that get_ground_state fails if counts are provided for a
@@ -349,7 +349,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
             self.gsf.get_ground_state(species_count=species_count)
         self.assertTrue('The species {} is not present on the active sublattice'
                         ' ({})'.format(list(species_count.keys())[0],
-                                            self.gsf._species)
+                                       self.gsf._species)
                         in str(cm.exception))
 
     def test_create_cluster_maps(self):
