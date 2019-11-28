@@ -335,6 +335,9 @@ class BaseEnsemble(ABC):
         """
         Attaches an observer to the ensemble.
 
+        If the observer does not have an observation interval,
+        then it will be set to the default_interval len(atoms).
+
         Parameters
         ----------
         observer
