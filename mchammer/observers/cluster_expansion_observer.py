@@ -28,7 +28,9 @@ class ClusterExpansionObserver(BaseObserver):
     tag : str
         name of observer
     interval : int
-        observation interval
+        the observation interval, defaults to None meaning that if the
+        observer is used in a Monte-simulation, then the Ensemble object
+        will set the interval.
     """
 
     def __init__(self, cluster_expansion: ClusterExpansion,
