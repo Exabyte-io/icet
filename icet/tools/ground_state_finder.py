@@ -200,33 +200,23 @@ class GroundStateFinder:
 
         # The five constraints are entered
         # TODO: don't create cluster constraints for singlets
-        ycount = 0
+        constraint_count = 0
         for i, cluster in enumerate(self._cluster_to_sites_map):
-
-            # Test whether constraint can be binding
             orbit = self._cluster_to_orbit_map[i]
             ECI = self._transformed_parameters[orbit + 1]
-            if len(cluster) >= 2 and ECI > 0:  # no "downwards" pressure
-                continue
 
-            for atom in cluster:
-                model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                 'Decoration -> cluster {}'.format(ycount))
-                ycount += 1
+            if len(cluster) < 2 or ECI <= 0:  # no "downwards" pressure
+                for atom in cluster:
+                    model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
+                                     'Decoration -> cluster {}'.format(constraint_count))
+                    constraint_count += 1
 
-        for i, cluster in enumerate(self._cluster_to_sites_map):
-
-            # Test whether constraint can be binding
-            orbit = self._cluster_to_orbit_map[i]
-            ECI = self._transformed_parameters[orbit + 1]
-            if len(cluster) >= 2 and ECI < 0:  # no "upwards" pressure
-                continue
-
-            model.add_constr(ys[i] >= 1 - len(cluster) +
-                             mip.xsum(xs[site_to_active_index_map[atom]]
-                             for atom in cluster),
-                             'Decoration -> cluster {}'.format(ycount))
-            ycount += 1
+            if len(cluster) < 2 or ECI > 0:  # no "upwards" pressure
+                model.add_constr(ys[i] >= 1 - len(cluster) +
+                                 mip.xsum(xs[site_to_active_index_map[atom]]
+                                 for atom in cluster),
+                                 'Decoration -> cluster {}'.format(constraint_count))
+                constraint_count += 1
 
         # Set species constraint
         model.add_constr(mip.xsum(xs) == xcount, 'Species count')
