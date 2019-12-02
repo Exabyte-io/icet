@@ -176,7 +176,7 @@ class TestGroundStateFinder(unittest.TestCase):
         ce = ClusterExpansion(cs, [0.0]*len(cs))
         with self.assertRaises(NotImplementedError) as cm:
             GroundStateFinder(ce, self.supercell, verbose=False)
-        self.assertTrue("Only binaries are implemented as of yet."
+        self.assertTrue('Currently, only one active sublattice is allowed.'
                         in str(cm.exception))
 
     def test_init_fails_for_ternary_with_one_active_sublattice(self):
@@ -188,7 +188,7 @@ class TestGroundStateFinder(unittest.TestCase):
         ce = ClusterExpansion(cs, [0.0]*len(cs))
         with self.assertRaises(NotImplementedError) as cm:
             GroundStateFinder(ce, self.supercell, verbose=False)
-        self.assertTrue("Only binaries are implemented as of yet."
+        self.assertTrue('Only binaries are implemented as of yet.'
                         in str(cm.exception))
 
     def test_optimization_status_property(self):

@@ -102,11 +102,13 @@ class GroundStateFinder:
         cluster_space = self._cluster_expansion.get_cluster_space_copy()
         primitive_structure = cluster_space.primitive_structure
         sublattices = cluster_space.get_sublattices(primitive_structure)
+        if len(sublattices.active_sublattices) > 1:
+            raise NotImplementedError('Currently, only one active sublattice'
+                                      ' is allowed.')
 
         # Check that there are no more than two species on the active
         # sublattice
-        species = [symbol for sublattice in sublattices.active_sublattices for
-                   symbol in sublattice.chemical_symbols]
+        species = list(sublattices.active_sublattices[0].chemical_symbols)
         if len(species) > 2:
             raise NotImplementedError('Only binaries are implemented as of '
                                       'yet.')
