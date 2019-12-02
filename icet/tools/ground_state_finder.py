@@ -102,15 +102,14 @@ class GroundStateFinder:
         cluster_space = self._cluster_expansion.get_cluster_space_copy()
         primitive_structure = cluster_space.primitive_structure
         sublattices = cluster_space.get_sublattices(primitive_structure)
-        if len(sublattices.active_sublattices) > 1:
-            raise NotImplementedError('Only binaries are implemented '
-                                      'as of yet.')
 
-        # Check that there are no more than two allowed species
-        species = list(sublattices.active_sublattices[0].chemical_symbols)
+        # Check that there are no more than two species on the active
+        # sublattice
+        species = [symbol for sublattice in sublattices.active_sublattices for
+                   symbol in sublattice.chemical_symbols]
         if len(species) > 2:
-            raise NotImplementedError('Only binaries are implemented '
-                                      'as of yet.')
+            raise NotImplementedError('Only binaries are implemented as of '
+                                      'yet.')
         self._species = species
 
         # Define cluster functions for elements
@@ -247,6 +246,7 @@ class GroundStateFinder:
         cluster_to_orbit_map = []
         orbit_counter = 0
         for i in range(len(full_orbit_list)):
+
             allowed_orbit = False
             allowed_cluster = True
 
@@ -269,6 +269,12 @@ class GroundStateFinder:
                     cluster_sites.append(site.index)
 
                 if allowed_cluster:
+
+                    # Do not include clusters for which the ECI is 0
+                    ECI = self._transformed_parameters[orbit_counter + 1]
+                    if ECI == 0:
+                        continue
+
                     allowed_orbit = True
 
                     # Add the the list of sites and the orbit to the respective cluster maps
@@ -345,7 +351,8 @@ class GroundStateFinder:
 
     def get_ground_state(self,
                          species_count: Dict[str, float],
-                         max_seconds: float = inf) -> Atoms:
+                         max_seconds: float = inf,
+                         threads: int = 0) -> Atoms:
         """
         Finds the ground state for a given structure and species count, which
         refers to the `count_species`, if provided when initializing the
@@ -359,6 +366,11 @@ class GroundStateFinder:
             sublattice
         max_seconds
             maximum runtime in seconds (default: inf)
+        threads
+            number of threads to be used when solving the problem, given that a
+            positive integer has been provided. If set to 0 the solver default
+            configuration is used while -1 corresponds to all available
+            processing cores.
         """
         # Check that the species_count is consistent with the cluster space
         if len(species_count) != 1:
@@ -381,6 +393,9 @@ class GroundStateFinder:
         # The model is solved using python-MIPs choice of solver, which is
         # Gurobi, if available, and COIN-OR Branch-and-Cut, otherwise.
         model = self._model
+
+        # Set the number of threads
+        model.threads = threads
 
         # Update the species count
         # temporary hack until python-mip supports setting RHS directly:
