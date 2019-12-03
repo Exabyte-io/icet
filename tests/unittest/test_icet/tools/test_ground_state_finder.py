@@ -231,13 +231,6 @@ class TestGroundStateFinder(unittest.TestCase):
         predicted_max_seconds = self.ce.predict(ground_state)
         self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
 
-        # Test number of threads
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
-        predicted_max_seconds = self.ce.predict(ground_state)
-        self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
-        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=2)
-        predicted_max_seconds = self.ce.predict(ground_state)
-        self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
 
     def test_get_ground_state_fails_for_faulty_species_to_count(self):
         """Tests that get_ground_state fails if species_to_count is faulty."""

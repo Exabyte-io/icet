@@ -205,8 +205,9 @@ class GroundStateFinder:
         for i, cluster in enumerate(self._cluster_to_sites_map):
             orbit = self._cluster_to_orbit_map[i]
             ECI = self._transformed_parameters[orbit + 1]
+            assert ECI != 0
 
-            if len(cluster) < 2 or ECI <= 0:  # no "downwards" pressure
+            if len(cluster) < 2 or ECI < 0:  # no "downwards" pressure
                 for atom in cluster:
                     model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
                                      'Decoration -> cluster {}'.format(constraint_count))
