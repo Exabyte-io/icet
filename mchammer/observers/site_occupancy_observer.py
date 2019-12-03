@@ -26,7 +26,9 @@ class SiteOccupancyObserver(BaseObserver):
         a typical supercell, which is used to determine the allowed species
 
     interval : int
-        observation interval during the Monte Carlo simulation
+        the observation interval, defaults to None meaning that if the
+        observer is used in a Monte-simulation, then the Ensemble object
+        will set the interval.
 
     Attributes
     ----------

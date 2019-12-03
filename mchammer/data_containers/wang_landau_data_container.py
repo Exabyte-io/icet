@@ -229,7 +229,8 @@ def get_density_of_states_wl(dcs: Union[BaseDataContainer, dict]) -> Tuple[DataF
                         .format(type(dcs)))
 
     # density of states
-    df['density'] = np.exp(df.entropy) / np.sum(np.exp(df.entropy))
+    S_max = df.entropy.max()
+    df['density'] = np.exp(df.entropy - S_max) / np.sum(np.exp(df.entropy - S_max))
 
     return df, errors
 

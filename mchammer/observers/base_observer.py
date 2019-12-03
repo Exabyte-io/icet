@@ -12,7 +12,9 @@ class BaseObserver(ABC):
     Parameters
     ----------
     interval : int
-        the observation interval
+        the observation interval, defaults to None meaning that if the
+        observer is used in a Monte-simulation, then the Ensemble object
+        will set the interval.
     tag : str
         human readable tag used for identifying the observer
 
@@ -24,8 +26,7 @@ class BaseObserver(ABC):
         the observation interval
     """
 
-    def __init__(self, return_type: type, interval: int = None,
-                 tag: str = 'BaseObserver') -> None:
+    def __init__(self, return_type: type, interval: int = None, tag: str = 'BaseObserver') -> None:
         self.tag = tag
         self.interval = interval
         self._return_type = return_type

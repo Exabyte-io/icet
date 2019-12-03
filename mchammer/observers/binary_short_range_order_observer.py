@@ -24,7 +24,9 @@ class BinaryShortRangeOrderObserver(BaseObserver):
     structure : ase.Atoms
         defines the lattice which the observer will work on
     interval : int
-        observation interval during the Monte Carlo simulation
+        the observation interval, defaults to None meaning that if the
+        observer is used in a Monte-simulations, then the Ensemble object
+        will set the interval.
     radius : float
         the maximum radius  for the neigbhor shells considered
 
@@ -82,7 +84,7 @@ class BinaryShortRangeOrderObserver(BaseObserver):
     """
 
     def __init__(self, cluster_space, structure: Atoms,
-                 interval: int, radius: float) -> None:
+                 radius: float, interval: int = None) -> None:
         super().__init__(interval=interval, return_type=dict,
                          tag='BinaryShortRangeOrderObserver')
 
