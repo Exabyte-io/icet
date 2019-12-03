@@ -231,7 +231,6 @@ class TestGroundStateFinder(unittest.TestCase):
         predicted_max_seconds = self.ce.predict(ground_state)
         self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
 
-
     def test_get_ground_state_fails_for_faulty_species_to_count(self):
         """Tests that get_ground_state fails if species_to_count is faulty."""
         # Check that get_ground_state fails if counts are provided for multiple
