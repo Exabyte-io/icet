@@ -7,7 +7,7 @@ from tempfile import NamedTemporaryFile
 from icet.tools import map_structure_to_reference
 from icet.tools.structure_mapping import (_get_reference_supercell,
                                           _match_positions)
-from icet.io.logging import logger, set_log_config
+from icet.input_output.logging_tools import logger, set_log_config
 from ase import Atom
 
 

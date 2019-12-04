@@ -3,7 +3,7 @@ from typing import List, Union
 import numpy as np
 
 from _icet import _ClusterExpansionCalculator
-from icet.io.logging import logger
+from icet.input_output.logging_tools import logger
 from ase import Atoms
 from icet import ClusterExpansion, Structure
 from icet.core.sublattices import Sublattices
