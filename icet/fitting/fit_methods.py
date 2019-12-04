@@ -28,7 +28,7 @@ from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_selection import RFE, RFECV
 from sklearn.preprocessing import StandardScaler
 from typing import Any, Dict, List, Union
-from ..io.logging import logger
+from ..input_output.logging_tools import logger
 from .split_bregman import fit_split_bregman
 
 
