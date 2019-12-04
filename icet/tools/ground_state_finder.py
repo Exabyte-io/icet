@@ -103,14 +103,15 @@ class GroundStateFinder:
         primitive_structure = cluster_space.primitive_structure
         sublattices = cluster_space.get_sublattices(primitive_structure)
         if len(sublattices.active_sublattices) > 1:
-            raise NotImplementedError('Only binaries are implemented '
-                                      'as of yet.')
+            raise NotImplementedError('Currently, only one active sublattice'
+                                      ' is allowed.')
 
-        # Check that there are no more than two allowed species
+        # Check that there are no more than two species on the active
+        # sublattice
         species = list(sublattices.active_sublattices[0].chemical_symbols)
         if len(species) > 2:
-            raise NotImplementedError('Only binaries are implemented '
-                                      'as of yet.')
+            raise NotImplementedError('Only binaries are implemented as of '
+                                      'yet.')
         self._species = species
 
         # Define cluster functions for elements
@@ -200,33 +201,24 @@ class GroundStateFinder:
 
         # The five constraints are entered
         # TODO: don't create cluster constraints for singlets
-        ycount = 0
+        constraint_count = 0
         for i, cluster in enumerate(self._cluster_to_sites_map):
-
-            # Test whether constraint can be binding
             orbit = self._cluster_to_orbit_map[i]
             ECI = self._transformed_parameters[orbit + 1]
-            if len(cluster) >= 2 and ECI > 0:  # no "downwards" pressure
-                continue
+            assert ECI != 0
 
-            for atom in cluster:
-                model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
-                                 'Decoration -> cluster {}'.format(ycount))
-                ycount += 1
+            if len(cluster) < 2 or ECI < 0:  # no "downwards" pressure
+                for atom in cluster:
+                    model.add_constr(ys[i] <= xs[site_to_active_index_map[atom]],
+                                     'Decoration -> cluster {}'.format(constraint_count))
+                    constraint_count += 1
 
-        for i, cluster in enumerate(self._cluster_to_sites_map):
-
-            # Test whether constraint can be binding
-            orbit = self._cluster_to_orbit_map[i]
-            ECI = self._transformed_parameters[orbit + 1]
-            if len(cluster) >= 2 and ECI < 0:  # no "upwards" pressure
-                continue
-
-            model.add_constr(ys[i] >= 1 - len(cluster) +
-                             mip.xsum(xs[site_to_active_index_map[atom]]
-                             for atom in cluster),
-                             'Decoration -> cluster {}'.format(ycount))
-            ycount += 1
+            if len(cluster) < 2 or ECI > 0:  # no "upwards" pressure
+                model.add_constr(ys[i] >= 1 - len(cluster) +
+                                 mip.xsum(xs[site_to_active_index_map[atom]]
+                                 for atom in cluster),
+                                 'Decoration -> cluster {}'.format(constraint_count))
+                constraint_count += 1
 
         # Set species constraint
         model.add_constr(mip.xsum(xs) == xcount, 'Species count')
@@ -257,6 +249,7 @@ class GroundStateFinder:
         cluster_to_orbit_map = []
         orbit_counter = 0
         for i in range(len(full_orbit_list)):
+
             allowed_orbit = False
             allowed_cluster = True
 
@@ -279,6 +272,12 @@ class GroundStateFinder:
                     cluster_sites.append(site.index)
 
                 if allowed_cluster:
+
+                    # Do not include clusters for which the ECI is 0
+                    ECI = self._transformed_parameters[orbit_counter + 1]
+                    if ECI == 0:
+                        continue
+
                     allowed_orbit = True
 
                     # Add the the list of sites and the orbit to the respective cluster maps
@@ -355,7 +354,8 @@ class GroundStateFinder:
 
     def get_ground_state(self,
                          species_count: Dict[str, float],
-                         max_seconds: float = inf) -> Atoms:
+                         max_seconds: float = inf,
+                         threads: int = 0) -> Atoms:
         """
         Finds the ground state for a given structure and species count, which
         refers to the `count_species`, if provided when initializing the
@@ -369,6 +369,11 @@ class GroundStateFinder:
             sublattice
         max_seconds
             maximum runtime in seconds (default: inf)
+        threads
+            number of threads to be used when solving the problem, given that a
+            positive integer has been provided. If set to 0 the solver default
+            configuration is used while -1 corresponds to all available
+            processing cores.
         """
         # Check that the species_count is consistent with the cluster space
         if len(species_count) != 1:
@@ -391,6 +396,9 @@ class GroundStateFinder:
         # The model is solved using python-MIPs choice of solver, which is
         # Gurobi, if available, and COIN-OR Branch-and-Cut, otherwise.
         model = self._model
+
+        # Set the number of threads
+        model.threads = threads
 
         # Update the species count
         # temporary hack until python-mip supports setting RHS directly:

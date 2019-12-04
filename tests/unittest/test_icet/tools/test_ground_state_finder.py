@@ -176,7 +176,7 @@ class TestGroundStateFinder(unittest.TestCase):
         ce = ClusterExpansion(cs, [0.0]*len(cs))
         with self.assertRaises(NotImplementedError) as cm:
             GroundStateFinder(ce, self.supercell, verbose=False)
-        self.assertTrue("Only binaries are implemented as of yet."
+        self.assertTrue('Currently, only one active sublattice is allowed.'
                         in str(cm.exception))
 
     def test_init_fails_for_ternary_with_one_active_sublattice(self):
@@ -188,7 +188,7 @@ class TestGroundStateFinder(unittest.TestCase):
         ce = ClusterExpansion(cs, [0.0]*len(cs))
         with self.assertRaises(NotImplementedError) as cm:
             GroundStateFinder(ce, self.supercell, verbose=False)
-        self.assertTrue("Only binaries are implemented as of yet."
+        self.assertTrue('Only binaries are implemented as of yet.'
                         in str(cm.exception))
 
     def test_optimization_status_property(self):
@@ -199,7 +199,7 @@ class TestGroundStateFinder(unittest.TestCase):
 
         # Check that the optimization_status is OPTIMAL if a ground state is found
         species_count = {self.chemical_symbols[0]: 1}
-        self.gsf.get_ground_state(species_count=species_count)
+        self.gsf.get_ground_state(species_count=species_count, threads=1)
         self.assertEqual(str(self.gsf.optimization_status),
                          'OptimizationStatus.OPTIMAL')
 
@@ -214,20 +214,20 @@ class TestGroundStateFinder(unittest.TestCase):
 
         # Provide counts for first species
         species_count = {self.chemical_symbols[0]: 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species0 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, target_val)
 
         # Provide counts for second species
         species_count = {self.chemical_symbols[1]: len(self.supercell) - 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species1 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, predicted_species1)
 
         # Set the maximum run time
         species_count = {self.chemical_symbols[0]: 1}
         ground_state = self.gsf.get_ground_state(species_count=species_count,
-                                                 max_seconds=0.5)
+                                                 max_seconds=0.5, threads=1)
         predicted_max_seconds = self.ce.predict(ground_state)
         self.assertGreaterEqual(predicted_max_seconds, predicted_species0)
 
@@ -238,7 +238,7 @@ class TestGroundStateFinder(unittest.TestCase):
         species_count = {self.chemical_symbols[0]: 1,
                          self.chemical_symbols[1]: len(self.supercell) - 1}
         with self.assertRaises(ValueError) as cm:
-            self.gsf.get_ground_state(species_count=species_count)
+            self.gsf.get_ground_state(species_count=species_count, threads=1)
         self.assertTrue('Provide counts for one of the species on the active sublattice ({}),'
                         ' not {}!'.format(self.gsf._species, list(species_count.keys()))
                         in str(cm.exception))
@@ -247,7 +247,7 @@ class TestGroundStateFinder(unittest.TestCase):
         # species not found on the active sublattice
         species_count = {'H': 1}
         with self.assertRaises(ValueError) as cm:
-            self.gsf.get_ground_state(species_count=species_count)
+            self.gsf.get_ground_state(species_count=species_count, threads=1)
         self.assertTrue('The species {} is not present on the active sublattice'
                         ' ({})'.format(list(species_count.keys())[0], self.gsf._species)
                         in str(cm.exception))
@@ -321,7 +321,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
 
         # Provide counts for first species
         species_count = {self.chemical_symbols[0][0]: 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species0 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, target_val)
 
@@ -329,7 +329,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         species_count = {self.chemical_symbols[0][1]:
                          len([sym for sym in self.supercell.get_chemical_symbols() if sym in
                               self.chemical_symbols[0]]) - 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species1 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, predicted_species1)
 
@@ -340,7 +340,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
                          self.chemical_symbols[0][1]: len([sym for sym in self.supercell if sym in
                                                            self.chemical_symbols[0]]) - 1}
         with self.assertRaises(ValueError) as cm:
-            self.gsf.get_ground_state(species_count=species_count)
+            self.gsf.get_ground_state(species_count=species_count, threads=1)
         self.assertTrue('Provide counts for one of the species on the active '
                         'sublattice ({}), '
                         'not {}!'.format(self.gsf._species,
@@ -351,7 +351,7 @@ class TestGroundStateFinderInactiveSublattice(unittest.TestCase):
         # species not found on the active sublattice
         species_count = {'H': 1}
         with self.assertRaises(ValueError) as cm:
-            self.gsf.get_ground_state(species_count=species_count)
+            self.gsf.get_ground_state(species_count=species_count, threads=1)
         self.assertTrue('The species {} is not present on the active sublattice'
                         ' ({})'.format(list(species_count.keys())[0],
                                        self.gsf._species)
@@ -426,13 +426,13 @@ class TestGroundStateFinderTriplets(unittest.TestCase):
 
         # Provide counts for first species
         species_count = {self.chemical_symbols[0]: len(self.supercell) - 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species0 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, target_val)
 
         # Provide counts for second species
         species_count = {self.chemical_symbols[1]: 1}
-        ground_state = self.gsf.get_ground_state(species_count=species_count)
+        ground_state = self.gsf.get_ground_state(species_count=species_count, threads=1)
         predicted_species1 = self.ce.predict(ground_state)
         self.assertEqual(predicted_species0, predicted_species1)
 
