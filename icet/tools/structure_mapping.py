@@ -6,7 +6,7 @@ from ase import Atoms
 from ase.build import make_supercell
 from ase.geometry import get_distances
 from scipy.optimize import linear_sum_assignment
-from icet.io.logging import logger
+from icet.input_output.logging_tools import logger
 
 
 def map_structure_to_reference(relaxed: Atoms,

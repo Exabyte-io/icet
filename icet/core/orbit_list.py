@@ -13,7 +13,7 @@ from icet.core.neighbor_list import get_neighbor_lists
 from icet.core.permutation_matrix import (_get_lattice_site_permutation_matrix,
                                           permutation_matrix_from_structure)
 from icet.core.structure import Structure
-from icet.io.logging import logger
+from icet.input_output.logging_tools import logger
 
 logger = logger.getChild('orbit_list')
 
