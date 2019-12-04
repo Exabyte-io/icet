@@ -6,7 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple, Union
 from .fit_methods import available_fit_methods
-from .io import _write_pickle
+from .oi import _write_pickle
 
 
 class BaseOptimizer(ABC):
