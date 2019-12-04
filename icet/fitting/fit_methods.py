@@ -27,6 +27,7 @@ from sklearn.linear_model import (Lasso,
 from sklearn.model_selection import ShuffleSplit
 from sklearn.feature_selection import RFE, RFECV
 from sklearn.preprocessing import StandardScaler
+from sklearn.base import _DEFAULT_TAGS
 from typing import Any, Dict, List, Union
 from ..io.logging import logger
 from .split_bregman import fit_split_bregman
@@ -71,7 +72,7 @@ def fit(X: np.ndarray,
             msg += [' * ' + key]
         raise ValueError('\n'.join(msg))
 
-    if check_condition:
+    if check_condition and X.shape[0] >= X.shape[1]:
         cond = np.linalg.cond(X)
         if cond > 1e10:
             logger.warning('Condition number is large, {}'.format(cond))
@@ -442,6 +443,9 @@ class _Estimator:
 
     def predict(self, A):
         return np.dot(A, self.coef_)
+
+    def _get_tags(self):
+        return _DEFAULT_TAGS
 
 
 def fit_rfe(X: np.ndarray,
