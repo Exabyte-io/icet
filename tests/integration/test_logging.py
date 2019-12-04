@@ -7,7 +7,7 @@ import tempfile
 from io import StringIO
 from ase.build import bulk
 from icet import ClusterSpace
-from icet.io.logging import set_log_config, logger, formatter
+from icet.input_output.logging_tools import set_log_config, logger, formatter
 
 
 # Test logger
