@@ -36,3 +36,30 @@ def compute_correlation_matrix(A: np.ndarray) -> np.ndarray:
             C[i, j] = c_ij
             C[j, i] = c_ij
     return C
+
+
+def estimate_loocv(A: np.ndarray, y_targ: np.ndarray, y_pred: np.ndarray) -> float:
+    """
+    Calculates the approximative LOO-CV-RMSE.
+
+    Parameters
+    ----------
+    A
+        Matrix in OLS problem y=Ax, should be inversible
+    y_targ
+        Target values for y
+    y_pred
+        OLS obtained prediction for y
+
+    Returns
+    -------
+    float
+        LOO-CV-RMSE
+    """
+    if len(A[1, :]) > len(A[:, 1]):
+        raise ValueError('Matrix is underdetermined')
+
+    H = A.dot(np.linalg.inv(A.T.dot(A))).dot(A.T)
+    e = (y_targ - y_pred) / (1 - np.diag(H))
+
+    return np.linalg.norm(e) / np.sqrt(len(e))
