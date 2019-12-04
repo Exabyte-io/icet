@@ -29,7 +29,7 @@ from sklearn.feature_selection import RFE, RFECV
 from sklearn.preprocessing import StandardScaler
 from sklearn.base import _DEFAULT_TAGS
 from typing import Any, Dict, List, Union
-from ..input_output.logging_tools import logger
+from ..io.logging_tools import logger
 from .split_bregman import fit_split_bregman
 
 
