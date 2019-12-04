@@ -35,7 +35,7 @@ class CrossValidationEstimator(BaseOptimizer):
 
     Parameters
     ----------
-    fit_data : tupe(numpy.ndarray, numpy.ndarray)
+    fit_data : tuple(numpy.ndarray, numpy.ndarray)
         the first element of the tuple represents the fit matrix `A`
         (`N, M` array) while the second element represents the vector
         of target values `y` (`N` array); here `N` (=rows of `A`,
@@ -84,8 +84,7 @@ class CrossValidationEstimator(BaseOptimizer):
                  seed: int = 42,
                  **kwargs) -> None:
 
-        super().__init__(fit_data, fit_method, standardize, check_condition,
-                         seed)
+        super().__init__(fit_data, fit_method, standardize, check_condition, seed)
 
         if validation_method not in validation_methods.keys():
             msg = ['Validation method not available']
@@ -95,7 +94,6 @@ class CrossValidationEstimator(BaseOptimizer):
             raise ValueError('\n'.join(msg))
         self._validation_method = validation_method
         self._n_splits = n_splits
-
         self._set_kwargs(kwargs)
 
         # data set splitting object
