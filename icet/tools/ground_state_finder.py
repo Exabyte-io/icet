@@ -8,7 +8,7 @@ from ..core.orbit_list import OrbitList
 from ..core.local_orbit_list_generator import LocalOrbitListGenerator
 from ..core.structure import Structure
 from .variable_transformation import transform_ECIs
-from ..io.logging import logger
+from ..input_output.logging_tools import logger
 
 try:
     import mip

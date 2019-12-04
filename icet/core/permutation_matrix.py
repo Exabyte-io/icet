@@ -13,7 +13,7 @@ from _icet import PermutationMatrix
 from icet.core.lattice_site import LatticeSite
 from icet.core.neighbor_list import NeighborList
 from icet.core.structure import Structure
-from icet.io.logging import logger
+from icet.input_output.logging_tools import logger
 from icet.tools.geometry import (ase_atoms_to_spglib_cell,
                                  get_fractional_positions_from_neighbor_list,
                                  get_primitive_structure)

@@ -5,7 +5,7 @@ from .canonical_annealing import _cooling_exponential
 import numpy as np
 from typing import List
 import random
-from icet.io.logging import logger
+from icet.input_output.logging_tools import logger
 logger = logger.getChild('target_cluster_vector_annealing')
 
 

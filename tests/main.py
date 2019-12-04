@@ -1,7 +1,7 @@
 import os
 import sys
 import unittest
-from icet.io.logging import set_log_config
+from icet.input_output.logging_tools import set_log_config
 
 
 class ScriptTestCase(unittest.TestCase):
