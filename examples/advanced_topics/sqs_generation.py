@@ -10,7 +10,7 @@ from icet.tools.structure_generation import (generate_sqs,
                                              generate_sqs_by_enumeration,
                                              generate_target_structure)
 
-from icet.io.logging import set_log_config
+from icet.input_output.logging_tools import set_log_config
 set_log_config(level='INFO')
 
 # Generate SQS for binary fcc, 50 % concentration
