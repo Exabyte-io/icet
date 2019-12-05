@@ -448,17 +448,17 @@ class _Estimator:
         return _DEFAULT_TAGS
 
 
-def fit_rfe(X: np.ndarray,
-            y: np.ndarray,
-            n_features: int = None,
-            step: Union[int, float] = 0.04,
-            estimator: str = 'least-squares',
-            final_estimator: str = None,
-            estimator_kwargs: dict = {},
-            final_estimator_kwargs: dict = {},
-            cv_splits: int = 5,
-            n_jobs: int = -1,
-            **rfe_kwargs):
+def _fit_rfe(X: np.ndarray,
+             y: np.ndarray,
+             n_features: int = None,
+             step: Union[int, float] = 0.04,
+             estimator: str = 'least-squares',
+             final_estimator: str = None,
+             estimator_kwargs: dict = {},
+             final_estimator_kwargs: dict = {},
+             cv_splits: int = 5,
+             n_jobs: int = -1,
+             **rfe_kwargs):
     """
     Returns the solution `a` to the linear problem `Xa=y` obtained by
     recursive feature elimination (RFE).
@@ -529,6 +529,6 @@ fit_methods = OrderedDict([
     ('elasticnet', _fit_elasticnet),
     ('split-bregman', fit_split_bregman),
     ('ardr', _fit_ardr),
-    ('rfe', fit_rfe),
+    ('rfe', _fit_rfe),
     ])
 available_fit_methods = sorted(fit_methods.keys())
