@@ -146,7 +146,7 @@ if __name__ == '__main__':
                           'ase',
                           'numpy',
                           'scipy',
-                          'scikit-learn',
+                          'scikit-learn>=0.22',
                           'pandas>=0.23',
                           'spglib>1.12.0'],
         packages=find_packages(),
