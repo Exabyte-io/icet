@@ -2,7 +2,7 @@ image: registry.gitlab.com/materials-modeling/icet:latest
 
 
 before_script:
-  - export PYTHONPATH=/myopt/opt/lib/python
+  - export PYTHONPATH=/myopt/lib/python
 
 
 build_linux:
