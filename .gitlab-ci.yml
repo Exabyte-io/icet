@@ -2,7 +2,8 @@ image: registry.gitlab.com/materials-modeling/icet:latest
 
 
 before_script:
-  - export PYTHONPATH=$PWD/opt/lib/python
+  - INSTDIR=$PWD/opt/lib/python
+  - export PYTHONPATH=$INSTDIR:$PYTHONPATH
 
 
 build_linux:
@@ -10,11 +11,12 @@ build_linux:
   tags:
     - linux
   script:
-    - python3 setup.py install --home=$PWD/opt
+    - mkdir -p $INSTDIR
+    - python3 ./setup.py install --home=$PWD/opt
   artifacts:
     expire_in: 14 days
     paths:
-      - opt
+      - opt/
 
 
 tests:
