@@ -431,8 +431,11 @@ class GroundStateFinder:
 
         # Assert that the solution agrees with the prediction
         prediction = self._cluster_expansion.predict(gs)
-        assert abs(model.objective_value - prediction) < 1e-6
-
+        if model.solver_name.upper() in ['GUROBI', 'GRB']:
+            assert abs(model.objective_value - prediction) < 1e-6
+        elif model.solver_name.upper() == 'CBC':
+            assert abs(model.objective_const +
+                       model.objective_value - prediction) < 1e-6
         return gs
 
     @property
