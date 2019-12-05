@@ -11,7 +11,7 @@ build_linux:
     - linux
   script:
     - python3 setup.py install --home=/myopt
-artifacts:
+  artifacts:
     expire_in: 14 days
     paths:
       - /myopt
