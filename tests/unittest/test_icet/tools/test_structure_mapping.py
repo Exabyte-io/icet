@@ -111,13 +111,67 @@ class TestStructureMapping(unittest.TestCase):
             _match_positions(structure, reference)
         self.assertIn('The boundary conditions of', str(context.exception))
 
-        # Working example
+        # Working example: volume change
         reference = self.reference.repeat(2)
         reference.set_cell(reference.cell * 1.01, scale_atoms=True)
         mapped, drmax, dravg = _match_positions(self.structure, reference)
         self.assertAlmostEqual(drmax, 0.279012386)
         self.assertAlmostEqual(dravg, 0.140424392)
         self.assertEqual(mapped.get_chemical_formula(), 'H3Au6Pd2X5')
+
+        # check attached arrays
+        target_val = [[-0.14847, 0.03737, 0.01010],
+                      [None, None, None],
+                      [0.08989, -0.08484, 0.06363],
+                      [None, None, None],
+                      [-0.25856, 0.03737, -0.09797],
+                      [None, None, None],
+                      [0.04848, -0.00505, 0.09393],
+                      [None, None, None],
+                      [0.16059, 0.19594, 0.03030],
+                      [-0.00404, 0.04141, 0.00303],
+                      [0.01515, 0.01414, 0.00707],
+                      [None, None, None],
+                      [0.02323, -0.09494, 0.02424],
+                      [0.01010, -0.07575, 0.07575],
+                      [-0.02929, 0.02424, -0.07979],
+                      [-0.10605, -0.17372, 0.14847]]
+        for a, t in zip(mapped.arrays['Displacement'], target_val):
+            if t[0] is None:
+                continue
+            self.assertTrue(np.allclose(a, t))
+        target_val = [[0.15343359, 1.87193031, 1.98820700],
+                      [None, None, None],
+                      [0.13902091, 1.93302127, 1.93829131],
+                      [None, None, None],
+                      [0.27901239, 1.76455816, 1.93970336],
+                      [None, None, None],
+                      [0.10582371, 1.92668665, 1.97376277],
+                      [None, None, None],
+                      [0.25514647, 1.83136619, 1.86995083],
+                      [0.04171679, 1.97859644, 2.01638753],
+                      [0.02189628, 2.00491233, 2.00592967],
+                      [None, None, None],
+                      [0.10070161, 1.92535275, 1.99815195],
+                      [0.10760174, 1.94575130, 1.94575130],
+                      [0.08838510, 1.94058247, 1.99245585],
+                      [0.25192972, 1.85527351, 1.88256468]]
+        for a, t in zip(mapped.arrays['Minimum_Distances'], target_val):
+            if t[0] is None:
+                continue
+            self.assertTrue(np.allclose(a, t))
+
+        # Working example: with less than 3 atoms
+        reference = self.reference.copy()
+        structure = self.reference.copy()
+        structure[0].position += [0, 0, 0.1]
+        mapped, drmax, dravg = _match_positions(structure, reference)
+        self.assertAlmostEqual(drmax, 0.1)
+        self.assertAlmostEqual(dravg, 0.05)
+        self.assertEqual(mapped.get_chemical_formula(), 'HAu')
+        self.assertTrue(np.allclose(mapped.arrays['Displacement'], [[0, 0, -0.1], [0, 0, 0]]))
+        self.assertTrue(np.allclose(mapped.arrays['Displacement_Magnitude'], [0.1, 0]))
+        self.assertTrue(np.allclose(mapped.arrays['Minimum_Distances'], [[0.1, 1.9], [0, 2]]))
 
     def test_map_structure_to_reference(self):
         """
