@@ -268,6 +268,7 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
     displacement_magnitudes = []
     displacements = []
     minimum_distances = []
+    n_dist_max = min(len(mapped), 3)
     for i, j in zip(row_ind, col_ind):
         atom = mapped[i]
         if j >= len(relaxed):
@@ -275,7 +276,7 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
             atom.symbol = 'X'
             displacement_magnitudes.append(None)
             displacements.append(3 * [None])
-            minimum_distances.append(3 * [None])
+            minimum_distances.append(n_dist_max * [None])
         else:
             atom.symbol = relaxed[j].symbol
             dvecs, drs = get_distances([relaxed[j].position],
@@ -284,13 +285,13 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
             displacement_magnitudes.append(drs[0][0])
             displacements.append(dvecs[0][0])
             # distances to the next three available sites
-            minimum_distances.append(sorted(dists[:, j])[:3])
+            minimum_distances.append(sorted(dists[:, j])[:n_dist_max])
 
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
     mapped.new_array('Displacement', displacements, float, (3, ))
     mapped.new_array('Displacement_Magnitude', displacement_magnitudes, float)
     mapped.new_array('Minimum_Distances', minimum_distances,
-                     float, (min(3, len(mapped)), ))
+                     float, (n_dist_max,))
 
     drmax = np.nanmax(displacement_magnitudes)
     dravg = np.nanmean(displacement_magnitudes)
