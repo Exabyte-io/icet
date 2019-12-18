@@ -375,6 +375,7 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(len(ens1.data_container.data), len(ens2.data_container.data))
         self.assertTrue(np.allclose(list(ens1.data_container.data.potential),
                                     list(ens1.data_container.data.potential)))
+        ens1.run(10)
 
         os.remove(dc_filename)
 
