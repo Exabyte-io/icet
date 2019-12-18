@@ -106,7 +106,7 @@ class BaseEnsemble(ABC):
         self._data_container_filename = data_container
 
         if data_container is not None and os.path.isfile(data_container):
-            self._data_container = BaseDataContainer.read(data_container)
+            self._data_container = data_container_class.read(data_container)
 
             dc_ensemble_parameters = self.data_container.ensemble_parameters
             if not dicts_equal(self.ensemble_parameters,
