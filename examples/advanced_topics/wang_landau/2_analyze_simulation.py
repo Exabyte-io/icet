@@ -13,7 +13,7 @@ _, ax = plt.subplots()
 ax.semilogy(df.energy, df.density, marker='o')
 ax.set_xlabel('Energy')
 ax.set_ylabel('Density of states')
-plt.savefig(f'wang_landau_density.svg', bbox_inches='tight')
+plt.savefig('wang_landau_density.svg', bbox_inches='tight')
 
 # Compute thermodynamic averages
 df = get_average_observables_wl(dc,
@@ -22,9 +22,9 @@ df = get_average_observables_wl(dc,
                                 boltzmann_constant=1)
 
 # Plot heat capacity and short-range order parameter
-n_sites = dc.ensemble_parameters['n_atoms']
+n_atoms = dc.ensemble_parameters['n_atoms']
 _, axes = plt.subplots(nrows=2, sharex=True)
-axes[0].plot(df.temperature, n_sites * df.potential_std ** 2 / df.temperature ** 2)
+axes[0].plot(df.temperature, df.potential_std ** 2 / df.temperature ** 2 / n_atoms)
 axes[0].set_xlabel('Temperature')
 axes[0].set_ylabel('Heat capacity')
 axes[1].plot(df.temperature, df.sro_Ag_1_mean, label='mean')
@@ -33,4 +33,4 @@ axes[1].set_xlabel('Temperature')
 axes[1].set_ylabel('Short-range order parameter')
 axes[1].legend()
 plt.subplots_adjust(hspace=0)
-plt.savefig(f'wang_landau_heat_capacity_sro.svg', bbox_inches='tight')
+plt.savefig('wang_landau_heat_capacity_sro.svg', bbox_inches='tight')
