@@ -288,16 +288,16 @@ class TestDataContainer(unittest.TestCase):
     def test_get_average_observables_wl(self):
         """Tests get_average_observables_wl function."""
 
-        temperatures = np.linspace(500, 1900, 4)
+        temperatures = [500, 1000, 1500, 3000, 5000]
         target = {'temperature': list(temperatures),
-                  'potential_mean': [-0.027434842249542825, -0.02743483385841211,
-                                     -0.027434424038089773, -0.027431781403568355],
-                  'potential_std': [1.2508012371662345e-08, 3.392741446717929e-06,
-                                    2.3955236074848282e-05, 6.486957007883997e-05],
-                  'obs_mean': [0.5343710299934072, 0.9212555221632082,
-                               1.0778963598170304, 1.1607704658709757],
-                  'obs_std': [1.0676693177561658, 1.325701037859905,
-                              1.3967570133129557, 1.428199057903879]}
+                  'potential_mean': [-19.999999999917, -19.999990872733, -19.999563028446,
+                                     -19.978651625821, -19.891091736169],
+                  'potential_std': [9.128661021746e-06, 3.021150487412e-03, 2.090843168801e-02,
+                                    1.476623564612e-01, 3.475208248792e-01],
+                  'obs_mean': [0.534371029993, 0.936885807201, 1.092738394744,
+                               1.256638406965, 1.324497567828],
+                  'obs_std': [1.067669317756, 1.333510197404, 1.402693434773,
+                              1.459270899411, 1.477504027232]}
 
         # test type warning
         with self.assertRaises(TypeError) as context:
@@ -307,22 +307,24 @@ class TestDataContainer(unittest.TestCase):
         # test single container without observables
         dc = self.prepareDataContainer()
         ret = get_average_observables_wl(dc, temperatures)
+        np.set_printoptions(precision=12)
         self.assertIsInstance(ret, DataFrame)
         for key in ['temperature', 'potential_mean', 'potential_std']:
             self.assertIn(key, ret.columns)
         for col in ret.columns:
             diff = (np.array(ret[col].tolist()) - target[col]) / target[col]
-            self.assertTrue(np.all(np.abs(diff) < 1e-8))
+            self.assertTrue(np.all(np.abs(diff) < 1e-6))
 
         # test single container with observable
         dc = self.prepareDataContainer()
         ret = get_average_observables_wl(dc, temperatures, observables=['obs'])
+        np.set_printoptions(precision=12)
         self.assertIsInstance(ret, DataFrame)
         for key in ['temperature', 'potential_mean', 'potential_std', 'obs_mean', 'obs_std']:
             self.assertIn(key, ret.columns)
         for col in ret.columns:
             diff = (np.array(ret[col].tolist()) - target[col]) / target[col]
-            self.assertTrue(np.all(np.abs(diff) < 1e-8))
+            self.assertTrue(np.all(np.abs(diff) < 1e-6))
 
         # test warning in case of unknown observable
         obs_name = 'Swoop'

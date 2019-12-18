@@ -316,14 +316,13 @@ def get_average_observables_wl(dcs: Union[BaseDataContainer, dict],
 
     enref = np.min(df_density.energy)
     averages = []
-    n_atoms = dcref.ensemble_parameters['n_atoms']
     for temperature in temperatures:
 
         # mean and standard deviation of energy
         boltz = np.exp(- (df_density.energy - enref) / temperature / boltzmann_constant)
         sumint = np.sum(df_density.density * boltz)
-        en_mean = np.sum(df_density.energy / n_atoms * df_density.density * boltz) / sumint
-        en_std = np.sum((df_density.energy / n_atoms) ** 2 * df_density.density * boltz) / sumint
+        en_mean = np.sum(df_density.energy * df_density.density * boltz) / sumint
+        en_std = np.sum(df_density.energy ** 2 * df_density.density * boltz) / sumint
         en_std = np.sqrt(en_std - en_mean ** 2)
         record = {'temperature': temperature,
                   'potential_mean': en_mean,
