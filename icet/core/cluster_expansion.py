@@ -11,7 +11,7 @@ import re
 
 from icet import ClusterSpace
 from icet.core.structure import Structure
-from typing import List, Union
+from typing import List, Union, Dict
 from ase import Atoms
 
 
@@ -130,9 +130,14 @@ class ClusterExpansion:
         return self._parameters
 
     @property
-    def metadata(self):
+    def metadata(self) -> Dict:
         """ dict : metadata associated with cluster expansion """
         return self._metadata
+
+    @property
+    def primitive_structure(self) -> Atoms:
+        """ Primitive structure on which cluster expansion is based """
+        return self._cluster_space.primitive_structure.copy()
 
     def plot_parameters(self, orders=None):
         """ Plot ECIs for given orders, default plots for all orders """

@@ -279,7 +279,7 @@ class TestClusterExpansionTernary(unittest.TestCase):
         self.assertEqual(pair_indices_new, [])
 
     def test_property_metadata(self):
-        """ Test get metadata method. """
+        """ Test metadata property. """
 
         user_metadata = dict(parameters=[1, 2, 3], fit_method='ardr')
         ce = ClusterExpansion(self.cs, self.parameters, metadata=user_metadata)
@@ -294,6 +294,11 @@ class TestClusterExpansionTernary(unittest.TestCase):
         self.assertIn('username', metadata.keys())
         self.assertIn('hostname', metadata.keys())
         self.assertIn('icet_version', metadata.keys())
+
+    def test_property_primitive_structure(self):
+        """ Test primitive_structure property.. """
+        prim = self.cs.primitive_structure
+        self.assertEqual(prim, self.ce.primitive_structure)
 
 
 if __name__ == '__main__':
