@@ -429,6 +429,12 @@ class TestEnsemble(unittest.TestCase):
         d2['T'] += 1e-10
         self.assertFalse(dicts_equal(d1, d2))
 
+    def test_str(self):
+        """Tests __str__ method."""
+        self.ensemble.run(10)
+        ret = str(self.ensemble)
+        self.assertIsInstance(ret, str)
+
 
 if __name__ == '__main__':
     unittest.main()
