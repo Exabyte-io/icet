@@ -495,7 +495,7 @@ class BaseEnsemble(ABC):
         """
         pass
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         """ string representation of BaseEnsemble. """
         width = 60
         name = self.__class__.__name__
