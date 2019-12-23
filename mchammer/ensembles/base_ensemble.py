@@ -495,6 +495,20 @@ class BaseEnsemble(ABC):
         """
         pass
 
+    def __str__(self) -> str:
+        """ string representation of BaseEnsemble. """
+        width = 60
+        name = self.__class__.__name__
+        s = [' {} '.format(name).center(width, '=')]
+
+        fmt = '{:15} : {}'
+        for k, v in self.ensemble_parameters.items():
+            s += [fmt.format(k, v)]
+
+        s += [fmt.format('step', self.step)]
+        s += [fmt.format('calculator', self._calculator.__class__.__name__)]
+        return '\n'.join(s)
+
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
 
