@@ -87,7 +87,7 @@ def map_structure_to_reference(relaxed: Atoms,
     epsilon = np.dot(relaxed.cell.T - reference_supercell.cell.T,
                      np.linalg.inv(reference_supercell.cell.T))
     strain_tensor = 0.5 * (epsilon + epsilon.T)
-    eigenvalues = np.linalg.eig(strain_tensor)[0]
+    eigenvalues = np.real(np.linalg.eig(strain_tensor)[0])
     volumetric_strain = sum(eigenvalues)
 
     # Rescale the relaxed atoms object
