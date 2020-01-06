@@ -189,71 +189,78 @@ class TestStructureMapping(unittest.TestCase):
             mapped, info = map_structure_to_reference(structure,
                                                       self.reference,
                                                       **kwargs)
-            self.assertEqual(len(info), 5)
+            self.assertEqual(len(info), 6)
             self.assertAlmostEqual(info['drmax'], expected_drmax)
             self.assertAlmostEqual(info['dravg'], expected_dravg)
             self.assertEqual(mapped.get_chemical_formula(), 'H3Au6Pd2X5')
             logfile.seek(0)
-            return logfile
+            return logfile, info
 
         # Log ClusterSpace output to StringIO stream
         for handler in logger.handlers:
             logger.removeHandler(handler)
 
         # Standard, warning-free mapping
-        logfile = test_mapping(self.structure, inert_species=['Au', 'Pd'])
+        logfile, info = test_mapping(self.structure, inert_species=['Au', 'Pd'])
         self.assertEqual(len(logfile.readlines()), 0)
+        self.assertEqual(len(info['warnings']), 0)
 
         # Warn when there is a lot of volumetric strain
         structure = self.structure.copy()
         structure.set_cell(1.2 * structure.cell, scale_atoms=True)
-        logfile = test_mapping(structure, inert_species=['Au', 'Pd'])
+        logfile, info = test_mapping(structure, inert_species=['Au', 'Pd'])
         lines = logfile.readlines()
         self.assertEqual(len(lines), 1)
         self.assertIn('High volumetric strain', lines[0])
+        self.assertIn('high_volumetric_strain', info['warnings'])
 
         # Do not warn if warnings are suppressed
         structure = self.structure.copy()
         structure.set_cell(1.2 * structure.cell, scale_atoms=True)
-        logfile = test_mapping(structure, inert_species=['Au', 'Pd'],
-                               suppress_warnings=True)
+        logfile, info = test_mapping(structure, inert_species=['Au', 'Pd'],
+                                     suppress_warnings=True)
         lines = logfile.readlines()
         self.assertEqual(len(lines), 0)
 
         # Warning-free assuming no cell relaxation
         structure = self.structure.copy()
         structure.set_cell((1 / 1.01) * structure.cell, scale_atoms=True)
-        logfile = test_mapping(structure, assume_no_cell_relaxation=True)
+        logfile, info = test_mapping(structure, assume_no_cell_relaxation=True)
         lines = logfile.readlines()
         self.assertEqual(len(lines), 0)
+        self.assertEqual(len(info['warnings']), 0)
 
         # Warning even with little strain with no cell relaxation assumption
         structure = self.structure.copy()
         structure.set_cell(structure.cell, scale_atoms=True)
-        logfile = test_mapping(structure, assume_no_cell_relaxation=True)
+        logfile, info = test_mapping(structure, assume_no_cell_relaxation=True)
         lines = logfile.readlines()
         self.assertEqual(len(lines), 1)
         self.assertIn('High volumetric strain', lines[0])
+        self.assertIn('high_volumetric_strain', info['warnings'])
 
         # Anisotropic strain
         structure = self.structure.copy()
         A = [[1.2, 0, 0], [0, 1 / 1.2, 0], [0, 0, 1.]]
         structure.set_cell(np.dot(structure.cell, A), scale_atoms=True)
-        logfile = test_mapping(structure, inert_species=['Au', 'Pd'])
+        logfile, info = test_mapping(structure, inert_species=['Au', 'Pd'])
         lines = logfile.readlines()
         self.assertEqual(len(lines), 1)
         self.assertIn('High anisotropic strain', lines[0])
+        self.assertIn('high_anisotropic_strain', info['warnings'])
 
         # Large deviations
         structure = self.structure.copy()
         structure.positions += [1, 0, 0]
-        logfile = test_mapping(structure, inert_species=['Au', 'Pd'],
-                               expected_drmax=1.11822844,
-                               expected_dravg=0.95130331)
+        logfile, info = test_mapping(structure, inert_species=['Au', 'Pd'],
+                                     expected_drmax=1.11822844,
+                                     expected_dravg=0.95130331)
         lines = logfile.readlines()
         self.assertEqual(len(lines), 2)
         self.assertIn('Large maximum relaxation distance', lines[0])
         self.assertIn('Large average relaxation distance', lines[1])
+        self.assertIn('large_maximum_relaxation_distance', info['warnings'])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
 
 
 if __name__ == '__main__':

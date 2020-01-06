@@ -97,6 +97,7 @@ def map_structure_to_reference(relaxed: Atoms,
     # Match positions
     mapped_structure, drmax, dravg = _match_positions(relaxed_scaled, reference_supercell)
 
+    warnings = []
     if not suppress_warnings:
         s = 'Consider excluding this structure when training a cluster expansion.'
         if assume_no_cell_relaxation:
@@ -106,16 +107,20 @@ def map_structure_to_reference(relaxed: Atoms,
             trigger_levels = {'volumetric_strain': 0.25,
                               'eigenvalue_diff': 0.1}
         if abs(volumetric_strain) > trigger_levels['volumetric_strain']:
+            warnings.append('high_volumetric_strain')
             logger.warning('High volumetric strain ({:.2f} %). {}'.format(
                 100 * volumetric_strain, s))
         if max(eigenvalues) - min(eigenvalues) > trigger_levels['eigenvalue_diff']:
+            warnings.append('high_anisotropic_strain')
             logger.warning('High anisotropic strain (the difference between '
                            'largest and smallest eigenvalues of strain tensor is '
                            '{:.5f}). {}'.format(max(eigenvalues) - min(eigenvalues), s))
         if drmax > 1.0:
+            warnings.append('large_maximum_relaxation_distance')
             logger.warning('Large maximum relaxation distance '
                            '({:.5f} Angstrom). {}'.format(drmax, s))
         if dravg > 0.5:
+            warnings.append('large_average_relaxation_distance')
             logger.warning('Large average relaxation distance '
                            '({:.5f} Angstrom). {}'.format(dravg, s))
 
@@ -124,7 +129,8 @@ def map_structure_to_reference(relaxed: Atoms,
             'dravg': dravg,
             'strain_tensor': strain_tensor,
             'volumetric_strain': volumetric_strain,
-            'strain_tensor_eigenvalues': eigenvalues}
+            'strain_tensor_eigenvalues': eigenvalues,
+            'warnings': warnings}
 
     return mapped_structure, info
 
