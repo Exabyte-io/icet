@@ -24,7 +24,7 @@ def calculate_strain_tensor(A: np.ndarray,
 
     Returns
     -------
-    epsilon
+    strain_tensor
         Biot strain tensor (symmetric matrix)
     """
     assert A.shape == (3, 3)
