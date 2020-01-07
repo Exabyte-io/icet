@@ -24,7 +24,7 @@ def _from_python(ase_structure: Atoms,
     lattice_sites
         lattice site objects
     cluster_index
-        index used to identify cluster        
+        index used to identify cluster
     """
 
     structure = Structure.from_atoms(ase_structure)
