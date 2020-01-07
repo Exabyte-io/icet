@@ -7,6 +7,7 @@ from ase.build import make_supercell
 from ase.geometry import get_distances
 from scipy.optimize import linear_sum_assignment
 from icet.input_output.logging_tools import logger
+import scipy.linalg
 
 
 def calculate_strain_tensor(A: np.ndarray,
@@ -114,10 +115,10 @@ def map_structure_to_reference(relaxed: Atoms,
         tol_positions=tol_positions, assume_no_cell_relaxation=assume_no_cell_relaxation)
 
     # Calculate strain tensor
-    epsilon = calculate_strain_tensor(reference_supercell.cell, relaxed.cell)
+    strain_tensor = calculate_strain_tensor(reference_supercell.cell, relaxed.cell)
 
     # Symmetric matrix has real eigenvalues
-    eigenvalues, _ = np.linalg.eigh(epsilon)
+    eigenvalues, _ = np.linalg.eigh(strain_tensor)
     volumetric_strain = sum(eigenvalues)
 
     # Rescale the relaxed atoms object
