@@ -16,7 +16,8 @@ icet_structure = Structure.from_atoms(structure)
 
 # Construct a list of all neighbors within the cutoff (1.5 A).
 neighbor_cutoff = [1.5]
-nl = get_neighbor_lists(icet_structure, neighbor_cutoff)[0]
+position_tolerance = 1e-5
+nl = get_neighbor_lists(icet_structure, neighbor_cutoff, position_tolerance)[0]
 
 # Loop over all atomic indices and print all of the neighbors.
 for index in range(len(structure)):

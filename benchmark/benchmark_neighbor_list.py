@@ -9,8 +9,9 @@ def build_neighbor_list_cpp(structure, cutoff):
     """
     Build a neighbor list using the function implemented in C++.
     """
+    position_tolerance = 1e-5
     nl = NeighborList(cutoff)
-    nl.build(structure)
+    nl.build(structure, position_tolerance)
 
 
 def build_neighbor_list_python(atoms, cutoff):

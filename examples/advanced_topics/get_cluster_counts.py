@@ -19,9 +19,13 @@ cutoffs = [5.0]
 
 # Determine the orbit list for the corresponding primitive structure for all
 # pair clusters within the cutoff distance
-prim_orbitlist = OrbitList(prim_structure, cutoffs)
+symprec = 1e-5  # tolerance used by spglib
+position_tolerance = 1e-5  # tolerance used when comparing positions
+fractional_position_tolerance = position_tolerance / 3  # ... in fractional coordinates
+prim_orbitlist = OrbitList(prim_structure, cutoffs, symprec,
+                           position_tolerance, fractional_position_tolerance)
 # Use the primitive orbit list to count the number of clusters.
-cluster_counts = ClusterCounts(prim_orbitlist, structure)
+cluster_counts = ClusterCounts(prim_orbitlist, structure, fractional_position_tolerance)
 # Print all of the clusters that were found.
 print('Number of atoms: {0}'.format(len(structure)))
 print('Found {} orbits'.format(len(cluster_counts)))

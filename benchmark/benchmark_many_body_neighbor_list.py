@@ -12,10 +12,11 @@ def build_many_body_neighbor_list_cpp(structure, order, cutoff):
     """
     cutoffs = (order - 1) * [cutoff]
     neighbor_lists = []
+    position_tolerance = 1e-5
 
     for co in cutoffs:
         nl = NeighborList(co)
-        nl.build(structure)
+        nl.build(structure, position_tolerance)
         neighbor_lists.append(nl)
 
     t = time.process_time()
