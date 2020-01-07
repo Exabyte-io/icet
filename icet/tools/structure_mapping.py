@@ -114,7 +114,7 @@ def map_structure_to_reference(relaxed: Atoms,
         tol_positions=tol_positions, assume_no_cell_relaxation=assume_no_cell_relaxation)
 
     # Calculate strain tensor
-    epsilon = calculate_strain_tensor(reference_supercell.cell, relaxed_supercell.cell)
+    epsilon = calculate_strain_tensor(reference_supercell.cell, relaxed.cell)
 
     # Symmetric matrix has real eigenvalues
     eigenvalues, _ = np.linalg.eigh(epsilon)
