@@ -7,6 +7,37 @@ from ase.build import make_supercell
 from ase.geometry import get_distances
 from scipy.optimize import linear_sum_assignment
 from icet.input_output.logging_tools import logger
+import scipy.linalg
+
+
+def calculate_strain_tensor(A: np.ndarray,
+                            B: np.ndarray) -> np.ndarray:
+    """Calculates the strain tensor for mapping a cell A onto cell B. The
+    strain calculated is the Biot strain tensor and is rotationally invariant.
+
+    Parameters
+    ----------
+    A
+        reference cell (row-major format)
+    B
+        target cell (row-major format)
+
+    Returns
+    -------
+    strain_tensor
+        Biot strain tensor (symmetric matrix)
+    """
+    assert A.shape == (3, 3)
+    assert B.shape == (3, 3)
+
+    # Calculate deformation gradient (F) in column-major format
+    F = np.linalg.solve(A, B).T
+
+    # Calculate right stretch tensor (U)
+    _, U = scipy.linalg.polar(F)
+
+    # return Biot strain tensor
+    return U - np.eye(3)
 
 
 def map_structure_to_reference(relaxed: Atoms,
@@ -83,11 +114,11 @@ def map_structure_to_reference(relaxed: Atoms,
         relaxed, reference, inert_species=inert_species,
         tol_positions=tol_positions, assume_no_cell_relaxation=assume_no_cell_relaxation)
 
-    # Compute strain
-    epsilon = np.dot(relaxed.cell.T - reference_supercell.cell.T,
-                     np.linalg.inv(reference_supercell.cell.T))
-    strain_tensor = 0.5 * (epsilon + epsilon.T)
-    eigenvalues = np.real(np.linalg.eig(strain_tensor)[0])
+    # Calculate strain tensor
+    strain_tensor = calculate_strain_tensor(reference_supercell.cell, relaxed.cell)
+
+    # Symmetric matrix has real eigenvalues
+    eigenvalues, _ = np.linalg.eigh(strain_tensor)
     volumetric_strain = sum(eigenvalues)
 
     # Rescale the relaxed atoms object
