@@ -516,16 +516,16 @@ def enumerate_supercells(structure: Atoms, sizes: List[int],
         niggli_reduce = (sum(structure.pbc) == 3)
 
     symmetries = get_symmetry_operations(structure)
-
     for ncells in sizes:
         for hnf in yield_reduced_hnfs(ncells, symmetries, structure.pbc):
-            supercell = make_supercell(structure, hnf.H)
+            supercell = make_supercell(structure, hnf.H.T)
             if niggli_reduce:
-                new_cell = spg_nigg_red(np.dot(structure.cell.T, hnf.H).T)
+                new_cell = spg_nigg_red(np.dot(hnf.H.T, structure.cell))
                 if new_cell is None:  # Happens when spglib fails to Niggli reduce
                     yield supercell
                 else:
                     Pprim = np.dot(new_cell, np.linalg.inv(structure.cell))
-                    yield make_supercell(structure, Pprim)
+                    supercell = make_supercell(structure, Pprim)
+                    yield supercell
             else:
                 yield supercell
