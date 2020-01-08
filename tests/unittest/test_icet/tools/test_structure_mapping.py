@@ -6,7 +6,8 @@ from tempfile import NamedTemporaryFile
 
 from icet.tools import map_structure_to_reference
 from icet.tools.structure_mapping import (_get_reference_supercell,
-                                          _match_positions)
+                                          _match_positions,
+                                          calculate_strain_tensor)
 from icet.input_output.logging_tools import logger, set_log_config
 from ase import Atom
 
@@ -261,6 +262,19 @@ class TestStructureMapping(unittest.TestCase):
         self.assertIn('Large average relaxation distance', lines[1])
         self.assertIn('large_maximum_relaxation_distance', info['warnings'])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
+
+    def test_calculate_strain_tensor(self):
+        """
+        Tests that calculation of strain tensor works.
+        """
+        cell = self.reference.cell.copy()
+        cell *= 1.05
+        cell[0, 0] = 0.02
+        target_val = np.array([[4.49940477e-02, 2.49401921e-03, 2.49401921e-03],
+                               [2.49401921e-03, 5.00089427e-02, 8.94271822e-06],
+                               [2.49401921e-03, 8.94271822e-06, 5.00089427e-02]])
+        strain = calculate_strain_tensor(self.reference.cell, cell)
+        self.assertTrue(np.allclose(strain, target_val))
 
 
 if __name__ == '__main__':
