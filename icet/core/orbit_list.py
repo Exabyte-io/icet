@@ -51,9 +51,9 @@ class OrbitList(_OrbitList):
         max_cutoff = np.max(cutoffs)
         # Set up a permutation matrix
         permutation_matrix, prim_structure, _ \
-            = permutation_matrix_from_structure(structure,
-                                                max_cutoff,
-                                                fractional_position_tolerance,
+            = permutation_matrix_from_structure(structure=structure,
+                                                cutoff=max_cutoff,
+                                                position_tolerance=position_tolerance,
                                                 find_primitive=False,
                                                 symprec=symprec)
 
