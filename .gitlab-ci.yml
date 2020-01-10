@@ -58,6 +58,27 @@ style_check:
   allow_failure: true
 
 
+test_documentation:
+  stage: test
+  dependencies:
+    - build_linux
+  script:
+    - mkdir public
+    # C++ documentation (doxygen)
+    - cd doc/apidoc/
+    - doxygen Doxyfile
+    - cd ../..
+    - mv doc/apidoc/html/ public/apidoc/
+    # user guide (sphinx)
+    - sphinx-build doc/userguide/source/ public/
+  except:
+   - master
+  artifacts:
+    expire_in: 1 days
+    paths:
+      - public
+
+
 pages:
   stage: deploy
   dependencies:
