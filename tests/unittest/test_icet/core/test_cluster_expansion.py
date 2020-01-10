@@ -184,7 +184,6 @@ class TestClusterExpansion(unittest.TestCase):
         print(file.name)
         self.ce.plot_parameters(file.name+'.pdf')
 
-
     def test_repr(self):
         """Tests repr functionality."""
 

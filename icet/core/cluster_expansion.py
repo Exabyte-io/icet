@@ -157,7 +157,7 @@ class ClusterExpansion:
         """ Primitive structure on which cluster expansion is based """
         return self._cluster_space.primitive_structure.copy()
 
-    def plot_parameters(self, fname='ecis.pdf', orders=None):
+    def plot_parameters(self, fname, orders=None):
         """ Plot ECIs for given orders, default plots for all orders """
 
         if orders is None:
