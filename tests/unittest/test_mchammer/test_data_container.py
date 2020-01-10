@@ -4,6 +4,8 @@ from ase.build import bulk
 from collections import OrderedDict
 from mchammer.data_containers.data_container import DataContainer
 from mchammer.observers.base_observer import BaseObserver
+from mchammer.data_analysis import get_autocorrelation_function, get_correlation_length,\
+    _estimate_correlation_length_from_acf, get_error_estimate, _estimate_error
 
 
 class ConcreteObserver(BaseObserver):
@@ -109,6 +111,39 @@ class TestDataContainer(unittest.TestCase):
             self.dc.get_average('trajectory')
         self.assertTrue('trajectory is not scalar'
                         in str(context.exception))
+
+
+class TestDataAnalysis(unittest.TestCase):
+    """Container for the tests of the data_analysis functions. """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.data = np.arange(1000) % 20
+
+    def shortDescription(self):
+        """Silences unittest from printing the docstrings in test cases."""
+        return None
+
+    def test_get_correlation_length(self):
+        """ Tests get_correlation_length function. """
+
+        acf = get_autocorrelation_function(self.data)
+
+        # Correlation length test
+        corr_len_target = 4
+        corr_len1 = _estimate_correlation_length_from_acf(acf)
+        corr_len2 = get_correlation_length(self.data)
+
+        self.assertEqual(corr_len1, corr_len_target)
+        self.assertEqual(corr_len2, corr_len_target)
+
+        # Error estimate
+        error_95_target = 0.7156495464548879
+        error_95_1 = get_error_estimate(self.data)
+        error_95_2 = _estimate_error(self.data, corr_len_target, 0.95)
+
+        np.testing.assert_almost_equal(error_95_1, error_95_target)
+        np.testing.assert_almost_equal(error_95_2, error_95_target)
 
 
 if __name__ == '__main__':
