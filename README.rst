@@ -53,15 +53,6 @@ libraries including
 Credits
 -------
 
-* Mattias Ångqvist
-* William A. Muñoz
-* Magnus Rahm
-* Erik Fransson
-* Céline Durniak
-* Piotr Rozyczko
-* Thomas Holm Rod
-* Paul Erhart
-
 **icet** has been developed at Chalmers University of Technology in Gothenburg
 (Sweden) in the `Materials and Surface Theory division
 <http://www.materialsmodeling.org>`_ at the Department of Physics, in

@@ -102,16 +102,6 @@ with open('icet/__init__.py', encoding='utf-8') as fd:
         raise Exception('Caught exception {}'.format(exc))
 
 
-author_list = ['Mattias Ångqvist',
-               'William A. Muñoz',
-               'J. Magnus Rahm',
-               'Erik Fransson',
-               'Céline Durniak',
-               'Piotr Rozyczko',
-               'Thomas Holm Rod',
-               'Paul Erhart']
-authors = ', '.join(author_list[:-1]) + ', and ' + author_list[-1]
-
 version = re.search("__version__ = '(.*)'", lines).group(1)
 maintainer = re.search("__maintainer__ = '(.*)'", lines).group(1)
 email = re.search("__email__ = '(.*)'", lines).group(1)
@@ -137,7 +127,7 @@ if __name__ == '__main__':
     setup(
         name='icet',
         version=version,
-        author=authors,
+        author='icet developer group',
         author_email=email,
         description=description,
         long_description=long_description,
