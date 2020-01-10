@@ -181,7 +181,6 @@ class TestClusterExpansion(unittest.TestCase):
     def test_plot_parameters(self):
         """Tests plot_parameters."""
         file = tempfile.NamedTemporaryFile()
-        print(file.name)
         self.ce.plot_parameters(file.name+'.pdf')
 
     def test_repr(self):
