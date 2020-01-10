@@ -172,6 +172,12 @@ class TestClusterExpansion(unittest.TestCase):
         pair_indices_new = df_new.index[df_new['order'] == 2].tolist()
         self.assertEqual(pair_indices_new, [])
 
+    def test_plot_parameters(self):
+        """Tests plot_parameters."""
+        file = tempfile.NamedTemporaryFile()
+        print(file.name)
+        self.ce.plot_parameters(file.name+'.pdf')
+
     def test_prune_zerolet(self):
         """Tests pruning zerolet."""
         with self.assertRaises(ValueError) as context:

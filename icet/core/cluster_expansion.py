@@ -134,7 +134,7 @@ class ClusterExpansion:
         """ dict : metadata associated with cluster expansion """
         return self._metadata
 
-    def plot_parameters(self, orders=None):
+    def plot_parameters(self, fname='ecis.pdf', orders=None):
         """ Plot ECIs for given orders, default plots for all orders """
 
         if orders is None:
@@ -152,7 +152,7 @@ class ClusterExpansion:
         ax.legend(loc='best')
         ax.set_xlabel('Radius')
         ax.set_ylabel('ECI')
-        plt.show()
+        fig.savefig(fname)
 
     def __len__(self) -> int:
         return len(self._parameters)
