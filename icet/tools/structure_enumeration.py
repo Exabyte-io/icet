@@ -459,11 +459,11 @@ def enumerate_structures(structure: Atoms, sizes: List[int],
             labelings = _get_all_labelings(snf, labeling_generator, nsites)
             for hnf in snf.hnfs:
                 if niggli_reduce:
-                    new_cell = spg_nigg_red(np.dot(structure.cell.T, hnf.H).T)
+                    new_cell = spg_nigg_red(np.dot(hnf.H.T, structure.cell))
                     if new_cell is None:
-                        new_cell = np.dot(structure.cell.T, hnf.H).T
+                        new_cell = np.dot(hnf.H.T, structure.cell)
                 else:
-                    new_cell = np.dot(structure.cell.T, hnf.H).T
+                    new_cell = np.dot(hnf.H.T, structure.cell)
                 for labeling in _yield_unique_labelings(labelings, snf, hnf,
                                                         nsites):
                     yield _labeling_to_ase_atoms(labeling, hnf, structure.cell,
@@ -525,7 +525,6 @@ def enumerate_supercells(structure: Atoms, sizes: List[int],
                     yield supercell
                 else:
                     Pprim = np.dot(new_cell, np.linalg.inv(structure.cell))
-                    supercell = make_supercell(structure, Pprim)
-                    yield supercell
+                    yield make_supercell(structure, Pprim)
             else:
                 yield supercell
