@@ -71,7 +71,8 @@ test_documentation:
     - mv doc/apidoc/html/ public/apidoc/
     # user guide (sphinx)
     - sphinx-build doc/userguide/source/ public/
-  except: master
+  except:
+   - master
   artifacts:
     expire_in: 1 days
     paths:
