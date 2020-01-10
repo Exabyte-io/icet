@@ -178,6 +178,11 @@ class TestClusterExpansion(unittest.TestCase):
             self.ce.prune(indices=[0])
         self.assertTrue('zerolet may not be pruned' in str(context.exception))
 
+    def test_plot_parameters(self):
+        """Tests plot_parameters."""
+        file = tempfile.NamedTemporaryFile()
+        self.ce.plot_parameters(file.name+'.pdf')
+
     def test_repr(self):
         """Tests repr functionality."""
 
