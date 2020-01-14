@@ -16,7 +16,9 @@ expansion:
 .. code-block:: python
 
    cs = ClusterSpace(primitive_cell, cutoffs, species)
-   sc = StructureContainer(cs, list_of_training_structure)
+   sc = StructureContainer(cs)
+   for structure in training_structures:
+       sc.add_structure(structure)
    opt = Optimizer(sc.get_fit_data())
    opt.train()
    ce = ClusterExpansion(cs, opt.parameters)
