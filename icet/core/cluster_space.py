@@ -589,6 +589,12 @@ class ClusterSpace(_ClusterSpace):
 
         tar_file.close()
 
+        # ensure backward compatibility
+        if 'symprec' not in items:  # pragma: no cover
+            items['symprec'] = 1e-5
+        if 'position_tolerance' not in items:  # pragma: no cover
+            items['position_tolerance'] = items['symprec']
+
         cs = ClusterSpace(structure=structure,
                           cutoffs=items['cutoffs'],
                           chemical_symbols=items['chemical_symbols'],
