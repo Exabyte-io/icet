@@ -17,10 +17,10 @@ SET(SourceFiles
   LatticeSite.cpp
   LocalOrbitListGenerator.cpp
   ManyBodyNeighborList.cpp
+  MatrixOfEquivalentPositions.cpp
   NeighborList.cpp
   Orbit.cpp
   OrbitList.cpp
-  PermutedPositionsMatrix.cpp
   PyBinding.cpp
   Structure.cpp
   Symmetry.cpp

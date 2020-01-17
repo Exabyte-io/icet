@@ -59,6 +59,14 @@ ManyBodyNeighborList
    :undoc-members:
    :inherited-members:
 
+MatrixOfEquivalentPositions
+---------------------------
+
+.. automodule:: icet.core.matrix_of_equivalent_positions
+   :members:
+   :undoc-members:
+   :inherited-members:
+
 NeighborList
 ------------
 
@@ -79,14 +87,6 @@ OrbitList
 ---------
 
 .. automodule:: icet.core.orbit_list
-   :members:
-   :undoc-members:
-   :inherited-members:
-
-PermutationMatrix
------------------
-
-.. automodule:: icet.core.permutation_matrix
    :members:
    :undoc-members:
    :inherited-members:

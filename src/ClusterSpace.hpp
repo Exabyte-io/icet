@@ -8,7 +8,7 @@
 #include "OrbitList.hpp"
 #include "PeriodicTable.hpp"
 #include "Structure.hpp"
-#include "VectorHash.hpp"
+#include "VectorOperations.hpp"
 
 /**
 @brief This class handles the cluster space.

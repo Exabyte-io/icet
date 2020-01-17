@@ -13,10 +13,17 @@
 #include "LocalOrbitListGenerator.hpp"
 #include "ClusterCounts.hpp"
 #include "PeriodicTable.hpp"
-#include "Vector3dCompare.hpp"
+#include "VectorOperations.hpp"
 using namespace Eigen;
 
-
+/**
+@details This class provides a cluster expansion calculator. A cluster
+    expansion calculator is specific for a certain supercell. Upon
+    initialization various quantities specific to the given supercell are
+    precomputed. This greatly speeds up subsequent calculations and enables one
+    to carry out e.g., Monte Carlo simulations in a computationally efficient
+    manner.
+**/
 class ClusterExpansionCalculator
 {
 public:

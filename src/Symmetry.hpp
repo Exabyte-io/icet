@@ -72,7 +72,7 @@ std::vector<std::vector<T>> getAllPermutations(std::vector<T> v)
     return allPermutations;
 }
 
-/// Returns the next cartesian product of currentProduct using the vector of vectors items items[0] is the possible combinations for element n
+/// Returns the next cartesian product.
 bool nextCartesianProduct(const std::vector<std::vector<int>> &items, std::vector<int> &currentProduct);
 
 } // namespace icet

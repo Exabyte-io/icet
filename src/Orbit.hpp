@@ -7,7 +7,7 @@
 #include "Cluster.hpp"
 #include "LatticeSite.hpp"
 #include "Symmetry.hpp"
-#include "VectorHash.hpp"
+#include "VectorOperations.hpp"
 
 using namespace Eigen;
 
@@ -57,6 +57,7 @@ public:
     /// Sets the equivalent sites.
     void setEquivalentSites(const std::vector<std::vector<LatticeSite>> &equivalentSites) { _equivalentSites = equivalentSites; }
 
+    /// Sorts sites.
     void sort() { std::sort(_equivalentSites.begin(), _equivalentSites.end()); }
 
     /// Returns the number of bodies of the cluster that represent this orbit.

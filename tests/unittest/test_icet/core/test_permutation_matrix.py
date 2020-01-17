@@ -6,26 +6,26 @@ from ase.build import bulk
 
 from icet import Structure
 from icet.core.neighbor_list import NeighborList
-from icet.core.permutation_matrix import (
-    PermutationMatrix, permutation_matrix_from_structure)
-from icet.core.permutation_matrix import (
-    _get_lattice_site_permutation_matrix as
-    get_lattice_site_permutation_matrix)
-from icet.core.permutation_matrix import (
+from icet.core.matrix_of_equivalent_positions import (
+    MatrixOfEquivalentPositions, matrix_of_equivalent_positions_from_structure)
+from icet.core.matrix_of_equivalent_positions import (
+    _get_lattice_site_matrix_of_equivalent_positions as
+    get_lattice_site_matrix_of_equivalent_positions)
+from icet.core.matrix_of_equivalent_positions import (
     _fractional_to_cartesian as fractional_to_cartesian)
-from icet.core.permutation_matrix import (
-    _prune_permutation_matrix as prune_permutation_matrix)
+from icet.core.matrix_of_equivalent_positions import (
+    _prune_matrix_of_equivalent_positions as prune_matrix_of_equivalent_positions)
 from icet.tools.geometry import (
     ase_atoms_to_spglib_cell,
     get_primitive_structure,
     get_fractional_positions_from_neighbor_list)
 
 
-class TestPermutationMatrix(unittest.TestCase):
+class TestMatrixOfEquivalentPositions(unittest.TestCase):
     """Container for test of the module functionality."""
 
     def __init__(self, *args, **kwargs):
-        super(TestPermutationMatrix, self).__init__(*args, **kwargs)
+        super(TestMatrixOfEquivalentPositions, self).__init__(*args, **kwargs)
 
         self.position_tolerance = 1e-6
         self.symprec = 1e-6
@@ -49,14 +49,14 @@ class TestPermutationMatrix(unittest.TestCase):
         self.translations = symmetry['translations']
         self.rotations = symmetry['rotations']
 
-        self.pm = PermutationMatrix(self.translations, self.rotations)
+        self.pm = MatrixOfEquivalentPositions(self.translations, self.rotations)
         self.pm.build(self.frac_positions)
 
     def test_init(self):
         """Test initializer."""
-        self.assertIsInstance(self.pm, PermutationMatrix)
+        self.assertIsInstance(self.pm, MatrixOfEquivalentPositions)
 
-    def test_dimension_permutation_matrix(self):
+    def test_dimension_matrix_of_equivalent_positions(self):
         """
         Tests dimensions of permutation matrix. Number of rows should
         be equal to the number of symmetry operations while number of columns
@@ -149,9 +149,9 @@ class TestPermutationMatrix(unittest.TestCase):
         np.testing.assert_array_almost_equal(
             np.array(sorted(target_col)), np.array(sorted(retval_col)), decimal=5)
 
-    def test_permutation_matrix_from_structure(self):
+    def test_matrix_of_equivalent_positions_from_structure(self):
         """Tests permutation matrix from structure functionality."""
-        pm, _, _ = permutation_matrix_from_structure(self.structure, self.cutoff,
+        pm, _, _ = matrix_of_equivalent_positions_from_structure(self.structure, self.cutoff,
                                                      self.position_tolerance, self.symprec)
 
         matrix = pm.get_permuted_positions()
@@ -163,7 +163,7 @@ class TestPermutationMatrix(unittest.TestCase):
                 self.assertEqual(element.tolist(), element2.tolist())
 
         pm_prim, _, _ = \
-            permutation_matrix_from_structure(self.structure_prim, self.cutoff,
+            matrix_of_equivalent_positions_from_structure(self.structure_prim, self.cutoff,
                                               self.position_tolerance, self.symprec,
                                               find_primitive=False)
 
@@ -209,7 +209,7 @@ class TestPermutationMatrix(unittest.TestCase):
         retval = np.around(cartesian_pos, decimals=2).tolist()
         self.assertListEqual(retval, target)
 
-    def test_lattice_site_permutation_matrix(self):
+    def test_lattice_site_matrix_of_equivalent_positions(self):
         """
         Tests lattice sites in permutation matrix by asserting the distances
         between r_ik and r_jk sites in the same column.
@@ -219,9 +219,9 @@ class TestPermutationMatrix(unittest.TestCase):
         structure = bulk('Al').repeat(2)
         cutoff = 4.2
         pm, prim_structure, _ = \
-            permutation_matrix_from_structure(structure, cutoff,
+            matrix_of_equivalent_positions_from_structure(structure, cutoff,
                                               self.position_tolerance, self.symprec)
-        pm_lattice_site = get_lattice_site_permutation_matrix(
+        pm_lattice_site = get_lattice_site_matrix_of_equivalent_positions(
             prim_structure, pm, self.fractional_position_tolerance)
         for i in range(len(pm_lattice_site)):
             for j in range(i + 1, len(pm_lattice_site)):
@@ -238,18 +238,18 @@ class TestPermutationMatrix(unittest.TestCase):
                         self.assertAlmostEqual(dist_first, dist_last, places=8)
                     dist_last = dist_first
 
-    def test_prune_permutation_matrix(self):
+    def test_prune_matrix_of_equivalent_positions(self):
         """
         Tests that first column of pruned permutation matrix
         containes unique elements.
         """
-        pm, prim_structure, _ = permutation_matrix_from_structure(
+        pm, prim_structure, _ = matrix_of_equivalent_positions_from_structure(
             self.structure, self.cutoff, self.position_tolerance, self.symprec)
 
-        pm_lattice_site = get_lattice_site_permutation_matrix(
+        pm_lattice_site = get_lattice_site_matrix_of_equivalent_positions(
             prim_structure, pm, self.fractional_position_tolerance)
 
-        pruned_matrix = prune_permutation_matrix(pm_lattice_site)
+        pruned_matrix = prune_matrix_of_equivalent_positions(pm_lattice_site)
         first_col = []
         for row in pruned_matrix:
             first_col.append(row[0])

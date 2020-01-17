@@ -62,18 +62,6 @@ LatticeSite
 
 
 .. index::
-   single: C++ reference; LocalEnvironment
-
-LocalEnvironment
-----------------
-
-.. doxygenstruct:: LocalEnvironment
-   :project: icet
-   :members:
-   :undoc-members:
-
-
-.. index::
    single: C++ reference; LocalOrbitListGenerator
 
 LocalOrbitListGenerator
@@ -92,6 +80,18 @@ ManyBodyNeighborList
 --------------------
 
 .. doxygenclass:: ManyBodyNeighborList
+   :project: icet
+   :members:
+   :undoc-members:
+
+
+.. index::
+   single: C++ reference; MatrixOfEquivalentPositions
+
+MatrixOfEquivalentPositions
+---------------------------
+
+.. doxygenclass:: MatrixOfEquivalentPositions
    :project: icet
    :members:
    :undoc-members:
@@ -140,18 +140,6 @@ PeriodicTable
 -------------
 
 .. doxygennamespace:: PeriodicTable
-   :project: icet
-   :members:
-   :undoc-members:
-
-
-.. index::
-   single: C++ reference; PermutationMatrix
-
-PermutationMatrix
------------------
-
-.. doxygenclass:: PermutationMatrix
    :project: icet
    :members:
    :undoc-members:

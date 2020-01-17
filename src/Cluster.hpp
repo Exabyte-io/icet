@@ -30,10 +30,10 @@ public:
     /// Returns the radius of the cluster.
     double radius() const { return _radius; }
 
-    // Returns the sites in the cluster.
+    /// Returns the sites in the cluster.
     std::vector<int> sites() const { return _sites; }
 
-    // Returns distances between points in the cluster.
+    /// Returns distances between points in the cluster.
     std::vector<double> distances() const { return _distances; }
 
     /// Returns the cluster tag used for identification.
@@ -75,8 +75,8 @@ namespace std
     template <>
     struct hash<Cluster>
     {
-        size_t
-        operator()(const Cluster &cluster) const
+        /// Hash operator.
+        size_t operator()(const Cluster &cluster) const
         {
             size_t seed = 0;
             hash_combine(seed, cluster.tag());

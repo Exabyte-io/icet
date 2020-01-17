@@ -7,7 +7,7 @@
 #include "LatticeSite.hpp"
 #include "OrbitList.hpp"
 #include "Structure.hpp"
-#include "Vector3dCompare.hpp"
+#include "VectorOperations.hpp"
 
 /**
 

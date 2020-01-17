@@ -7,7 +7,7 @@
 #include <Eigen/Dense>
 #include "LatticeSite.hpp"
 #include "NeighborList.hpp"
-#include "Vector3dCompare.hpp"
+#include "VectorOperations.hpp"
 
 /**
 Design approach:
@@ -33,6 +33,11 @@ class ManyBodyNeighborList
 			      bool saveBothWays,
 			      const size_t);
 
+    /**
+    @details Return the lattice sites that appear in two list of lattice sites.
+    @param Ni list of lattice sites
+    @param Nj another list of lattice sites
+    **/
     std::vector<LatticeSite> getIntersection(const std::vector<LatticeSite> &Ni, const std::vector<LatticeSite> &Nj)
     {
         std::vector<LatticeSite> N_intersection;
@@ -46,18 +51,15 @@ class ManyBodyNeighborList
 
     void translateAllNi(std::vector<LatticeSite> &Ni, const Vector3d &unitCellOffset) const;
 
-    size_t getNumberOfSites() const;
-
     size_t getNumberOfSites(const unsigned int index) const;
 
     std::vector<LatticeSite> getSites(const unsigned int &,
-                                          const unsigned int &) const;
+                                      const unsigned int &) const;
 
     void addSinglet(const int, std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> &) const;
     void addPairs(const int, const NeighborList &, std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> &, bool) const;
 
   private:
-    std::vector<double> _cutoffs;
     std::vector<LatticeSite> getFilteredNj(const std::vector<LatticeSite> &, const LatticeSite &) const;
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> _latticeNeighbors;
 };

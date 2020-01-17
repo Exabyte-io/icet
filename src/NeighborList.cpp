@@ -27,16 +27,16 @@ std::vector<LatticeSite> NeighborList::getNeighbors(size_t index) const
 @param structure atomic configuration
 @param positionTolerance tolerance applied when evaluating positions in Cartesian coordinates; acts as an effective skin thickness
 **/
-void NeighborList::build(const Structure &conf, const double positionTolerance)
+void NeighborList::build(const Structure &structure, const double positionTolerance)
 {
-    size_t numberOfSites = conf.size();
+    size_t numberOfSites = structure.size();
     _neighbors.resize(numberOfSites);
 
-    Matrix3d cellInverse = conf.getCell().inverse();
+    Matrix3d cellInverse = structure.getCell().inverse();
     std::vector<int> unitCellExpanse(3);
     for (size_t i = 0; i < 3; i++)
     {
-        if (conf.hasPBC(i))
+        if (structure.hasPBC(i))
         {
             auto v = cellInverse.col(i);
             double dotProduct = v.dot(v);
@@ -64,7 +64,7 @@ void NeighborList::build(const Structure &conf, const double positionTolerance)
                         for (size_t j = 0; j < numberOfSites; j++)
                         {
                             Vector3d noOffset(0, 0, 0);
-                            double distance_ij = conf.getDistance(i, j, noOffset, extVector);
+                            double distance_ij = structure.getDistance(i, j, noOffset, extVector);
                             if (distance_ij <= _cutoff + positionTolerance && distance_ij > 2 * positionTolerance)
                             {
                                 LatticeSite neighbor = LatticeSite(j, extVector);

@@ -17,7 +17,7 @@
 #include "Orbit.hpp"
 #include "OrbitList.hpp"
 #include "PeriodicTable.hpp"
-#include "PermutedPositionsMatrix.hpp"
+#include "MatrixOfEquivalentPositions.hpp"
 #include "Structure.hpp"
 #include "Symmetry.hpp"
 
@@ -90,9 +90,9 @@ PYBIND11_MODULE(_icet, m)
            :members:
            :undoc-members:
 
-        PermutedPositionsMatrix
-        -----------------
-        .. autoclass:: PermutedPositionsMatrix
+        MatrixOfEquivalentPositions
+        ---------------------------
+        .. autoclass:: MatrixOfEquivalentPositions
            :members:
            :undoc-members:
 
@@ -480,12 +480,12 @@ PYBIND11_MODULE(_icet, m)
         .def(py::self < py::self);
     ;
 
-    // @todo document PermutedPositionsMatrix in pybindings
-    py::class_<::PermutedPositionsMatrix>(m, "PermutationMatrix")
+    // @todo document MatrixOfEquivalentPositions in pybindings
+    py::class_<::MatrixOfEquivalentPositions>(m, "MatrixOfEquivalentPositions")
         .def(py::init<const std::vector<Vector3d> &,
                       const std::vector<Matrix3d> &>())
-        .def("build", &::PermutedPositionsMatrix::build)
-        .def("get_permuted_positions", &::PermutedPositionsMatrix::getPermutedPositions)
+        .def("build", &::MatrixOfEquivalentPositions::build)
+        .def("get_permuted_positions", &::MatrixOfEquivalentPositions::getPermutedPositions)
     ;
 
     py::class_<LatticeSite>(m, "LatticeSite")
@@ -887,7 +887,7 @@ PYBIND11_MODULE(_icet, m)
              &OrbitList::size,
              "Returns the total number of orbits counted in the OrbitList instance.")
         .def_property_readonly("permutation_matrix",
-             &OrbitList::getPermutedPositionsMatrix,
+             &OrbitList::getMatrixOfEquivalentPositions,
              "list(list(_icet.LatticeSite)) : permutation_matrix")
         ;
 

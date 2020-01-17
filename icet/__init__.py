@@ -14,9 +14,9 @@ from .fitting import (Optimizer,
 
 __project__ = 'icet'
 __description__ = 'A Pythonic approach to cluster expansions'
-__copyright__ = '2019'
+__copyright__ = '2020'
 __license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
-__version__ = '1.1-r1'
+__version__ = '1.2'
 __maintainer__ = 'The icet developers team'
 __email__ = 'icet@materialsmodeling.org'
 __status__ = 'Stable'

@@ -70,7 +70,8 @@ test_documentation:
     - cd ../..
     - mv doc/apidoc/html/ public/apidoc/
     # user guide (sphinx)
-    - sphinx-build doc/userguide/source/ public/
+    - sphinx-build -W doc/userguide/source/ public/
+  allow_failure: true
   except:
    - master
   artifacts:
@@ -101,7 +102,7 @@ pages:
     - cd ../..
     - mv doc/apidoc/html/ public/apidoc/
     # user guide (sphinx)
-    - sphinx-build doc/userguide/source/ public/
+    - sphinx-build -W doc/userguide/source/ public/
     # make tests and examples downloadable
     - cd examples
     - find tutorial/ -print | zip ../public/tutorial.zip -@
@@ -121,7 +122,7 @@ pages:
     # build user guide
     - sed -i "s/version = ''/version = '$tag'/" doc/userguide/source/conf.py
     - grep version doc/userguide/source/conf.py
-    - sphinx-build doc/userguide/source/ public/dev/
+    - sphinx-build -W doc/userguide/source/ public/dev/
     # make tests and examples downloadable
     - cd examples
     - find tutorial/ -print | zip ../public/dev/tutorial.zip -@

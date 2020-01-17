@@ -1,9 +1,9 @@
 import time
 from ase.build import bulk
-from icet.core.permutation_matrix import permutation_matrix_from_structure
+from icet.core.matrix_of_equivalent_positions import matrix_of_equivalent_positions_from_structure
 
-from icet.core.permutation_matrix import _get_lattice_site_permutation_matrix \
-    as get_lattice_site_permutation_matrix
+from icet.core.matrix_of_equivalent_positions import _get_lattice_site_matrix_of_equivalent_positions \
+    as get_lattice_site_matrix_of_equivalent_positions
 
 
 if __name__ == '__main__':
@@ -14,10 +14,10 @@ if __name__ == '__main__':
     fractional_position_tolerance = 2e-6
     symprec = 1e-5
     start = time.process_time()
-    pm, prim_structure, _ = permutation_matrix_from_structure(structure, cutoff,
+    pm, prim_structure, _ = matrix_of_equivalent_positions_from_structure(structure, cutoff,
                                                               position_tolerance, symprec)
 
-    pm_lattice_sites = get_lattice_site_permutation_matrix(  # noqa
+    pm_lattice_sites = get_lattice_site_matrix_of_equivalent_positions(  # noqa
         prim_structure, pm, fractional_position_tolerance, prune=True)
     elapsed_time = time.process_time() - start
 
