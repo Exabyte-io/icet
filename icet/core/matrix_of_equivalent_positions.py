@@ -22,10 +22,10 @@ logger = logger.getChild('matrix_of_equivalent_positions')
 
 
 def matrix_of_equivalent_positions_from_structure(structure: Atoms,
-                                      cutoff: float,
-                                      position_tolerance: float,
-                                      symprec: float,
-                                      find_primitive: bool = True) \
+                                                  cutoff: float,
+                                                  position_tolerance: float,
+                                                  symprec: float,
+                                                  find_primitive: bool = True) \
         -> Tuple[np.ndarray, Structure, NeighborList]:
     """Sets up a list of permutation maps from an Atoms object.
 
@@ -79,10 +79,11 @@ def matrix_of_equivalent_positions_from_structure(structure: Atoms,
     return matrix_of_equivalent_positions, prim_icet_structure, neighbor_list
 
 
-def _get_lattice_site_matrix_of_equivalent_positions(structure: Structure,
-                                         matrix_of_equivalent_positions: MatrixOfEquivalentPositions,
-                                         fractional_position_tolerance: float,
-                                         prune: bool = True) -> np.ndarray:
+def _get_lattice_site_matrix_of_equivalent_positions(
+        structure: Structure,
+        matrix_of_equivalent_positions: MatrixOfEquivalentPositions,
+        fractional_position_tolerance: float,
+        prune: bool = True) -> np.ndarray:
     """
     Returns a transformed permutation matrix with lattice sites as entries
     instead of fractional coordinates.
@@ -102,7 +103,7 @@ def _get_lattice_site_matrix_of_equivalent_positions(structure: Structure,
     -------
     permutation matrix in a row major order with lattice site format entries
     """
-    pm_frac = matrix_of_equivalent_positions.get_permuted_positions()
+    pm_frac = matrix_of_equivalent_positions.get_equivalent_positions()
 
     pm_lattice_sites = []
     for row in pm_frac:

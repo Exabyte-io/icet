@@ -62,17 +62,17 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
         be equal to the number of symmetry operations while number of columns
         must correpond to the total number of fractional positions.
         """
-        pm_frac = self.pm.get_permuted_positions()
+        pm_frac = self.pm.get_equivalent_positions()
         for row in pm_frac:
             self.assertEqual(len(row), len(self.rotations))
         self.assertEqual(len(pm_frac), len(self.frac_positions))
 
-    def test_get_permuted_positions(self):
+    def test_get_equivalent_positions(self):
         """
         Tests that first row and first column of permutation matrix match
         the target lists.
         """
-        pm_frac = self.pm.get_permuted_positions()
+        pm_frac = self.pm.get_equivalent_positions()
 
         target_row = [[0.0, 0.0, 0.0],
                       [0.3333333, 0.6666667, 0.5],
@@ -154,8 +154,8 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
         pm, _, _ = matrix_of_equivalent_positions_from_structure(self.structure, self.cutoff,
                                                      self.position_tolerance, self.symprec)
 
-        matrix = pm.get_permuted_positions()
-        matrix2 = self.pm.get_permuted_positions()
+        matrix = pm.get_equivalent_positions()
+        matrix2 = self.pm.get_equivalent_positions()
 
         for row, row2 in zip(matrix, matrix2):
             self.assertEqual(len(row), len(row2))
@@ -167,7 +167,7 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
                                               self.position_tolerance, self.symprec,
                                               find_primitive=False)
 
-        matrix_prim = pm_prim.get_permuted_positions()
+        matrix_prim = pm_prim.get_equivalent_positions()
 
         for row, row2 in zip(matrix, matrix_prim):
             self.assertEqual(len(row), len(row2))
@@ -203,7 +203,7 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
                   [-0.0, 1.73, 2.45],
                   [0.0, 0.0, 0.0]]
 
-        fractional_pos = self.pm.get_permuted_positions()[0]
+        fractional_pos = self.pm.get_equivalent_positions()[0]
         cartesian_pos = fractional_to_cartesian(
             fractional_pos, self.structure_prim.cell)
         retval = np.around(cartesian_pos, decimals=2).tolist()

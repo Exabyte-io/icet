@@ -1,12 +1,5 @@
 #include "Orbit.hpp"
 
-/// Constructor.
-
-Orbit::Orbit(const Cluster &cluster)
-{
-    _representativeCluster = cluster;
-}
-
 /**
 @brief Adds one group of sites that are equivalent to the ones in this orbit.
 @param latticeSiteGroup a list of lattice sites to be added

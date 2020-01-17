@@ -137,13 +137,6 @@ PYBIND11_MODULE(_icet, m)
              py::arg("chemical_symbols"),
              py::arg("cell"),
              py::arg("pbc"))
-        // @todo Remove getter/setter, keep property.
-        //.def(
-        //    "get_pbc", &Structure::getPBC,
-        //    "Returns the periodic boundary conditions.")
-        //.def(
-        //    "set_pbc", &Structure::setPBC,
-        //    "Sets the periodic boundary conditions.")
         .def_property(
             "pbc",
             &Structure::getPBC,
@@ -485,7 +478,7 @@ PYBIND11_MODULE(_icet, m)
         .def(py::init<const std::vector<Vector3d> &,
                       const std::vector<Matrix3d> &>())
         .def("build", &::MatrixOfEquivalentPositions::build)
-        .def("get_permuted_positions", &::MatrixOfEquivalentPositions::getPermutedPositions)
+        .def("get_equivalent_positions", &::MatrixOfEquivalentPositions::getEquivalentPositions)
     ;
 
     py::class_<LatticeSite>(m, "LatticeSite")
@@ -886,9 +879,9 @@ PYBIND11_MODULE(_icet, m)
         .def("__len__",
              &OrbitList::size,
              "Returns the total number of orbits counted in the OrbitList instance.")
-        .def_property_readonly("permutation_matrix",
+        .def_property_readonly("matrix_of_equivalent_positions",
              &OrbitList::getMatrixOfEquivalentPositions,
-             "list(list(_icet.LatticeSite)) : permutation_matrix")
+             "list(list(_icet.LatticeSite)) : matrix_of_equivalent_positions")
         ;
 
     py::class_<LocalOrbitListGenerator>(m, "LocalOrbitListGenerator")

@@ -25,7 +25,7 @@ class Orbit
 {
 public:
     /// Constructor.
-    Orbit(const Cluster &);
+    Orbit(const Cluster &cluster) : _representativeCluster(cluster) {}
 
     /// Adds a group of sites that are equivalent to this orbit.
     void addEquivalentSites(const std::vector<LatticeSite> &, bool = false);

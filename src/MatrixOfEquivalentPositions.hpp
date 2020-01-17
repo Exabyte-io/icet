@@ -27,16 +27,14 @@ public:
     **/
     MatrixOfEquivalentPositions(const std::vector<Eigen::Vector3d> &translations,
                                 const std::vector<Eigen::Matrix3d> &rotations)
-    {
-        _translations = translations;
-        _rotations = rotations;
-    }
+                                : _translations (translations),
+                                  _rotations (rotations) {}
 
     /// Builds matrix of symmetry equivalent positions.
     void build(const Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor> &);
 
     /// Returns the matrix of symmetry equivalent positions.
-    std::vector<std::vector<Eigen::Vector3d>> getPermutedPositions() const { return _matrixOfEquivalentPositions; }
+    std::vector<std::vector<Eigen::Vector3d>> getEquivalentPositions() const { return _matrixOfEquivalentPositions; }
 
 private:
 
