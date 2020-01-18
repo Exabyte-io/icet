@@ -41,7 +41,7 @@ class TestClusterExpansion(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         self.parameters = np.arange(params_len)
         self.ce = ClusterExpansion(self.cs, self.parameters)
 
@@ -264,7 +264,7 @@ class TestClusterExpansionTernary(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         self.parameters = np.arange(params_len)
         self.ce = ClusterExpansion(self.cs, self.parameters)
 

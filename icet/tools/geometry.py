@@ -123,7 +123,7 @@ def get_position_from_lattice_site(structure: Atoms, lattice_site: LatticeSite):
         specific lattice site of the input structure
     """
     return structure[lattice_site.index].position + \
-        np.dot(lattice_site.unitcell_offset, structure.get_cell())
+        np.dot(lattice_site.unitcell_offset, structure.cell)
 
 
 def fractional_to_cartesian(structure: Atoms,
@@ -160,13 +160,12 @@ def ase_atoms_to_spglib_cell(structure: Atoms) -> Tuple[np.ndarray, np.ndarray, 
     Returns a tuple of three components: cell metric, atomic positions, and
     atomic species of the input ASE Atoms object.
     """
-    return (structure.get_cell(), structure.get_scaled_positions(), structure.get_atomic_numbers())
+    return (structure.cell, structure.get_scaled_positions(), structure.get_atomic_numbers())
 
 
-def get_occupied_primitive_structure(
-        structure: Atoms,
-        allowed_species: List[List[str]],
-        symprec) -> Tuple[Atoms, List[List[str]]]:
+def get_occupied_primitive_structure(structure: Atoms,
+                                     allowed_species: List[List[str]],
+                                     symprec: float) -> Tuple[Atoms, List[List[str]]]:
     """
     Returns an occupied primitive structure.
     Will put hydrogen on sublattice 1, Helium on sublattice 2 and

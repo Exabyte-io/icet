@@ -133,7 +133,7 @@ class SiteOccupancyObserver(BaseObserver):
             allowed_species = {}
             for site, indices in self._sites.items():
                 allowed_species[site] = None
-                positions = supercell.get_positions()[np.array(indices)]
+                positions = supercell.positions[np.array(indices)]
                 lattice_sites =\
                     primitive_structure.find_lattice_sites_by_positions(
                         positions, cluster_space.fractional_position_tolerance)

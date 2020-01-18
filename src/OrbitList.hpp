@@ -58,7 +58,7 @@ class OrbitList
                                 const double) const;
 
     // @todo Add description.
-    void addColumnsFromMatrixOfEquivalentPositions(std::vector<std::vector<std::vector<LatticeSite>>> &,
+    void addColumnsFromMatrixOfEquivalentSites(std::vector<std::vector<std::vector<LatticeSite>>> &,
                                                    std::unordered_set<std::vector<int>, VectorHash> &,
                                                    const std::vector<LatticeSite> &,
                                                    const std::vector<int> &,
@@ -130,7 +130,7 @@ class OrbitList
                      VectorHash> &,
                      std::vector<int>) const;
 
-    /// Finds and returns sites in first column of matrix of equivalent positions along with their unit cell translated indistinguishable sites.
+    /// Finds and returns sites in first column of matrix of equivalent sites along with their unit cell translated indistinguishable sites.
     std::vector<std::vector<LatticeSite>> getAllColumnsFromSites(const std::vector<LatticeSite> &,
                                                                  const std::vector<LatticeSite> &,
                                                                  const std::vector<std::vector<LatticeSite>> &) const;
@@ -146,10 +146,10 @@ class OrbitList
     void removeSitesNotContainingIndex(const int, bool);
 
     /// Returns the first column of the permutation matrix used to construct the orbit list.
-    std::vector<LatticeSite> getFirstColumnOfMatrixOfEquivalentPositions() const { return _referenceLatticeSites; }
+    std::vector<LatticeSite> getFirstColumnOfMatrixOfEquivalentSites() const { return _referenceLatticeSites; }
 
     /// Returns the permutation matrix used to construct the orbit list.
-    std::vector<std::vector<LatticeSite>> getMatrixOfEquivalentPositions() const { return _matrixOfEquivalentPositions; }
+    std::vector<std::vector<LatticeSite>> getMatrixOfEquivalentSites() const { return _matrixOfEquivalentSites; }
 
     /// Removes all equivalent sites that exist both in this orbit list and the input orbit list.
     void subtractSitesFromOrbitList(const OrbitList &);
@@ -181,7 +181,7 @@ private:
     std::vector<LatticeSite> _referenceLatticeSites;
 
     /// Permutation matrix.
-    std::vector<std::vector<LatticeSite>> _matrixOfEquivalentPositions;
+    std::vector<std::vector<LatticeSite>> _matrixOfEquivalentSites;
 
     /// @todo Add description.
     /// @todo Why is this method private but its overloaded buddy is not?
