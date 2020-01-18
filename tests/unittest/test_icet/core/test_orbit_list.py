@@ -9,8 +9,9 @@ from icet.core.orbit import Orbit
 from icet import OrbitList
 from icet import Structure
 from icet.tools.geometry import get_permutation
-from icet.core.matrix_of_equivalent_positions import (_get_lattice_site_matrix_of_equivalent_positions,
-                                          matrix_of_equivalent_positions_from_structure)
+from icet.core.matrix_of_equivalent_positions import \
+    _get_lattice_site_matrix_of_equivalent_positions, \
+    matrix_of_equivalent_positions_from_structure
 
 
 class TestOrbitList(unittest.TestCase):
@@ -85,7 +86,7 @@ class TestOrbitList(unittest.TestCase):
         """Tests permutation matrix property."""
         matrix_of_equivalent_positions, prim_structure, _ = \
             matrix_of_equivalent_positions_from_structure(self.structure, self.cutoffs[0],
-                                              self.position_tolerance, self.symprec)
+                                                          self.position_tolerance, self.symprec)
         pm_lattice_site = _get_lattice_site_matrix_of_equivalent_positions(
             prim_structure, matrix_of_equivalent_positions,
             fractional_position_tolerance=self.fractional_position_tolerance, prune=True)

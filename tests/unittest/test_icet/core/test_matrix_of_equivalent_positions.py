@@ -152,7 +152,8 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
     def test_matrix_of_equivalent_positions_from_structure(self):
         """Tests permutation matrix from structure functionality."""
         pm, _, _ = matrix_of_equivalent_positions_from_structure(self.structure, self.cutoff,
-                                                     self.position_tolerance, self.symprec)
+                                                                 self.position_tolerance,
+                                                                 self.symprec)
 
         matrix = pm.get_equivalent_positions()
         matrix2 = self.pm.get_equivalent_positions()
@@ -164,8 +165,8 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
 
         pm_prim, _, _ = \
             matrix_of_equivalent_positions_from_structure(self.structure_prim, self.cutoff,
-                                              self.position_tolerance, self.symprec,
-                                              find_primitive=False)
+                                                          self.position_tolerance, self.symprec,
+                                                          find_primitive=False)
 
         matrix_prim = pm_prim.get_equivalent_positions()
 
@@ -220,7 +221,8 @@ class TestMatrixOfEquivalentPositions(unittest.TestCase):
         cutoff = 4.2
         pm, prim_structure, _ = \
             matrix_of_equivalent_positions_from_structure(structure, cutoff,
-                                              self.position_tolerance, self.symprec)
+                                                          self.position_tolerance,
+                                                          self.symprec)
         pm_lattice_site = get_lattice_site_matrix_of_equivalent_positions(
             prim_structure, pm, self.fractional_position_tolerance)
         for i in range(len(pm_lattice_site)):
