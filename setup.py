@@ -85,8 +85,8 @@ class BuildExt(build_ext):
         build_ext.build_extensions(self)
 
 
-if sys.version_info < (3, 5, 0, 'final', 0):
-    raise SystemExit('Python 3.5 or later is required!')
+if sys.version_info < (3, 6, 0, 'final', 0):
+    raise SystemExit('Python 3.6 or later is required!')
 
 
 with open('README.rst', encoding='utf-8') as fd:
@@ -114,7 +114,6 @@ classifiers = [
     'Operating System :: OS Independent',
     'Programming Language :: Python :: 3 :: Only',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Intended Audience :: Science/Research',
