@@ -3,7 +3,7 @@ from ase.build import bulk
 from icet.core.matrix_of_equivalent_positions import matrix_of_equivalent_positions_from_structure
 
 from icet.core.matrix_of_equivalent_positions import \
-    get_lattice_site_matrix_of_equivalent_positions \
+    _get_lattice_site_matrix_of_equivalent_positions \
     as get_lattice_site_matrix_of_equivalent_positions
 
 
