@@ -19,7 +19,7 @@ for row in db.select():
         indices, offsets = nl.get_neighbors(index)
         for i, offset in zip(indices, offsets):
             dvec = structure.positions[index] - structure.positions[i]
-            dvec -= np.dot(offset, structure.get_cell())
+            dvec -= np.dot(offset, structure.cell)
             dist_ase = np.linalg.norm(dvec)
             dist_struct = Structure.from_atoms(structure).get_distance(
                 index,

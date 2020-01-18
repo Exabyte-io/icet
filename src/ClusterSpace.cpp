@@ -7,6 +7,7 @@
 @details This constructor initializes a ClusterSpace object.
 @param chemicalSymbols vector of allowed chemical symbol for each site
 @param orbitList list of orbits for the primitive structure
+@param positionTolerance tolerance applied when comparing positions in Cartesian coordinates
 @param fractionalPositionTolerance tolerance applied when comparing positions in fractional coordinates
 */
 ClusterSpace::ClusterSpace(std::vector<std::vector<std::string>> &chemicalSymbols,
@@ -229,11 +230,11 @@ The cluster functions (also "orthogonal point functions") are defined as
 
 .. math::
 
-   \Theta_{n}(\sigma_p) = \begin{cases}
-      1                                    &\quad \text{if}~n=0 \\
-      -\cos\left(\pi(n+1)\sigma_p/M\right) &\quad \text{if n is odd} \\
-      -\sin\left(\pi n   \sigma_p/M\right) &\quad \text{if n is even}
-    \end{cases}
+   \\Theta_{n}(\\sigma_p) = \\begin{cases}
+      1                                     &\\quad \\text{if}~n=0 \\
+      -\\cos\\left(\\pi(n+1)\\sigma_p/M\\right) &\\quad \\text{if n is odd} \\
+      -\\sin\\left(\\pi n   \\sigma_p/M\\right) &\\quad \\text{if n is even}
+    \\end{cases}
 
 @param numberOfAllowedSpecies number of allowed species on the site in question
 @param clusterFunction index of cluster function

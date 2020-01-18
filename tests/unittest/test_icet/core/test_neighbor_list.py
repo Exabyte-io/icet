@@ -76,11 +76,9 @@ class TestNeighborList(unittest.TestCase):
         for i in range(len(self.structure)):
             index = [ngb.index for ngb in self.nl.get_neighbors(i)]
             offset = [ngb.unitcell_offset for ngb in self.nl.get_neighbors(i)]
-            pos = self.structure.positions[index] + np.dot(offset,
-                                                           self.structure.get_cell())
+            pos = self.structure.positions[index] + np.dot(offset, self.structure.cell)
             index2, offset2 = self.ase_nl.get_neighbors(i)
-            pos2 = self.structure.positions[index2] + np.dot(offset2,
-                                                             self.structure.get_cell())
+            pos2 = self.structure.positions[index2] + np.dot(offset2, self.structure.cell)
             self.assertCountEqual(pos2.tolist(), pos.tolist())
 
     def test_get_neighbors_lists(self):

@@ -3,6 +3,12 @@
 namespace icet
 {
 
+/**
+@details Returns the next Cartesian product of currentProduct using the vector
+    of vectors items.
+@param items items[n] gives the possible combinations for element n.
+@param currentProduct current value
+**/
 bool nextCartesianProduct(const std::vector<std::vector<int>> &items,
                           std::vector<int> &currentProduct)
 {

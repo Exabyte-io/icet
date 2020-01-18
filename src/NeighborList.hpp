@@ -9,7 +9,7 @@
 #include <vector>
 #include "LatticeSite.hpp"
 #include "Structure.hpp"
-#include "Vector3dCompare.hpp"
+#include "VectorOperations.hpp"
 
 using namespace Eigen;
 

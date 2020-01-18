@@ -10,8 +10,8 @@
 #include "Orbit.hpp"
 #include "Structure.hpp"
 #include "Symmetry.hpp"
-#include "VectorHash.hpp"
-#include "Vector3dCompare.hpp"
+#include "VectorOperations.hpp"
+#include "VectorOperations.hpp"
 
 /**
 container for a sorted list of orbits.
@@ -44,11 +44,6 @@ class OrbitList
     /// Returns a copy of the orbit of the given index.
     Orbit getOrbit(unsigned int) const;
 
-    /// Adds cluster to orbit list.
-    void addClusterToOrbitList(const Cluster &cluster,
-                               const std::vector<LatticeSite> &,
-                               std::unordered_map<Cluster, int> &);
-
     /// Returns an orbit in the given (supercell) structure.
     Orbit getSuperCellOrbit(const Structure &,
                             const Vector3d &,
@@ -63,12 +58,12 @@ class OrbitList
                                 const double) const;
 
     // @todo Add description.
-    void addPermutedPositionsMatrixColumns(std::vector<std::vector<std::vector<LatticeSite>>> &,
-                                     std::unordered_set<std::vector<int>, VectorHash> &,
-                                     const std::vector<LatticeSite> &,
-                                     const std::vector<int> &,
-                                     const std::vector<std::vector<LatticeSite>> &,
-                                     const std::vector<LatticeSite> &, bool) const;
+    void addColumnsFromMatrixOfEquivalentSites(std::vector<std::vector<std::vector<LatticeSite>>> &,
+                                                   std::unordered_set<std::vector<int>, VectorHash> &,
+                                                   const std::vector<LatticeSite> &,
+                                                   const std::vector<int> &,
+                                                   const std::vector<std::vector<LatticeSite>> &,
+                                                   const std::vector<LatticeSite> &, bool) const;
 
     /// Clears the orbit list.
     void clear() { _orbits.clear(); }
@@ -80,11 +75,11 @@ class OrbitList
     unsigned int getNumberOfNBodyClusters(unsigned int) const;
 
     // Returns the first column of the permutation matrix.
-    std::vector<LatticeSite> getColumn1FromPM(const std::vector<std::vector<LatticeSite>> &,
+    std::vector<LatticeSite> getReferenceLatticeSites(const std::vector<std::vector<LatticeSite>> &,
                                               bool = true) const;
 
     // Returns rows of the permutation matrix that match the lattice sites.
-    std::vector<int> findRowsFromCol1(const std::vector<LatticeSite> &,
+    std::vector<int> getIndicesOfEquivalentLatticeSites(const std::vector<LatticeSite> &,
                                       const std::vector<LatticeSite> &,
                                       bool = true) const;
 
@@ -135,8 +130,7 @@ class OrbitList
                      VectorHash> &,
                      std::vector<int>) const;
 
-    // @todo Complete description. What is col1?
-    /// Finds and returns sites in col1 along with their unit cell translated indistinguishable sites.
+    /// Finds and returns sites in first column of matrix of equivalent sites along with their unit cell translated indistinguishable sites.
     std::vector<std::vector<LatticeSite>> getAllColumnsFromSites(const std::vector<LatticeSite> &,
                                                                  const std::vector<LatticeSite> &,
                                                                  const std::vector<std::vector<LatticeSite>> &) const;
@@ -152,10 +146,10 @@ class OrbitList
     void removeSitesNotContainingIndex(const int, bool);
 
     /// Returns the first column of the permutation matrix used to construct the orbit list.
-    std::vector<LatticeSite> getFirstColumnOfPermutedPositionsMatrix() const { return _col1; }
+    std::vector<LatticeSite> getFirstColumnOfMatrixOfEquivalentSites() const { return _referenceLatticeSites; }
 
     /// Returns the permutation matrix used to construct the orbit list.
-    std::vector<std::vector<LatticeSite>> getPermutedPositionsMatrix() const { return _permutationMatrix; }
+    std::vector<std::vector<LatticeSite>> getMatrixOfEquivalentSites() const { return _matrixOfEquivalentSites; }
 
     /// Removes all equivalent sites that exist both in this orbit list and the input orbit list.
     void subtractSitesFromOrbitList(const OrbitList &);
@@ -184,13 +178,13 @@ public:
 private:
 
     /// @todo Add description.
-    std::vector<LatticeSite> _col1;
+    std::vector<LatticeSite> _referenceLatticeSites;
 
     /// Permutation matrix.
-    std::vector<std::vector<LatticeSite>> _permutationMatrix;
+    std::vector<std::vector<LatticeSite>> _matrixOfEquivalentSites;
 
     /// @todo Add description.
-    /// @toto Why is this method private but its overloaded buddy is not?
+    /// @todo Why is this method private but its overloaded buddy is not?
     int findOrbitIndex(const Cluster &, const std::unordered_map<Cluster, int> &) const;
 
     /// Primitive structure for which orbit list was constructed.

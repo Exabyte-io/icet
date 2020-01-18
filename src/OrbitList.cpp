@@ -1,16 +1,15 @@
 #include "OrbitList.hpp"
 
 /**
-@details This constructor generates an orbit list for the given (supercell) structure from a set of neighbor lists and a permutation map.
-@param neighbor_lists list of neighbor lists
-@param permutationMatrix permutation matrix
+@details This constructor generates an orbit list for the given (supercell) structure from a set of neighbor lists and a matrix of (symmetry) equivalent sites.
 @param structure (supercell) structure for which to generate orbit list
-@param neighbor_lists neighbor lists for each (cluster) order
+@param matrixOfEquivalentSites matrix of symmetry equivalent sites
+@param neighborLists neighbor lists for each (cluster) order (0=pairs, 1=triplets etc)
 @param positionTolerance tolerance applied when comparing positions in Cartesian coordinates
 **/
 OrbitList::OrbitList(const Structure &structure,
-		             const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-		             const std::vector<NeighborList> &neighbor_lists,
+                     const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites,
+                     const std::vector<NeighborList> &neighborLists,
                      const double positionTolerance)
 {
     bool bothways = false;
@@ -19,23 +18,26 @@ OrbitList::OrbitList(const Structure &structure,
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> many_bodyNeighborIndices;
     ManyBodyNeighborList mbnl = ManyBodyNeighborList();
 
-    // if [0,1,2] exists in taken_rows then these three rows (with columns) have been accounted for and should not be looked at
+    // rows that have already been accounted for
     std::unordered_set<std::vector<int>, VectorHash> taken_rows;
-    std::vector<LatticeSite> col1 = getColumn1FromPM(permutationMatrix, false);
+    std::vector<LatticeSite> referenceLatticeSites = getReferenceLatticeSites(matrixOfEquivalentSites, false);
 
-    std::set<LatticeSite> col1_uniques(col1.begin(), col1.end());
-    if (col1.size() != col1_uniques.size())
+    // check that there are no duplicates in the first column of the matrix of equivalent sites
+    std::set<LatticeSite> uniqueReferenceLatticeSites(referenceLatticeSites.begin(), referenceLatticeSites.end());
+    if (referenceLatticeSites.size() != uniqueReferenceLatticeSites.size())
     {
         std::ostringstream msg;
-        msg << "Found duplicates in column1 of permutation matrix: ";
-        msg << std::to_string(col1.size()) << " != " << std::to_string(col1_uniques.size());
+        msg << "Found duplicates in the list of reference lattice sites (= first column of matrix of equivalent sites): ";
+        msg << std::to_string(referenceLatticeSites.size()) << " != " << std::to_string(uniqueReferenceLatticeSites.size());
         msg << " (OrbitList::OrbitList)";
         throw std::runtime_error(msg.str());
     }
-    for (size_t index = 0; index < neighbor_lists[0].size(); index++)
+
+
+    for (size_t index = 0; index < neighborLists[0].size(); index++)
     {
 
-        std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> mbnl_latticeSites = mbnl.build(neighbor_lists, index, bothways);
+        std::vector<std::pair<std::vector<LatticeSite>, std::vector<LatticeSite>>> mbnl_latticeSites = mbnl.build(neighborLists, index, bothways);
         for (const auto &mbnl_pair : mbnl_latticeSites)
         {
 
@@ -47,15 +49,15 @@ OrbitList::OrbitList(const Structure &structure,
                 std::sort(lattice_sites_copy.begin(), lattice_sites_copy.end());
                 if (lattice_sites_copy != lattice_sites && !bothways)
                 {
-                    throw std::runtime_error("Original sites is not sorted (OrbitList::OrbitList)");
+                    throw std::runtime_error("Original sites are not sorted (OrbitList::OrbitList)");
                 }
                 std::vector<std::vector<LatticeSite>> translatedSites = getSitesTranslatedToUnitcell(lattice_sites);
 
-                auto sites_index_pair = getMatchesInPM(translatedSites, col1);
+                auto sites_index_pair = getMatchesInPM(translatedSites, referenceLatticeSites);
                 if (!isRowsTaken(taken_rows, sites_index_pair[0].second))
                 {
-                    //new stuff found
-                    addPermutedPositionsMatrixColumns(latticeSites, taken_rows, sites_index_pair[0].first, sites_index_pair[0].second, permutationMatrix, col1, true);
+                    // new stuff found
+                    addColumnsFromMatrixOfEquivalentSites(latticeSites, taken_rows, sites_index_pair[0].first, sites_index_pair[0].second, matrixOfEquivalentSites, referenceLatticeSites, true);
                 }
             }
 
@@ -64,12 +66,12 @@ OrbitList::OrbitList(const Structure &structure,
             if (mbnl_pair.second.size() == 0)
             {
                 std::vector<LatticeSite> lattice_sites = mbnl_pair.first;
-                auto pm_rows = findRowsFromCol1(col1, lattice_sites);
+                auto pm_rows = getIndicesOfEquivalentLatticeSites(referenceLatticeSites, lattice_sites);
                 auto find = taken_rows.find(pm_rows);
                 if (find == taken_rows.end())
                 {
                     // Found new stuff
-                    addPermutedPositionsMatrixColumns(latticeSites, taken_rows, lattice_sites, pm_rows, permutationMatrix, col1, true);
+                    addColumnsFromMatrixOfEquivalentSites(latticeSites, taken_rows, lattice_sites, pm_rows, matrixOfEquivalentSites, referenceLatticeSites, true);
                 }
             }
         }
@@ -82,8 +84,7 @@ OrbitList::OrbitList(const Structure &structure,
 
     addOrbitsFromPM(structure, latticeSites);
 
-    // @todo Rename this.
-    addPermutationInformationToOrbits(col1, permutationMatrix);
+    addPermutationInformationToOrbits(referenceLatticeSites, matrixOfEquivalentSites);
 
     // Sort the orbit list.
     sort(positionTolerance);
@@ -91,7 +92,7 @@ OrbitList::OrbitList(const Structure &structure,
 }
 
 /**
-@details This function sorts the orbit list. This is done to obtain a reproducable (stable) order of the orbit list.
+@details This function sorts the orbit list by order and radius. This is done to obtain a reproducable (stable) order of the orbit list.
 @param positionTolerance tolerance applied when comparing positions in Cartesian coordinates
 */
 void OrbitList::sort(const double positionTolerance)
@@ -99,12 +100,12 @@ void OrbitList::sort(const double positionTolerance)
     std::sort(_orbits.begin(), _orbits.end(),
               [positionTolerance](const Orbit& lhs, const Orbit& rhs)
               {
-                  /// Test against number of bodies in cluster.
+                  // Test against number of bodies in cluster.
                   if (lhs.getRepresentativeCluster().order() != rhs.getRepresentativeCluster().order())
                   {
                       return lhs.getRepresentativeCluster().order() < rhs.getRepresentativeCluster().order();
                   }
-                  /// Compare by radius.
+                  // Compare by radius.
                   if (fabs(lhs.radius() - rhs.radius()) > positionTolerance)
                   {
                       return lhs.radius() < rhs.radius();
@@ -133,7 +134,7 @@ void OrbitList::addOrbit(const Orbit &orbit) {
 }
 
 /**
-@param nbody number of bodies for which to filter
+@param nbody number of bodies for which to return the number of clusters
 **/
 unsigned int OrbitList::getNumberOfNBodyClusters(unsigned int nbody) const
 {
@@ -146,27 +147,6 @@ unsigned int OrbitList::getNumberOfNBodyClusters(unsigned int nbody) const
         }
     }
     return count;
-}
-
-/// Adds cluster to orbit list, if cluster exists add sites if not create a new orbit
-void OrbitList::addClusterToOrbitList(const Cluster &cluster,
-                                      const std::vector<LatticeSite> &sites,
-                                      std::unordered_map<Cluster, int> &clusterIndexMap)
-{
-    int orbitNumber = findOrbitIndex(cluster, clusterIndexMap);
-    if (orbitNumber == -1)
-    {
-        Orbit newOrbit = Orbit(cluster);
-        addOrbit(newOrbit);
-        // add to back (assuming addOrbit does not sort orbit list)
-        _orbits.back().addEquivalentSites(sites);
-        clusterIndexMap[cluster] = _orbits.size() - 1;
-        _orbits.back().sort();
-    }
-    else
-    {
-        _orbits[orbitNumber].addEquivalentSites(sites, true);
-    }
 }
 
 /**
@@ -191,7 +171,7 @@ int OrbitList::findOrbitIndex(const Cluster &cluster,
 
 /**
 @details Returns a copy of the orbit at the given index.
-@param index
+@param index index of orbit
 @returns copy of orbit
 **/
 Orbit OrbitList::getOrbit(unsigned int index) const
@@ -231,11 +211,11 @@ For each orbit:
                 continue
 
 **/
-void OrbitList::addPermutationInformationToOrbits(const std::vector<LatticeSite> &col1,
-                                                  const std::vector<std::vector<LatticeSite>> &permutationMatrix)
+void OrbitList::addPermutationInformationToOrbits(const std::vector<LatticeSite> &referenceLatticeSites,
+                                                  const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites)
 {
-    _col1 = col1;
-    _permutationMatrix = permutationMatrix;
+    _referenceLatticeSites = referenceLatticeSites;
+    _matrixOfEquivalentSites = matrixOfEquivalentSites;
 
     for (size_t i = 0; i < size(); i++)
     {
@@ -253,7 +233,7 @@ void OrbitList::addPermutationInformationToOrbits(const std::vector<LatticeSite>
 
         for (auto translated_rep_sites : translatedRepresentativeSites)
         {
-            auto p_equal_i = getAllColumnsFromSites(translated_rep_sites, col1, permutationMatrix);
+            auto p_equal_i = getAllColumnsFromSites(translated_rep_sites, referenceLatticeSites, matrixOfEquivalentSites);
             all_translated_p_equal.insert(all_translated_p_equal.end(), p_equal_i.begin(), p_equal_i.end());
         }
 
@@ -358,14 +338,20 @@ void OrbitList::addPermutationInformationToOrbits(const std::vector<LatticeSite>
     }
 }
 
-/// Will find the sites in col1, extract all columns along with their unit cell translated indistinguishable sites.
+/**
+@details Finds the sites in referenceLatticeSites, extract all columns along with their unit cell translated indistinguishable sites.
+@param sites sites that correspond to the columns that will be returned
+@param referenceLatticeSites sites in the first column of matrix of equivalent sites
+@param matrixOfEquivalentSites matrix of symmetry equivalent sites
+@returns columns along with their unit cell translated indistinguishable sites
+**/
 std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromSites(const std::vector<LatticeSite> &sites,
-                                                                        const std::vector<LatticeSite> &col1,
-                                                                        const std::vector<std::vector<LatticeSite>> &permutationMatrix) const
+                                                                        const std::vector<LatticeSite> &referenceLatticeSites,
+                                                                        const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites) const
 {
     bool sortRows = false;
-    std::vector<int> rowsFromCol1 = findRowsFromCol1(col1, sites, sortRows);
-    std::vector<std::vector<LatticeSite>> p_equal = getAllColumnsFromRow(rowsFromCol1, permutationMatrix, true, sortRows);
+    std::vector<int> rowsFromReferenceLatticeSites = getIndicesOfEquivalentLatticeSites(referenceLatticeSites, sites, sortRows);
+    std::vector<std::vector<LatticeSite>> p_equal = getAllColumnsFromRow(rowsFromReferenceLatticeSites, matrixOfEquivalentSites, true, sortRows);
     return p_equal;
 }
 
@@ -385,25 +371,26 @@ bool OrbitList::isRowsTaken(const std::unordered_set<std::vector<int>, VectorHas
 }
 
 /**
-@brief Returns all columns from the given rows in permutation matrix
+@brief Returns all columns from the given rows in matrix of symmetry equivalent sites
+@param rows indices of rows to return
+@param matrixOfEquivalentSites matrix of symmetry equivalent sites
 @param includeTranslatedSites If true it will also include the equivalent sites found from the rows by moving each site into the unitcell.
-@todo complete description
+@param sortIt if true (default) the first column will be sorted
 **/
-std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(
-    const std::vector<int> &rows,
-    const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-    bool includeTranslatedSites,
-    bool sortIt) const
+std::vector<std::vector<LatticeSite>> OrbitList::getAllColumnsFromRow(const std::vector<int> &rows,
+                                                                      const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites,
+                                                                      bool includeTranslatedSites,
+                                                                      bool sortIt) const
 {
     std::vector<std::vector<LatticeSite>> allColumns;
 
-    for (size_t column = 0; column < permutationMatrix[0].size(); column++)
+    for (size_t column = 0; column < matrixOfEquivalentSites[0].size(); column++)
     {
         std::vector<LatticeSite> indistinctlatticeSites;
 
         for (const int &row : rows)
         {
-            indistinctlatticeSites.push_back(permutationMatrix[row][column]);
+            indistinctlatticeSites.push_back(matrixOfEquivalentSites[row][column]);
         }
 
         if (includeTranslatedSites)
@@ -558,32 +545,38 @@ void OrbitList::addOrbitFromPM(const Structure &structure,
 }
 
 /**
-@details From all columns in permutation matrix add all the vector<LatticeSites> from pm_rows
-When taking new columns update taken_rows accordingly
+@details Adds columns of the matrix of equivalent sites to the orbit list.
+@param latticeSites list of lattice sites to which to add
+@param taken_rows
+@param lattice_sites
+@param pm_rows indices of rows in matrix of symmetry equivalent sites
+@param matrixOfEquivalentSites
+@param referenceLatticeSites
+@param add
+@todo fix the description of this function, including its name
 **/
-void OrbitList::addPermutedPositionsMatrixColumns(std::vector<std::vector<std::vector<LatticeSite>>> &latticeSites,
-                                            std::unordered_set<std::vector<int>,
-                                            VectorHash> &taken_rows,
-                                            const std::vector<LatticeSite> &lattice_sites,
-                                            const std::vector<int> &pm_rows,
-                                            const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-                                            const std::vector<LatticeSite> &col1,
-                                            bool add) const
+void OrbitList::addColumnsFromMatrixOfEquivalentSites(std::vector<std::vector<std::vector<LatticeSite>>> &latticeSites,
+                                                          std::unordered_set<std::vector<int>, VectorHash> &taken_rows,
+                                                          const std::vector<LatticeSite> &lattice_sites,
+                                                          const std::vector<int> &pm_rows,
+                                                          const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites,
+                                                          const std::vector<LatticeSite> &referenceLatticeSites,
+                                                          bool add) const
 {
 
     std::vector<std::vector<LatticeSite>> columnLatticeSites;
-    columnLatticeSites.reserve(permutationMatrix[0].size());
-    for (size_t column = 0; column < permutationMatrix[0].size(); column++)
+    columnLatticeSites.reserve(matrixOfEquivalentSites[0].size());
+    for (size_t column = 0; column < matrixOfEquivalentSites[0].size(); column++)
     {
         std::vector<LatticeSite> indistinctlatticeSites;
 
         for (const int &row : pm_rows)
         {
-            indistinctlatticeSites.push_back(permutationMatrix[row][column]);
+            indistinctlatticeSites.push_back(matrixOfEquivalentSites[row][column]);
         }
         auto translatedEquivalentSites = getSitesTranslatedToUnitcell(indistinctlatticeSites);
 
-        auto sites_index_pair = getMatchesInPM(translatedEquivalentSites, col1);
+        auto sites_index_pair = getMatchesInPM(translatedEquivalentSites, referenceLatticeSites);
 
         auto find = taken_rows.find(sites_index_pair[0].second);
         bool findOnlyOne = true;
@@ -610,11 +603,11 @@ void OrbitList::addPermutedPositionsMatrixColumns(std::vector<std::vector<std::v
     }
 }
 
-/// Returns the first set of translated sites that exists in col1 of permutationmatrix.
+/// Returns the first set of translated sites that exists in referenceLatticeSites of permutationmatrix.
 /// @todo Complete description.
 std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> OrbitList::getMatchesInPM(
     const std::vector<std::vector<LatticeSite>> &translatedSites,
-    const std::vector<LatticeSite> &col1) const
+    const std::vector<LatticeSite> &referenceLatticeSites) const
 {
     std::vector<int> perm_matrix_rows;
     std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> matchedSites;
@@ -622,13 +615,13 @@ std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> OrbitList::ge
     {
         try
         {
-            perm_matrix_rows = findRowsFromCol1(col1, sites);
+            perm_matrix_rows = getIndicesOfEquivalentLatticeSites(referenceLatticeSites, sites);
         }
         catch (const std::runtime_error)
         {
             continue;
         }
-        // No error here indicating that we found matching rows in col1
+        // No error here indicating that we found matching rows in referenceLatticeSites
         matchedSites.push_back(std::make_pair(sites, perm_matrix_rows));
     }
     if (matchedSites.size() > 0)
@@ -637,8 +630,8 @@ std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> OrbitList::ge
     }
     else
     {
-        // No matching rows in permutation matrix, this should not happen so we throw an error.
-        throw std::runtime_error("Did not find any of the translated sites in col1 of permutation matrix (OrbitList::getMatchesInPM)");
+        // No matching rows in matrix of equivalent sites, this should not happen so we throw an error.
+        throw std::runtime_error("Did not find any of the translated sites in referenceLatticeSites in the matrix of equivalent sites (OrbitList::addColumnsFromMatrixOfEquivalentSites)");
     }
 }
 /**
@@ -659,26 +652,28 @@ bool OrbitList::validCluster(const std::vector<LatticeSite> &latticeSites) const
 }
 
 /**
-@details This function searches for lattice sites in the first column of the permutation matrix and returns the corresponding rows.
+@details Returns a list of indices of entries in latticeSites that are equivalent to the sites in referenceLatticeSites.
 @param sortIt if true the first column will be sorted
-@todo Complete description.
+@param referenceLatticeSites list of sites to search for; this commonly corresponds to the sites in the first column of the matrix of equivalent sites
+@param latticeSites list of sites to search in
+@return indices of entries in latticeSites that are equivalent to sites in referenceLatticeSites
 **/
-std::vector<int> OrbitList::findRowsFromCol1(const std::vector<LatticeSite> &col1,
-                                             const std::vector<LatticeSite> &latticeSites,
-                                             bool sortIt) const
+std::vector<int> OrbitList::getIndicesOfEquivalentLatticeSites(const std::vector<LatticeSite> &referenceLatticeSites,
+							                                   const std::vector<LatticeSite> &latticeSites,
+							                                   bool sortIt) const
 {
     std::vector<int> rows;
     for (const auto &latticeSite : latticeSites)
     {
-        const auto find = std::find(col1.begin(), col1.end(), latticeSite);
-        if (find == col1.end())
+        const auto find = std::find(referenceLatticeSites.begin(), referenceLatticeSites.end(), latticeSite);
+        if (find == referenceLatticeSites.end())
         {
-            throw std::runtime_error("Did not find lattice site in col1 of permutation matrix (OrbitList::findRowsFromCol1)");
+            throw std::runtime_error("Did not find lattice site in referenceLatticeSites in matrix of equivalent sites (OrbitList::getIndicesOfEquivalentLatticeSites)");
         }
         else
         {
-            int row_in_col1 = std::distance(col1.begin(), find);
-            rows.push_back(row_in_col1);
+            int row_in_referenceLatticeSites = std::distance(referenceLatticeSites.begin(), find);
+            rows.push_back(row_in_referenceLatticeSites);
         }
     }
     if (sortIt)
@@ -689,24 +684,25 @@ std::vector<int> OrbitList::findRowsFromCol1(const std::vector<LatticeSite> &col
 }
 
 /**
+@details Returns reference lattice sites, which is equivalent to returning the first column of the matrix of equivalent sites.
 @todo Expand description.
-@param permutationMatrix permutation matrix
+@param matrixOfEquivalentSites matrix of symmetry equivalent sites
 @param sortIt if true (default) the first column will be sorted
 **/
-std::vector<LatticeSite> OrbitList::getColumn1FromPM(const std::vector<std::vector<LatticeSite>> &permutationMatrix,
-                                                     bool sortIt) const
+std::vector<LatticeSite> OrbitList::getReferenceLatticeSites(const std::vector<std::vector<LatticeSite>> &matrixOfEquivalentSites,
+                                                             bool sortIt) const
 {
-    std::vector<LatticeSite> col1;
-    col1.reserve(permutationMatrix[0].size());
-    for (const auto &row : permutationMatrix)
+    std::vector<LatticeSite> referenceLatticeSites;
+    referenceLatticeSites.reserve(matrixOfEquivalentSites[0].size());
+    for (const auto &row : matrixOfEquivalentSites)
     {
-        col1.push_back(row[0]);
+        referenceLatticeSites.push_back(row[0]);
     }
     if (sortIt)
     {
-        std::sort(col1.begin(), col1.end());
+        std::sort(referenceLatticeSites.begin(), referenceLatticeSites.end());
     }
-    return col1;
+    return referenceLatticeSites;
 }
 
 /**
@@ -752,7 +748,7 @@ Orbit OrbitList::getSuperCellOrbit(const Structure &supercell,
 This involves finding a map from the site in the primitive cell to the supercell.
 If no map is found mapping is attempted based on the position of the site in the supercell.
 @param site lattice site to transform
-@param structure supercell structure
+@param supercell supercell structure
 @param primToSuperMap map from primitive to supercell
 @param fractionalPositionTolerance tolerance applied when comparing positions in fractional coordinates
 **/
@@ -830,8 +826,8 @@ void OrbitList::removeSitesNotContainingIndex(const int index,
 }
 
 /**
-@details Removes from each orbit a specific set of sites in this orbit and the corresponding site permutation.
-@param sites the list of sites that will be removed; the order of sites is irrelevant.
+@details Removes from the current orbit list all sites that are in the input orbit list.
+@param orbitList orbit list with sites that are to be removed.
  **/
 void OrbitList::subtractSitesFromOrbitList(const OrbitList &orbitList)
 {

@@ -10,8 +10,9 @@ from _icet import _OrbitList
 from ase import Atoms
 from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
 from icet.core.neighbor_list import get_neighbor_lists
-from icet.core.permutation_matrix import (_get_lattice_site_permutation_matrix,
-                                          permutation_matrix_from_structure)
+from icet.core.matrix_of_equivalent_positions import \
+    _get_lattice_site_matrix_of_equivalent_positions, \
+    matrix_of_equivalent_positions_from_structure
 from icet.core.structure import Structure
 from icet.input_output.logging_tools import logger
 
@@ -50,28 +51,29 @@ class OrbitList(_OrbitList):
                  fractional_position_tolerance: float) -> None:
         max_cutoff = np.max(cutoffs)
         # Set up a permutation matrix
-        permutation_matrix, prim_structure, _ \
-            = permutation_matrix_from_structure(structure=structure,
-                                                cutoff=max_cutoff,
-                                                position_tolerance=position_tolerance,
-                                                find_primitive=False,
-                                                symprec=symprec)
+        matrix_of_equivalent_positions, prim_structure, _ \
+            = matrix_of_equivalent_positions_from_structure(structure=structure,
+                                                            cutoff=max_cutoff,
+                                                            position_tolerance=position_tolerance,
+                                                            find_primitive=False,
+                                                            symprec=symprec)
 
-        logger.info('Done getting permutation_matrix.')
+        logger.info('Done getting matrix_of_equivalent_positions.')
 
         # Get a list of neighbor-lists
         neighbor_lists = get_neighbor_lists(prim_structure, cutoffs, position_tolerance)
 
         logger.info('Done getting neighbor lists.')
 
-        # Transform permutation_matrix to be in lattice site format
+        # Transform matrix_of_equivalent_positions to be in lattice site format
         pm_lattice_sites \
-            = _get_lattice_site_permutation_matrix(prim_structure,
-                                                   permutation_matrix,
-                                                   fractional_position_tolerance,
-                                                   prune=True)
+            = _get_lattice_site_matrix_of_equivalent_positions(prim_structure,
+                                                               matrix_of_equivalent_positions,
+                                                               fractional_position_tolerance,
+                                                               prune=True)
 
-        logger.info('Transformation of permutation matrix to lattice neighbor format completed.')
+        logger.info('Transformation of matrix of equivalent positions'
+                    ' to lattice neighbor format completed.')
 
         _OrbitList.__init__(
             self, prim_structure, pm_lattice_sites, neighbor_lists, position_tolerance)

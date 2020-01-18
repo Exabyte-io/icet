@@ -9,8 +9,9 @@ from icet.core.orbit import Orbit
 from icet import OrbitList
 from icet import Structure
 from icet.tools.geometry import get_permutation
-from icet.core.permutation_matrix import (_get_lattice_site_permutation_matrix,
-                                          permutation_matrix_from_structure)
+from icet.core.matrix_of_equivalent_positions import \
+    _get_lattice_site_matrix_of_equivalent_positions, \
+    matrix_of_equivalent_positions_from_structure
 
 
 class TestOrbitList(unittest.TestCase):
@@ -81,16 +82,16 @@ class TestOrbitList(unittest.TestCase):
             fractional_position_tolerance=frac_tol)
         self.assertEqual(len(orbit_list), 84)
 
-    def test_property_permutation_matrix(self):
+    def test_property_matrix_of_equivalent_positions(self):
         """Tests permutation matrix property."""
-        permutation_matrix, prim_structure, _ = \
-            permutation_matrix_from_structure(self.structure, self.cutoffs[0],
-                                              self.position_tolerance, self.symprec)
-        pm_lattice_site = _get_lattice_site_permutation_matrix(
-            prim_structure, permutation_matrix,
+        matrix_of_equivalent_positions, prim_structure, _ = \
+            matrix_of_equivalent_positions_from_structure(self.structure, self.cutoffs[0],
+                                                          self.position_tolerance, self.symprec)
+        pm_lattice_site = _get_lattice_site_matrix_of_equivalent_positions(
+            prim_structure, matrix_of_equivalent_positions,
             fractional_position_tolerance=self.fractional_position_tolerance, prune=True)
 
-        self.assertEqual(self.orbit_list.permutation_matrix, pm_lattice_site)
+        self.assertEqual(self.orbit_list.matrix_of_equivalent_positions, pm_lattice_site)
 
     def test_add_orbit(self):
         """Tests add_orbit funcionality."""
@@ -248,7 +249,7 @@ class TestOrbitList(unittest.TestCase):
         sites = [LatticeSite(0, [0., 0., 0.]),
                  LatticeSite(0, [1., 0., 0.])]
 
-        pm = self.orbit_list.permutation_matrix
+        pm = self.orbit_list.matrix_of_equivalent_positions
         column1 = [row[0] for row in pm]
 
         columns = \
@@ -282,7 +283,7 @@ class TestOrbitList(unittest.TestCase):
             symprec=self.symprec, position_tolerance=self.position_tolerance,
             fractional_position_tolerance=self.fractional_position_tolerance)
 
-        pm = orbit_list.permutation_matrix
+        pm = orbit_list.matrix_of_equivalent_positions
         column1 = [row[0] for row in pm]
 
         for orbit in orbit_list.orbits:
@@ -326,7 +327,7 @@ class TestOrbitList(unittest.TestCase):
             symprec=self.symprec, position_tolerance=self.position_tolerance,
             fractional_position_tolerance=self.fractional_position_tolerance)
 
-        pm = orbit_list.permutation_matrix
+        pm = orbit_list.matrix_of_equivalent_positions
         column1 = [row[0] for row in pm]
 
         for orbit in orbit_list.orbits:

@@ -10,7 +10,6 @@ Cluster
 .. doxygenclass:: Cluster
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -22,7 +21,6 @@ ClusterCounts
 .. doxygenclass:: ClusterCounts
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -34,7 +32,6 @@ ClusterSpace
 .. doxygenclass:: ClusterSpace
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -46,7 +43,6 @@ General
 .. doxygennamespace:: icet
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -58,19 +54,6 @@ LatticeSite
 .. doxygenstruct:: LatticeSite
    :project: icet
    :members:
-   :undoc-members:
-
-
-.. index::
-   single: C++ reference; LocalEnvironment
-
-LocalEnvironment
-----------------
-
-.. doxygenstruct:: LocalEnvironment
-   :project: icet
-   :members:
-   :undoc-members:
 
 
 .. index::
@@ -82,7 +65,6 @@ LocalOrbitListGenerator
 .. doxygenclass:: LocalOrbitListGenerator
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -94,7 +76,17 @@ ManyBodyNeighborList
 .. doxygenclass:: ManyBodyNeighborList
    :project: icet
    :members:
-   :undoc-members:
+
+
+.. index::
+   single: C++ reference; MatrixOfEquivalentPositions
+
+MatrixOfEquivalentPositions
+---------------------------
+
+.. doxygenclass:: MatrixOfEquivalentPositions
+   :project: icet
+   :members:
 
 
 .. index::
@@ -106,7 +98,6 @@ NeighborList
 .. doxygenclass:: NeighborList
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -118,7 +109,6 @@ Orbit
 .. doxygenclass:: Orbit
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -130,7 +120,6 @@ OrbitList
 .. doxygenclass:: OrbitList
    :project: icet
    :members:
-   :undoc-members:
 
 
 .. index::
@@ -142,19 +131,6 @@ PeriodicTable
 .. doxygennamespace:: PeriodicTable
    :project: icet
    :members:
-   :undoc-members:
-
-
-.. index::
-   single: C++ reference; PermutationMatrix
-
-PermutationMatrix
------------------
-
-.. doxygenclass:: PermutationMatrix
-   :project: icet
-   :members:
-   :undoc-members:
 
 
 .. index::
@@ -166,4 +142,3 @@ Structure
 .. doxygenclass:: Structure
    :project: icet
    :members:
-   :undoc-members:

@@ -26,7 +26,7 @@ class TestCECalculatorBinary(unittest.TestCase):
         self.cutoffs = [5, 5]  # [2.9]
         self.subelements = ['Al', 'Ge']
         self.cs = ClusterSpace(self.structure, self.cutoffs, self.subelements)
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         params = [1.1] * params_len
 
         self.ce = ClusterExpansion(self.cs, params)
@@ -221,7 +221,7 @@ class TestCECalculatorBinaryHCP(unittest.TestCase):
         self.subelements = ['Al', 'Ge']
         self.cs = ClusterSpace(
             self.structure.copy(), self.cutoffs, self.subelements)
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         params = [1.0] * params_len
 
         self.ce = ClusterExpansion(self.cs, params)
@@ -362,7 +362,7 @@ class TestCECalculatorBinaryBCC(unittest.TestCase):
         self.cutoffs = [6, 6, 6]
         self.subelements = ['Al', 'Ge']
         self.cs = ClusterSpace(self.structure, self.cutoffs, self.subelements)
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         params = [1.1] * params_len
 
         self.ce = ClusterExpansion(self.cs, params)
@@ -498,7 +498,7 @@ class TestCECalculatorTernaryBCC(unittest.TestCase):
         self.cutoffs = [6, 6, 6]
         self.subelements = ['Al', 'Ge', 'H']
         self.cs = ClusterSpace(self.structure, self.cutoffs, self.subelements)
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         params = [1.0] * params_len
         self.ce = ClusterExpansion(self.cs, params)
 
@@ -634,7 +634,7 @@ class TestCECalculatorTernaryHCP(unittest.TestCase):
         self.cutoffs = [6, 6, 6]
         self.subelements = ['Al', 'Ge', 'H']
         self.cs = ClusterSpace(self.structure, self.cutoffs, self.subelements)
-        params_len = self.cs.get_cluster_space_size()
+        params_len = len(self.cs)
         params = [1.0] * params_len
         self.ce = ClusterExpansion(self.cs, params)
 

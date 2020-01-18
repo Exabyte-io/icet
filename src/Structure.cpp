@@ -82,7 +82,7 @@ Vector3d Structure::getPositionByIndex(const size_t &index) const
 }
 /**
   @details This function returns the atomic number of a site.
-  @param site index of site
+  @param index index of site
   @returns atomic number
 **/
 int Structure::getAtomicNumber(const size_t index) const
@@ -100,9 +100,9 @@ int Structure::getAtomicNumber(const size_t index) const
 }
 
 /**
-  @details This function sets the symmetrically distinct sites associated
-  with the structure. It requires a vector as input the length of
-  which  must match the number of positions.
+  @details This function sets the symmetrically distinct sites associated with
+      the structure. It requires a vector as input the length of which  must
+      match the number of positions.
   @param sites list of integers
 **/
 void Structure::setUniqueSites(const std::vector<size_t> &sites)
@@ -265,7 +265,7 @@ int Structure::getNumberOfAllowedSpeciesBySite(const size_t index) const
 
 /**
   @details This function returns the a vector with number of components allowed on each site index
-  @param indices indices of sites
+  @param sites indices of sites
   @returns the list of number of allowed components for each site
 **/
 std::vector<int> Structure::getNumberOfAllowedSpeciesBySites(const std::vector<LatticeSite> &sites) const

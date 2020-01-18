@@ -1,5 +1,5 @@
 """
-This module provides a Python interface to the PermutationMatrix
+This module provides a Python interface to the MatrixOfEquivalentPositions
 class with supplementary functions.
 """
 
@@ -9,7 +9,7 @@ import numpy as np
 import spglib
 
 from ase import Atoms
-from _icet import PermutationMatrix
+from _icet import MatrixOfEquivalentPositions
 from icet.core.lattice_site import LatticeSite
 from icet.core.neighbor_list import NeighborList
 from icet.core.structure import Structure
@@ -18,14 +18,14 @@ from icet.tools.geometry import (ase_atoms_to_spglib_cell,
                                  get_fractional_positions_from_neighbor_list,
                                  get_primitive_structure)
 
-logger = logger.getChild('permutation_matrix')
+logger = logger.getChild('matrix_of_equivalent_positions')
 
 
-def permutation_matrix_from_structure(structure: Atoms,
-                                      cutoff: float,
-                                      position_tolerance: float,
-                                      symprec: float,
-                                      find_primitive: bool = True) \
+def matrix_of_equivalent_positions_from_structure(structure: Atoms,
+                                                  cutoff: float,
+                                                  position_tolerance: float,
+                                                  symprec: float,
+                                                  find_primitive: bool = True) \
         -> Tuple[np.ndarray, Structure, NeighborList]:
     """Sets up a list of permutation maps from an Atoms object.
 
@@ -61,7 +61,7 @@ def permutation_matrix_from_structure(structure: Atoms,
     rotations = symmetry['rotations']
 
     # set up a permutation map object
-    permutation_matrix = PermutationMatrix(translations, rotations)
+    matrix_of_equivalent_positions = MatrixOfEquivalentPositions(translations, rotations)
 
     # create neighbor_lists from the different cutoffs
     prim_icet_structure = Structure.from_atoms(structure_prim)
@@ -74,15 +74,16 @@ def permutation_matrix_from_structure(structure: Atoms,
 
     logger.debug('Number of fractional positions: {}'.format(len(frac_positions)))
     if frac_positions is not None:
-        permutation_matrix.build(frac_positions)
+        matrix_of_equivalent_positions.build(frac_positions)
 
-    return permutation_matrix, prim_icet_structure, neighbor_list
+    return matrix_of_equivalent_positions, prim_icet_structure, neighbor_list
 
 
-def _get_lattice_site_permutation_matrix(structure: Structure,
-                                         permutation_matrix: PermutationMatrix,
-                                         fractional_position_tolerance: float,
-                                         prune: bool = True) -> np.ndarray:
+def _get_lattice_site_matrix_of_equivalent_positions(
+        structure: Structure,
+        matrix_of_equivalent_positions: MatrixOfEquivalentPositions,
+        fractional_position_tolerance: float,
+        prune: bool = True) -> np.ndarray:
     """
     Returns a transformed permutation matrix with lattice sites as entries
     instead of fractional coordinates.
@@ -91,7 +92,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
     ----------
     structure
         primitive atomic icet structure
-    permutation_matrix
+    matrix_of_equivalent_positions
         permutation matrix with fractional coordinates format entries
     fractional_position_tolerance
         tolerance applied when evaluating distances in fractional coordinates
@@ -102,7 +103,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
     -------
     permutation matrix in a row major order with lattice site format entries
     """
-    pm_frac = permutation_matrix.get_permuted_positions()
+    pm_frac = matrix_of_equivalent_positions.get_equivalent_positions()
 
     pm_lattice_sites = []
     for row in pm_frac:
@@ -128,7 +129,7 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
         logger.debug('Size of columns of the permutation matrix before'
                      ' pruning {}'.format(len(pm_lattice_sites)))
 
-        pm_lattice_sites = _prune_permutation_matrix(pm_lattice_sites)
+        pm_lattice_sites = _prune_matrix_of_equivalent_positions(pm_lattice_sites)
 
         logger.debug('Size of columns of the permutation matrix after'
                      ' pruning {}'.format(len(pm_lattice_sites)))
@@ -136,25 +137,25 @@ def _get_lattice_site_permutation_matrix(structure: Structure,
     return pm_lattice_sites
 
 
-def _prune_permutation_matrix(permutation_matrix: List[List[LatticeSite]]):
+def _prune_matrix_of_equivalent_positions(matrix_of_equivalent_positions: List[List[LatticeSite]]):
     """
     Prunes the matrix so that the first column only contains unique elements.
 
     Parameters
     ----------
-    permutation_matrix
+    matrix_of_equivalent_positions
         permutation matrix with LatticeSite type entries
     """
 
-    for i in range(len(permutation_matrix)):
-        for j in reversed(range(len(permutation_matrix))):
+    for i in range(len(matrix_of_equivalent_positions)):
+        for j in reversed(range(len(matrix_of_equivalent_positions))):
             if j <= i:
                 continue
-            if permutation_matrix[i][0] == permutation_matrix[j][0]:
-                permutation_matrix.pop(j)
+            if matrix_of_equivalent_positions[i][0] == matrix_of_equivalent_positions[j][0]:
+                matrix_of_equivalent_positions.pop(j)
                 logger.debug('Removing duplicate in permutation matrix'
                              'i: {} j: {}'.format(i, j))
-    return permutation_matrix
+    return matrix_of_equivalent_positions
 
 
 def _fractional_to_cartesian(fractional_coordinates: List[List[float]],

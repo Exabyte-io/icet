@@ -43,8 +43,6 @@ def _structure_to_atoms(self) -> Atoms:
     conf.set_cell(self.cell)
     for symbol, position in zip(self.chemical_symbols, self.positions):
         conf.append(ase.Atom(symbol, position))
-    conf.set_positions(self.get_positions())
-    conf.set_chemical_symbols(self.get_chemical_symbols())
     return conf
 
 

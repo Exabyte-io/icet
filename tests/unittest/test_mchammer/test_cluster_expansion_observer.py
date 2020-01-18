@@ -19,7 +19,7 @@ class TestCEObserver(unittest.TestCase):
         cutoffs = [6, 6, 5]
         subelements = ['Al', 'Ge']
         cs = ClusterSpace(self.structure, cutoffs, subelements)
-        params_len = cs.get_cluster_space_size()
+        params_len = len(cs)
         params = list(range(params_len))
 
         self.ce = ClusterExpansion(cs, params)

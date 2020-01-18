@@ -1,7 +1,9 @@
 #include "LocalOrbitListGenerator.hpp"
 
 /**
-@param fractionalPositionTolerance tolerance for positions in Cartesian coordinates
+@param orbitList orbit list for the underlying primitive cell
+@param supercell supercell structure for which to set up the local orbit list generation
+@param fractionalPositionTolerance tolerance applied when comparing positions in fractional coordinates
 */
 LocalOrbitListGenerator::LocalOrbitListGenerator(const OrbitList &orbitList,
                                                  const Structure &supercell,
@@ -87,6 +89,7 @@ void LocalOrbitListGenerator::mapSitesAndFindCellOffsets()
 
 /**
 @details Generates and returns the local orbit list with the input index.
+@param index index in unique primitive cell offsets
 */
 OrbitList LocalOrbitListGenerator::getLocalOrbitList(const size_t index)
 {
@@ -101,8 +104,8 @@ OrbitList LocalOrbitListGenerator::getLocalOrbitList(const size_t index)
 }
 
 /**
-@details Generates and returns the local orbit list with the input offset (require that the offset is in uniquecell offset?).
-@param fractionalPositionTolerance tolerance for positions in fractional coordinates
+@details Generates and returns the local orbit list.
+@param primOffset translate the unitcell by this offset and then generate the local orbit list
 */
 OrbitList LocalOrbitListGenerator::getLocalOrbitList(const Vector3d &primOffset)
 {
@@ -111,7 +114,6 @@ OrbitList LocalOrbitListGenerator::getLocalOrbitList(const Vector3d &primOffset)
     {
         std::cout << "Warning: Generating local orbit list with offset not found in _uniquePrimcellOffsets (LocalOrbitListGenerator::getLocalOrbitList)" << std::endl;
     }
-
     return _orbitList.getLocalOrbitList(_supercell, primOffset, _primToSupercellMap, _fractionalPositionTolerance);
 }
 
