@@ -115,7 +115,7 @@ class TestEnsemble(unittest.TestCase):
     def test_estimated_ground_state_properties(self):
         """ Tests the estimated ground state properites."""
         self.ensemble.run()
-        traj, potential = self.ensemble.data_container.get_data('trajectory', 'potential')
+        traj, potential = self.ensemble.data_container.get('trajectory', 'potential')
         min_ind = potential.argmin()
 
         self.assertEqual(traj[min_ind], self.ensemble.estimated_ground_state)

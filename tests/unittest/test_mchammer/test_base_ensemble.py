@@ -174,7 +174,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.run(n_steps1)
         self.assertEqual(self.ensemble._step, n_steps1)
 
-        dc_data = self.ensemble.data_container.get_data('Apple2')
+        dc_data = self.ensemble.data_container.get('Apple2')
         number_of_observations = len([x for x in dc_data if x is not None])
         # plus one since we also observe at step 0
         n_target_obs = n_steps1 // self.ensemble.observers['Apple2'].interval + 1
@@ -185,7 +185,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.run(n_steps2)
         self.assertEqual(self.ensemble._step, n_steps1+n_steps2)
 
-        dc_data = self.ensemble.data_container.get_data('Apple2')
+        dc_data = self.ensemble.data_container.get('Apple2')
         number_of_observations = len([x for x in dc_data if x is not None])
         n_target_obs = (n_steps1 + n_steps2) // self.ensemble.observers['Apple2'].interval + 1
         self.assertEqual(number_of_observations, n_target_obs)
@@ -207,7 +207,7 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.run(n_iters)
         self.assertEqual(self.ensemble._step, n_iters)
         dc_data = \
-            self.ensemble.data_container.get_data('value_1', 'value_2')
+            self.ensemble.data_container.get('value_1', 'value_2')
 
         self.assertEqual(len(dc_data[0]), len(dc_data[1]))
 
@@ -241,7 +241,7 @@ class TestEnsemble(unittest.TestCase):
             os.remove('my-datacontainer.dc')
 
         # check data container
-        dc_data = dc_read.get_data('Apple2')
+        dc_data = dc_read.get('Apple2')
         self.assertEqual(
             len(dc_data),
             n_iters // observer.interval + 1)

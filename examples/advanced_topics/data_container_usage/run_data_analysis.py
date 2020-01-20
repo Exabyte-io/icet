@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 dc = read_data_container('dc_size6_nPd691_T400.dc')
 
 # getting data
-steps, E_mix = dc.get_data('mctrial', 'potential')
+steps, E_mix = dc.get('mctrial', 'potential')
 
 # analyze of potential
 summary = dc.analyze_data('potential')

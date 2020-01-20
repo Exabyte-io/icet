@@ -4,7 +4,7 @@ import random
 import numpy as np
 import pandas as pd
 from ase.build import bulk
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from mchammer.data_containers.base_data_container import BaseDataContainer
 from mchammer.observers.base_observer import BaseObserver
 
@@ -25,8 +25,7 @@ class TestBaseDataContainer(unittest.TestCase):
     def __init__(self, *args, **kwargs):
         super(TestBaseDataContainer, self).__init__(*args, **kwargs)
         self.structure = bulk('Al').repeat(2)
-        self.ensemble_parameters = {'number_of_atoms': len(self.structure),
-                                    'temperature': 375.15}
+        self.ensemble_parameters = {'number_of_atoms': len(self.structure), 'temperature': 375.15}
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -34,11 +33,9 @@ class TestBaseDataContainer(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test case."""
-        self.dc = \
-            BaseDataContainer(structure=self.structure,
-                              ensemble_parameters=self.ensemble_parameters,
-                              metadata=OrderedDict(ensemble_name='test-ensemble',
-                                                   seed=144))
+        self.dc = BaseDataContainer(structure=self.structure,
+                                    ensemble_parameters=self.ensemble_parameters,
+                                    metadata=OrderedDict(ensemble_name='test-ensemble', seed=144))
 
     def test_init(self):
         """Tests initializing BaseDataContainer."""
@@ -48,8 +45,7 @@ class TestBaseDataContainer(unittest.TestCase):
         with self.assertRaises(TypeError) as context:
             BaseDataContainer(structure='structure',
                               ensemble_parameters=self.ensemble_parameters,
-                              metadata=OrderedDict(ensemble_name='test-ensemble',
-                                                   seed=144))
+                              metadata=OrderedDict(ensemble_name='test-ensemble', seed=144))
 
         self.assertTrue('structure is not an ASE Atoms object' in str(context.exception))
 
@@ -79,10 +75,10 @@ class TestBaseDataContainer(unittest.TestCase):
             self.dc.append(mctrial, row_data)
 
         # check number of entries
-        self.assertEqual(self.dc.get_number_of_entries(), 10)
-        self.assertEqual(self.dc.get_number_of_entries('obs2'), 5)
-        self.assertEqual(
-            self.dc.get_number_of_entries('occupations'), 2)
+        counts = Counter([k for row in self.dc._data_list for k in row.keys()])
+        self.assertEqual(counts['mctrial'], 10)
+        self.assertEqual(counts['obs2'], 5)
+        self.assertEqual(counts['occupations'], 2)
 
         # test whether method raises correct Exceptions
         with self.assertRaises(TypeError) as context:
@@ -194,169 +190,69 @@ class TestBaseDataContainer(unittest.TestCase):
         self.assertIn('hostname', metadata.keys())
         self.assertIn('icet_version', metadata.keys())
 
-    def test_get_data(self):
-        """
-        Tests the returned data is a list of list and the options provided by
-        the method works as expected.
-        """
+    def test_get(self):
+        """ Tests the get function. """
+
+        # dummy trajectory
+        occ1 = [14, 14, 14, 14, 14, 14, 14, 14]
+        occ2 = [13, 13, 14, 14, 14, 14, 14, 14]
+        occ3 = [14, 14, 13, 13, 13, 13, 14, 14]
+        traj = []
+        for o in [occ1, occ2, occ3]:
+            atoms = self.structure.copy()
+            atoms.numbers = o
+            traj.append(atoms)
+
         # append data to data container
         data_rows = OrderedDict([
-            (0, {'obs1': 16, 'acceptance_ratio': 0.0, 'obs2': 11}),
+            (0, {'obs1': 16, 'acceptance_ratio': 0.0, 'obs2': 11, 'occupations': occ1}),
             (10, {'acceptance_ratio': 0.9}),
             (20, {'obs1': 16, 'acceptance_ratio': 0.7}),
             (30, {'acceptance_ratio': 0.7, 'obs2': 13}),
             (40, {'obs1': 14, 'acceptance_ratio': 0.75}),
-            (50, {'acceptance_ratio': 0.7}),
+            (50, {'acceptance_ratio': 0.7, 'occupations': occ2}),
             (60, {'obs1': 16, 'acceptance_ratio': 0.6, 'obs2': 10}),
             (70, {'acceptance_ratio': 0.65}),
             (80, {'obs1': 14, 'acceptance_ratio': 0.66}),
             (90, {'acceptance_ratio': 0.666, 'obs2': 10}),
-            (100, {'obs1': 16, 'acceptance_ratio': 0.7})])
+            (100, {'obs1': 16, 'acceptance_ratio': 0.7, 'occupations': occ3})])
 
         for mctrial in data_rows:
             self.dc.append(mctrial, data_rows[mctrial])
 
         # assert ValueError if no tags are given.
         with self.assertRaises(TypeError) as context:
-            self.dc.get_data()
-        self.assertTrue('Missing tags argument'
-                        in str(context.exception))
+            self.dc.get()
+        self.assertIn('Missing tags argument', str(context.exception))
 
-        # assert numpy array is returned.
-        mctrial, accept_ratio = self.dc.get_data('mctrial', 'acceptance_ratio')
+        # assert ValueError if bad tags are given.
+        with self.assertRaises(ValueError) as context:
+            self.dc.get('potential', 'asdqwerty')
+        self.assertIn('No observable named', str(context.exception))
+
+        # assert numpy array is returned
+        mctrial, accept_ratio = self.dc.get('mctrial', 'acceptance_ratio')
         self.assertIsInstance(mctrial, np.ndarray)
         self.assertIsInstance(accept_ratio, np.ndarray)
 
-        # default skip_none
-        mctrial, obs1 = \
-            self.dc.get_data('mctrial', 'obs1')
-        self.assertEqual(mctrial.tolist(), [0, 20, 40, 60, 80, 100])
-        self.assertEqual(obs1.tolist(), [16, 16, 14, 16, 14, 16])
+        # with a given start
+        mctrial, obs1 = self.dc.get('mctrial', 'obs1', start=60)
+        self.assertEqual(mctrial.tolist(), [60, 80, 100])
+        self.assertEqual(obs1.tolist(), [16, 14, 16])
 
-        # using fill_backward
-        obs1 = self.dc.get_data('obs1', fill_method='fill_backward')
-        self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 14, 14, 16, 16, 14, 14, 16, 16])
+        # get trajectory
+        traj_ret = self.dc.get('trajectory')
+        self.assertEqual(traj, traj_ret)
 
-        # using fill_forward
-        obs1 = self.dc.get_data('obs1', fill_method='fill_forward')
-        self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 16, 14, 14, 16, 16, 14, 14, 16])
+        # get trajectory with start
+        traj_ret = self.dc.get('trajectory', start=30)
+        self.assertEqual(traj[1], traj_ret[0])
+        self.assertEqual(traj[2], traj_ret[1])
 
-        # using linear_interpolate
-        obs1 = \
-            self.dc.get_data('obs1', fill_method='linear_interpolate')
-        self.assertEqual(obs1.tolist(),
-                         [16, 16, 16, 15, 14, 15, 16, 15, 14, 15, 16])
-
-        # skip_none only for obs1
-        obs1, obs2 = self.dc.get_data(
-            'obs1', 'obs2', fill_method='skip_none', apply_to=['obs1'])
-        self.assertEqual(obs1.tolist(), [16, 16, 14, 16, 14, 16])
-        self.assertEqual(obs2.tolist(), [11, None, None, 10, None, None])
-
-        # with a given start, stop and interval
-        mctrial, obs1 = \
-            self.dc.get_data('mctrial', 'obs1', start=20, stop=80, interval=4)
-        self.assertEqual(mctrial.tolist(), [20, 60])
-        self.assertEqual(obs1.tolist(), [16, 16])
-
-        # test fails for non-stock data
-        with self.assertRaises(ValueError) as context:
-            self.dc.get_data('temperature')
-        self.assertTrue('No observable named temperature'
-                        in str(context.exception))
-
-        # test fails with unknown method
-        with self.assertRaises(ValueError) as context:
-            self.dc.get_data('mctrial', fill_method='xyz')
-        self.assertTrue('Unknown fill method'
-                        in str(context.exception))
-
-    def test_get_number_of_entries(self):
-        """Tests number of entries is returned from function."""
-        for mctrial in range(10):
-            if mctrial % 2 == 0:
-                self.dc.append(
-                    mctrial, dict(energy=2.123, temperature=4.0))
-            else:
-                self.dc.append(mctrial, dict(energy=2.123))
-
-        # test total number of entries
-        self.assertEqual(self.dc.get_number_of_entries(), 10)
-        # test number of entries in the temperature column
-        self.assertEqual(self.dc.get_number_of_entries('temperature'), 5)
-
-        # test that the correct Exceptions are raised
-        with self.assertRaises(ValueError) as context:
-            self.dc.get_number_of_entries('xyz')
-        self.assertTrue('No observable named xyz'
-                        in str(context.exception))
-
-    def test_get_trajectory(self):
-        """Tests get_trajectory functionality."""
-        data_rows = OrderedDict([
-            (0, {'potential': -1.32,
-                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
-            (10, {'potential': -1.35}),
-            (20, {'potential': -1.33,
-                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
-            (30, {'potential': -1.07}),
-            (40, {'potential': -1.02,
-                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
-            (50, {'potential': -1.4}),
-            (60, {'potential': -1.3,
-                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
-
-        for mctrial in data_rows:
-            self.dc.append(mctrial, data_rows[mctrial])
-
-        # only trajectory
-        occupations = \
-            pd.DataFrame(data_rows).T.occupations.dropna().tolist()
-        structure_list = self.dc.get_data('trajectory')
-        for structure, occupation in zip(structure_list, occupations):
-            self.assertEqual(structure.numbers.tolist(), occupation)
-
-        atoms_list, potential = self.dc._get_trajectory('potential')
-        for atoms, occupation in zip(atoms_list, occupations):
-            self.assertEqual(atoms.numbers.tolist(), occupation)
-
-        # trajectory and properties
-        mctrial, structure_list, energies = self.dc.get_data('mctrial', 'trajectory', 'potential')
-
-        self.assertEqual(mctrial.tolist(), [0, 20, 40, 60])
-        self.assertEqual(energies.tolist(), [-1.32, -1.33, -1.02, -1.3])
-        self.assertIsInstance(structure_list, list)
-
-        # test fails for non skip_none fill method
-        with self.assertRaises(ValueError) as context:
-            self.dc.get_data('trajectory', fill_method='fill_backward')
-        self.assertTrue('Only skip_none fill method is avaliable'
-                        ' when trajectory is requested'
-                        in str(context.exception))
-
-    def test_write_trajectory(self):
-        """Tests write trajectory functionality."""
-        # append data
-        data_rows = OrderedDict([
-            (0, {'potential': -1.32,
-                 'occupations': [14, 14, 14, 14, 14, 14, 14, 14]}),
-            (10, {'potential': -1.35}),
-            (20, {'potential': -1.33,
-                  'occupations': [14, 13, 14, 14, 14, 14, 14, 14]}),
-            (30, {'potential': -1.07}),
-            (40, {'potential': -1.02,
-                  'occupations': [14, 13, 13, 14, 14, 13, 14, 14]}),
-            (50, {'potential': -1.4}),
-            (60, {'potential': -1.3,
-                  'occupations': [13, 13, 13, 13, 13, 13, 13, 14]})])
-
-        for mctrial in data_rows:
-            self.dc.append(mctrial, data_rows[mctrial])
-
-        temp_file = tempfile.NamedTemporaryFile()
-        self.dc.write_trajectory(temp_file.name)
+        # get trajectory with start and property
+        traj_ret, obs1 = self.dc.get('trajectory', 'obs1', start=30)
+        self.assertEqual(traj[2], traj_ret[0])
+        self.assertEqual(obs1.tolist(), [16])
 
     def test_read_and_write(self):
         """Tests write and read functionalities of data container."""

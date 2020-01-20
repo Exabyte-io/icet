@@ -33,11 +33,9 @@ class TestDataContainer(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test case."""
-        self.dc = \
-            DataContainer(structure=self.structure,
-                          ensemble_parameters=self.ensemble_parameters,
-                          metadata=OrderedDict(ensemble_name='test-ensemble',
-                                               seed=144))
+        self.dc = DataContainer(structure=self.structure,
+                                ensemble_parameters=self.ensemble_parameters,
+                                metadata=OrderedDict(ensemble_name='test-ensemble', seed=144))
 
     def test_init(self):
         """Tests initializing DataContainer."""
@@ -47,11 +45,9 @@ class TestDataContainer(unittest.TestCase):
         with self.assertRaises(TypeError) as context:
             DataContainer(structure='structure',
                           ensemble_parameters=self.ensemble_parameters,
-                          metadata=OrderedDict(ensemble_name='test-ensemble',
-                                               seed=144))
+                          metadata=OrderedDict(ensemble_name='test-ensemble', seed=144))
 
-        self.assertTrue('structure is not an ASE Atoms object'
-                        in str(context.exception))
+        self.assertTrue('structure is not an ASE Atoms object' in str(context.exception))
 
     def test_analyze_data(self):
         """Tests analyze_data functionality."""
@@ -65,8 +61,8 @@ class TestDataContainer(unittest.TestCase):
 
         # check obs1
         summary1 = self.dc.analyze_data('obs1')
-        mean1 = self.dc.get_data('obs1').mean()
-        std1 = self.dc.get_data('obs1').std()
+        mean1 = self.dc.get('obs1').mean()
+        std1 = self.dc.get('obs1').std()
         self.assertEqual(summary1['mean'], mean1)
         self.assertEqual(summary1['std'], std1)
         self.assertEqual(summary1['correlation_length'], 1)
@@ -75,7 +71,7 @@ class TestDataContainer(unittest.TestCase):
         summary2 = self.dc.analyze_data('obs2')
         self.assertTrue(np.isnan(summary2['correlation_length']))
 
-    def test_get_average_and_standard_deviation(self):
+    def test_get_average(self):
         """Tests get average functionality."""
         # set up a random list of values with a normal distribution
         n_iter, mu, sigma = 100, 1.0, 0.1
@@ -94,23 +90,15 @@ class TestDataContainer(unittest.TestCase):
         mean = self.dc.get_average('obs1', start=60)
         self.assertAlmostEqual(mean, 0.9851106, places=7)
 
-        mean = self.dc.get_average('obs1', stop=60)
-        self.assertAlmostEqual(mean, 0.9876534, places=7)
-
-        mean = self.dc.get_average('obs1', start=40, stop=60)
-        self.assertAlmostEqual(mean, 1.0137074, places=7)
-
         # test fails for non-existing data
         with self.assertRaises(ValueError) as context:
             self.dc.get_average('temperature')
-        self.assertTrue('No observable named temperature'
-                        in str(context.exception))
+        self.assertTrue('No observable named temperature' in str(context.exception))
 
         # test fails for non-scalar data
         with self.assertRaises(ValueError) as context:
             self.dc.get_average('trajectory')
-        self.assertTrue('trajectory is not scalar'
-                        in str(context.exception))
+        self.assertTrue('trajectory is not scalar' in str(context.exception))
 
 
 class TestDataAnalysis(unittest.TestCase):
