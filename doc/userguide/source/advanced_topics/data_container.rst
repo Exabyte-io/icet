@@ -25,38 +25,33 @@ Extracting data
 ---------------
 
 The raw data as a function of MC trial step can be obtained via the
-:func:`get_data <mchammer.DataContainer.get_data>` function, which also allows
-slicing data by specifying an initial and final MC step. This is useful e.g.,
+:func:`get <mchammer.DataContainer.get>` function, which also allows
+slicing data by specifying an initial MC step. This is useful e.g.,
 for discarding the equilibration part of a simulation::
 
-    energy = dc.get_data('potential', start=5000)
+    energy = dc.get('potential', start=5000)
 
-The :func:`get_data <mchammer.DataContainer.get_data>` function also allows
+The :func:`get <mchammer.DataContainer.get>` function also allows
 extracting several observables in parallel::
 
-    mctrial, energy, sro = dc.get_data('mctrial', 'potential', 'sro_Ag_1')
+    mctrial, energy, sro = dc.get('mctrial', 'potential', 'sro_Ag_1')
 
 The available observables can be checked using the :attr:`observables
 <mchammer.DataContainer.observables>` attribute.
 
 
-Extracting trajectory
----------------------
-
-The atomic configuration can be extracted using the :func:`get_trajectory
-<mchammer.DataContainer.get_trajectory>`
+The atomic configuration can also be extracted using the :func:`get <mchammer.DataContainer.get>`
 
 .. code-block:: python
 
-    traj = dc.get_trajectory()
+    traj = dc.get('trajectory')
 
-Alternatively, the trajectory can be obtained via the :func:`get_data
-<mchammer.DataContainer.get_data>` function, which also allows for pairing the
-snapshots in the trajectory with observables in the data container.
+This also allows for pairing the snapshots in the trajectory with observables
+in the data container.
 
 .. code-block:: python
 
-    E_mix, traj = dc.get_data('potential', 'trajectory')
+    E_mix, traj = dc.get('potential', 'trajectory')
 
 
 Updating data container
@@ -74,7 +69,7 @@ available via a :class:`DataContainer <mchammer.DataContainer>` object.
     obs = ClusterExpansionObserver(ce, tag='new_obs')
     dc = DataContainer.read('my_dc.dc')
     dc.apply_observer(obs)
-    new_obs_data = dc.get_data('')
+    new_obs_data = dc.get()
 
 Afterwards the data container, including the new data, can be written back to
 file using the :func:`write <mchammer.DataContainer.write>` function.

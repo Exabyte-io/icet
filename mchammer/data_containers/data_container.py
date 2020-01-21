@@ -22,8 +22,7 @@ class DataContainer(BaseDataContainer):
         metadata associated with the data container
     """
 
-    def analyze_data(self, tag: str, start: int = None,
-                     stop: int = None, max_lag: int = None) -> dict:
+    def analyze_data(self, tag: str, start: int = None, max_lag: int = None) -> dict:
         """
         Returns detailed analysis of a scalar observerable.
 
@@ -34,13 +33,11 @@ class DataContainer(BaseDataContainer):
         start
             minimum value of trial step to consider; by default the
             smallest value in the mctrial column will be used.
-        stop
-            maximum value of trial step to consider; by default the
-            largest value in the mctrial column will be used.
         max_lag
             maximum lag between two points in data series, by default the
             largest length of the data series will be used.
             Used for computing autocorrelation
+
         Raises
         ------
         ValueError
@@ -57,9 +54,11 @@ class DataContainer(BaseDataContainer):
             standard_deviation, correlation_length and error_estimate
             (95% confidence)
         """
+
+        # get data for tag
         if tag in ['trajectory', 'occupations']:
             raise ValueError('{} is not scalar'.format(tag))
-        steps, data = self.get_data('mctrial', tag, start=start, stop=stop)
+        steps, data = self.get('mctrial', tag, start=start)
 
         # check that steps are evenly spaced
         diff = np.diff(steps)
@@ -71,7 +70,7 @@ class DataContainer(BaseDataContainer):
         summary['correlation_length'] *= step_length  # in mc-trials
         return summary
 
-    def get_average(self, tag: str, start: int = None, stop: int = None) -> float:
+    def get_average(self, tag: str, start: int = None) -> float:
         """
         Returns average of a scalar observable.
 
@@ -82,9 +81,6 @@ class DataContainer(BaseDataContainer):
         start
             minimum value of trial step to consider; by default the
             smallest value in the mctrial column will be used.
-        stop
-            maximum value of trial step to consider; by default the
-            largest value in the mctrial column will be used.
 
         Raises
         ------
@@ -95,5 +91,5 @@ class DataContainer(BaseDataContainer):
         """
         if tag in ['trajectory', 'occupations']:
             raise ValueError('{} is not scalar'.format(tag))
-        data = self.get_data(tag, start=start, stop=stop)
+        data = self.get(tag, start=start)
         return np.mean(data)

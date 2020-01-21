@@ -369,12 +369,12 @@ def get_average_cluster_vectors_wl(dcs: Union[BaseDataContainer, dict],
 
     # fetch potential and structures
     if hasattr(dcs, 'get_entropy'):
-        potential, trajectory = dcs.get_data('potential', 'trajectory')
+        potential, trajectory = dcs.get('potential', 'trajectory')
         energy_spacing = dcs.ensemble_parameters['energy_spacing']
     elif isinstance(dcs, dict):
         potential, trajectory = [], []
         for dc in dcs.values():
-            p, t = dc.get_data('potential', 'trajectory')
+            p, t = dc.get('potential', 'trajectory')
             potential.extend(p)
             trajectory.extend(t)
         energy_spacing = list(dcs.values())[0].ensemble_parameters['energy_spacing']
