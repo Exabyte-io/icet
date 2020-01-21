@@ -69,7 +69,7 @@ available via a :class:`DataContainer <mchammer.DataContainer>` object.
     obs = ClusterExpansionObserver(ce, tag='new_obs')
     dc = DataContainer.read('my_dc.dc')
     dc.apply_observer(obs)
-    new_obs_data = dc.get('')
+    new_obs_data = dc.get()
 
 Afterwards the data container, including the new data, can be written back to
 file using the :func:`write <mchammer.DataContainer.write>` function.
