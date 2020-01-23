@@ -292,7 +292,6 @@ class TestStructureMapping(unittest.TestCase):
         self.assertIn('large_average_relaxation_distance', info['warnings'])
         self.assertIn('atom_mapped_to_not_closest_site', info['warnings'])
 
-
     def test_calculate_strain_tensor(self):
         """
         Tests that calculation of strain tensor works.
