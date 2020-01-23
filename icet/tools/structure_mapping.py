@@ -126,9 +126,13 @@ def map_structure_to_reference(relaxed: Atoms,
     relaxed_scaled.set_cell(reference_supercell.cell, scale_atoms=True)
 
     # Match positions
-    mapped_structure, drmax, dravg = _match_positions(relaxed_scaled, reference_supercell)
+    mapped_structure, drmax, dravg, warning = _match_positions(relaxed_scaled, reference_supercell)
 
-    warnings = []
+    if warning:
+        warnings = [warning]
+    else:
+        warnings = []
+
     if not suppress_warnings:
         s = 'Consider excluding this structure when training a cluster expansion.'
         if assume_no_cell_relaxation:
@@ -306,6 +310,7 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
     displacements = []
     minimum_distances = []
     n_dist_max = min(len(mapped), 3)
+    warning = None
     for i, j in zip(row_ind, col_ind):
         atom = mapped[i]
         if j >= len(relaxed):
@@ -323,14 +328,23 @@ def _match_positions(relaxed: Atoms, reference: Atoms) -> Tuple[Atoms, float, fl
             displacements.append(dvecs[0][0])
             # distances to the next three available sites
             minimum_distances.append(sorted(dists[:, j])[:n_dist_max])
+            if drs[0][0] > min(dists[:, j]) + 1e-6:
+                logger.warning('An atom was mapped to a site that was further '
+                               'away than the closest site (that site was already '
+                               'occupied by another atom).')
+                warning = 'possible_ambiguity_in_mapping'
+            elif minimum_distances[-1][0] > 0.9 * minimum_distances[-1][1]:
+                logger.warning('An atom was approximately equally far from its '
+                               'two closest sites.')
+                warning = 'possible_ambiguity_in_mapping'
 
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
-    mapped.new_array('Displacement', displacements, float, (3, ))
+    mapped.new_array('Displacement', displacements, float, shape=(3, ))
     mapped.new_array('Displacement_Magnitude', displacement_magnitudes, float)
     mapped.new_array('Minimum_Distances', minimum_distances,
-                     float, (n_dist_max,))
+                     float, shape=(n_dist_max,))
 
     drmax = np.nanmax(displacement_magnitudes)
     dravg = np.nanmean(displacement_magnitudes)
 
-    return mapped, drmax, dravg
+    return mapped, drmax, dravg, warning

@@ -10,6 +10,7 @@ from icet.tools.structure_mapping import (_get_reference_supercell,
                                           calculate_strain_tensor)
 from icet.input_output.logging_tools import logger, set_log_config
 from ase import Atom
+from ase.build import bulk
 
 
 class TestStructureMapping(unittest.TestCase):
@@ -115,10 +116,11 @@ class TestStructureMapping(unittest.TestCase):
         # Working example: volume change
         reference = self.reference.repeat(2)
         reference.set_cell(reference.cell * 1.01, scale_atoms=True)
-        mapped, drmax, dravg = _match_positions(self.structure, reference)
+        mapped, drmax, dravg, warning = _match_positions(self.structure, reference)
         self.assertAlmostEqual(drmax, 0.279012386)
         self.assertAlmostEqual(dravg, 0.140424392)
         self.assertEqual(mapped.get_chemical_formula(), 'H3Au6Pd2X5')
+        self.assertEqual(warning, None)
 
         # check attached arrays
         target_val = [[-0.14847, 0.03737, 0.01010],
@@ -166,34 +168,39 @@ class TestStructureMapping(unittest.TestCase):
         reference = self.reference.copy()
         structure = self.reference.copy()
         structure[0].position += [0, 0, 0.1]
-        mapped, drmax, dravg = _match_positions(structure, reference)
+        mapped, drmax, dravg, warning = _match_positions(structure, reference)
         self.assertAlmostEqual(drmax, 0.1)
         self.assertAlmostEqual(dravg, 0.05)
         self.assertEqual(mapped.get_chemical_formula(), 'HAu')
         self.assertTrue(np.allclose(mapped.arrays['Displacement'], [[0, 0, -0.1], [0, 0, 0]]))
         self.assertTrue(np.allclose(mapped.arrays['Displacement_Magnitude'], [0.1, 0]))
         self.assertTrue(np.allclose(mapped.arrays['Minimum_Distances'], [[0.1, 1.9], [0, 2]]))
+        self.assertEqual(warning, None)
 
     def test_map_structure_to_reference(self):
         """
         Tests that mapping algorithm wrapper works.
         """
         def test_mapping(structure,
+                         reference=None,
                          expected_drmax=0.276249887,
                          expected_dravg=0.139034051,
+                         expected_chemical_formula='H3Au6Pd2X5',
                          **kwargs):
             """
             Convenience wrapper for testing mapping.
             """
+            if reference is None:
+                reference = self.reference
             logfile = NamedTemporaryFile(mode='w+', encoding='utf-8')
             set_log_config(filename=logfile.name)
             mapped, info = map_structure_to_reference(structure,
-                                                      self.reference,
+                                                      reference,
                                                       **kwargs)
             self.assertEqual(len(info), 6)
             self.assertAlmostEqual(info['drmax'], expected_drmax)
             self.assertAlmostEqual(info['dravg'], expected_dravg)
-            self.assertEqual(mapped.get_chemical_formula(), 'H3Au6Pd2X5')
+            self.assertEqual(mapped.get_chemical_formula(), expected_chemical_formula)
             logfile.seek(0)
             return logfile, info
 
@@ -250,6 +257,42 @@ class TestStructureMapping(unittest.TestCase):
         self.assertIn('High anisotropic strain', lines[0])
         self.assertIn('high_anisotropic_strain', info['warnings'])
 
+        # Test warnings when two atoms are close to one site
+        reference = bulk('Au', a=4.0, crystalstructure='sc').repeat((3, 1, 1))
+        structure = reference.copy()
+        structure[1].position = structure[0].position + np.array([0.1, 0, 0])
+        logfile, info = test_mapping(structure,
+                                     reference=reference,
+                                     expected_chemical_formula='Au3',
+                                     expected_drmax=3.9,
+                                     expected_dravg=3.9 / 3)
+        lines = logfile.readlines()
+        self.assertEqual(len(lines), 3)
+        self.assertIn('An atom was mapped to a site that was further away', lines[0])
+        self.assertIn('Large maximum relaxation distance', lines[1])
+        self.assertIn('Large average relaxation distance', lines[2])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
+
+        # Test warnings when an atom is close to two sites
+        reference = bulk('Au', a=4.0, crystalstructure='sc').repeat((3, 1, 1))
+        structure = reference.copy()
+        structure[1].position += np.array([2.0, 0, 0])
+        logfile, info = test_mapping(structure,
+                                     reference=reference,
+                                     expected_chemical_formula='Au3',
+                                     expected_drmax=2.0,
+                                     expected_dravg=2.0 / 3)
+        lines = logfile.readlines()
+        self.assertEqual(len(lines), 3)
+        self.assertIn('An atom was approximately equally far from its two', lines[0])
+        self.assertIn('Large maximum relaxation distance', lines[1])
+        self.assertIn('Large average relaxation distance', lines[2])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
+
         # Large deviations
         structure = self.structure.copy()
         structure.positions += [1, 0, 0]
@@ -257,11 +300,13 @@ class TestStructureMapping(unittest.TestCase):
                                      expected_drmax=1.11822844,
                                      expected_dravg=0.95130331)
         lines = logfile.readlines()
-        self.assertEqual(len(lines), 2)
-        self.assertIn('Large maximum relaxation distance', lines[0])
-        self.assertIn('Large average relaxation distance', lines[1])
+        self.assertEqual(len(lines), 8)
+        self.assertIn('Large maximum relaxation distance', lines[6])
+        self.assertIn('Large average relaxation distance', lines[7])
         self.assertIn('large_maximum_relaxation_distance', info['warnings'])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
 
     def test_calculate_strain_tensor(self):
         """
