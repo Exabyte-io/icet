@@ -273,7 +273,25 @@ class TestStructureMapping(unittest.TestCase):
         self.assertIn('Large average relaxation distance', lines[2])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
-        self.assertIn('atom_mapped_to_not_closest_site', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
+
+        # Test warnings when an atom is close to two sites
+        reference = bulk('Au', a=4.0, crystalstructure='sc').repeat((3, 1, 1))
+        structure = reference.copy()
+        structure[1].position += np.array([2.0, 0, 0])
+        logfile, info = test_mapping(structure,
+                                     reference=reference,
+                                     expected_chemical_formula='Au3',
+                                     expected_drmax=2.0,
+                                     expected_dravg=2.0 / 3)
+        lines = logfile.readlines()
+        self.assertEqual(len(lines), 3)
+        self.assertIn('An atom was approximately equally far from its two', lines[0])
+        self.assertIn('Large maximum relaxation distance', lines[1])
+        self.assertIn('Large average relaxation distance', lines[2])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('large_average_relaxation_distance', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
 
         # Large deviations
         structure = self.structure.copy()
@@ -282,15 +300,13 @@ class TestStructureMapping(unittest.TestCase):
                                      expected_drmax=1.11822844,
                                      expected_dravg=0.95130331)
         lines = logfile.readlines()
-        self.assertEqual(len(lines), 6)
-        for i in range(4):
-            self.assertIn('An atom was mapped to a site that was further away', lines[i])
-        self.assertIn('Large maximum relaxation distance', lines[4])
-        self.assertIn('Large average relaxation distance', lines[5])
+        self.assertEqual(len(lines), 8)
+        self.assertIn('Large maximum relaxation distance', lines[6])
+        self.assertIn('Large average relaxation distance', lines[7])
         self.assertIn('large_maximum_relaxation_distance', info['warnings'])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
         self.assertIn('large_average_relaxation_distance', info['warnings'])
-        self.assertIn('atom_mapped_to_not_closest_site', info['warnings'])
+        self.assertIn('possible_ambiguity_in_mapping', info['warnings'])
 
     def test_calculate_strain_tensor(self):
         """
