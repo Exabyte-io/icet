@@ -105,7 +105,7 @@ Bibliography
    | A. Zunger, S.-H. Wei, L. G. Ferreira, and J. E. Bernard.
    | *Special quasirandom structures*
    | Phys. Rev. Lett. **65**, 353 (1990)
-   | `doi: 10.1103/PhysRevLett.65.353 <https://doi.org/10.1016/j.calphad.2013.06.006>`_
+   | `doi: 10.1103/PhysRevLett.65.353 <https://doi.org/10.1103/PhysRevLett.65.353>`_
 
 
 Also see [I]_, [II]_, [III]_, and [IV]_.
