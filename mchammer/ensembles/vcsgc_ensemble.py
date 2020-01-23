@@ -91,7 +91,7 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     phis : Dict[str, float]
         average constraint parameters :math:`\\phi_i`; the key denotes the
         species; for a N-component sublattice, there should be N - 1
-        different `\\phi_i` (referred to as :math:`\\bar{\\phi}`
+        different :math:`\\phi_i` (referred to as :math:`\\bar{\\phi}`
         in [SadErh12]_)
     kappa : float
         parameter that constrains the variance of the concentration
@@ -239,8 +239,8 @@ class VCSGCEnsemble(ThermodynamicBaseEnsemble):
     @property
     def phis(self) -> Dict[int, float]:
         """
-        phis :math:`\\phi_i`; one for each species but their sum must be
-        :math:`-2.0` (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
+        phis :math:`\\phi_i` for all species but one
+        (referred to as :math:`\\bar{\\phi}` in [SadErh12]_)
         """
         return self._phis
 
