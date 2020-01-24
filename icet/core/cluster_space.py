@@ -12,6 +12,7 @@ from math import log10, floor
 from typing import List, Union
 
 import numpy as np
+import spglib
 
 from _icet import ClusterSpace as _ClusterSpace
 from ase import Atoms
@@ -20,7 +21,8 @@ from ase.io import write as ase_write
 from icet.core.orbit_list import OrbitList
 from icet.core.structure import Structure
 from icet.core.sublattices import Sublattices
-from icet.tools.geometry import get_occupied_primitive_structure
+from icet.tools.geometry import (ase_atoms_to_spglib_cell,
+                                 get_occupied_primitive_structure)
 
 
 class ClusterSpace(_ClusterSpace):
@@ -111,6 +113,9 @@ class ClusterSpace(_ClusterSpace):
         if not all(structure.pbc):
             raise ValueError('Input structure must have periodic boundary conditions')
 
+        if symprec <= 0:
+            raise ValueError('symprec must be a positive number')
+
         self._config = {'symprec': symprec}
         self._cutoffs = cutoffs.copy()
         self._input_structure = structure.copy()
@@ -129,6 +134,8 @@ class ClusterSpace(_ClusterSpace):
         if position_tolerance is None:
             self._config['position_tolerance'] = symprec
         else:
+            if position_tolerance <= 0:
+                raise ValueError('position_tolerance must be a positive number')
             self._config['position_tolerance'] = position_tolerance
         effective_box_size = abs(np.linalg.det(occupied_primitive.cell)) ** (1 / 3)
         tol = self.position_tolerance / effective_box_size
@@ -237,6 +244,7 @@ class ClusterSpace(_ClusterSpace):
         width = len(repr_orbit(prototype_orbit))
         s = []  # type: List
         s += ['{s:=^{n}}'.format(s=' Cluster Space ', n=width)]
+        s += [' {:38} : {}'.format('space group', self.space_group)]
         s += [' {:38} : {}'
               .format('chemical species', self._get_chemical_symbol_representation())]
         s += [' {:38} : {}'.format('cutoffs', ' '
@@ -305,6 +313,12 @@ class ClusterSpace(_ClusterSpace):
     def fractional_position_tolerance(self) -> float:
         """ tolerance applied when comparing positions in fractional coordinates """
         return self._config['fractional_position_tolerance']
+
+    @property
+    def space_group(self) -> str:
+        """ space group of the primitive structure in international notion (via spglib) """
+        structure_as_tuple = ase_atoms_to_spglib_cell(self.primitive_structure)
+        return spglib.get_spacegroup(structure_as_tuple, symprec=self._config['symprec'])
 
     @property
     def orbit_data(self) -> List[dict]:
