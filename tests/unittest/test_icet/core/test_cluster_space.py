@@ -101,10 +101,10 @@ class TestClusterSpace(unittest.TestCase):
         super(TestClusterSpace, self).__init__(*args, **kwargs)
         self.chemical_symbols = ['Ag', 'Au']
         self.cutoffs = [4.0] * 3
-        self.structure_prim = bulk('Ag', a=4.09)
+        self.primitive_structure = bulk('Ag', a=4.09)
         self.structure_list = []
         for k in range(4):
-            structure = self.structure_prim.repeat(2)
+            structure = self.primitive_structure.repeat(2)
             symbols = [self.chemical_symbols[0]] * len(structure)
             symbols[:k] = [self.chemical_symbols[1]] * k
             structure.set_chemical_symbols(symbols)
@@ -116,19 +116,19 @@ class TestClusterSpace(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        self.cs = ClusterSpace(self.structure_prim, self.cutoffs,
+        self.cs = ClusterSpace(self.primitive_structure, self.cutoffs,
                                self.chemical_symbols)
 
     def test_init(self):
         """Tests that initialization of tested class work."""
         # initialize from ASE Atoms
-        cs = ClusterSpace(self.structure_prim, self.cutoffs, self.chemical_symbols)
+        cs = ClusterSpace(self.primitive_structure, self.cutoffs, self.chemical_symbols)
         self.assertIsInstance(cs, ClusterSpace)
         self.assertEqual(len(cs), len(self.cs))
 
     def test_init_fails_for_non_pbc(self):
         """Tests that initialization fails if pbc is false."""
-        structure_surface = self.structure_prim.copy()
+        structure_surface = self.primitive_structure.copy()
         structure_surface.pbc = [1, 1, 0]
         with self.assertRaises(ValueError) as cm:
             ClusterSpace(structure_surface, self.cutoffs, self.chemical_symbols)
@@ -177,6 +177,52 @@ class TestClusterSpace(unittest.TestCase):
         number_orbits = self.cs.__len__()
         self.assertEqual(number_orbits, len(self.cs._get_orbit_list()) + 1)
 
+    def test_symprec(self):
+        """Tests symprec property."""
+        for val in [1e-3, 0.02]:
+            cs = ClusterSpace(self.primitive_structure, self.cutoffs,
+                              self.chemical_symbols, symprec=val)
+            self.assertEqual(cs.symprec, val)
+        with self.assertRaises(AttributeError) as cm:
+            cs.symprec = 0.01
+        self.assertIn("can't set attribute", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            cs = ClusterSpace(self.primitive_structure, self.cutoffs,
+                              self.chemical_symbols, symprec=0)
+        self.assertIn('must be a positive number', str(cm.exception))
+
+    def test_position_tolerance(self):
+        """Tests position_tolerance property."""
+        for val in [1e-3, 0.02]:
+            cs = ClusterSpace(self.primitive_structure, self.cutoffs,
+                              self.chemical_symbols, position_tolerance=val)
+            self.assertEqual(cs.position_tolerance, val)
+        for val in [3e-3, 0.05]:
+            cs = ClusterSpace(self.primitive_structure, self.cutoffs,
+                              self.chemical_symbols, symprec=val)
+            self.assertEqual(cs.position_tolerance, cs.symprec)
+        with self.assertRaises(AttributeError) as cm:
+            cs.position_tolerance = 0.01
+        self.assertIn("can't set attribute", str(cm.exception))
+        with self.assertRaises(ValueError) as cm:
+            cs = ClusterSpace(self.primitive_structure, self.cutoffs,
+                              self.chemical_symbols, position_tolerance=0)
+        self.assertIn('must be a positive number', str(cm.exception))
+
+    def test_space_group(self):
+        """Tests space_group property."""
+        cs = ClusterSpace(bulk('Au', crystalstructure='fcc', a=2.0), [1.9], ['Au', 'Ag'])
+        self.assertEqual(cs.space_group, 'Fm-3m (225)')
+        cs = ClusterSpace(bulk('W', crystalstructure='bcc', a=2.0), [1.9], ['Au', 'Ag'])
+        self.assertEqual(cs.space_group, 'Im-3m (229)')
+        cs = ClusterSpace(bulk('Mg', crystalstructure='hcp', a=2.0, c=3.2), [1.9], ['Au', 'Ag'])
+        self.assertEqual(cs.space_group, 'P6_3/mmc (194)')
+        cs = ClusterSpace(bulk('C', crystalstructure='diamond', a=2.0), [1.9], ['Au', 'Ag'])
+        self.assertEqual(cs.space_group, 'Fd-3m (227)')
+        cs = ClusterSpace(bulk('ZnS', crystalstructure='zincblende', a=2.0),
+                          [1.9], [['Au', 'Ag'], ['Cl']])
+        self.assertEqual(cs.space_group, 'F-43m (216)')
+
     def test_orbit_data(self):
         """Tests orbit_data property."""
         target = [OrderedDict([('index', 0),
@@ -211,6 +257,7 @@ class TestClusterSpace(unittest.TestCase):
         retval = self.cs.__repr__()
         target = """
 ====================================== Cluster Space =======================================
+ space group                            : Fm-3m (225)
  chemical species                       : ['Ag', 'Au'] (sublattice A)
  cutoffs                                : 4.0000 4.0000 4.0000
  total number of parameters             : 5
@@ -236,6 +283,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         retval = self.cs._get_string_representation(print_threshold=2, print_minimum=1)
         target = """
 ====================================== Cluster Space =======================================
+ space group                            : Fm-3m (225)
  chemical species                       : ['Ag', 'Au'] (sublattice A)
  cutoffs                                : 4.0000 4.0000 4.0000
  total number of parameters             : 5
@@ -288,7 +336,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
             self.assertAlmostEqual(retval, target, places=9)
 
         # Bad position
-        structure = self.structure_prim.repeat(3)
+        structure = self.primitive_structure.repeat(3)
         structure[0].position[0] += 0.1
         with self.assertRaises(RuntimeError) as cm:
             self.cs.get_cluster_vector(structure)
@@ -392,7 +440,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
 
     def test_assert_structure_compatibility(self):
         """ Tests assert_structure_compatibility functionality """
-        supercell = self.structure_prim.repeat((2, 3, 4))
+        supercell = self.primitive_structure.repeat((2, 3, 4))
 
         # real supercell works
         self.cs.assert_structure_compatibility(supercell)
@@ -414,7 +462,7 @@ index | order |  radius  | multiplicity | orbit_index | multi_component_vector |
         self.assertIn('Occupations of structure not compatible', str(cm.exception))
 
         # PBC False
-        structure = self.structure_prim.copy()
+        structure = self.primitive_structure.copy()
         structure.pbc = False
         with self.assertRaises(ValueError) as cm:
             self.cs.assert_structure_compatibility(structure)
@@ -452,12 +500,11 @@ class TestClusterSpaceTernary(unittest.TestCase):
         super(TestClusterSpaceTernary, self).__init__(*args, **kwargs)
         self.chemical_symbols = ['Ag', 'Au', 'Pd']
         self.cutoffs = [4.0] * 3
-        self.structure_prim = bulk('Ag', 'fcc')
+        self.primitive_structure = bulk('Ag', 'fcc')
 
     def setUp(self):
         """Instantiates class before each test."""
-        self.cs = ClusterSpace(self.structure_prim, self.cutoffs,
-                               self.chemical_symbols)
+        self.cs = ClusterSpace(self.primitive_structure, self.cutoffs, self.chemical_symbols)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -545,8 +592,7 @@ class TestClusterSpaceMultiSublattice(unittest.TestCase):
         self.chemical_symbols = [['Ag', 'Au'],
                                  ['H', 'V']]
         self.cutoffs = [5] * 2
-        self.structure_prim = bulk(
-            'Ag', a=4.09, crystalstructure='bcc', cubic=True).repeat([1, 1, 1])
+        self.primitive_structure = bulk('Ag', a=4.09, crystalstructure='bcc', cubic=True)
 
     def shortDescription(self):
         """Silences unittest from printing the docstrings in test cases."""
@@ -554,15 +600,15 @@ class TestClusterSpaceMultiSublattice(unittest.TestCase):
 
     def setUp(self):
         """Setup before each test."""
-        self.cs = ClusterSpace(self.structure_prim, self.cutoffs,
+        self.cs = ClusterSpace(self.primitive_structure, self.cutoffs,
                                self.chemical_symbols)
         self.cluster_space_binary = ClusterSpace(
-            self.structure_prim, self.cutoffs, ['Ag', 'Au'])
+            self.primitive_structure, self.cutoffs, ['Ag', 'Au'])
 
     def test_init(self):
         """Tests that initialization of tested class work."""
         # initialize from ASE Atoms
-        cs = ClusterSpace(self.structure_prim, self.cutoffs, self.chemical_symbols)
+        cs = ClusterSpace(self.primitive_structure, self.cutoffs, self.chemical_symbols)
         self.assertIsInstance(cs, ClusterSpace)
         self.assertEqual(len(cs), len(self.cs))
 
