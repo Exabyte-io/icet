@@ -159,6 +159,18 @@ class TestGeometry(unittest.TestCase):
                           positions=[[0, 0, 0], [0.99999917, 0.99999917, 0.99999917]])
         self.assertTrue(compare_structures(retval, targetval))
 
+        # Catch failure from spglib due to large symprec
+        symprec = 0.3
+        prim = bulk('Au', a=1.0, cubic=True)
+        prim[0].position += [0, 0, 0.01]
+        prim[1].position += [-0.01, 0, 0.01]
+        prim[2].position += [0, 0.01, 0.01]
+        prim[3].position += [0, 0, -0.01]
+        prim.cell[0][0] += 0.002
+        with self.assertRaises(ValueError) as cm:
+            get_primitive_structure(prim, symprec=symprec)
+        self.assertIn('spglib failed to find the primitive cell', str(cm.exception))
+
     def test_fractional_to_cartesian(self):
         """Tests the geometry function fractional_to_cartesian."""
 

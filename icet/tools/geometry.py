@@ -66,9 +66,12 @@ def get_primitive_structure(structure: Atoms,
     structure_copy = structure.copy()
     structure_as_tuple = ase_atoms_to_spglib_cell(structure_copy)
 
-    lattice, scaled_positions, numbers = spglib.standardize_cell(
+    ret = spglib.standardize_cell(
         structure_as_tuple, to_primitive=to_primitive,
         no_idealize=no_idealize, symprec=symprec)
+    if ret is None:
+        raise ValueError('spglib failed to find the primitive cell, maybe caused by large symprec.')
+    lattice, scaled_positions, numbers = ret
     scaled_positions = [np.round(pos, 12) for pos in scaled_positions]
     structure_prim = Atoms(scaled_positions=scaled_positions,
                            numbers=numbers, cell=lattice, pbc=structure.pbc)
