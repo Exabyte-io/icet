@@ -81,14 +81,16 @@ database named ``PdHVac-fcc.db``.
 Generate surface slabs with adsorbates
 --------------------------------------
 
-Lower dimensional systems can also be enumerated. Here, this is demonstrated
-with a copper surface with oxygen atoms adsorbed in hollow sites on a {111}
-surface. The key to trigger a two- or one-dimensional enumeration is to make
-sure that the periodic boundary conditions of the input structure reflect the
-desired behavior. For the surface system, this means that the the boundary
-conditions are *not* periodic in the direction of the normal to the surface.
-This is the default behavior with ASE:s surface building functions, but is in
-the below example enforced for clarity.
+Lower dimensional systems can be enumerated as well. Here, this is
+demonstrated for a copper surface with oxygen atoms adsorbed in hollow
+sites on a {111} surface. In order to deal with enumeration in only
+one or two dimensions, the periodic boundary conditions of the input
+structure need to reflect the desired behavior. For example in the
+case of a surface system, one has to use *non-periodic* boundary
+conditions in the direction of the normal to the surface. This is the
+default behavior of the `surface building functions in ASE
+<https://wiki.fysik.dtu.dk/ase/ase/build/surface.html>`_ but is
+enforced for clarity in the following example.
 
 .. literalinclude:: ../../../../examples/advanced_topics/enumerate_structures.py
    :start-after: # fcc and hcp hollow sites
