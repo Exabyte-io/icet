@@ -88,7 +88,7 @@ one or two dimensions, the periodic boundary conditions of the input
 structure need to reflect the desired behavior. For example in the
 case of a surface system, one has to use *non-periodic* boundary
 conditions in the direction of the normal to the surface. This is the
-default behavior of the surface building functions in `ASE
+default behavior of the `surface building functions in ASE
 <https://wiki.fysik.dtu.dk/ase/ase/build/surface.html>`_ but is
 enforced for clarity in the following example.
 
