@@ -3,11 +3,11 @@
 import getpass
 import json
 import numbers
+import os
+import shutil
+import socket
 import tarfile
 import tempfile
-import shutil
-import os
-import socket
 import warnings
 
 from collections import OrderedDict
