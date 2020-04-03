@@ -3,9 +3,11 @@
 import getpass
 import json
 import numbers
+import os
+import shutil
+import socket
 import tarfile
 import tempfile
-import socket
 import warnings
 
 from collections import OrderedDict
@@ -319,10 +321,18 @@ class BaseDataContainer:
         runtime_data_file = tempfile.NamedTemporaryFile()
         np.savez_compressed(runtime_data_file, self._data_list)
 
-        with tarfile.open(outfile, mode='w') as handle:
-            handle.add(reference_structure_file.name, arcname='atoms')
-            handle.add(reference_data_file.name, arcname='reference_data')
-            handle.add(runtime_data_file.name, arcname='runtime_data')
+        # Write temporary tar file
+        with tempfile.NamedTemporaryFile('wb', delete=False) as f:
+            with tarfile.open(fileobj=f, mode='w') as handle:
+                handle.add(reference_data_file.name, arcname='reference_data')
+                handle.add(reference_structure_file.name, arcname='atoms')
+                handle.add(runtime_data_file.name, arcname='runtime_data')
+
+        # Copy to permanent location
+        file_name = f.name
+        f.close()  # Required for Windows
+        shutil.copy(file_name, outfile)
+        os.remove(file_name)
         runtime_data_file.close()
 
     def _add_default_metadata(self):
