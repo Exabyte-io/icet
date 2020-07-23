@@ -385,9 +385,9 @@ class WangLandauEnsemble(BaseEnsemble):
         """
         # N.B.: self._converged can be None
         if self._converged is not None:
-             return self._converged
+            return self._converged
         else:
-             return False
+            return False
 
     def _restart_ensemble(self):
         """Restarts ensemble using the last state saved in the data container
