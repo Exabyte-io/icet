@@ -131,6 +131,23 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.run(n)
         self.assertEqual(self.ensemble.step, n)
 
+    def test_run_terminates(self):
+        """Test that a run terminates if convergence is reached. """
+
+        # ensemble
+        ens = WangLandauEnsemble(structure=self.structure,
+                                 calculator=self.calculator,
+                                 flatness_limit=0.0,
+                                 flatness_check_interval=1,
+                                 fill_factor_limit=0.25,
+                                 energy_spacing=self.energy_spacing,
+                                 ensemble_data_write_interval=1)
+
+        ens.run(10)
+        self.assertTrue(ens._converged)
+        self.assertEqual(ens._fill_factor, 0.25)
+        self.assertEqual(ens._step, 4)
+
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
         # since the outcome is non-trivial run for both positive and negative

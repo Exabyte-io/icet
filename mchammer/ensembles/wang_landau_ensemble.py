@@ -383,7 +383,11 @@ class WangLandauEnsemble(BaseEnsemble):
         used in the run method implemented of BaseEnsemble to
         evaluate whether the sampling loop should be terminated.
         """
-        return self._converged is True  # N.B.: self._converged can be None
+        # N.B.: self._converged can be None
+        if self._converged is not None:
+             return self._converged
+        else:
+             return False
 
     def _restart_ensemble(self):
         """Restarts ensemble using the last state saved in the data container
