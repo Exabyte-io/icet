@@ -131,6 +131,23 @@ class TestEnsemble(unittest.TestCase):
         self.ensemble.run(n)
         self.assertEqual(self.ensemble.step, n)
 
+    def test_run_terminates(self):
+        """Test that a run terminates if convergence is reached. """
+
+        # ensemble
+        ens = WangLandauEnsemble(structure=self.structure,
+                                 calculator=self.calculator,
+                                 flatness_limit=0.0,
+                                 flatness_check_interval=1,
+                                 fill_factor_limit=0.25,
+                                 energy_spacing=self.energy_spacing,
+                                 ensemble_data_write_interval=1)
+
+        ens.run(10)
+        self.assertTrue(ens._converged)
+        self.assertEqual(ens._fill_factor, 0.25)
+        self.assertEqual(ens._step, 4)
+
     def test_acceptance_condition(self):
         """Tests the acceptance condition method."""
         # since the outcome is non-trivial run for both positive and negative
@@ -428,11 +445,56 @@ class TestEnsemble(unittest.TestCase):
         self.assertEqual(ens1.step, ens2.step)
         self.assertEqual(len(ens1.data_container.data), len(ens2.data_container.data))
 
-        # ensure that the simulation is not run if converged
+        # ensure that the simulation is run if not converged
         ens2._converged = False
         ens2.run(10)
         self.assertEqual(ens1.step + 10, ens2.step)
         self.assertEqual(len(ens1.data_container.data) + 5, len(ens2.data_container.data))
+
+        os.remove(dc_filename)
+
+        # ensemble for third run
+        ens3 = WangLandauEnsemble(structure=self.structure,
+                                  calculator=self.calculator,
+                                  dc_filename=dc_filename,
+                                  flatness_limit=0.0,
+                                  flatness_check_interval=1,
+                                  fill_factor_limit=0.5 ** 3,
+                                  energy_spacing=self.energy_spacing,
+                                  ensemble_data_write_interval=1)
+
+        ens3.run(2)
+        self.assertFalse(ens3._converged)
+        self.assertEqual(ens3._fill_factor, 0.5)
+        ens3.run(4)
+        self.assertTrue(ens3._converged)
+        self.assertEqual(ens3._fill_factor, 0.125)
+
+        # ensemble for fourth run
+        ens4 = WangLandauEnsemble(structure=self.structure,
+                                  calculator=self.calculator,
+                                  dc_filename=dc_filename,
+                                  flatness_limit=0.8,
+                                  flatness_check_interval=1,
+                                  fill_factor_limit=0.5 ** 3,
+                                  energy_spacing=self.energy_spacing,
+                                  ensemble_data_write_interval=1)
+        ens4.run(4)
+        self.assertEqual(ens3.step + 4, ens4.step)
+        self.assertFalse(ens4._converged)
+
+        # ensemble for fifth run
+        ens5 = WangLandauEnsemble(structure=self.structure,
+                                  calculator=self.calculator,
+                                  dc_filename=dc_filename,
+                                  flatness_limit=0.0,
+                                  flatness_check_interval=1,
+                                  fill_factor_limit=0.5 ** 20,
+                                  energy_spacing=self.energy_spacing,
+                                  ensemble_data_write_interval=1)
+        ens5.run(5)
+        self.assertEqual(ens4.step + 5, ens5.step)
+        self.assertFalse(ens5._converged)
 
         os.remove(dc_filename)
 

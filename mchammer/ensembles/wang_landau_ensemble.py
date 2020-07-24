@@ -383,7 +383,11 @@ class WangLandauEnsemble(BaseEnsemble):
         used in the run method implemented of BaseEnsemble to
         evaluate whether the sampling loop should be terminated.
         """
-        return self._converged is True  # N.B.: self._converged can be None
+        # N.B.: self._converged can be None
+        if self._converged is not None:
+            return self._converged
+        else:
+            return False
 
     def _restart_ensemble(self):
         """Restarts ensemble using the last state saved in the data container
@@ -396,7 +400,10 @@ class WangLandauEnsemble(BaseEnsemble):
         self._entropy_history = self.data_container._last_state['entropy_history']
         self._histogram = self.data_container._last_state['histogram']
         self._entropy = self.data_container._last_state['entropy']
-        self._converged = (self._fill_factor <= self._fill_factor_limit)
+        histogram = np.array(list(self._histogram.values()))
+        limit = self._flatness_limit * np.average(histogram)
+        self._converged = (self._fill_factor <= self._fill_factor_limit
+                           ) & np.all(histogram >= limit)
 
     def write_data_container(self, outfile: Union[str, bytes]):
         """Updates last state of the Wang-Landau simulation and
@@ -510,21 +517,20 @@ class WangLandauEnsemble(BaseEnsemble):
             for k in self._entropy:
                 self._entropy[k] -= entropy_ref
 
+            # check whether the Wang-Landau algorithm has converged
             histogram = np.array(list(self._histogram.values()))
             limit = self._flatness_limit * np.average(histogram)
-            if np.all(histogram >= limit):
-
-                # check whether the Wang-Landau algorithm has converged
-                self._converged = (self._fill_factor <= self._fill_factor_limit)
-                if not self._converged:
-                    # update fill factor
-                    self._fill_factor /= 2
-                    self._fill_factor_history[self.step] = self._fill_factor
-                    # update entropy history
-                    self._entropy_history[self.step] = OrderedDict(
-                        sorted(self._entropy.items()))
-                    # reset histogram
-                    self._histogram = dict.fromkeys(self._histogram, 0)
+            is_flat = np.all(histogram >= limit)
+            self._converged = (self._fill_factor <= self._fill_factor_limit) & is_flat
+            if is_flat and not self._converged:
+                # update fill factor
+                self._fill_factor /= 2
+                self._fill_factor_history[self.step] = self._fill_factor
+                # update entropy history
+                self._entropy_history[self.step] = OrderedDict(
+                    sorted(self._entropy.items()))
+                # reset histogram
+                self._histogram = dict.fromkeys(self._histogram, 0)
 
     def _get_bin_index(self, energy: float) -> Optional[int]:
         """ Returns bin index for histogram and entropy dictionaries. """
