@@ -28,23 +28,6 @@ build:macos:
   tags:
     - macos
 
-pypi:
-  stage: build
-  tags:
-    - linux
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master" && $CI_COMMIT_TAG != ""
-      when: manual
-  dependencies:
-    - build:linux
-    - build:macos
-  environment:
-      name: deployment
-  script:
-    - python3 setup.py sdist
-    - ls -l dist/
-    - python3 -m twine upload dist/*
-
 
 #------------------- test stage -------------------
 
@@ -175,3 +158,22 @@ pages:
     - find tests/ -print | zip public/dev/tests.zip tests/structure_databases/*.db -@
     # --------------------------
     - ls -l public/
+
+pypi:
+  stage: deploy
+  tags:
+    - linux
+  only: tags
+  except: branches
+  when: manual
+  environment:
+      name: pypi-upload
+  script:
+    # check out the latest tag (redundant if job is limited to tags)
+    - tag=$(git tag | tail -1)
+    - echo "tag= $tag"
+    - git checkout $tag
+    # create source distribution and push to PyPI
+    - python3 setup.py sdist
+    - ls -l dist/
+    - python3 -m twine upload dist/*
