@@ -163,8 +163,10 @@ pypi:
   stage: deploy
   tags:
     - linux
-  only: tags
-  except: branches
+  only:
+    - tags
+  except:
+    - branches
   when: manual
   environment:
       name: pypi-upload
