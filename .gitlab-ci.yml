@@ -121,6 +121,7 @@ pages:
       - public
   only:
     - master
+    - tags
   script:
     - mkdir -p public/dev
     - mv htmlcov/ public/
@@ -165,8 +166,6 @@ pypi:
     - linux
   only:
     - tags
-  except:
-    - branches
   when: manual
   environment:
       name: pypi-upload
