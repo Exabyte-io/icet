@@ -51,6 +51,15 @@ class Sublattice:
         """Symbol representation of sublattice, i.e. A, B, C, etc.."""
         return self._symbol
 
+    def __str__(self) -> str:
+        width = 42
+        s = []  # type: List
+        s += ['{s:=^{n}}'.format(s=f' Sublattice {self.symbol} ', n=width)]
+        s += [' {:18} : {}'.format('chemical symbols', self.chemical_symbols)]
+        s += [' {:18} : {}'.format('atomic numbers', self.atomic_numbers)]
+        s += [' {:18} : {}'.format('indices', self.indices)]
+        return '\n'.join(s)
+
 
 class Sublattices:
     """
@@ -60,7 +69,7 @@ class Sublattices:
     Parameters
     ----------
     allowed_species
-        list of the allowed species on each site of the primitve
+        list of the allowed species on each site of the primitive
         structure. For example this can be the chemical_symbols from
         a cluster space
     primitive_structure
@@ -111,6 +120,18 @@ class Sublattices:
         for k, sublattice in enumerate(self):
             for index in sublattice.indices:
                 self._index_to_sublattice[index] = k
+
+    def __str__(self) -> str:
+        width = 42
+        s = []  # type: List
+        s += ['{s:=^{n}}'.format(s=' Sublattices ', n=width)]
+        s += [' {:18} : {}'.format('number of sublattices', len(self))]
+        for sl in self:
+            s += ['{s:-^{n}}'.format(s=f' Sublattice {sl.symbol} ', n=width)]
+            s += [' {:18} : {}'.format('chemical symbols', sl.chemical_symbols)]
+            s += [' {:18} : {}'.format('atomic numbers', sl.atomic_numbers)]
+            s += [' {:18} : {}'.format('indices', sl.indices)]
+        return '\n'.join(s)
 
     def __getitem__(self, key: int) -> Sublattice:
         """ Returns a sublattice according to key. """

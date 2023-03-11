@@ -24,7 +24,7 @@ class BaseCalculator(ABC):
 
     def accept_change(self):
         """
-        Some calculators depend on the state of the occupdations,
+        Some calculators depend on the state of the occupations,
         in which they need to be informed if the occupations change.
         """
         pass

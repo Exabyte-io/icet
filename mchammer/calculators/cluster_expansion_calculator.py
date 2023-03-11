@@ -85,7 +85,7 @@ class ClusterExpansionCalculator(BaseCalculator):
         Parameters
         ----------
         occupations
-            the entire occupation vector (i.e. list of atomic species)
+            the entire occupation vector (i.e., list of atomic species)
         """
 
         cv = self.cpp_calc.get_cluster_vector(occupations)
