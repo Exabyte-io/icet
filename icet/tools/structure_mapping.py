@@ -68,6 +68,11 @@ def map_structure_to_reference(structure: Atoms,
     between the indices of the returned Atoms object and those of the input
     structure ('IndexMapping').
 
+    Note
+    ----
+    The input and reference structures should adhere to the same crystallographic setting.
+    In other words, they should not be rotated or translated with respect to each other.
+
     Parameters
     ----------
     structure
