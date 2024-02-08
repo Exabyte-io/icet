@@ -7,6 +7,10 @@
 // Public License v. 2.0. If a copy of the MPL was not distributed
 // with this file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+/* Ignore warnings we can't do much about */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+
 #ifndef EIGEN_CONFIGURE_VECTORIZATION_H
 #define EIGEN_CONFIGURE_VECTORIZATION_H
 
@@ -436,3 +440,4 @@ inline static const char *SimdInstructionSetsInUse(void) {
 
 
 #endif // EIGEN_CONFIGURE_VECTORIZATION_H
+#pragma GCC diagnostic pop

@@ -1,10 +1,14 @@
 #include <iostream>
 #include <sstream>
+/* Ignore warnings we can't do much about */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #include <pybind11/eigen.h>
 #include <pybind11/operators.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <Eigen/Dense>
+#pragma GCC diagnostic pop
 
 #include "Cluster.hpp"
 #include "ClusterExpansionCalculator.hpp"
@@ -325,7 +329,6 @@ PYBIND11_MODULE(_icet, m)
                     {
                         atomicNumbers.append(el);
                     }
-                    double countDouble = mapPair.second;
                     if (std::abs(std::round(mapPair.second) - mapPair.second) > 1e-6)
                     {
                         std::runtime_error("Cluster count is a non-integer.");
@@ -370,17 +373,17 @@ PYBIND11_MODULE(_icet, m)
                  msg << "multiplicity: " << orbit.size() << std::endl;
                  msg << "radius: " << orbit.radius() << std::endl;
                  msg << "representative_cluster:" << std::endl;
-                 for (const auto site : orbit.representativeCluster().latticeSites())
+                 for (const auto &site : orbit.representativeCluster().latticeSites())
                  {
                      msg << "    site: " << site << std::endl;
                  }
                  msg << "clusters:" << std::endl;
                  int k = -1;
-                 for (const auto cluster : orbit.clusters())
+                 for (const auto &cluster : orbit.clusters())
                  {
                      k += 1;
                      msg << "  cluster: " << k << std::endl;
-                     for (const auto site : cluster.latticeSites())
+                     for (const auto &site : cluster.latticeSites())
                      {
                          msg << "    site: " << site << std::endl;
                      }

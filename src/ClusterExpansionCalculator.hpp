@@ -29,7 +29,7 @@ public:
     ClusterExpansionCalculator(const ClusterSpace &, const Structure &, const double);
 
     /// Returns change in cluster vector upon flipping occupation of one site
-    std::vector<double> getClusterVectorChange(const py::array_t<int> &, const int, const int);
+    std::vector<double> getClusterVectorChange(const py::array_t<int> &, const size_t, const size_t);
 
     /// Returns the full cluster vector.
     std::vector<double> getClusterVector(const py::array_t<int> &);
