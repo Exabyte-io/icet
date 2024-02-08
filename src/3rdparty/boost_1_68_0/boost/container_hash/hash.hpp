@@ -1,4 +1,6 @@
-
+/* Ignore warnings we can't do much about */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 // Copyright 2005-2014 Daniel James.
 // Distributed under the Boost Software License, Version 1.0. (See accompanying
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -759,3 +761,4 @@ namespace boost
     && !defined(BOOST_FUNCTIONAL_HASH_EXTENSIONS_HPP)
 #include <boost/container_hash/extensions.hpp>
 #endif
+#pragma GCC diagnostic pop

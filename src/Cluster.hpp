@@ -49,13 +49,13 @@ public:
                               const double);
 
     /// Check whether a site index is included with a zero offset.
-    bool isSiteIndexIncludedWithZeroOffset(const int index) const;
+    bool isSiteIndexIncludedWithZeroOffset(const size_t index) const;
 
     /// Returns the number of allowed components on each site in this cluster.
     std::vector<int> getNumberOfAllowedSpeciesPerSite() const;
 
     /// Count the number of occurences of a site index among the sites in this cluster
-    unsigned int getCountOfOccurencesOfSiteIndex(int) const;
+    unsigned int getCountOfOccurencesOfSiteIndex(const size_t) const;
 
     /// Stream operator
     friend std::ostream &operator<<(std::ostream &os, const Cluster &cluster);

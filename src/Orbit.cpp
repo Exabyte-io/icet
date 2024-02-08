@@ -37,7 +37,7 @@ Orbit::Orbit(const std::vector<Cluster> clusters,
         // In ternary and higher-order systems each orbit generally
         // corresponds to multiple cluster vector elements, since there
         // are multiple distinct multi-component vectors for such systems.
-        for (int j = 0; j < distinctMCVectors.size(); j++)
+        for (size_t j = 0; j < distinctMCVectors.size(); j++)
         {
             ClusterVectorElement cvElement = {distinctMCVectors[j],
                                               sitePermutations[j],
@@ -93,7 +93,7 @@ std::vector<std::vector<std::vector<int>>> Orbit::_getMultiComponentVectorPermut
         mcPermutations.push_back(selfPermutation);
         std::vector<std::vector<int>> takenPermutations;
         takenPermutations.push_back(selfPermutation);
-        for (const std::vector<int> perm : _allowedClusterPermutations)
+        for (const std::vector<int> &perm : _allowedClusterPermutations)
         {
             auto permutedMultiComponentVector = icet::getPermutedVector(mc, perm);
             auto findPerm = find(multiComponentVectors.begin(), multiComponentVectors.end(), permutedMultiComponentVector);
@@ -358,7 +358,7 @@ Orbit &Orbit::operator+=(const Orbit &orbit_rhs)
     _clusters.insert(_clusters.end(), rhsClusters.begin(), rhsClusters.end());
 
     // Update multiplicities
-    for (int i = 0; i < _clusterVectorElements.size(); i++)
+    for (size_t i = 0; i < _clusterVectorElements.size(); i++)
     {
         _clusterVectorElements[i].multiplicity = _clusterVectorElements[i].sitePermutations.size() * size();
     }
@@ -371,10 +371,10 @@ namespace std
     /// Stream operator.
     ostream &operator<<(ostream &os, const Orbit &orbit)
     {
-        for (const auto cluster : orbit.clusters())
+        for (const auto &cluster : orbit.clusters())
         {
             os << "  ";
-            for (const auto site : cluster.latticeSites())
+            for (const auto &site : cluster.latticeSites())
             {
                 os << " " << site;
             }

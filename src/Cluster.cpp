@@ -125,9 +125,9 @@ std::vector<float> Cluster::distances() const
 {
     std::vector<Vector3d> currentPositions = getPositions();
     std::vector<float> distances = {};
-    for (int i = 1; i < currentPositions.size(); i++)
+    for (size_t i = 1; i < currentPositions.size(); i++)
     {
-        for (int j = 0; j < i; j++)
+        for (size_t j = 0; j < i; j++)
         {
             distances.push_back((currentPositions[j] - currentPositions[i]).norm());
         }
@@ -154,7 +154,7 @@ std::vector<int> Cluster::getNumberOfAllowedSpeciesPerSite() const
 @brief Checks whether a site index is included with a zero offset.
 @param siteIndex Index of site to check whether it is included
 */
-bool Cluster::isSiteIndexIncludedWithZeroOffset(int siteIndex) const
+bool Cluster::isSiteIndexIncludedWithZeroOffset(size_t siteIndex) const
 {
     return std::any_of(_latticeSites.begin(), _latticeSites.end(), [=](const LatticeSite &ls)
                        { return ls.index() == siteIndex && ls.unitcellOffset().norm() < 1e-4; });
@@ -164,7 +164,7 @@ bool Cluster::isSiteIndexIncludedWithZeroOffset(int siteIndex) const
 @brief Counts the number of occurences of a site index among the sites in this cluster
 @param siteIndex Index of site to count
 */
-unsigned int Cluster::getCountOfOccurencesOfSiteIndex(int siteIndex) const
+unsigned int Cluster::getCountOfOccurencesOfSiteIndex(size_t siteIndex) const
 {
     return std::count_if(_latticeSites.begin(), _latticeSites.end(), [=](const LatticeSite &ls)
                          { return ls.index() == siteIndex; });
@@ -196,7 +196,7 @@ std::ostream &operator<<(std::ostream &os, const Cluster &cluster)
     os << std::string(width, '-') << std::endl;
     os << " Unitcell index |   Unitcell offset   |    Position" << std::endl;
     os << std::string(width, '-') << std::endl;
-    for (int site_i = 0; site_i < cluster.order(); site_i++)
+    for (unsigned int site_i = 0; site_i < cluster.order(); site_i++)
     {
         LatticeSite site = cluster.latticeSites()[site_i];
         Vector3d position = cluster.getPositions()[site_i];

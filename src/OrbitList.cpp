@@ -277,10 +277,10 @@ Orbit OrbitList::createOrbit(const std::vector<std::vector<LatticeSite>> &equiva
             // Did not find the cluster in p_equal_set meaning that this cluster is not permuted as it should
             auto equivalentlyTranslatedEquivalentOrbitSites = getSitesTranslatedToUnitcell(equivalentOrbitSites, sortRows);
             std::vector<std::vector<LatticeSite>> translatedPermutationsOfSites;
-            for (const auto eq_trans_equivalentOrbitsites : equivalentlyTranslatedEquivalentOrbitSites)
+            for (const auto &eq_trans_equivalentOrbitsites : equivalentlyTranslatedEquivalentOrbitSites)
             {
                 const auto allPermutationsOfSites_i = icet::getAllPermutations<LatticeSite>(eq_trans_equivalentOrbitsites);
-                for (const auto perm : allPermutationsOfSites_i)
+                for (const auto &perm : allPermutationsOfSites_i)
                 {
                     translatedPermutationsOfSites.push_back(perm);
                 }
@@ -490,7 +490,7 @@ std::vector<std::pair<std::vector<LatticeSite>, std::vector<int>>> OrbitList::ge
         {
             perm_matrix_rows = getReferenceLatticeSiteIndices(sites);
         }
-        catch (const std::runtime_error)
+        catch (std::runtime_error const &)
         {
             continue;
         }
