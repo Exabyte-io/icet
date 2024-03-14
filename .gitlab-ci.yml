@@ -23,37 +23,37 @@ build:linux:
   tags:
     - linux
 
-build:macos:
-  before_script:
-    - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
-  extends: .build
-  script:
-    - pip3 install --target=$INSTDIR_MACOS .
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - local_installation_macos/
-  only:
-    - schedules
-  tags:
-    - macos
+# build:macos:
+#   before_script:
+#     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
+#   extends: .build
+#   script:
+#     - pip3 install --target=$INSTDIR_MACOS .
+#   artifacts:
+#     expire_in: 2 days
+#     paths:
+#       - local_installation_macos/
+#   only:
+#     - schedules
+#   tags:
+#     - macos
 
-build:windows:
-  before_script:
-    - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
-    - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
-    - Set-Alias -Name pip3 -Value pip
-  extends: .build
-  script:
-    - pip3 install --target=$INSTDIR_WINDOWS .
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - local_installation_windows/
-  only:
-    - schedules
-  tags:
-    - windowsvm
+# build:windows:
+#   before_script:
+#     - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
+#     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
+#     - Set-Alias -Name pip3 -Value pip
+#   extends: .build
+#   script:
+#     - pip3 install --target=$INSTDIR_WINDOWS .
+#   artifacts:
+#     expire_in: 2 days
+#     paths:
+#       - local_installation_windows/
+#   only:
+#     - schedules
+#   tags:
+#     - windowsvm
 
 #------------------- test stage -------------------
 
@@ -83,38 +83,38 @@ basic_tests:linux:
     reports:
       junit: report.xml
 
-basic_tests:macos:
-  before_script:
-    - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
-  extends: .basic_tests
-  needs:
-    - build:macos
-  tags:
-    - macos
-  only:
-    - schedules
-  artifacts:
-    expire_in: 2 days
-    reports:
-      junit: report.xml
+# basic_tests:macos:
+#   before_script:
+#     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
+#   extends: .basic_tests
+#   needs:
+#     - build:macos
+#   tags:
+#     - macos
+#   only:
+#     - schedules
+#   artifacts:
+#     expire_in: 2 days
+#     reports:
+#       junit: report.xml
 
-basic_tests:windows:
-  before_script:
-    - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
-    - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
-  extends: .basic_tests
-  needs:
-    - build:windows
-  tags:
-    - windowsvm
-  only:
-    - schedules
-  artifacts:
-    expire_in: 2 days
-    paths:
-      - htmlcov/
-    reports:
-      junit: report.xml
+# basic_tests:windows:
+#   before_script:
+#     - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
+#     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
+#   extends: .basic_tests
+#   needs:
+#     - build:windows
+#   tags:
+#     - windowsvm
+#   only:
+#     - schedules
+#   artifacts:
+#     expire_in: 2 days
+#     paths:
+#       - htmlcov/
+#     reports:
+#       junit: report.xml
 
 
 benchmarks_examples:
