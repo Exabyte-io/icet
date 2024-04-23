@@ -7,6 +7,4 @@ Cluster expansions
 
 .. autoclass:: icet.ClusterExpansion
    :members:
-   :undoc-members:
-   :inherited-members:
    :noindex:

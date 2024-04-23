@@ -18,40 +18,41 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    boltzmann_constant : float
+    structure
+        Atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the ensemble
+        and the temperature units. Default: eV/K.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the ensemble
         will be written to; if the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    data_container_write_period : float
-        period in units of seconds at which the data container is
+        updated/overwritten.
+    data_container_write_period
+        Period in units of seconds at which the data container is
         written to file; writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: 600 s]
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+        the data. Default: 600 s.
+    ensemble_data_write_interval
+        Interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of structure of different species
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the atomic
+        (i.e., usually the energy) as well as ensembles specific fields
+        such as temperature or the number of structure of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+        Default: Number of sites in the :attr:`structure`.
     """
 
     def __init__(self,
@@ -88,7 +89,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
 
     @property
     def boltzmann_constant(self) -> float:
-        """ Boltzmann constant :math:`k_B` (see parameters section above) """
+        """ Boltzmann constant :math:`k_B` (see parameters section above). """
         return self._boltzmann_constant
 
     def _acceptance_condition(self, potential_diff: float) -> bool:
@@ -98,8 +99,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ----------
         potential_diff
-            change in the thermodynamic potential associated
-            with the trial step
+            Change in the thermodynamic potential associated with the trial step.
         """
         if potential_diff <= 0:
             return True
@@ -117,13 +117,13 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ---------
         sublattice_index
-            the sublattice the swap will act on
+            The sublattice the swap will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         sites, species = self.configuration.get_swapped_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change(sites, species)
@@ -142,13 +142,13 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ---------
         sublattice_index
-            the sublattice the swap will act on
+            The sublattice the swap will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         sites, species = self.configuration.get_swapped_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change(sites, species)
@@ -166,16 +166,15 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ---------
         chemical_potentials
-            chemical potentials used to calculate the potential
-            difference
+            Chemical potentials used to calculate the potential difference.
         sublattice_index
-            the sublattice the flip will act on
+            The sublattice the flip will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         index, species = self.configuration.get_flip_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change([index], [species])
@@ -200,17 +199,17 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ----------
         phis
-            average constraint parameters
+            Average constraint parameters.
         kappa
-            parameter that constrains the variance of the concentration
+            Parameter that constrains the variance of the concentration.
         sublattice_index
-            the sublattice the flip will act on
+            The sublattice the flip will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         index, new_species = self.configuration.get_flip_state(
             sublattice_index, allowed_species)
@@ -238,7 +237,7 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         return 0
 
     def _get_swap_sublattice_probabilities(self) -> List[float]:
-        """ Returns sublattice probabilities suitable for swaps."""
+        """ Returns sublattice probabilities suitable for swaps. """
         sublattice_probabilities = []
         for i, sl in enumerate(self.sublattices):
             if self.configuration.is_swap_possible(i):
@@ -276,11 +275,11 @@ class ThermodynamicBaseEnsemble(BaseEnsemble):
         Parameters
         ----------
         phis
-            average constraint parameters
+            Average constraint parameters.
         kappa
-            parameter that constrains the variance of the concentration
+            Parameter that constrains the variance of the concentration.
         sublattice_index
-            sublattice index
+            Sublattice index.
         """
         data = {}
 

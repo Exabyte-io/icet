@@ -1,5 +1,5 @@
 """
-This module provides the ClusterSpace class.
+This module provides the :class:`ClusterSpace` class.
 """
 
 import os
@@ -8,7 +8,6 @@ import itertools
 import pickle
 import tarfile
 import tempfile
-from collections import OrderedDict
 from collections.abc import Iterable
 from math import log10, floor
 from typing import Dict, List, Union, Tuple
@@ -25,48 +24,51 @@ from icet.core.structure import Structure
 from icet.core.sublattices import Sublattices
 from icet.tools.geometry import (ase_atoms_to_spglib_cell,
                                  get_occupied_primitive_structure)
+from pandas import DataFrame
 
 
 class ClusterSpace(_ClusterSpace):
     """This class provides functionality for generating and maintaining
     cluster spaces.
 
-    **Note:** In icet all :class:`ase.Atoms` objects must have
-    periodic boundary conditions. When carrying out cluster expansions
+    Note
+    ----
+    In :program:`icet` all :class:`Atoms <ase.Atoms>` objects must have
+    periodic boundary conditions. When constructing cluster expansions
     for surfaces and nanoparticles it is therefore recommended to
     surround the structure with vacuum and use periodic boundary
-    conditions. This can be done using e.g., :func:`ase.Atoms.center`.
+    conditions. This can be achieved by using :func:`Atoms.center <ase.Atoms.center>`.
 
     Parameters
     ----------
-    structure : ase.Atoms
-        atomic structure
-    cutoffs : List[float]
-        cutoff radii per order that define the cluster space
+    structure
+        Atomic structure.
+    cutoffs
+        Cutoff radii per order that define the cluster space.
 
-        Cutoffs are specified in units of Angstrom and refer to the
+        Cutoffs are specified in units of Ångstrom and refer to the
         longest distance between two atoms in the cluster. The first
         element refers to pairs, the second to triplets, the third
-        to quadruplets, and so on. ``cutoffs=[7.0, 4.5]`` thus implies
-        that all pairs distanced 7 A or less will be included,
+        to quadruplets, and so on. :attr:`cutoffs=[7.0, 4.5]` thus implies
+        that all pairs distanced 7 Å or less will be included,
         as well as all triplets among which the longest distance is no
-        longer than 4.5 A.
-    chemical_symbols : Union[List[str], List[List[str]]]
-        list of chemical symbols, each of which must map to an element
-        of the periodic table
+        longer than 4.5 Å.
+    chemical_symbols
+        List of chemical symbols, each of which must map to an element
+        of the periodic table.
 
         If a list of chemical symbols is provided, all sites on the
         lattice will have the same allowed occupations as the input
         list.
 
         If a list of list of chemical symbols is provided then the
-        outer list must be the same length as the `structure` object and
-        ``chemical_symbols[i]`` will correspond to the allowed species
+        outer list must be the same length as the :attr:`structure` object and
+        :attr:`chemical_symbols[i]` will correspond to the allowed species
         on lattice site ``i``.
-    symprec : float
-        tolerance imposed when analyzing the symmetry using spglib
-    position_tolerance : float
-        tolerance applied when comparing positions in Cartesian coordinates
+    symprec
+        Tolerance imposed when analyzing the symmetry using spglib.
+    position_tolerance
+        Tolerance applied when comparing positions in Cartesian coordinates.
 
     Examples
     --------
@@ -113,7 +115,7 @@ class ClusterSpace(_ClusterSpace):
             raise TypeError('Input configuration must be an ASE Atoms object'
                             f', not type {type(structure)}.')
         if not all(structure.pbc):
-            raise ValueError('Input structure must have periodic boundary conditions.')
+            raise ValueError('Input structure must be periodic.')
         if symprec <= 0:
             raise ValueError('symprec must be a positive number.')
 
@@ -199,7 +201,6 @@ class ClusterSpace(_ClusterSpace):
         nice_str = []
         for sublattice in sublattices.active_sublattices:
             sublattice_symbol = sublattice.symbol
-
             nice_str.append('{} (sublattice {})'.format(
                 list(sublattice.chemical_symbols), sublattice_symbol))
         return ', '.join(nice_str)
@@ -235,7 +236,10 @@ class ClusterSpace(_ClusterSpace):
                        'sublattices': '{:}'}
             s = []
             for name, value in orbit.items():
-                str_repr = formats[name].format(value)
+                if name == 'sublattices':
+                    str_repr = formats[name].format('-'.join(value))
+                else:
+                    str_repr = formats[name].format(value)
                 n = max(len(name), len(str_repr))
                 if header:
                     s += ['{s:^{n}}'.format(s=name, n=n)]
@@ -245,18 +249,18 @@ class ClusterSpace(_ClusterSpace):
 
         # basic information
         # (use largest orbit to obtain maximum line length)
-        prototype_orbit = self.orbit_data[-1]
+        prototype_orbit = self.as_list[-1]
         width = len(repr_orbit(prototype_orbit))
         s = []
         s += ['{s:=^{n}}'.format(s=' Cluster Space ', n=width)]
         s += [' {:38} : {}'.format('space group', self.space_group)]
         s += [' {:38} : {}'
               .format('chemical species', self._get_chemical_symbol_representation())]
-        s += [' {:38} : {}'.format('cutoffs', ' '
-                                   .join(['{:.4f}'.format(co) for co in self._cutoffs]))]
+        s += [' {:38} : {}'.format('cutoffs',
+                                   ' '.join(['{:.4f}'.format(c) for c in self.cutoffs]))]
         s += [' {:38} : {}'.format('total number of parameters', len(self))]
         t = ['{}= {}'.format(k, c)
-             for k, c in self.get_number_of_orbits_by_order().items()]
+             for k, c in self.number_of_orbits_by_order.items()]
         s += [' {:38} : {}'.format('number of parameters by order', '  '.join(t))]
         for key, value in sorted(self._config.items()):
             s += [' {:38} : {}'.format(key, value)]
@@ -268,7 +272,7 @@ class ClusterSpace(_ClusterSpace):
 
         # table body
         index = 0
-        orbit_list_info = self.orbit_data
+        orbit_list_info = self.as_list
         while index < len(orbit_list_info):
             if (print_threshold is not None and
                     len(self) > print_threshold and
@@ -282,6 +286,32 @@ class ClusterSpace(_ClusterSpace):
 
         return '\n'.join(s)
 
+    def __str__(self) -> str:
+        """ String representation. """
+        return self._get_string_representation(print_threshold=50)
+
+    def _repr_html_(self) -> str:
+        """ HTML representation. Used, e.g., in jupyter notebooks. """
+        s = ['<h4>Cluster Space</h4>']
+        s += ['<table border="1" class="dataframe">']
+        s += ['<thead><tr><th style="text-align: left;">Field</th><th>Value</th></tr></thead>']
+        s += ['<tbody>']
+        s += [f'<tr><td style="text-align: left;">Space group</td><td>{self.space_group}</td></tr>']
+        for sl in self.get_sublattices(self.primitive_structure).active_sublattices:
+            s += [f'<tr><td style="text-align: left;">Sublattice {sl.symbol}</td>'
+                  f'<td>{sl.chemical_symbols}</td></tr>']
+        s += [f'<tr><td style="text-align: left;">Cutoffs</td><td>{self.cutoffs}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Total number of parameters</td>'
+              f'<td>{len(self)}</td></tr>']
+        for k, n in self.number_of_orbits_by_order.items():
+            s += [f'<tr><td style="text-align: left;">Number of parameters of order {k}</td>'
+                  f'<td>{n}</td></tr>']
+        for key, value in sorted(self._config.items()):
+            s += [f'<tr><td style="text-align: left;">{key}</td><td>{value}</td></tr>']
+        s += ['</tbody>']
+        s += ['</table>']
+        return ''.join(s)
+
     def __repr__(self) -> str:
         """ Representation. """
         s = type(self).__name__ + '('
@@ -292,100 +322,82 @@ class ClusterSpace(_ClusterSpace):
         s += ')'
         return s
 
-    def __str__(self) -> str:
-        """ String representation. """
-        return self._get_string_representation(print_threshold=50)
-
-    def print_overview(self,
-                       print_threshold: int = None,
-                       print_minimum: int = 10) -> None:
-        """
-        Print an overview of the cluster space in terms of the orbits (order,
-        radius, multiplicity etc).
-
-        Parameters
-        ----------
-        print_threshold
-            if the number of orbits exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the orbit
-            list if `print_threshold` is exceeded
-        """
-        print(self._get_string_representation(print_threshold=print_threshold,
-                                              print_minimum=print_minimum))
-
     @property
     def symprec(self) -> float:
-        """ tolerance imposed when analyzing the symmetry using spglib """
+        """ Tolerance imposed when analyzing the symmetry using spglib. """
         return self._config['symprec']
 
     @property
     def position_tolerance(self) -> float:
-        """ tolerance applied when comparing positions in Cartesian coordinates """
+        """ Tolerance applied when comparing positions in Cartesian coordinates. """
         return self._config['position_tolerance']
 
     @property
     def fractional_position_tolerance(self) -> float:
-        """ tolerance applied when comparing positions in fractional coordinates """
+        """ Tolerance applied when comparing positions in fractional coordinates. """
         return self._config['fractional_position_tolerance']
 
     @property
     def space_group(self) -> str:
-        """ space group of the primitive structure in international notion (via spglib) """
+        """ Space group of the primitive structure in international notion (via spglib). """
         structure_as_tuple = ase_atoms_to_spglib_cell(self.primitive_structure)
         return spglib.get_spacegroup(structure_as_tuple, symprec=self._config['symprec'])
 
     @property
-    def orbit_data(self) -> List[OrderedDict]:
-        """
-        list of orbits with information regarding
-        order, radius, multiplicity etc
+    def as_list(self) -> List[dict]:
+        """Representation of cluster space as list with information regarding
+        order, radius, multiplicity etc.
         """
         data = []
-        zerolet = OrderedDict([('index', 0),
-                               ('order', 0),
-                               ('radius', 0),
-                               ('multiplicity', 1),
-                               ('orbit_index', -1),
-                               ('multicomponent_vector', '.'),
-                               ('sublattices', '.')])
-        sublattices = self.get_sublattices(self.primitive_structure)
+        zerolet = dict(
+            index=0,
+            order=0,
+            radius=0,
+            multiplicity=1,
+            orbit_index=-1,
+            multicomponent_vector='.',
+            sublattices='.',
+        )
         data.append(zerolet)
 
+        sublattices = self.get_sublattices(self.primitive_structure)
         index = 0
         for orbit_index in range(len(self.orbit_list)):
             orbit = self.orbit_list.get_orbit(orbit_index)
             representative_cluster = orbit.representative_cluster
-            orbit_sublattices = '-'.join(
-                [sublattices[sublattices.get_sublattice_index_from_site_index(ls.index)].symbol
-                 for ls in representative_cluster.lattice_sites])
+            orbit_sublattices = [
+                sublattices[sublattices.get_sublattice_index_from_site_index(ls.index)].symbol
+                for ls in representative_cluster.lattice_sites]
             for cv_element in orbit.cluster_vector_elements:
                 index += 1
-                record = OrderedDict(
-                    [('index', index),
-                     ('order', representative_cluster.order),
-                     ('radius', representative_cluster.radius),
-                     ('multiplicity', cv_element['multiplicity']),
-                     ('orbit_index', orbit_index),
-                     ('multicomponent_vector', cv_element['multicomponent_vector']),
-                     ('sublattices', orbit_sublattices)])
-                data.append(record)
+                data.append(dict(
+                    index=index,
+                    order=representative_cluster.order,
+                    radius=representative_cluster.radius,
+                    multiplicity=cv_element['multiplicity'],
+                    orbit_index=orbit_index,
+                    multicomponent_vector=cv_element['multicomponent_vector'],
+                    sublattices=orbit_sublattices
+                ))
         return data
 
-    def get_number_of_orbits_by_order(self) -> OrderedDict:
-        """
-        Returns the number of orbits by order.
+    def to_dataframe(self) -> DataFrame:
+        """ Returns a representation of the cluster space as a DataFrame. """
+        df = DataFrame.from_dict(self.as_list)
+        del df['index']
+        return df
 
-        Returns
-        -------
-        an ordered dictionary where keys and values represent order and number
-        of orbits, respectively
+    @property
+    def number_of_orbits_by_order(self) -> dict:
+        """ Number of orbits by order in the form of a dictionary
+        where keys and values represent order and number of orbits,
+        respectively.
         """
         count_orbits: Dict[int, int] = {}
-        for orbit in self.orbit_data:
+        for orbit in self.as_list:
             k = orbit['order']
             count_orbits[k] = count_orbits.get(k, 0) + 1
-        return OrderedDict(sorted(count_orbits.items()))
+        return dict(sorted(count_orbits.items()))
 
     def get_cluster_vector(self, structure: Atoms) -> np.ndarray:
         """
@@ -394,11 +406,7 @@ class ClusterSpace(_ClusterSpace):
         Parameters
         ----------
         structure
-            atomic configuration
-
-        Returns
-        -------
-        the cluster vector
+            Atomic configuration.
         """
         if not isinstance(structure, Atoms):
             raise TypeError('Input structure must be an ASE Atoms object')
@@ -416,10 +424,11 @@ class ClusterSpace(_ClusterSpace):
     def get_coordinates_of_representative_cluster(self, orbit_index: int) -> List[Tuple[float]]:
         """
         Returns the positions of the sites in the representative cluster of the selected orbit.
+
         Parameters
         ----------
         orbit_index
-            index of the orbit for which to return the positions of the sites
+            Index of the orbit for which to return the positions of the sites.
         """
         # Raise exception if chosen orbit index not in current list of orbit indices
         if orbit_index not in range(len(self._orbit_list)):
@@ -433,7 +442,7 @@ class ClusterSpace(_ClusterSpace):
         Parameters
         ----------
         indices
-            indices to all orbits to be removed
+            Indices to all orbits to be removed.
         """
         size_before = len(self._orbit_list)
 
@@ -452,14 +461,14 @@ class ClusterSpace(_ClusterSpace):
         Parameters
         ----------
         indices
-            indices to all orbits to be removed
+            Indices to all orbits to be removed.
         """
         self._remove_orbits(indices)
         self._pruning_history.append(('prune', indices))
 
     @property
     def primitive_structure(self) -> Atoms:
-        """ Primitive structure on which cluster space is based """
+        """ Primitive structure on which cluster space is based. """
         structure = self._get_primitive_structure().to_atoms()
         # Decorate with the "real" symbols (instead of H, He, Li etc)
         for atom, symbols in zip(structure, self._primitive_chemical_symbols):
@@ -468,33 +477,33 @@ class ClusterSpace(_ClusterSpace):
 
     @property
     def chemical_symbols(self) -> List[List[str]]:
-        """ Species identified by their chemical symbols """
+        """ Species identified by their chemical symbols. """
         return self._primitive_chemical_symbols.copy()
 
     @property
     def cutoffs(self) -> List[float]:
         """
         Cutoffs for different n-body clusters. The cutoff radius (in
-        Angstroms) defines the largest interatomic distance in a
+        Ångstroms) defines the largest interatomic distance in a
         cluster.
         """
         return self._cutoffs
 
     @property
     def orbit_list(self):
-        """Orbit list that defines the cluster in the cluster space"""
+        """ Orbit list that defines the cluster in the cluster space. """
         return self._orbit_list
 
     def get_possible_orbit_occupations(self, orbit_index: int) -> List[List[str]]:
-        """Returns possible occupation of the orbit.
+        """ Returns possible occupations of the orbit.
 
         Parameters
         ----------
         orbit_index
+            Index of orbit of interest.
         """
         orbit = self.orbit_list.orbits[orbit_index]
-        indices = [lattice_site.index
-                   for lattice_site in orbit.representative_cluster.lattice_sites]
+        indices = [ls.index for ls in orbit.representative_cluster.lattice_sites]
         allowed_species = [self.chemical_symbols[index] for index in indices]
         return list(itertools.product(*allowed_species))
 
@@ -504,7 +513,7 @@ class ClusterSpace(_ClusterSpace):
         Parameters
         ----------
         structure
-            structure the sublattices are based on
+            Atomic structure the sublattices are based on.
         """
         sl = Sublattices(self.chemical_symbols,
                          self.primitive_structure,
@@ -513,19 +522,21 @@ class ClusterSpace(_ClusterSpace):
         return sl
 
     def assert_structure_compatibility(self, structure: Atoms, vol_tol: float = 1e-5) -> None:
-        """ Raises error if structure is not compatible with ClusterSpace.
+        """ Raises error if structure is not compatible with this cluster space.
 
         Parameters
         ----------
         structure
-            structure to check for compatibility with ClusterSpace
+            Structure to check for compatibility with cluster space.
+        vol_tol
+            Tolerance imposed when comparing volumes.
         """
         # check volume
         vol1 = self.primitive_structure.get_volume() / len(self.primitive_structure)
         vol2 = structure.get_volume() / len(structure)
         if abs(vol1 - vol2) > vol_tol:
             raise ValueError(f'Volume per atom of structure ({vol1}) does not match the volume of'
-                             f' ClusterSpace.primitive_structure ({vol2}). vol_tol= {vol_tol}')
+                             f' the primitive structure ({vol2}; vol_tol= {vol_tol}).')
 
         # check occupations
         sublattices = self.get_sublattices(structure)
@@ -533,20 +544,20 @@ class ClusterSpace(_ClusterSpace):
 
         # check pbc
         if not all(structure.pbc):
-            raise ValueError('Input structure must have periodic boundary conditions.')
+            raise ValueError('Input structure must be periodic.')
 
     def merge_orbits(self,
                      equivalent_orbits: Dict[int, List[int]],
-                     ignore_permutations=False) -> None:
+                     ignore_permutations: bool = False) -> None:
         """ Combines several orbits into one. This allows one to make custom
         cluster spaces by manually declaring the clusters in two or more
         orbits to be equivalent. This is a powerful approach for simplifying
-        the cluster spaces of low-dimensional structures such as, e.g.,
+        the cluster spaces of low-dimensional structures such as
         surfaces or nanoparticles.
 
         The procedure works in principle for any number of components. Note,
         however, that in the case of more than two components the outcome of
-        the merging procedure inherits the treatment of the multicomponent
+        the merging procedure inherits the treatment of the multi-component
         vectors of the orbit chosen as the representative one.
 
         Parameters
@@ -556,14 +567,14 @@ class ClusterSpace(_ClusterSpace):
             which to merge. The values are the indices of the orbits that are
             supposed to be merged into the orbit denoted by the key.
         ignore_permutations
-            If true, orbits will be merged even if their multi-component
+            If ``True`` orbits will be merged even if their multi-component
             vectors and/or site permutations differ. While the object will
             still be functional, the cluster space may not be properly spanned
             by the resulting cluster vectors.
 
         Note
         ----
-        The `orbit_index` should not be confused with the `index` shown when
+        The orbit index should not be confused with the index shown when
         printing the cluster space.
 
         Examples
@@ -572,7 +583,7 @@ class ClusterSpace(_ClusterSpace):
         cluster space for a (111) FCC surface, in which only the singlets for
         the first and second layer are distinct as well as the in-plane pair
         interaction in the topmost layer. All other singlets and pairs are
-        respectively merged into one orbit. After merging there will be only 3
+        respectively merged into one orbit. After merging there aree only 3
         singlets and 2 pairs left with correspondingly higher multiplicities.
 
             >>> from icet import ClusterSpace
@@ -585,12 +596,12 @@ class ClusterSpace(_ClusterSpace):
             >>> cs = ClusterSpace(structure=structure, cutoffs=[3.8], chemical_symbols=['Au', 'Ag'])
             >>>
             >>> # At this point, one can inspect the orbits in the cluster space by printing the
-            >>> # `cs` object and accessing the individial orbits.
+            >>> # ClusterSpace object and accessing the individial orbits.
             >>> # There will be 4 singlets and 8 pairs.
             >>>
-            >>> # Merge singlets for third and fourth layers as well as all pairs except for
-            >>> # the one corresponding to the in-plane interaction in the outmost surface
-            >>> # layer
+            >>> # Merge singlets for the third and fourth layers as well as all pairs except for
+            >>> # the one corresponding to the in-plane interaction in the topmost surface
+            >>> # layer.
             >>> cs.merge_orbits({2: [3], 4: [6, 7, 8, 9, 10, 11]})
         """
 
@@ -644,19 +655,15 @@ class ClusterSpace(_ClusterSpace):
 
     def is_supercell_self_interacting(self, structure: Atoms) -> bool:
         """
-        Checks whether an structure has self-interactions via periodic
+        Checks whether a structure has self-interactions via periodic
         boundary conditions.
+        Returns ``True`` if the structure contains self-interactions via periodic
+        boundary conditions, otherwise ``False``.
 
         Parameters
         ----------
         structure
-            structure to be tested
-
-        Returns
-        -------
-        bool
-            If True, the structure contains self-interactions via periodic
-            boundary conditions, otherwise False.
+            Structure to be tested.
         """
         ol = self.orbit_list.get_supercell_orbit_list(
             structure=structure,
@@ -678,7 +685,7 @@ class ClusterSpace(_ClusterSpace):
         Parameters
         ---------
         filename
-            name of file to which to write
+            Name of file to which to write.
         """
 
         with tarfile.open(name=filename, mode='w') as tar_file:
@@ -708,12 +715,12 @@ class ClusterSpace(_ClusterSpace):
     @staticmethod
     def read(filename: str):
         """
-        Reads cluster space from filename.
+        Reads cluster space from file and returns :attr:`ClusterSpace` object.
 
         Parameters
         ---------
         filename
-            name of file from which to read cluster space
+            Name of file from which to read cluster space.
         """
         if isinstance(filename, str):
             tar_file = tarfile.open(mode='r', name=filename)
@@ -759,7 +766,7 @@ class ClusterSpace(_ClusterSpace):
         return cs
 
     def copy(self):
-        """ Returns copy of ClusterSpace instance. """
+        """ Returns copy of :class:`ClusterSpace` instance. """
         cs_copy = ClusterSpace(structure=self._input_structure,
                                cutoffs=self.cutoffs,
                                chemical_symbols=self._input_chemical_symbols,

@@ -18,18 +18,16 @@ from .base_data_container import BaseDataContainer
 class WangLandauDataContainer(BaseDataContainer):
     """
     Data container for storing information concerned with :ref:`Wang-Landau
-    simulation <wang_landau_ensemble>` performed with mchammer.
+    simulation <wang_landau_ensemble>` performed with :program:`mchammer`.
 
     Parameters
     ----------
-    structure : ase.Atoms
-        reference atomic structure associated with the data container
-
-    ensemble_parameters : dict
-        parameters associated with the underlying ensemble
-
-    metadata : dict
-        metadata associated with the data container
+    structure
+        Reference atomic structure associated with the data container.
+    ensemble_parameters
+        Parameters associated with the underlying ensemble.
+    metadata
+        Metadata associated with the data container.
     """
 
     def _update_last_state(self,
@@ -47,25 +45,25 @@ class WangLandauDataContainer(BaseDataContainer):
         Parameters
         ----------
         last_step
-            last trial step
+            Last trial step.
         occupations
-            occupation vector observed during the last trial step
+            Occupation vector observed during the last trial step.
         accepted_trial
-            number of current accepted trial steps
+            Number of current accepted trial steps.
         random_state
-            tuple representing the last state of the random generator
+            Tuple representing the last state of the random generator.
         fill_factor
-            fill factor of Wang-Landau algorithm
+            Fill factor of Wang-Landau algorithm.
         fill_factor_history
-            evolution of the fill factor of Wang-Landau algorithm (key=MC
-            trial step, value=fill factor)
+            Evolution of the fill factor of Wang-Landau algorithm (key=MC
+            trial step, value=fill factor).
         entropy_history
-            evolution of the (relative) entropy accumulated during Wang-Landau
-            simulation (key=MC trial step, value=(key=bin, value=entropy))
+            Evolution of the (relative) entropy accumulated during Wang-Landau
+            simulation (key=MC trial step, value=(key=bin, value=entropy)).
         histogram
-            histogram of states visited during Wang-Landau simulation
+            Histogram of states visited during Wang-Landau simulation.
         entropy
-            (relative) entropy accumulated during Wang-Landau simulation
+            (Relative) entropy accumulated during Wang-Landau simulation.
         """
         super()._update_last_state(
             last_step=last_step,
@@ -80,12 +78,12 @@ class WangLandauDataContainer(BaseDataContainer):
 
     @property
     def fill_factor(self) -> float:
-        """ final value of the fill factor in the Wang-Landau algorithm """
+        """ Final value of the fill factor in the Wang-Landau algorithm. """
         return float(self._last_state['fill_factor'])
 
     @property
     def fill_factor_history(self) -> DataFrame:
-        """ evolution of the fill factor in the Wang-Landau algorithm """
+        """ Evolution of the fill factor in the Wang-Landau algorithm. """
         return DataFrame({'mctrial': list(self._last_state['fill_factor_history'].keys()),
                           'fill_factor': list(self._last_state['fill_factor_history'].values())})
 
@@ -95,28 +93,29 @@ class WangLandauDataContainer(BaseDataContainer):
             -> Union[np.ndarray, List[Atoms], Tuple[np.ndarray, List[Atoms]]]:
         """Returns the accumulated data for the requested observables,
         including configurations stored in the data container. The latter
-        can be achieved by including 'trajectory' as one of the tags.
+        can be achieved by including ``'trajectory'`` as one of the tags.
 
         Parameters
         ----------
         tags
-            names of the requested properties
+            Names of the requested properties.
         fill_factor_limit
-            return data recorded up to the point when the specified fill
+            Return data recorded up to the point when the specified fill
             factor limit was reached, or ``None`` if the entropy history is
             empty or the last fill factor is above the limit; otherwise
-            return all data
+            return all data.
 
         Raises
         ------
         ValueError
-            if tags is empty
+            If :attr:`tags` is empty.
         ValueError
-            if observables are requested that are not in data container
+            If observables are requested that are not in the data container.
 
         Examples
         --------
-        Below the `get` method is illustrated but first we require a data container.
+        Below the :func:`get` method is
+        illustrated but first we require a data container.
 
         >>> from ase import Atoms
         >>> from icet import ClusterExpansion, ClusterSpace
@@ -142,13 +141,14 @@ class WangLandauDataContainer(BaseDataContainer):
         ...                         fill_factor_limit=0.3)
         >>> mc.run(number_of_trial_steps=len(structure)*3000)  # in practice one requires more steps
 
-        We can now access the data container by reading it from file by using
-        the `read` method. For the purpose of this example, however, we access
-        the data container associated with the ensemble directly.
+        We can now access the data container by reading it from file
+        by using the :func:`read` method. For the purpose of this
+        example, however, we access the data container associated with
+        the ensemble directly.
 
             >>> dc = mc.data_container
 
-        The following lines illustrate how to use the `get` method
+        The following lines illustrate how to use the :func:`get` method
         for extracting data from the data container.
 
             >>> # obtain all values of the potential represented by
@@ -167,6 +167,7 @@ class WangLandauDataContainer(BaseDataContainer):
             >>> # obtain configurations along the trajectory along with
             >>> # their potential
             >>> p, confs = dc.get('potential', 'trajectory')
+
         """
 
         if len(tags) == 0:
@@ -220,10 +221,10 @@ class WangLandauDataContainer(BaseDataContainer):
         Parameters
         ----------
         fill_factor_limit
-            return the entropy recorded up to the point when the specified fill
+            Return the entropy recorded up to the point when the specified fill
             factor limit was reached, or ``None`` if the entropy history is
-            empty or the last fill factor is above the limit; otherwise
-            return the entropy for the last state
+            empty or the last fill factor is above the limit. Otherwise
+            return the entropy for the last state.
         """
 
         if 'entropy' not in self._last_state:
@@ -327,30 +328,30 @@ def get_density_of_states_wl(dcs: Union[WangLandauDataContainer,
     Parameters
     ----------
     dcs
-        data container(s), from which to extract the density of states
+        Data container(s), from which to extract the density of states.
     fill_factor_limit
-        calculate the density of states using the entropy recorded up to the
-        point when the specified fill factor limit was reached; otherwise
-        return the density of states for the last state
+        Calculate the density of states using the entropy recorded up to the
+        point when the specified fill factor limit was reached. Otherwise
+        return the density of states for the last state.
 
     Raises
     ------
     TypeError
-        if dcs does not correspond to not a single (dictionary) of data
-        container(s) from which the entropy can retrieved
+        If :attr:`dcs` does not correspond to not a single (dictionary) of data
+        container(s) from which the entropy can retrieved.
     ValueError
-        if the data container does not contain entropy information
+        If the data container does not contain entropy information.
     ValueError
-        if a fill factor limit has been provided and the data container either
+        If a fill factor limit has been provided and the data container either
         does not contain information about the entropy history or if the last
-        fill factor is higher than the specified limit
+        fill factor is higher than the specified limit.
     ValueError
-        if multiple data containers are provided and there are inconsistencies
+        If multiple data containers are provided and there are inconsistencies
         with regard to basic simulation parameters such as system size or
-        energy spacing
+        energy spacing.
     ValueError
-        if multiple data containers are provided and there is at least
-        one energy region without overlap
+        If multiple data containers are provided and there is at least
+        one energy region without overlap.
     """
 
     # preparations
@@ -455,13 +456,13 @@ def _extract_filter_data(dc: BaseDataContainer,
     Parameters
     ----------
     dc
-        data container, from which to extract the data
+        Data container from which to extract the data.
     columns_to_keep
-        list of requested properties
+        List of requested properties.
     fill_factor_limit
-        only include data recorded up to the point when the specified fill
-        factor limit was reached when computing averages; otherwise include
-        all data
+        Only include data recorded up to the point when the specified fill
+        factor limit was reached when computing averages. Otherwise include
+        all data.
     """
 
     df = dc.data
@@ -484,37 +485,37 @@ def get_average_observables_wl(dcs: Union[WangLandauDataContainer,
                                fill_factor_limit: float = None) -> DataFrame:
     """Returns the average and the standard deviation of the energy from a
     :ref:`Wang-Landau simulation <wang_landau_ensemble>` for the temperatures
-    specified. If the ``observables`` keyword argument is specified
+    specified. If the :attr:`observables` keyword argument is specified
     the function will also return the mean and standard deviation of the
     specified observables.
 
     Parameters
     ----------
     dcs
-        data container(s), from which to extract density of states
-        as well as observables
+        Data container(s) from which to extract density of states
+        as well as observables.
     temperatures
-        temperatures, at which to compute the averages
+        Temperatures at which to compute the averages.
     observables
-        observables, for which to compute averages; the observables
-        must refer to fields in the data container
+        Observables for which to compute averages; the observables
+        must refer to fields in the data container.
     boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
+        and the temperature units [default: eV/K].
     fill_factor_limit
-        use data recorded up to the point when the specified fill factor limit
-        was reached when computing averages; otherwise use data for the last
-        state
+        Use data recorded up to the point when the specified fill factor limit
+        was reached when computing averages. Otherwise use data for the last
+        state.
 
     Raises
     ------
     ValueError
-        if the data container(s) do(es) not contain entropy data
-        from Wang-Landau simulation
+        If the data container(s) do(es) not contain entropy data
+        from Wang-Landau simulation.
     ValueError
-        if data container(s) do(es) not contain requested observable
+        If data container(s) do(es) not contain requested observable.
     """
 
     def check_observables(dc: WangLandauDataContainer, observables: Optional[List[str]]) -> None:
@@ -603,27 +604,27 @@ def get_average_cluster_vectors_wl(dcs: Union[WangLandauDataContainer, dict],
     Parameters
     ----------
     dcs
-        data container(s), from which to extract density of states
-        as well as observables
+        Data container(s), from which to extract density of states
+        as well as observables.
     cluster_space
-        cluster space to use for calculation of cluster vectors
+        Cluster space to use for calculation of cluster vectors.
     temperatures
-        temperatures, at which to compute the averages
+        Temperatures at which to compute the averages.
     boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
+        and the temperature units [default: eV/K].
     fill_factor_limit
-        use data recorded up to the point when the specified fill factor limit
-        was reached when computing the average cluster vectors; otherwise use
-        data for the last state
+        Use data recorded up to the point when the specified fill factor limit
+        was reached when computing the average cluster vectors. Otherwise use
+        data for the last state.
 
     Raises
     ------
     ValueError
-        if the data container(s) do(es) not contain entropy data
-        from Wang-Landau simulation
+        If the data container(s) do(es) not contain entropy data
+        from Wang-Landau simulation.
     """
 
     # fetch potential and structures

@@ -35,10 +35,10 @@ ClusterExpansionCalculator::ClusterExpansionCalculator(const ClusterSpace &clust
 }
 
 /**
-@details Calculate change in cluster vector upon change in occupation on one site
-@param occupationsBefore the occupation vector for the supercell before the flip
-@param flipIndex the index in the supercell where occupation has changed
-@param newOccupation new atomic number on site index
+@details Calculate change in cluster vector upon change in occupation on one site.
+@param occupationsBefore Occupation vector for the supercell before the flip
+@param flipIndex         Index in the supercell where occupation has changed
+@param newOccupation     New atomic number on site index
 */
 std::vector<double> ClusterExpansionCalculator::getClusterVectorChange(const py::array_t<int> &occupationsBefore,
                                                                        size_t flipIndex,

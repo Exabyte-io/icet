@@ -18,14 +18,9 @@ def calculate_strain_tensor(A: np.ndarray,
     Parameters
     ----------
     A
-        reference cell (row-major format)
+        Reference cell (row-major format).
     B
-        target cell (row-major format)
-
-    Returns
-    -------
-    strain_tensor
-        Biot strain tensor (symmetric matrix)
+        Target cell (row-major format).
     """
     assert A.shape == (3, 3)
     assert B.shape == (3, 3)
@@ -56,17 +51,17 @@ def map_structure_to_reference(structure: Atoms,
     closely matching the input structure and a dictionary with
     supplementary information concerning the mapping. The latter
     includes for example the largest deviation of any position in the
-    input structure from its reference position (`drmax`), the average
+    input structure from its reference position (``drmax``), the average
     deviation of the positions in the input structure from the
-    reference positions (`dravg`), and the strain tensor for the input
-    structure relative to the reference structure (`strain_tensor`).
+    reference positions (``dravg``), and the strain tensor for the input
+    structure relative to the reference structure (``strain_tensor``).
 
     The returned Atoms object provides further supplemental information via
     custom per-atom arrays including the atomic displacements
-    (`Displacement`, `Displacement_Magnitude`),the distances to the
-    three closest sites (`Minimum_Distances`), as well as a mapping
+    (``Displacement``, ``Displacement_Magnitude``),the distances to the
+    three closest sites (``Minimum_Distances``), as well as a mapping
     between the indices of the returned Atoms object and those of the input
-    structure ('IndexMapping').
+    structure (``IndexMapping``).
 
     Note
     ----
@@ -76,24 +71,26 @@ def map_structure_to_reference(structure: Atoms,
     Parameters
     ----------
     structure
-        input structure, typically a relaxed structure
+        Input structure, typically a relaxed structure.
     reference
-        reference structure, which can but need not be the primitive structure
+        Reference structure, which can but need not be the primitive structure.
     inert_species
-        list of chemical symbols (e.g., ``['Au', 'Pd']``) that are never
-        substituted for a vacancy; the number of inert sites is used to rescale
+        List of chemical symbols (e.g., ``['Au', 'Pd']``) that are never
+        substituted for a vacancy. The number of inert sites is used to rescale
         the volume of the input structure to match the reference structure.
     tol_positions
-        tolerance factor applied when scanning for overlapping positions in
-        Angstrom (forwarded to :func:`ase.build.make_supercell`)
+        Tolerance factor applied when scanning for overlapping positions in
+        Ångstrom (forwarded to :func:`ase.build.make_supercell`).
     suppress_warnings
-        if True, print no warnings of large strain or relaxation distances
+        if ``True`` print no warnings of large strain or relaxation distances.
     assume_no_cell_relaxation
-        if False volume and cell metric of the input structure are rescaled
-        to match the reference structure; this can be unnecessary (and
-        counterproductive) for some structures, e.g., with many vacancies
+        If ``False`` volume and cell metric of the input structure are rescaled
+        to match the reference structure. This can be unnecessary (and
+        counterproductive) for some structures, e.g., with many vacancies.
 
-        **Note**: When setting this parameter to False the reference cell metric
+        Note
+        ----
+        When setting this parameter to ``False`` the reference cell metric
         must be obtainable via an *integer* transformation matrix from the
         reference cell metric. In other words the input structure should not
         involve relaxations of the volume or the cell metric.
@@ -194,22 +191,24 @@ def _get_reference_supercell(structure: Atoms,
     Parameters
     ----------
     structure
-        input structure, typically a relaxed structure
+        Input structure, typically a relaxed structure.
     reference
-        reference structure, which can but need not be the primitive structure
+        Reference structure, which can but need not be the primitive structure.
     inert_species
-        list of chemical symbols (e.g., ``['Au', 'Pd']``) that are never
-        substituted for a vacancy; the number of inert sites is used to rescale
+        List of chemical symbols (e.g., ``['Au', 'Pd']``) that are never
+        substituted for a vacancy. The number of inert sites is used to rescale
         of the input structure to match the reference structure.
     tol_positions
-        tolerance factor applied when scanning for overlapping positions in
-        Angstrom (forwarded to :func:`ase.build.make_supercell`)
+        Tolerance factor applied when scanning for overlapping positions in
+        Ångstrom (forwarded to :func:`ase.build.make_supercell`).
     assume_no_cell_relaxation
-        if False volume and cell metric of the input structure are rescaled
-        to match the reference structure; this can be unnecessary (and
-        counterproductive) for some structures, e.g., with many vacancies
+        If ``False`` volume and cell metric of the input structure are rescaled
+        to match the reference structure. This can be unnecessary (and
+        counterproductive) for some structures, e.g., with many vacancies.
 
-        **Note**: When setting this parameter to False, the input structure
+        Note
+        ----
+        When setting this parameter to ``False``, the input structure
         must be obtainable via an *integer* transformation matrix from the
         reference cell metric. In other words the input structure should not
         involve relaxations of the volume or the cell metric.
@@ -217,15 +216,15 @@ def _get_reference_supercell(structure: Atoms,
     Raises
     ------
     ValueError
-        if the boundary conditions of the reference and the input structure
-        do not match
+        If the boundary conditions of the reference and the input structure
+        do not match.
     ValueError
-        if the transformation matrix deviates too strongly from the nearest
-        integer matrix
+        If the transformation matrix deviates too strongly from the nearest
+        integer matrix.
     ValueError
-        if assume_no_cell_relaxation is True but the input structure is
+        If :attr:`assume_no_cell_relaxation` is ``True`` but the input structure is
         not obtainable via an integer transformation from the reference
-        cell metric
+        cell metric.
     """
 
     if not np.all(reference.pbc == structure.pbc):
@@ -264,28 +263,28 @@ def _get_reference_supercell(structure: Atoms,
 
 
 def _match_positions(structure: Atoms, reference: Atoms) -> Tuple[Atoms, float, float]:
-    """Matches the atoms in the input `structure` to the sites in the
-    `reference` structure. The function returns tuple the first element of which
-    is a copy of the `reference` structure, in which the chemical species are
-    assigned to comply with the `structure`. The second and third element
+    """Matches the atoms in the input :attr:`structure` to the sites in the
+    :attr:`reference` structure. The function returns tuple the first element of which
+    is a copy of the :attr:`reference` structure, in which the chemical species are
+    assigned to comply with the :attr:`structure`. The second and third element
     of the tuple represent the maximum and average distance between relaxed and
     reference sites.
 
     Parameters
     ----------
     structure
-        structure with relaxed positions
+        Structure with relaxed positions.
     reference
-        structure with idealized positions
+        Structure with idealized positions.
 
     Raises
     ------
     ValueError
-        if the cell metrics of the two input structures do not match
+        If the cell metrics of the two input structures do not match.
     ValueError
-        if the periodic boundary conditions of the two input structures do not match
+        If the periodic boundary conditions of the two input structures do not match.
     ValueError
-        if the input structure contains more atoms than the reference structure
+        If the input structure contains more atoms than the reference structure.
     """
 
     if not np.all(reference.pbc == structure.pbc):

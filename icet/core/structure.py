@@ -16,16 +16,20 @@ class Structure(_Structure):
     allowed on each site and provides functionality for computing
     distances between sites.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
-    positions : list(list(float))
-        list of positions in Cartesian coordinates
-    atomic_numbers : list(int)
-        chemical symbol of each case
-    cell : list(list(float))
-            cell metric
-    pbc : list(bool)
-        periodic boundary conditions
+    positions
+        List of positions in Cartesian coordinates.
+    atomic_numbers
+        Chemical symbol of each case.
+    cell
+        Cell metric.
+    pbc
+        Periodic boundary conditions.
     """
 
     def __init__(self,
@@ -47,11 +51,11 @@ class Structure(_Structure):
         Parameters
         ----------
         conf
-            input configuration
+            Input configuration.
 
         Returns
         -------
-        atomic configuration
+        Structure
         """
         return self(conf.positions,
                     conf.get_atomic_numbers(),
@@ -67,9 +71,9 @@ class Structure(_Structure):
         Parameters
         ----------
         positions
-            list of positions in Cartesian coordinates
+            List of positions in Cartesian coordinates.
         fractional_position_tolerance
-            tolerance for positions in fractional coordinates
+            Tolerance for positions in fractional coordinates.
         """
         lattice_sites = []
         for position in positions:
@@ -81,11 +85,7 @@ class Structure(_Structure):
 
 def _structure_to_atoms(obj) -> Atoms:
     """
-    Returns the structure as an ASE Atoms object.
-
-    Returns
-    -------
-    atomic configuration
+    Returns the structure as an :class:`Atoms <ase.Atoms>` object.
     """
     conf = Atoms(pbc=obj.pbc)
     conf.set_cell(obj.cell)

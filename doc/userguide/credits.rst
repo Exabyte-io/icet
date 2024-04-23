@@ -11,12 +11,12 @@ When using :program:`icet` in your research please cite the following paper:
 
 | M. Ångqvist, W. A. Muñoz, J. M. Rahm, E. Fransson, C. Durniak, P. Rozyczko, T. H. Rod, and P. Erhart
 | *ICET – A Python Library for Constructing and Sampling Alloy Cluster Expansions*
-| Advanced Theory and Simulations, 1900015 (2019)
+| Advanced Theory and Simulations **2**, 1900015 (2019)
 | `doi: 10.1002/adts.201900015 <https://doi.org/10.1002/adts.201900015>`_
 
 You should also cite relevant background literature.
 The following list provides an incomplete set of examples.
-Please also consult the `bibliography page <bibliography` and the original papers to ensure that credit is given where credit is due.
+Please also consult the `bibliography page <bibliography>` and the original papers to ensure that credit is given where credit is due.
 
 
 Structure enumeration
@@ -43,7 +43,7 @@ Special quasi-random structures
 
 | A. van de Walle, P. Tiwary, M. de Jong, D.L. Olmsted, M. Asta, A. Dick, D. Shin, Y. Wang, L.-Q. Chen, and Z.-K. Liu
 | *Efficient stochastic generation of special quasirandom structures*
-| Calphad *42*, 13 (2013)
+| Calphad **42**, 13 (2013)
 | `doi: 10.1016/j.calphad.2013.06.006 <http://dx.doi.org/10.1016/j.calphad.2013.06.006>`_
 
 
@@ -92,4 +92,5 @@ Cluster expansions with strain
 
 | J. M. Rahm, J. Löfgren, and P. Erhart
 | *Quantitative predictions of thermodynamic hysteresis: Temperature-dependent character of the phase transition in Pd–H*
-| `arxiv:2110.07883 <https://arxiv.org/abs/2110.07883>`_
+| Acta Mater. **227**,  117697 (2022)
+| `doi: 10.1016/j.actamat.2022.117697  <https://doi.org/10.1016/j.actamat.2022.117697>`_

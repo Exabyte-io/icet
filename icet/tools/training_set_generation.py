@@ -19,12 +19,12 @@ def _get_fit_matrix(structure_container: StructureContainer,
     Parameters
     ----------
     structure_container
-        The structure container
+        A structure container.
     new_inds
         The part of the structure container that contains the
-        new structures to be added
+        new structures to be added.
     n_base_structures
-        Number of structures in the base pool
+        Number of structures in the base pool.
     """
     base_inds = np.array(range(n_base_structures), dtype=int)
     inds = np.append(base_inds, n_base_structures + new_inds)
@@ -41,11 +41,11 @@ def _do_swap(inds: np.ndarray,
     Parameters
     ----------
     inds
-        The current indicies that are used
+        The current indicies that are used.
     n_structures_to_add
-        Total number of structures to add to the current base structures
+        Total number of structures to add to the current base structures.
     n_mcmc_structures
-        The size of the pool of potential candidate structures
+        The size of the pool of potential candidate structures.
     """
     # Get index to swap out
     _inds = inds.copy()
@@ -82,30 +82,30 @@ def structure_selection_annealing(
     -------
         A tuple comprising the indices of the optimal structures in
         the :attr:`monte_carlo_structures` pool and a list of accepted
-        metric values
+        metric values.
 
     Parameters
     ----------
     cluster_space
-        A cluster space defining the lattice to be occupied
+        A cluster space defining the lattice to be occupied.
     monte_carlo_structures
-        A list of candidate training structures
+        A list of candidate training structures.
     n_structures_to_add
         How many of the structures in the :attr:`monte_carlo_structures`
-        pool that should be kept for training
+        pool that should be kept for training.
     n_steps
-        Number of steps in the annealing algorithm
+        Number of steps in the annealing algorithm.
     base_structures
         A list of structures that is already in your training pool;
-        can be ``None`` if you do not have any structures yet
+        can be ``None`` if you do not have any structures yet.
     cooling_start
-        Initial value of the :attr:`cooling_function`
+        Initial value of the :attr:`cooling_function`.
     cooling_stop
-        Last value of the :attr:`cooling_function`
+        Last value of the :attr:`cooling_function`.
     cooling_function
         Artificial number that rescales the difference between the
         metric value between two iterations.  Available options are
-        ``'linear'`` and ``'exponential'``
+        ``'linear'`` and ``'exponential'``.
     initial_indices
         Picks out the starting structure from the
         :attr:`monte_carlo_structures` pool. Can be used if you want
@@ -129,13 +129,13 @@ def structure_selection_annealing(
         >>>     # Create random supercell.
         >>>     supercell = np.random.randint(1, 4, size=3)
         >>>     structure = prim.repeat(supercell)
-
+        >>>
         >>>     # Randomize concentrations in the supercell
         >>>     n_atoms = len(structure)
         >>>     n_Au = np.random.randint(0, n_atoms)
         >>>     n_Pd = n_atoms - n_Au
         >>>     concentration = {'Au': n_Au / n_atoms, 'Pd': n_Pd / n_atoms}
-
+        >>>
         >>>     # Occupy the structure randomly and store it.
         >>>     occupy_structure_randomly(structure, cs, concentration)
         >>>     structure_pool.append(structure)

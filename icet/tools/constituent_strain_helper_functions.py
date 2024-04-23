@@ -6,13 +6,13 @@ import numpy as np
 def redlich_kister(x: float, *coeffs: float) -> float:
     """
     Evaluate Redlich-Kister polynomial
-    with coefficients coeff at point x.
+    with coefficients :attr:`coeff` at point(s) :attr:`x`.
 
     Parameters
     ----------
     x
         Point in interval [0, 1] where polynomial
-        should be evaluated
+        should be evaluated.
     coeffs
         Redlich-Kister coefficients,
         ``coeffs[0] (1 - 2x)^0 x (1 - x) + coeffs[1] * (1 - 2x)^1 x (1 - x) + ...``
@@ -27,13 +27,13 @@ def redlich_kister(x: float, *coeffs: float) -> float:
 def redlich_kister_vector(x: np.ndarray, *coeffs: float) -> float:
     """
     Evaluate Redlich-Kister polynomial
-    with coefficients coeff at points x.
+    with coefficients :attr:`coeff` at points(s) :attr:`x`.
 
     Parameters
     ----------
     x
         Array of points in interval [0, 1] where polynomial
-        should be evaluated
+        should be evaluated.
     coeffs
         Redlich-Kister coefficients,
         ``coeffs[0] (1 - 2x)^0 x (1 - x) + coeffs[1] * (1 - 2x)^1 x (1 - x) + ...``
@@ -53,14 +53,14 @@ def _get_structure_factor(occupations: np.ndarray,
     Parameters
     ----------
     occupations
-        occupation vector as atomic numbers
+        Occupation vector as atomic numbers.
     positions
-        atomic positions
+        Atomic positions.
     kpt
-        k-point at which to evaluate the structure factor
+        k-point at which to evaluate the structure factor.
     spin_up
-        atomic number of species to treat as +1
-        (the other species will get -1)
+        Atomic number of species to treat as :math:`+1`
+        (the other species will get :math:`-1`).
     """
     S = 0.0
     for i in range(len(positions)):
@@ -83,11 +83,11 @@ def _get_partial_structure_factor(kpt: np.ndarray, position: np.ndarray, natoms:
     Parameters
     ----------
     kpt
-        k-point to evaluate
+        k-point to evaluate.
     position
-        position in real space
+        Position in real space.
     natoms
-        number of atoms in the system
+        Number of atoms in the system.
     """
     dS = np.exp(1j * 2 * np.pi * np.dot(kpt, position))
     return dS / natoms

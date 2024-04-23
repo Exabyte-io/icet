@@ -10,8 +10,8 @@ from mchammer.calculators.base_calculator import BaseCalculator
 
 
 class TargetVectorCalculator(BaseCalculator):
-    """
-    A ``TargetVectorCalculator`` enables evaluation of the similarity
+    r"""
+    A :class:`TargetVectorCalculator` enables evaluation of the similarity
     between a structure and a target cluster vector. Such a comparison
     can be carried out in many ways, and this implementation follows the
     measure proposed by van de Walle *et al.* in Calphad **42**, 13
@@ -19,36 +19,36 @@ class TargetVectorCalculator(BaseCalculator):
     :math:`Q` is calculated as
 
     .. math::
-        Q = - \\omega L + \\sum_{\\alpha}
-        \\left||\\Gamma_{\\alpha} - \\Gamma^{\\text{target}}_{\\alpha}\\right||.
+        Q = - \omega L + \sum_{\alpha}
+        \left||\Gamma_{\alpha} - \Gamma^{\text{target}}_{\alpha}\right||.
 
-    Here, :math:`\\Gamma_{\\alpha}` are components in the cluster vector
-    and :math:`\\Gamma^\\text{target}_{\\alpha}` the corresponding
-    target values. The factor :math:`\\omega` is the radius of the
+    Here, :math:`\Gamma_{\alpha}` are components in the cluster vector
+    and :math:`\Gamma^\text{target}_{\alpha}` the corresponding
+    target values. The factor :math:`\omega` is the radius of the
     largest pair cluster such that all clusters with the same or smaller
-    radii have :math:`\\Gamma_{\\alpha} -
-    \\Gamma^\\text{target}_{\\alpha} = 0`.
+    radii have :math:`\Gamma_{\alpha} -
+    \Gamma^\text{target}_{\alpha} = 0`.
 
     Parameters
     ----------
     structure
-        structure for which to set up calculator
+        Structure for which to set up calculator.
     cluster_space
-        cluster space from which to build calculator
+        Cluster space from which to build calculator.
     target_vector
-        vector to which any vector will be compared
+        Vector to which any vector will be compared.
     weights
-        weighting of each component in cluster vector
-        comparison, by default 1.0 for all components
+        Weighting of each component in cluster vector
+        comparison. By default set to 1.0 for all components.
     optimality_weight
-        factor :math:`L`, a high value of which effectively
+        Factor :math:`L`, a high value of which effectively
         favors a complete series of optimal cluster correlations
-        for the smallest pairs (see above)
+        for the smallest pairs (see above).
     optimality_tol
-        tolerance for determining whether a perfect match
-        has been achieved (used in conjunction with :math:`L`)
+        Tolerance for determining whether a perfect match
+        has been achieved (used in conjunction with :math:`L`).
     name
-        human-readable identifier for this calculator
+        Human-readable identifier for this calculator.
     """
 
     def __init__(self, structure: Atoms, cluster_space: ClusterSpace,
@@ -76,11 +76,11 @@ class TargetVectorCalculator(BaseCalculator):
         if optimality_weight is not None:
             self.optimality_weight = optimality_weight
             self.optimality_tol = optimality_tol
-            self.orbit_data = self.cluster_space.orbit_data
+            self.as_list = self.cluster_space.as_list
         else:
             self.optimality_weight = None
             self.optimality_tol = None
-            self.orbit_data = None
+            self.as_list = None
 
         self._cluster_space = cluster_space
         self._structure = structure
@@ -94,12 +94,12 @@ class TargetVectorCalculator(BaseCalculator):
         Parameters
         ----------
         occupations
-            the entire occupation vector (i.e. list of atomic species)
+            The entire occupation vector (i.e., list of atomic species).
         """
         self._structure.set_atomic_numbers(occupations)
         cv = self.cluster_space.get_cluster_vector(self._structure)
         return compare_cluster_vectors(cv, self.target_vector,
-                                       self.orbit_data,
+                                       self.as_list,
                                        weights=self.weights,
                                        optimality_weight=self.optimality_weight,
                                        tol=self.optimality_tol)
@@ -109,12 +109,12 @@ class TargetVectorCalculator(BaseCalculator):
 
     @property
     def sublattices(self) -> Sublattices:
-        """Sublattices of the calculators structure."""
+        """ Sublattices of the calculators structure. """
         return self._sublattices
 
 
 def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
-                            orbit_data: List[OrderedDict],
+                            as_list: List[OrderedDict],
                             weights: List[float] = None,
                             optimality_weight: float = 1.0,
                             tol: float = 1e-5) -> float:
@@ -125,19 +125,18 @@ def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
     Parameters
     ----------
     cv_1
-        cluster vector 1
+        Cluster vector 1.
     cv_2
-        cluster vector 2
-    orbit_data
-        orbit data as obtained by ``ClusterSpace.orbit_data``
+        Cluster vector 2.
+    as_list
+        Orbit data as obtained by :attr:`ClusterSpace.as_list`.
     weights
-        Weight assigned to each cluster vector element
+        Weight assigned to each cluster vector element.
     optimality_weight
-        quantity :math:`L` in [WalTiwJon13]_
-        (see :class:`mchammer.calculators.TargetVectorCalculator`)
+        Wuantity :math:`L` in [WalTiwJon13]_
+        (see :class:`mchammer.calculators.TargetVectorCalculator`).
     tol
-        numerical tolerance for determining whether two elements are
-        exactly equal
+        Numerical tolerance for determining whether two elements are equal.
     """
     if weights is None:
         weights = np.ones(len(cv_1))
@@ -146,7 +145,7 @@ def compare_cluster_vectors(cv_1: np.ndarray, cv_2: np.ndarray,
     if optimality_weight:
         longest_optimal_radius = 0
         for orbit_index, d in enumerate(diff):
-            orbit = orbit_data[orbit_index]
+            orbit = as_list[orbit_index]
             if orbit['order'] != 2:
                 continue
             if d < tol:

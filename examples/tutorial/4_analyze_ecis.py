@@ -7,7 +7,7 @@ import numpy as np
 
 # step 1: Collect ECIs in dictionary
 ce = ClusterExpansion.read('mixing_energy.ce')
-df_ecis = ce.to_dataframe()
+df_ecis = ce.orbits_as_dataframe
 
 # step 2: Plot ECIs
 fig, axs = plt.subplots(1, 3, sharey=True, figsize=(7.5, 3))

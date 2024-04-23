@@ -29,54 +29,42 @@ class StructureFactorObserver(BaseObserver):
 
     Parameters
     ----------
-    structure : Atoms
-        prototype for the structures for which the structure factor will
-        be computed later; the supercell size (but not its decoration)
-        must be identical; this structure is also used to determine the
-        the possible pairs if `symbol_pairs=None`
-
-    q_points : List[np.ndarray]
-        array of q-points at which to evaluate the structure factor;
-        the q-points need to be compatible with the supercell in order
-        for the structure factor to be real
-
-    symbol_pairs : Optional[List[Tuple[str, str]]]
-        list of symbol pairs for which structure factors will be computed,
-        e.g. [('Al', 'Cu'), ('Al', 'Al')]; if `None` (default) use all
-        pairs possible based on the input structure
-
-    form_factors : Optional[Dict[str, float]]
-        form factors for each atom type; this can be used to (very
-        coarsely) simulate X-ray or neutron spectra; note that in general
-        the form factors are q-dependent, see, e.g.,
-        `here <https://wiki.fysik.dtu.dk/ase/ase/xrdebye.html>`__ and
-        `here <https://wiki.fysik.dtu.dk/ase/ase/
-        xrdebye.html#ase.utils.xrdebye.XrDebye.get_waasmaier>`__;
-        by default (`None`) all form factors are set to 1
-
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulation, the `Ensemble` object
-        will set the interval.
+    structure
+        Prototype for the structures for which the structure factor will
+        be computed later. The supercell size (but not its decoration)
+        must be identical. This structure is also used to determine the
+        the possible pairs if :attr:`symbol_pairs=None`.
+    q_points
+        Array of q-points at which to evaluate the structure factor.
+        The q-points need to be compatible with the supercell in order
+        for the structure factor to be real.
+    symbol_pairs
+        List of symbol pairs for which structure factors will be computed,
+        e.g., ``[('Al', 'Cu'), ('Al', 'Al')]``. If ``None`` (default) use all
+        pairs possible based on the input structure.
+    form_factors
+        Form factors for each atom type. This can be used to
+        (coarsely) simulate X-ray or neutron spectra. Note that in
+        general the form factors are q-dependent, see, e.g., `here
+        <https://wiki.fysik.dtu.dk/ase/ase/xrdebye.html>`__ and `here
+        <https://wiki.fysik.dtu.dk/ase/ase/
+        xrdebye.html#ase.utils.xrdebye.XrDebye.get_waasmaier>`__.  By
+        default (``None``) all form factors are set to 1.
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulation, the :class:`Ensemble` object
+        will determine the interval.
 
     Raises
     ------
     ValueError
-        if q-point is not consistent with metric of input structure
-
-    Attributes
-    ----------
-    tag : str
-        name of observer
-
-    interval : int
-        observation interval
+        If q-point is not consistent with metric of input structure.
 
     Example
     -------
     The following snippet illustrates how to use the structure factor
     observer in a simulated annealing run of dummy Cu-Au model to
-    observe the emergence of a long-range ordered L1_2 structure::
+    observe the emergence of a long-range ordered :math:`L1_2` structure::
 
         >>> import numpy as np
         >>> from ase.build import bulk
@@ -127,6 +115,7 @@ class StructureFactorObserver(BaseObserver):
     The emergence of the ordered low-temperature structure can be monitored by
     following the temperature dependence of any of the pair-specific structure
     factors.
+
     """
 
     def __init__(self,
@@ -229,18 +218,18 @@ class StructureFactorObserver(BaseObserver):
 
     def get_observable(self,
                        structure: Atoms) -> Dict[str, float]:
-        """
-        Returns the structure factors for a given atomic configuration.
+        """Returns the structure factors for a given atomic configuration.
 
         Parameters
         ----------
         structure
-            input atomic structure
+            Input atomic structure.
 
         Raises
         ------
         ValueError
-            if input structure is incompatible with structure used for initialization
+            If the input structure is incompatible with structure used
+            for initialization of the :class:`StructureFactorObserver`.
         """
         if len(structure) != len(self._original_structure):
             raise ValueError('Input structure incompatible with structure used for initialization\n'
@@ -258,16 +247,16 @@ class StructureFactorObserver(BaseObserver):
 
     @property
     def form_factors(self) -> Dict[str, float]:
-        """ Form factors used in structure factor calculation """
+        """ Form factors used in structure factor calculation. """
         return self._form_factors.copy()
 
     @property
     def q_points(self) -> List[np.ndarray]:
-        """ q-points for which structure factor is calculated """
+        """ q-points for which structure factor is calculated. """
         return self._q_points.copy()
 
     def __str__(self) -> str:
-        """ string representation of observer object. """
+        """ String representation of observer object. """
         width = 60
         name = self.__class__.__name__
         s = [' {} '.format(name).center(width, '=')]

@@ -15,18 +15,17 @@ from .semi_grand_canonical_ensemble import get_chemical_potentials
 
 
 class HybridEnsemble(ThermodynamicBaseEnsemble):
-    """
-
+    r"""
     Instances of this class allows one to combine multiple ensembles.
     In particular, a dictionary should be provided for each ensemble,
-    which must include the type (`ensemble`) as well as the index of
-    the sublattice (`sublattice_index`). In addition, it is possible
-    to provide a list of allowed symbols (`allowed_symbols`), which
+    which must include the type (:attr:`ensemble`) as well as the index of
+    the sublattice (:attr:`sublattice_index`). In addition, it is possible
+    to provide a list of allowed symbols (:attr:`allowed_symbols`), which
     must represent a subset of the elements that can occupy the sites
     on the specified sublattice. Note that additional arguments are
     required for the SGC and VCSGC ensembles, namely chemical
-    potentials (`chemical_potentials`) for the former and constraint
-    parameters (`phis` and `kappa`) for the latter. For more detailed
+    potentials (:attr:`chemical_potentials`) for the former and constraint
+    parameters (:attr:`phis` and :attr:`kappa`) for the latter. For more detailed
     information regarding the different ensembles, please see
     :class:`CanonicalEnsemble <mchammer.ensembles.CanonicalEnsemble>`,
     :class:`SemiGrandCanonicalEnsemble
@@ -52,75 +51,73 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
     Parameters
     ----------
 
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    ensemble_specs: List[Dict]
+    structure
+        Atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    temperature
+        Temperature :math:`T` in appropriate units, commonly Kelvin.
+    ensemble_specs
         A list of dictionaries, which should contain the following items:
 
-            * 'ensemble', which could be either 'vcsgc'; 'semi-grand'
-              or 'canonical', lowercase and uppercase letters or any
-              combination thereof are accepted (required)
-            * 'sublattice_index', index for the sublattice of
-              interest (required)
-            * 'allowed_symbols', list of allowed chemical symbols
-              (default: read from ClusterSpace)
-            * 'chemical_potentials', a dictionary of chemical
-              potentials for each species
-              :math:`\\mu_i`; the key denotes the species, the value
-              :specifies the chemical potential in units that are
-              :consistent with the underlying cluster expansion (only
-              :applicable and required for SGC ensembles)
-            * 'phis ', dictionary with average constraint parameters
-              ':math:`\\phi_i`; the key denotes the species; for a
-              N-component sublattice, there should be N - 1
-              different `\\phi_i` (referred to as
-              :math:`\\bar{\\phi}` in [SadErh12]_; only applicable
-              and required for VCSGC ensembles, see also
-              :class:`VCSGCEnsemble <mchammer.ensembles.VCSGCEnsemble>`)
-            * 'kappa', parameter that constrains the variance of the
-              'concentration (referred to as
-              :math:`\\bar{\\kappa}` in [SadErh12]_; only applicable
-              :and required for VCSGC ensembles)
+            * :attr:`ensemble`: Can be either ``'vcsgc'``, ``'semi-grand'``
+              or ``'canonical'``, lowercase and uppercase letters or any
+              combination thereof are accepted (required).
+            * :attr:`sublattice_index`: Index for the sublattice of
+              interest (required).
+            * :attr:`allowed_symbols`: List of allowed chemical symbols.
+              Default: read from :class:`ClusterSpace`.
+            * :attr:`chemical_potentials`: Dictionary of chemical
+              potentials for each species :math:`\mu_i`.
+              The key denotes the species, the value
+              specifies the chemical potential in units that are
+              consistent with the underlying cluster expansion.
+              Only applicable and required for SGC ensembles.
+            * :attr:`phis`: Dictionary with average constraint parameters
+              :math:`\phi_i`. The key denotes the species. For a
+              :math:`N`-component sublattice, there should be :math:`N - 1`
+              different :math:`\phi_i` (referred to as :math:`\bar{\phi}` in [SadErh12]_).
+              Only applicable and required for VCSGC ensembles.
+            * :attr:`kappa`: Parameter that constrains the variance of the
+              concentration (referred to as :math:`\bar{\kappa}` in [SadErh12]_).
+              Only applicable and required for VCSGC ensembles.
 
-    probabilities: List[float]
-        list of floats with the probabilities for choosing a
+    probabilities
+        Probabilities for choosing a
         particular ensemble with the same length as ensemble specs.
-        If left unspecified the probabilties are weighted by the
-        sizes of the associated sublattices
-    boltzmann_constant : float
-        Boltzmann constant :math:`k_B` in appropriate units, i.e.
+        If left unspecified the probabilties are scaled to match the
+        sizes of the associated sublattices.
+    boltzmann_constant
+        Boltzmann constant :math:`k_B` in appropriate units, i.e.,
         units that are consistent with the underlying cluster
-        expansion and the temperature units [default: eV/K]
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the
-        ensemble will be written to; if the file
+        expansion and the temperature units. Default: eV/K.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the
+        ensemble will be written to. If the file
         exists it will be read, the data container will be appended,
-        and the file will be updated/overwritten
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        and the file will be updated/overwritten.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to
-        back up the data [default: 600 s]
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container;
-        this includes for example the current value of the
-        calculator (i.e. usually the energy) as well as ensembles
+        back up the data. Default: 600 s.
+    ensemble_data_write_interval
+        Interval at which data is written to the data container.
+        This includes for example the current value of the
+        calculator (i.e., usually the energy) as well as ensembles
         specific fields such as temperature or the number of atoms
-        of different species
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the
+        of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the
         atomic configuration is written to the data container.
+        Default: Number of sites in the :attr:`structure`.
 
     Example
     -------
@@ -147,7 +144,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         >>> ce = ClusterExpansion(
         ...    cs, [0, 0, 0, 0.1, 0.1, 0.1, -0.02, -0.02, -0.02])
 
-        # define structure object
+        >>> # define structure object
         >>> structure = prim.repeat(3)
         >>> for i, atom in enumerate(structure):
         >>>    if i % 2 == 0:
@@ -155,16 +152,16 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         >>>    elif i % 3 == 0:
         >>>        atom.symbol = 'Pd'
 
-        # the default probabilities for this case would be [0.5, 0.5], but
-        # since the VCSGC ensemble only performs flips on a subset of all
-        # sites on the sublattice, namely those originally occupied by Ag
-        # and Pd atoms, specific values will be provided
+        >>> # the default probabilities for this case would be [0.5, 0.5], but
+        >>> # since the VCSGC ensemble only performs flips on a subset of all
+        >>> # sites on the sublattice, namely those originally occupied by Ag
+        >>> # and Pd atoms, specific values will be provided
         >>> weights = [len(structure),
         ...           len([s for s in structure.get_chemical_symbols() if s != 'Au'])]
         >>> norm = sum(weights)
         >>> probabilities = [w / norm for w in weights]
 
-        # set up and run MC simulation
+        >>> # set up and run MC simulation
         >>> calc = ClusterExpansionCalculator(structure, ce)
         >>> ensemble_specs = [
         ...    {'ensemble': 'canonical', 'sublattice_index': 0},
@@ -229,36 +226,36 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
 
     @property
     def temperature(self) -> float:
-        """ Current temperature """
+        """ Current temperature. """
         return self._ensemble_parameters['temperature']
 
     @property
     def probabilities(self) -> List[float]:
-        """ Ensemble propabilities """
+        """ Ensemble propabilities. """
         return self._probabilities
 
     @property
     def trial_steps_per_ensemble(self) -> Dict[str, int]:
-        """ Number of Monte Carlo trial steps for each ensemble """
+        """ Number of Monte Carlo trial steps for each ensemble. """
         return self._trial_steps_per_ensemble
 
     def _process_ensemble_specs(self, ensemble_specs: List[Dict]) -> None:
-        """Process the list of ensembles and parameters
+        r"""Process the list of ensembles and parameters.
 
         Parameters
         ----------
          ensemble_specs: List[Dict]
             A list of dictionaries, which should contain the following items:
             * 'ensemble', which could be either 'vcsgc'; 'semi-grand' or 'canonical', lowercase
-            and upercase letters or any combination thereof are accepted
+              and upercase letters or any combination thereof are accepted
             * 'sublattice_index', index for the sublattice of interest
             * 'allowed_symbols', list of allowed chemical symbols
             * 'chemical_potentials', a dictionary of chemical potentials for each species
-            :math:`\\mu_i`; the key denotes the species, the value specifies the chemical potential
-            in units that are consistent with the underlying cluster expansion
-            * 'phis ', dictionary with average constraint parameters :math:`\\phi_i`; the key
-            denotes the species; for a N-component sublattice, there should be N - 1 different
-            `\\phi_i`
+              :math:`\mu_i`; the key denotes the species, the value specifies the chemical
+              potential in units that are consistent with the underlying cluster expansion
+            * 'phis ', dictionary with average constraint parameters :math:`\phi_i`; the key
+              denotes the species; for a N-component sublattice, there should be N-1
+              different `\phi_i`
             * 'kappa', parameter that constrains the variance of the concentration
         """
 
@@ -267,7 +264,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         for ind, ensemble_spec in enumerate(ensemble_specs):
 
             ensemble_arg: Dict[str, Any] = {}
-            tag = 'ensemble_{}'.format(ind)
+            tag = f'ensemble_{ind}'
             ensemble_arg['tag'] = tag
 
             # check the ensemble name
@@ -336,7 +333,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         self._ensemble_args = ensemble_args
 
     def _postprocess_ensemble_args(self):
-        """Process the list of dictionaries with ensemble specific parameters
+        """Process the list of dictionaries with ensemble specific parameters.
         """
 
         for i in range(len(self._ensemble_args)):
@@ -369,12 +366,12 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
                                      ' N elements')
 
     def _check_sublattice_index(self, sublattice_index: int):
-        """Check the 'sublattice_index' item in the 'ensemble_spec' dictionary
+        """Check the :attr:`sublattice_index` item in the :attr:`ensemble_spec` dictionary.
 
         Parameters
         ----------
-        sublattice_index:
-            Specific sublattice to consider provided as as an index or a symbol
+        sublattice_index
+            Specific sublattice to consider provided as as an index or a symbol.
         """
 
         if not isinstance(sublattice_index, int):
@@ -389,17 +386,22 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         if len(self.sublattices[sublattice_index].chemical_symbols) == 1:
             raise ValueError('The sublattice {} is inactive'.format(sublattice_index))
 
-    def _extract_allowed_species(self, allowed_symbols: List[str], sublattice_index: int
-                                 ) -> List[int]:
-        """Check and extract the allowed species from the 'allowed_symbols' in the 'ensemble_spec'
-        dictionary
+    def _extract_allowed_species(
+            self,
+            allowed_symbols: List[str],
+            sublattice_index: int,
+    ) -> List[int]:
+        """Check and extract the allowed species from the
+        :attr:`allowed_symbols` in the :attr:`ensemble_spec`
+        dictionary.
 
         Parameters
         ----------
-        allowed_symbols:
-            list of allowed chemical symbols
-        sublattice_index:
-            Index for the relevant sublattice
+        allowed_symbols
+            List of allowed chemical symbols.
+        sublattice_index
+            Index for the relevant sublattice.
+
         """
 
         if not isinstance(allowed_symbols, list) or not all(
@@ -414,13 +416,13 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
         return [atomic_numbers[s] for s in allowed_symbols]
 
     def _process_probabilities(self, probabilities: List[float]):
-        """Process the list of probabilities
+        """Process the list of probabilities.
 
         Parameters
         ----------
-        probabilities:
-            list of floats with the probabilities for choosing a particular ensemble with the same
-            length as self._ensemble_args.
+        probabilities
+            Probabilities for choosing a particular ensemble with the same
+            length as :attr:`self._ensemble_args`.
         """
 
         if probabilities is None:

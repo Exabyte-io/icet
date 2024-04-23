@@ -13,7 +13,6 @@ sys.path.insert(0, os.path.abspath('../../examples'))
 
 extensions = [
     'breathe',
-    'cloud_sptheme.ext.table_styling',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.coverage',

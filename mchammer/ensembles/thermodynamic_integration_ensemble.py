@@ -14,81 +14,81 @@ logger = logger.getChild('thermodynamic_integration_ensemble')
 
 
 class ThermodynamicIntegrationEnsemble(ThermodynamicBaseEnsemble):
-    """Instances of this class allow one to find the free energy of
-    the system.
-    Todo this we use the
-    :class:`canonncal ensemble <mchammer.ensembles.CanonicalEnsemble>`
-    with a modified Hamiltonian,
+    r"""Instances of this class allow one to find the free energy of the
+    system.  To this end, we use the :class:`canonncal ensemble
+    <mchammer.ensembles.CanonicalEnsemble>` with a modified
+    Hamiltonian,
 
     .. math::
-        H(\\lambda) = (1 - \\lambda) H_{A} + \\lambda H_{B}
+        H(\lambda) = (1 - \lambda) H_{A} + \lambda H_{B}
 
-    The Hamiltonian is then sampled continuously from :math:`\\lambda=0`
-    to :math:`\\lambda=1`. :math:`H_{B}` is your cluster expansion
+    The Hamiltonian is then sampled continuously from :math:`\lambda=0`
+    to :math:`\lambda=1`. :math:`H_{B}` is your cluster expansion
     and :math:`H_{A}=0`, is a completely disordered system, with free
     energy given by the ideal mixing entropy.
 
     The free energy, A, of system B is then given by:
 
     .. math::
-        A_{B} = A_{A} + \\int_{0}^{1} \\left\\langle\\frac{\\mathrm{d}H(\\lambda)}
-        {\\mathrm{d}\\lambda}\\right\\rangle_{H} \\mathrm{d}\\lambda
+        A_{B} = A_{A} + \int_{0}^{1} \left\langle\frac{\mathrm{d}H(\lambda)}
+        {\mathrm{d}\lambda}\right\rangle_{H} \mathrm{d}\lambda
 
     and since :math:`A_{A}` is known it is easy to compute :math:`A_{B}`
 
-    $\\lambda$ is parametrized as,
+    :math:`\lambda` is parametrized as,
 
     .. math::
-        \\lambda(x) = x^5(70x^4 - 315x^3 + 540x^2 - 420x + 126)
+        \lambda(x) = x^5(70x^4 - 315x^3 + 540x^2 - 420x + 126)
 
-    where $x = step / (n_steps - 1)$
+    where :math:`x = \mathrm{step} / (\mathrm{n\_steps} - 1)`.
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    n_lambdas: int
-        the number of :math:`\\lambda` values to be sampled between 0 and 1
+    structure
+        Atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    temperature
+        Temperature  :math:`T` in appropriate units, commonly Kelvin.
+    n_lambdas
+        Number of :math:`\lambda` values to be sampled between 0 and 1.
     forward
-        If this is set to True, the simulation runs from :math:`H_A` to :math:`H_B`,
+        If this is set to ``True`` the simulation runs from :math:`H_A` to :math:`H_B`,
         otherwise it runs from :math:`H_B` to :math:`H_A`.
         :math:`H_B` is the cluster expansion and :math:`H_A = 0`, is the fully disordered system.
-    boltzmann_constant : float
+    boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the ensemble
-        will be written to; if the file exists it will be read, the
+        and the temperature units. Default: eV/K.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the ensemble
+        will be written to. If the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        updated/overwritten.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: 600 s]
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+        the data. Default: 600 s.
+    ensemble_data_write_interval
+        Interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the atomic
+        (i.e., usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    sublattice_probabilities : List[float]
-        probability for picking a sublattice when doing a random swap.
+        Default: Number of sites in the :attr:`structure`.
+    sublattice_probabilities
+        Probability for picking a sublattice when doing a random swap.
         This should be as long as the number of sublattices and should
         sum up to 1.
 
@@ -126,6 +126,7 @@ class ThermodynamicIntegrationEnsemble(ThermodynamicBaseEnsemble):
         ...                                       forward=True,
         ...                                       dc_filename='myrun_thermodynamic_integration.dc')
         >>> mc.run()
+
     """
 
     def __init__(self,
@@ -191,7 +192,7 @@ class ThermodynamicIntegrationEnsemble(ThermodynamicBaseEnsemble):
 
     @property
     def temperature(self) -> float:
-        """ Current temperature """
+        """ Current temperature. """
         return self._ensemble_parameters['temperature']
 
     @property
@@ -207,7 +208,7 @@ class ThermodynamicIntegrationEnsemble(ThermodynamicBaseEnsemble):
         return swap
 
     def run(self):
-        """ Runs the thermodynamic integration """
+        """ Runs the thermodynamic integration. """
         if self.step >= self.n_steps:
             logger.warning('The simulation is already done')
         else:

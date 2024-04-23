@@ -15,17 +15,17 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
     """Instances of this class allow one to carry out simulated annealing
     in the canonical ensemble, i.e. the temperature is varied in
     pre-defined fashion while the composition is kept fixed.  See
-    :class:`mchammer.ensembles.CanonicalEnsemble` for more information
-    about the standard canonical ensemble.
+    :class:`CanonicalEnsemble <mchammer.ensembles.CanonicalEnsemble>`
+    for more information about the standard canonical ensemble.
 
     The canonical annealing ensemble can be useful, for example, for
     finding ground states or generating low energy configurations.
 
     The temperature control scheme is selected via the
-    ``cooling_function`` keyword argument, while the initial and final
-    temperature are set via the ``T_start`` and ``T_stop`` arguments.
+    :attr:`cooling_function` keyword argument, while the initial and final
+    temperature are set via the :attr:`T_start` and :attr:`T_stop` arguments.
     Several pre-defined temperature control schemes are available
-    including `linear` and `exponential`. In the latter case the
+    including ``'linear'`` and ``'exponential'``. In the latter case the
     temperature varies logarithmatically as a function of the MC step,
     emulating the exponential temperature dependence of the atomic
     exchange rate encountered in many materials.  It is also possible
@@ -37,55 +37,56 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
             T = ...  # compute temperature
             return T
 
-    Here ``step`` refers to the current MC trial step.
+    Here :attr:`step` refers to the current MC trial step.
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    T_start : float
-        temperature from which the annealing is started
-    T_stop : float
-        final temperature for annealing
-    n_steps : int
-        number of steps to take in the annealing simulation
-    cooling_function : str/function
+    structure
+        Atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    T_start
+        Temperature from which the annealing is started.
+    T_stop
+        Final temperature for annealing.
+    n_steps
+        Number of steps to take in the annealing simulation.
+    cooling_function
         to use the predefined cooling functions provide a string
-        `linear` or `exponential`, otherwise provide a function
-    boltzmann_constant : float
+        ``'linear'`` or ``'exponential'``, otherwise provide a function.
+    boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the ensemble
-        will be written to; if the file exists it will be read, the
+        and the temperature units. Default: eV/K.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the ensemble
+        will be written to. If the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        updated/overwritten.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: 600 s]
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+        the data. Default: 600 s.
+    ensemble_data_write_interval
+        interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
-    trajectory_write_interval : int
+        (i.e., usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
         interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    sublattice_probabilities : List[float]
-        probability for picking a sublattice when doing a random swap.
+        Default: Number of sites in the :attr:`structure`.
+    sublattice_probabilities
+        Probability for picking a sublattice when doing a random swap.
         This should be as long as the number of sublattices and should
         sum up to 1.
 
@@ -154,12 +155,12 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
 
     @property
     def temperature(self) -> float:
-        """ Current temperature """
+        """ Current temperature. """
         return self._temperature
 
     @property
     def T_start(self) -> float:
-        """ Starting temperature """
+        """ Starting temperature. """
         return self._T_start
 
     @property
@@ -169,21 +170,21 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
 
     @property
     def n_steps(self) -> int:
-        """ Number of steps to carry out """
+        """ Number of steps to carry out. """
         return self._n_steps
 
     @property
     def estimated_ground_state(self):
-        """ Structure with lowest observed potential during run """
+        """ Structure with lowest observed potential during run. """
         return self._ground_state_candidate.copy()
 
     @property
     def estimated_ground_state_potential(self):
-        """ Lowest observed potential during run """
+        """ Lowest observed potential during run. """
         return self._ground_state_candidate_potential
 
     def run(self):
-        """ Runs the annealing. """
+        """ Runs the annealing simulation. """
         if self.step >= self.n_steps:
             raise Exception('Annealing has already finished')
         super().run(self.n_steps - self.step)
@@ -196,7 +197,7 @@ class CanonicalAnnealing(ThermodynamicBaseEnsemble):
         return self.do_canonical_swap(sublattice_index=sublattice_index)
 
     def _get_ensemble_data(self) -> Dict:
-        """Returns the data associated with the ensemble. For the
+        """ Returns the data associated with the ensemble. For the
         CanonicalAnnealing this specifically includes the temperature.
         """
         data = super()._get_ensemble_data()

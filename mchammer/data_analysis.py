@@ -6,20 +6,16 @@ from scipy import stats
 
 
 def analyze_data(data: np.ndarray, max_lag: int = None) -> dict:
-    """ Carries out an extensive analysis of the data series.
+    """Carries out an extensive analysis of the data series and returns a
+    dictionary containing the mean, standard deviation,
+    correlation length and a 95% error estimate.
 
     Parameters
     ----------
     data
-        data series to compute autocorrelation function for
+        Data series for which to compute autocorrelation function.
     max_lag
-        maximum lag between two data points, used for computing autocorrelation
-
-    Returns
-    -------
-    dict
-        calculated properties of the data including, mean, standard deviation,
-        correlation length and a 95% error estimate.
+        Maximum lag between two data points used for computing autocorrelation.
     """
     summary = dict(mean=data.mean(),
                    std=data.std())
@@ -38,19 +34,15 @@ def analyze_data(data: np.ndarray, max_lag: int = None) -> dict:
 def get_autocorrelation_function(data: np.ndarray, max_lag: int = None) -> np.ndarray:
     """ Returns autocorrelation function.
 
-    The autocorrelation function is computed using `pandas.Series.autocorr
-    <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.autocorr.html>`_.
+    The autocorrelation function is computed using :func:`pandas.Series.autocorr
+    <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.Series.autocorr.html>`.
 
     Parameters
     ----------
     data
-        data series to compute autocorrelation function for
+        Data series for which to compute autocorrelation function.
     max_lag
-        maximum lag between two data points
-
-    Returns
-    -------
-        calculated autocorrelation function
+        Maximum lag between two data points.
     """
     if max_lag is None:
         max_lag = len(data) - 1
@@ -62,24 +54,21 @@ def get_autocorrelation_function(data: np.ndarray, max_lag: int = None) -> np.nd
 
 
 def get_correlation_length(data: np.ndarray) -> Optional[int]:
-    """ Returns estimate of the correlation length of data.
+    r"""Returns estimate of the correlation length of data.
 
     The correlation length is taken as the first point where the
-    autocorrelation functions is less than :math:`\\exp(-2)`. If the
-    correlation function never drops below :math:`\\exp(-2)` ``np.nan`` is
+    autocorrelation functions is less than :math:`\exp(-2)`. If the
+    correlation function never drops below :math:`\exp(-2)` ``np.nan`` is
     returned.
 
-    If the correlation length cannot be computed since the ACF is
-    unconverged the function returns `None`.
+    If the correlation length cannot be computed since the
+    autocorrelation function is unconverged the function returns
+    ``None``.
 
     Parameters
     ----------
     data
-        data series for which to the compute autocorrelation function
-
-    Returns
-    -------
-        correlation length
+        Data series for which to the compute autocorrelation function.
     """
 
     acf = get_autocorrelation_function(data)
@@ -90,28 +79,25 @@ def get_correlation_length(data: np.ndarray) -> Optional[int]:
 
 
 def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> Optional[float]:
-    """Returns estimate of standard error :math:`\\mathrm{error}`
-    with confidence interval.
+    r"""Returns estimate of standard error :math:`\mathrm{error}`
+    with confidence interval via
 
     .. math::
 
-       \\mathrm{error} = t_\\mathrm{factor} * \\mathrm{std}(\\mathrm{data}) / \\sqrt{N_s}
+       \mathrm{error} = t_\mathrm{factor} * \mathrm{std}(\mathrm{data}) / \sqrt{N_s}
 
-    where :math:`t_{factor}` is the factor corresponding to the confidence
+    where :math:`t_\mathrm{factor}` is the factor corresponding to the confidence
     interval and :math:`N_s` is the number of independent measurements
     (with correlation taken into account).
 
-    If the correlation length cannot be computed since the ACF is
-    unconverged the function returns `None`.
+    If the correlation length cannot be computed since the
+    autocorrelation function is unconverged the function returns
+    ``None``.
 
     Parameters
     ----------
     data
-        data series for which to estimate the error
-
-    Returns
-    -------
-        error estimate
+        Eata series for which to estimate the error.
 
     """
     correlation_length = get_correlation_length(data)
@@ -122,8 +108,9 @@ def get_error_estimate(data: np.ndarray, confidence: float = 0.95) -> Optional[f
 
 
 def _estimate_correlation_length_from_acf(acf: np.ndarray) -> Optional[int]:
-    """Estimates correlation length from acf. Returns None if the ACF is
-    uncoverged."""
+    """Estimates correlation length from :attr:`acf`. Returns ``None`` if
+    the autocorrelation function is uncoverged.
+    """
     for i, a in enumerate(acf):
         if a < np.exp(-2):
             return i

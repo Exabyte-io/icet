@@ -8,7 +8,7 @@ class BaseCalculator(ABC):
     Attributes
     ----------
     name : str
-        human-readable calculator name
+        Human-readable calculator name.
     """
 
     def __init__(self, name='BaseCalculator'):

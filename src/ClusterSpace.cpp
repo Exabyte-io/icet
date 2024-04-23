@@ -5,12 +5,12 @@
 
 /**
 @details This constructor initializes a ClusterSpace object.
-@param chemicalSymbols vector of allowed chemical symbol for each site
-@param orbitList list of orbits for the primitive structure
+@param orbitList
+    List of orbits for the primitive structure.
 @param positionTolerance
-    tolerance applied when comparing positions in Cartesian coordinates
+    Tolerance applied when comparing positions in Cartesian coordinates.
 @param fractionalPositionTolerance
-    tolerance applied when comparing positions in fractional coordinates
+    Tolerance applied when comparing positions in fractional coordinates.
 */
 ClusterSpace::ClusterSpace(std::shared_ptr<OrbitList> orbitList,
                            const double positionTolerance,

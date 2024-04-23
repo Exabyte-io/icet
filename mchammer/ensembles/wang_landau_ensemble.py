@@ -18,14 +18,14 @@ logger = logger.getChild('wang_landau_ensemble')
 
 
 class WangLandauEnsemble(BaseEnsemble):
-    """Instances of this class allow one to sample a system using the
+    r"""Instances of this class allow one to sample a system using the
     Wang-Landau (WL) algorithm, see Phys. Rev. Lett. **86**, 2050
     (2001) [WanLan01a]_. The WL algorithm enables one to acquire the
     density of states (DOS) as a function of energy, from which one
     can readily calculate many thermodynamic observables as a function
     of temperature. To this end, the WL algorithm accumulates both the
     microcanonical entropy :math:`S(E)` and a histogram :math:`H(E)`
-    on an energy grid with a predefined spacing (``energy_spacing``).
+    on an energy grid with a predefined spacing (:attr:`energy_spacing`).
 
     The algorithm is initialized as follows.
 
@@ -36,117 +36,119 @@ class WangLandauEnsemble(BaseEnsemble):
 
     It then proceeds as follows.
 
-    #. Propose a new configuration (see ``trial_move``).
+    #. Propose a new configuration (see :attr:`trial_move`).
     #. Accept or reject the new configuration with probability
 
        .. math::
 
-          P = \\min \\{ 1, \\, \\exp [ S(E_\\mathrm{new}) - S(E_\\mathrm{cur}) ] \\},
+          P = \min \{ 1, \, \exp [ S(E_\mathrm{new}) - S(E_\mathrm{cur}) ] \},
 
-       where :math:`E_\\mathrm{cur}` and :math:`E_\\mathrm{new}` are the
+       where :math:`E_\mathrm{cur}` and :math:`E_\mathrm{new}` are the
        energies of the current and new configurations, respectively.
-    #. Update the microcanonical entropy :math:`S(E)\\leftarrow S(E) + f`
-       and histogram :math:`H(E) \\leftarrow H(E) + 1` where
+    #. Update the microcanonical entropy :math:`S(E)\leftarrow S(E) + f`
+       and histogram :math:`H(E) \leftarrow H(E) + 1` where
        :math:`E` is the energy of the system at the end of the move.
     #. Check the flatness of the histogram :math:`H(E)`. If
-       :math:`H(E) > \\chi \\langle H(E)\\rangle\\,\\forall E` reset the histogram
-       :math:`H(E) = 0` and reduce the fill factor :math:`f \\leftarrow f / 2`.
-       The parameter :math:`\\chi` is set via ``flatness_limit``.
-    #. If :math:`f` is smaller than ``fill_factor_limit`` terminate
+       :math:`H(E) > \chi \langle H(E)\rangle\,\forall E` reset the histogram
+       :math:`H(E) = 0` and reduce the fill factor :math:`f \leftarrow f / 2`.
+       The parameter :math:`\chi` is set via :attr:`flatness_limit`.
+    #. If :math:`f` is smaller than :attr:`fill_factor_limit` terminate
        the loop, otherwise return to 1.
 
     The microcanonical entropy :math:`S(E)` and the histogram along
     with related information are written to the data container every
-    time :math:`f` is updated. Using the density :math:`\\rho(E) = \\exp S(E)`
+    time :math:`f` is updated. Using the density :math:`\rho(E) = \exp S(E)`
     one can then readily compute various thermodynamic quantities,
     including, e.g., the average energy:
 
     .. math::
 
-       \\left<E\\right> = \\frac{\\sum_E E \\rho(E) \\exp(-E / k_B T)}{
-       \\sum_E \\rho(E) \\exp(-E / k_B T)}
+       \left<E\right> = \frac{\sum_E E \rho(E) \exp(-E / k_B T)}{
+       \sum_E \rho(E) \exp(-E / k_B T)}
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Wang-Landau simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating potential changes
-    trial_move : str
+    structure
+        Atomic configuration to be used in the Wang-Landau simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating potential changes.
+    trial_move
         One can choose between two different trial moves for
-        generating new configurations. In a 'swap' move two sites are
-        selected and their occupations are swapped; in a 'flip' move
+        generating new configurations. In a ``'swap'`` move two sites are
+        selected and their occupations are swapped. In a ``'flip'`` move
         one site is selected and its occupation is flipped to a
-        different species. While 'swap' moves conserve the
-        concentrations of the species in the system, 'flip' moves
+        different species. While ``'swap'`` moves conserve the
+        concentrations of the species in the system, ``'flip'`` moves
         allow one in principle to sample the full composition space.
-    energy_spacing : float
-        defines the bin size of the energy grid on which the microcanonical
-        entropy :math:`S(E)`, and thus the density :math:`\\exp S(E)`, is
-        evaluated; the spacing should be small enough to capture the features
-        of the density of states; too small values will, however, render the
-        convergence very tedious if not impossible
-    energy_limit_left : float
-        defines the lower limit of the energy range within which the
+    energy_spacing
+        Sets the bin size of the energy grid on which the microcanonical
+        entropy :math:`S(E)`, and thus the density :math:`\exp S(E)`, is
+        evaluated. The spacing should be small enough to capture the features
+        of the density of states. Too small values will, however, render the
+        convergence very tedious if not impossible.
+    energy_limit_left
+        Sets the lower limit of the energy range within which the
         microcanonical entropy :math:`S(E)` will be sampled. By default
-        (`None`) no limit is imposed. Setting limits can be useful if only a
+        (``None``) no limit is imposed. Setting limits can be useful if only a
         part of the density of states is required.
-    energy_limit_right : float
-        defines the upper limit of the energy range within which the
+    energy_limit_right
+        Sets the upper limit of the energy range within which the
         microcanonical entropy :math:`S(E)` will be sampled. By default
-        (`None`) no limit is imposed. Setting limits can be useful if only a
+        (``None``) no limit is imposed. Setting limits can be useful if only a
         part of the density of states is required.
-    fill_factor_limit : float
+    fill_factor_limit
         If the fill_factor :math:`f` falls below this value, the
         WL sampling loop is terminated.
-    flatness_check_interval : int
+    flatness_check_interval
         For computational efficiency the flatness condition is only
-        evaluated every ``flatness_check_interval``-th trial step. By
-        default (``None``) ``flatness_check_interval`` is set to 1000
-        times the number of sites in ``structure``, i.e. 1000 Monte
+        evaluated every :attr:`flatness_check_interval`-th trial step. By
+        default (``None``) :attr:`flatness_check_interval` is set to 1000
+        times the number of sites in :attr:`structure`, i.e., 1000 Monte
         Carlo sweeps.
-    flatness_limit : float
+    flatness_limit
         The histogram :math:`H(E)` is deemed sufficiently flat if
-        :math:`H(E) > \\chi \\left<H(E)\\right>\\,\\forall
-        E`. ``flatness_limit`` sets the parameter :math:`\\chi`.
-    window_search_penalty : float
-        If `energy_limit_left` and/or `energy_limit_right` have been
-        provided, a modified acceptance probability,
-        :math:`P=\\min\\{1,\\,\\exp[C_\\mathrm{WSP}(d_\\mathrm{new}-
-        d_\\mathrm{cur})]\\}`, will be used until a configuration is
+        :math:`H(E) > \chi \left<H(E)\right>\,\forall
+        E`. :attr:`flatness_limit` sets the parameter :math:`\chi`.
+    window_search_penalty
+        If :attr:`energy_limit_left` and/or :attr:`energy_limit_right` have been
+        set, a modified acceptance probability,
+        :math:`P=\min\{1,\,\exp[C_\mathrm{WSP}(d_\mathrm{new}-
+        d_\mathrm{cur})]\}`, will be used until a configuration is
         found within the interval of interest. This parameter,
-        specifically, corresponds to :math:`C_\\mathrm{WSP}`, which
+        specifically, corresponds to :math:`C_\mathrm{WSP}`, which
         controls how strongly moves that lead to an increase in the
         distance, i.e. difference in energy divided by the energy
-        spacing, to the energy window (:math:`d_\\mathrm{new}>
-        d_\\mathrm{cur}`) should be penalized. A higher value leads
+        spacing, to the energy window (:math:`d_\mathrm{new}>
+        d_\mathrm{cur}`) should be penalized. A higher value leads
         to a lower acceptance probability for such moves.
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    dc_filename : str
-        name of file the data container associated with the ensemble
-        will be written to; if the file exists it will be read, the
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    dc_filename
+        Name of file the data container associated with the ensemble
+        will be written to. If the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+        updated/overwritten.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo
+        simulation.
+    ensemble_data_write_interval
+        Interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        (i.e., usually the energy) as well as ensemble specific fields
+        such as temperature or the number of atoms of different species.
+        Default: Number of sites in the :attr:`structure`.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: 600 s]
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the atomic
+        the data. Default: 600 s.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    sublattice_probabilities : List[float]
-        probability for picking a sublattice when doing a random swap.
+        Default: Number of sites in the :attr:`structure`.
+    sublattice_probabilities
+        Probability for picking a sublattice when doing a random swap.
         The list must contain as many elements as there are sublattices
         and it needs to sum up to 1.
 
@@ -179,7 +181,8 @@ class WangLandauEnsemble(BaseEnsemble):
         ...                         calculator=calculator,
         ...                         energy_spacing=1,
         ...                         dc_filename='ising_2d_run.dc')
-        >>> mc.run(number_of_trial_steps=len(structure)*1000)  # in practice one requires more steps
+        >>> mc.run(number_of_trial_steps=len(structure)*100)
+        >>> # Note: in practice one requires many more steps
 
     """
 
@@ -323,9 +326,9 @@ class WangLandauEnsemble(BaseEnsemble):
 
     @property
     def flatness_limit(self) -> float:
-        """The histogram :math:`H(E)` is deemed sufficiently flat if
-        :math:`H(E) > \\chi \\left<H(E)\\right>\\,\\forall
-        E` where ``flatness_limit`` sets the parameter :math:`\\chi`.
+        r"""The histogram :math:`H(E)` is deemed sufficiently flat if
+        :math:`H(E) > \chi \left<H(E)\right>\,\forall
+        E` where :attr:`flatness_limit` sets the parameter :math:`\chi`.
         """
         return self._flatness_limit
 
@@ -336,8 +339,8 @@ class WangLandauEnsemble(BaseEnsemble):
 
     @property
     def fill_factor_limit(self) -> float:
-        """ If the fill_factor :math:`f` falls below this value, the
-        Wang-Landau sampling loop is terminated. """
+        """ If the fill factor :math:`f` falls below this value, the
+        Wang-Landau sampling is terminated. """
         return self._fill_factor_limit
 
     @fill_factor_limit.setter
@@ -347,8 +350,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
     @property
     def flatness_check_interval(self) -> int:
-        """ number of MC trial steps between checking the flatness
-        condition """
+        """ Number of MC trial steps between checking the flatness condition. """
         return self._flatness_check_interval
 
     @flatness_check_interval.setter
@@ -362,16 +364,16 @@ class WangLandauEnsemble(BaseEnsemble):
         Parameters
         ----------
         number_of_trial_steps
-            maximum number of MC trial steps to run in total (the
-            run will terminate earlier if `fill_factor_limit` is reached)
+            Maximum number of MC trial steps to run in total. The
+            run will terminate earlier if :attr:`fill_factor_limit` is reached.
         reset_step
-            if True the MC trial step counter and the data container will
+            If ``True`` the MC trial step counter and the data container will
             be reset to zero and empty, respectively.
 
         Raises
         ------
         TypeError
-            if `number_of_trial_steps` is not an int
+            If :attr:`number_of_trial_steps` is not an ``int``.
         """
         if self.converged:
             logger.warning('Convergence has already been reached.')
@@ -379,8 +381,8 @@ class WangLandauEnsemble(BaseEnsemble):
             super().run(number_of_trial_steps)
 
     def _terminate_sampling(self) -> bool:
-        """Returns True if the Wang-Landau algorithm has converged. This is
-        used in the run method implemented of BaseEnsemble to
+        """Returns ``True`` if the Wang-Landau algorithm has converged. This is
+        used in the :func:`run` method implemented in :class:`BaseEnsemble` to
         evaluate whether the sampling loop should be terminated.
         """
         # N.B.: self._converged can be None
@@ -391,8 +393,8 @@ class WangLandauEnsemble(BaseEnsemble):
 
     def _restart_ensemble(self):
         """Restarts ensemble using the last state saved in the data container
-        file. Note that this method does _not_ use the last_state property of
-        the data container but rather uses the last data written the data frame.
+        file. Note that this method does _not_ use the :attr:`last_state` property of
+        the data container but rather uses the last data written to the data frame.
         """
         super()._restart_ensemble()
         self._fill_factor = self.data_container._last_state['fill_factor']
@@ -406,13 +408,13 @@ class WangLandauEnsemble(BaseEnsemble):
                            ) & np.all(histogram >= limit)
 
     def write_data_container(self, outfile: Union[str, bytes]):
-        """Updates last state of the Wang-Landau simulation and
-        writes DataContainer to file.
+        """Updates the last state of the Wang-Landau simulation and
+        writes the data container to file.
 
         Parameters
         ----------
         outfile
-            file to which to write
+            File to which to write.
         """
         self._data_container._update_last_state(
             last_step=self.step,
@@ -432,8 +434,8 @@ class WangLandauEnsemble(BaseEnsemble):
         Parameters
         ----------
         potential_diff
-            change in the thermodynamic potential associated
-            with the trial step
+            Change in the thermodynamic potential associated
+            with the trial step.
         """
 
         # acceptance/rejection step
@@ -539,7 +541,7 @@ class WangLandauEnsemble(BaseEnsemble):
         return int(round(energy / self._energy_spacing))
 
     def _allow_move(self, bin_cur: Optional[int], bin_new: int) -> bool:
-        """Returns True if the current move is to be included in the
+        """Returns ``True`` if the current move is to be included in the
         accumulation of histogram and entropy. This logic has been
         moved into a separate function in order to enhance
         readability.
@@ -564,7 +566,7 @@ class WangLandauEnsemble(BaseEnsemble):
         return True
 
     def _inside_energy_window(self, bin_k: int) -> bool:
-        """Returns True if bin_k is inside the energy window specified for
+        """Returns ``True`` if :attr:`bin_k` is inside the energy window specified for
         this simulation.
         """
         if self._bin_left is not None and bin_k < self._bin_left:
@@ -581,18 +583,18 @@ class WangLandauEnsemble(BaseEnsemble):
     def _do_swap(self, sublattice_index: int, allowed_species: List[int] = None) -> int:
         """Carries out a Monte Carlo trial that involves swapping the species
         on two sites. This method has been copied from
-        ThermodynamicBaseEnsemble.
+        :class:`ThermodynamicBaseEnsemble`.
 
         Parameters
         ---------
         sublattice_index
-            the sublattice the swap will act on
+            Index of sublattice the swap will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         sites, species = self.configuration.get_swapped_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change(sites, species)
@@ -604,19 +606,18 @@ class WangLandauEnsemble(BaseEnsemble):
     def _do_flip(self, sublattice_index: int, allowed_species: List[int] = None) -> int:
         """Carries out one Monte Carlo trial step that involves flipping the
         species on one site. This method has been adapted from
-        ThermodynamicBaseEnsemble.
+        :class:`ThermodynamicBaseEnsemble`.
 
         Parameters
         ---------
         sublattice_index
-            the sublattice the flip will act on
+            Index of sublattice the flip will act on.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
 
         Returns
         -------
-        Returns 1 or 0 depending on if trial move was accepted or rejected
-
+            Returns 1 or 0 depending on if trial move was accepted or rejected.
         """
         index, species = self.configuration.get_flip_state(sublattice_index, allowed_species)
         potential_diff = self._get_property_change([index], [species])
@@ -627,7 +628,7 @@ class WangLandauEnsemble(BaseEnsemble):
 
     def _get_swap_sublattice_probabilities(self) -> List[float]:
         """Returns sublattice probabilities suitable for swaps. This method
-        has been copied without modification from ThermodynamicBaseEnsemble.
+        has been copied without modification from :class:`ThermodynamicBaseEnsemble`.
         """
         sublattice_probabilities = []
         for i, sl in enumerate(self.sublattices):
@@ -644,7 +645,7 @@ class WangLandauEnsemble(BaseEnsemble):
     def _get_flip_sublattice_probabilities(self) -> List[float]:
         """Returns the default sublattice probability which is based on the
         sizes of a sublattice. This method has been copied without
-        modification from ThermodynamicBaseEnsemble.
+        modification from :class:`ThermodynamicBaseEnsemble`.
         """
         sublattice_probabilities = []
         for _, sl in enumerate(self.sublattices):
@@ -665,42 +666,49 @@ def get_bins_for_parallel_simulations(n_bins: int,
                                       bin_size_exponent: float = 1.0) -> List[Tuple[float, float]]:
     """Generates a list of energy bins (lower and upper bound) suitable for
     parallel Wang-Landau simulations. For the latter, the energy range is
-    split up into a several bins (``n_bins``). Each bin is then sampled in a
+    split up into a several bins (:attr:`n_bins`). Each bin is then sampled in a
     separate Wang-Landau simulation. Once the density of states in the
     individual bins has been converged the total density of states can be
     constructed by patching the segments back together. To this end, one
-    requires some over overlap between the segments (``overlap``).
+    requires some over overlap between the segments (:attr:`overlap`).
 
     The function returns a list of tuples. Each tuple provides the lower
-    (``energy_limit_left``) and upper (``energy_limit_right``) bound of one
-    bin, which are then to be used to set ``energy_limit_left`` and
-    ``energy_limit_right`` when initializing a :class:`WangLandauEnsemble`
+    (:attr:`energy_limit_left`) and upper (:attr:`energy_limit_right`) bound of one
+    bin, which are then to be used to set :attr:`energy_limit_left` and
+    :attr:`energy_limit_right` when initializing a :class:`WangLandauEnsemble`
     instance.
 
-    N.B.: The left-most/right-most bin has no lower/upper bound (set to
-    ``None``).
+    Note
+    ----
+    The left-most/right-most bin has no lower/upper bound (set to ``None``).
 
     Parameters
     ----------
     n_bins
-        number of bins
+        Number of bins.
     energy_spacing
-        defines the bin size of the energy grid used by the Wang-Landau
-        simulation, see :class:`WangLandauEnsemble` for details
+        Sets the bin size of the energy grid used by the Wang-Landau
+        simulation, see :class:`WangLandauEnsemble` for details.
     minimum_energy
-        an estimate for the lowest energy to be encountered in this system
+        An estimate for the lowest energy to be encountered in this system.
     maximum_energy
-        an estimate for the highest energy to be encountered in this system
+        An estimate for the highest energy to be encountered in this system.
     overlap
-        amount of overlap between bins in units of ``energy_spacing``
+        Amount of overlap between bins in units of :attr:`energy_spacing`.
     bin_size_exponent
-        *Expert option*: This parameter allows one to generate a non-uniform
-        distribution of bin sizes. If ``bin_size_exponent`` is smaller than
-        one bins at the lower and upper end of the energy range (specified via
-        ``minimum_energy`` and ``maximum_energy``) will be shrunk relative to
-        the bins in the middle of the energy range. In principle this can be
-        used one to achieve a more even distribution of computational load
-        between the individual Wang-Landau simulations.
+        This parameter allows one to generate a non-uniform
+        distribution of bin sizes. If :attr:`bin_size_exponent` is smaller
+        than one bins at the lower and upper end of the energy range
+        (specified via :attr:`minimum_energy` and :attr:`maximum_energy`) will
+        be shrunk relative to the bins in the middle of the energy
+        range. In principle this can be used one to achieve a more
+        even distribution of computational load between the individual
+        Wang-Landau simulations.
+
+        Note
+        ----
+        This is an option for advanced users. Only use this keyword
+        if you know what you are doing.
     """
 
     limits = np.linspace(-1, 1, n_bins + 1)

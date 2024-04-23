@@ -19,30 +19,30 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
     Parameters
     ----------
-    concentrations : list(float) or list(list(float))
-        concentrations for each structure listed as ``[[c1, c2], [c1, c2],
+    concentrations
+        Concentrations for each structure listed as ``[[c1, c2], [c1, c2],
         ...]``; for binaries, in which case there is only one independent
         concentration, the format ``[c1, c2, c3, ...]`` works as well.
-    energies : list(float)
-        energy (or energy of mixing) for each structure
+    energies
+        Energy (or energy of mixing) for each structure.
 
     Attributes
     ----------
     concentrations : np.ndarray
-        concentrations of the `N` structures on the convex hull
+        Concentrations of the structures on the convex hull.
     energies : np.ndarray
-        energies of the `N` structures on the convex hull
+        Energies of the structures on the convex hull.
     dimensions : int
-        number of independent concentrations needed to specify a point in
-        concentration space (1 for binaries, 2 for ternaries etc.)
-    structures : list(int)
-        indices of structures that constitute the convex hull (indices are
+        Number of independent concentrations needed to specify a point in
+        concentration space (1 for binaries, 2 for ternaries and so on).
+    structures : List[int]
+        Indices of structures that constitute the convex hull (indices are
         defined by the order of their concentrations and energies are fed when
-        initializing the ConvexHull object)
+        initializing the :class:`ConvexHull` object).
 
     Examples
     --------
-    A `ConvexHull` object is easily initialized by providing lists of
+    A :class:`ConvexHull` object is easily initialized by providing lists of
     concentrations and energies::
 
         >>> data = {'concentration': [0,    0.2,  0.2,  0.3,  0.4,  0.5,  0.8,  1.0],
@@ -115,6 +115,33 @@ generated/scipy.spatial.ConvexHull.html>`_.
 
         # Remove points that are above the "pure components plane"
         self._remove_points_above_tie_plane()
+
+    def __str__(self) -> str:
+        width = 40
+        s = []
+        s += ['{s:=^{n}}'.format(s=' Convex Hull ', n=width)]
+        s += [' {:24} : {}'.format('dimensions', self.dimensions)]
+        s += [' {:24} : {}'.format('number of points', len(self.concentrations))]
+        s += [' {:24} : {}'.format('smallest concentration', np.min(self.concentrations))]
+        s += [' {:24} : {}'.format('largest concentration', np.max(self.concentrations))]
+        s += [''.center(width, '=')]
+        return '\n'.join(s)
+
+    def _repr_html_(self) -> str:
+        """ HTML representation. Used, e.g., in jupyter notebooks. """
+        s = ['<h4>Convex Hull</h4>']
+        s += ['<table border="1" class="dataframe">']
+        s += ['<tbody>']
+        s += [f'<tr><td style="text-align: left;">Dimensions</td><td>{self.dimensions}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Number of points</td>'
+              f'<td>{len(self.concentrations)}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Smallest concentration</td>'
+              f'<td>{np.min(self.concentrations)}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Largest concentration</td>'
+              f'<td>{np.max(self.concentrations)}</td></tr>']
+        s += ['</tbody>']
+        s += ['</table>']
+        return ''.join(s)
 
     def _remove_points_above_tie_plane(self, tol: float = 1e-6) -> None:
         """
@@ -192,7 +219,7 @@ generated/scipy.spatial.ConvexHull.html>`_.
         Parameters
         ----------
         target_concentrations
-            concentrations at target points
+            Concentrations at target points.
 
             If there is one independent concentration, a list of
             floats is sufficient. Otherwise, the concentrations ought
@@ -235,17 +262,17 @@ generated/scipy.spatial.ConvexHull.html>`_.
         Parameters
         ----------
         concentrations
-            concentrations of candidate structures
+            Concentrations of candidate structures.
 
             If there is one independent concentration, a list of
             floats is sufficient. Otherwise, the concentrations must
             be provided as a list of lists, such as ``[[0.1, 0.2],
             [0.3, 0.1], ...]``.
         energies
-            energies of candidate structures
+            Energies of candidate structures.
         energy_tolerance
-            include structures with an energy that is at most this far
-            from the convex hull
+            Include structures with an energy that is at most this far
+            from the convex hull.
         """
         # Convert to numpy arrays, can be necessary if, for example,
         # they are Pandas Series with "gaps"

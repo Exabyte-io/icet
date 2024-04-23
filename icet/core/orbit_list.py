@@ -29,28 +29,32 @@ class OrbitList(_OrbitList):
     An orbit has a list of equivalent sites with the restriction
     that at least one site is in the cell of the primitive structure.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
-    structure : Atoms
+    structure
         This structure will be used to construct a primitive
         structure on which all the lattice sites in the orbits
         are based.
-    cutoffs : List[float]
-        the i-th element of this list is the cutoff for orbits with
-        order i+2
-    chemical_symbols : List[List[str]]
-        list of chemical symbols, each of which must map to an element
-        of the periodic table
+    cutoffs
+        The `i`-th element of this list is the cutoff for orbits with
+        order `i+2`.
+    chemical_symbols
+        List of chemical symbols, each of which must map to an element
+        of the periodic table.
 
         The outer list must be the same length as the `structure` object
-        and `chemical_symbols[i]` will correspond to the allowed species
-        on lattice site `i`.
-    symprec : float
-        tolerance imposed when analyzing the symmetry using spglib
-    position_tolerance : float
-        tolerance applied when comparing positions in Cartesian coordinates
-    fractional_position_tolerance : float
-        tolerance applied when comparing positions in fractional coordinates
+        and :attr:`chemical_symbols[i]` will correspond to the allowed species
+        on lattice site ``i``.
+    symprec
+        Tolerance imposed when analyzing the symmetry using spglib.
+    position_tolerance
+        Tolerance applied when comparing positions in Cartesian coordinates.
+    fractional_position_tolerance
+        Tolerance applied when comparing positions in fractional coordinates.
     """
 
     def __init__(self,
@@ -99,13 +103,13 @@ class OrbitList(_OrbitList):
     @property
     def primitive_structure(self):
         """
-        Returns the primitive structure to which the lattice sites in
+        A copy of the primitive structure to which the lattice sites in
         the orbits are referenced to.
         """
         return self._primitive_structure.copy()
 
     def __str__(self):
-        """String representation."""
+        """ String representation. """
         s = []
         s += ['Number of orbits: {}'.format(len(self))]
         for k, orbit in enumerate(self.orbits):
@@ -118,14 +122,14 @@ class OrbitList(_OrbitList):
                                  structure: Atoms,
                                  fractional_position_tolerance: float):
         """
-        Returns an orbit list for a supercell structure.
+        Returns the orbit list for a supercell structure.
 
         Parameters
         ----------
         structure
-            supercell atomic structure
-        fractional_position_tolerance : float
-            tolerance applied when comparing positions in fractional coordinates
+            Atomic structure.
+        fractional_position_tolerance
+            Tolerance applied when comparing positions in fractional coordinates.
         """
         lolg = LocalOrbitListGenerator(
             self,
@@ -144,20 +148,20 @@ class OrbitList(_OrbitList):
         Parameters
         ----------
         structure
-            supercell for which to count clusters; this structure needs to
-            be commensurate with the structure this orbit list is based on
+            Structure for which to count clusters. This structure needs to
+            be commensurate with the structure this orbit list is based on.
         fractional_position_tolerance
-            tolerance applied when comparing positions in fractional coordinates
+            Tolerance applied when comparing positions in fractional coordinates.
         orbit_indices
-            indices of orbits, for which counts are requested; if `None` all
-            orbits will be counted
+            Indices of orbits, for which counts are requested; if ``None`` all
+            orbits will be counted.
 
         Returns
         -------
-        Dictionary, the keys of which are orbit indices and the values
-        cluster counts. The latter are themselves dicts, with tuples
-        of chemical symbols as keys and the number of such clusters
-        as values.
+            Dictionary, the keys of which are orbit indices and the values
+            cluster counts. The latter are themselves dicts, with tuples
+            of chemical symbols as keys and the number of such clusters
+            as values.
         """
         supercell_orbit_list = self.get_supercell_orbit_list(
             structure=structure,

@@ -20,19 +20,19 @@ the cluster_space.py file
 
 """
 
-from collections import OrderedDict
 from io import StringIO
 import inspect
 import os
-import sys
 import tempfile
 import unittest
 
 import numpy as np
+import pytest
 from ase.build import bulk
 from ase.db import connect as db_connect
 from ase import Atoms  # NOQA (needed for eval(retval))
 from icet import ClusterSpace
+from pandas import DataFrame
 
 
 def strip_surrounding_spaces(input_string):
@@ -149,8 +149,7 @@ class TestClusterSpace(unittest.TestCase):
         structure_surface.pbc = [1, 1, 0]
         with self.assertRaises(ValueError) as cm:
             ClusterSpace(structure_surface, self.cutoffs, self.chemical_symbols)
-        self.assertTrue('Input structure must have periodic boundary '
-                        'condition' in str(cm.exception))
+        self.assertTrue('Input structure must be periodic' in str(cm.exception))
 
     def test_init_fails_for_faulty_chemical_symbols(self):
         """Tests that initialization fails if chemical_symbols is faulty."""
@@ -242,34 +241,34 @@ class TestClusterSpace(unittest.TestCase):
                           [1.9], [['Au', 'Ag'], ['Cl']])
         self.assertEqual(cs.space_group, 'F-43m (216)')
 
-    def test_orbit_data(self):
-        """Tests orbit_data property."""
-        target = [OrderedDict([('index', 0),
-                               ('order', 0),
-                               ('radius', 0),
-                               ('multiplicity', 1),
-                               ('orbit_index', -1)]),
-                  OrderedDict([('index', 1), ('order', 1),
-                               ('radius', 0.0),
-                               ('multiplicity', 1),
-                               ('orbit_index', 0),
-                               ('multicomponent_vector', [0])]),
-                  OrderedDict([('index', 2), ('order', 2),
-                               ('radius', 1.4460333675264896),
-                               ('multiplicity', 6),
-                               ('orbit_index', 1),
-                               ('multicomponent_vector', [0, 0])]),
-                  OrderedDict([('index', 3), ('order', 3),
-                               ('radius', 1.6697355079971996),
-                               ('multiplicity', 8),
-                               ('orbit_index', 2),
-                               ('multicomponent_vector', [0, 0, 0])]),
-                  OrderedDict([('index', 4), ('order', 4),
-                               ('radius', 1.771021950739177),
-                               ('multiplicity', 2),
-                               ('orbit_index', 3),
-                               ('multicomponent_vector', [0, 0, 0, 0])])]
-        self.assertEqualComplexList(self.cs.orbit_data, target)
+    def test_as_list(self):
+        """Tests as_list property."""
+        target = [dict([('index', 0),
+                        ('order', 0),
+                        ('radius', 0),
+                        ('multiplicity', 1),
+                        ('orbit_index', -1)]),
+                  dict([('index', 1), ('order', 1),
+                        ('radius', 0.0),
+                        ('multiplicity', 1),
+                        ('orbit_index', 0),
+                        ('multicomponent_vector', [0])]),
+                  dict([('index', 2), ('order', 2),
+                        ('radius', 1.4460333675264896),
+                        ('multiplicity', 6),
+                        ('orbit_index', 1),
+                        ('multicomponent_vector', [0, 0])]),
+                  dict([('index', 3), ('order', 3),
+                        ('radius', 1.6697355079971996),
+                        ('multiplicity', 8),
+                        ('orbit_index', 2),
+                        ('multicomponent_vector', [0, 0, 0])]),
+                  dict([('index', 4), ('order', 4),
+                        ('radius', 1.771021950739177),
+                        ('multiplicity', 2),
+                        ('orbit_index', 3),
+                        ('multicomponent_vector', [0, 0, 0, 0])])]
+        self.assertEqualComplexList(self.cs.as_list, target)
 
     def test_repr(self):
         """Tests __repr__ method."""
@@ -331,18 +330,10 @@ index | order |  radius  | multiplicity | orbit_index | multicomponent_vector | 
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
 
-    def test_print_overview(self):
-        """Tests print_overview functionality."""
-        with StringIO() as capturedOutput:
-            sys.stdout = capturedOutput  # redirect stdout
-            self.cs.print_overview()
-            sys.stdout = sys.__stdout__  # reset redirect
-            self.assertTrue('Cluster Space' in capturedOutput.getvalue())
-
-    def test_get_number_of_orbits_by_order(self):
-        """Tests get_number_of_orbits_by_order functionality """
-        retval = self.cs.get_number_of_orbits_by_order()
-        target = OrderedDict([(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)])
+    def test_number_of_orbits_by_order(self):
+        """Tests number_of_orbits_by_order functionality """
+        retval = self.cs.number_of_orbits_by_order
+        target = dict([(0, 1), (1, 1), (2, 1), (3, 1), (4, 1)])
         self.assertEqual(target, retval)
 
     def test_get_cluster_vector(self):
@@ -522,7 +513,7 @@ index | order |  radius  | multiplicity | orbit_index | multicomponent_vector | 
         structure.pbc = False
         with self.assertRaises(ValueError) as cm:
             self.cs.assert_structure_compatibility(structure)
-        self.assertIn('must have periodic boundary conditions', str(cm.exception))
+        self.assertIn('must be periodic', str(cm.exception))
 
     def test_get_possible_orbit_occupations(self):
         """Tests get possible orbit occupations."""
@@ -709,8 +700,8 @@ class TestClusterSpaceMultiSublattice(unittest.TestCase):
 
     def test_correct_number_of_pairs(self):
         """Tests that we get correct number of pairs."""
-        pair_counts = OrderedDict()
-        pair_counts_binary = OrderedDict()
+        pair_counts = dict()
+        pair_counts_binary = dict()
         for orbit in self.cs.orbit_list.orbits:
             if orbit.order == 2:
                 radius = np.round(orbit.representative_cluster.radius, 3)
@@ -771,9 +762,10 @@ class TestClusterSpaceMergedOrbits(unittest.TestCase):
         radii_target = [0, 0.0, 1.4142135623730951, 1.632993161855452]
         multiplicity_target = [1, 1, 21, 124]
 
-        self.assertEqual([orb['order'] for orb in self.cs.orbit_data], order_target)
-        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.orbit_data], radii_target)
-        self.assertEqual([orb['multiplicity'] for orb in self.cs.orbit_data], multiplicity_target)
+        self.assertEqual([orb['order'] for orb in self.cs.as_list], order_target)
+        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.as_list], radii_target)
+        self.assertEqual([orb['multiplicity'] for orb in self.cs.as_list],
+                         multiplicity_target)
 
     def test_merge_orbits_fails_for_self_merge(self):
         """ Tests that merging orbit with itself fails. """
@@ -858,9 +850,10 @@ class TestClusterSpaceMergedOrbitsTernary(unittest.TestCase):
         radii_target = [0] * 3 + [1.4142135623730951] * 3 + [1.632993161855452] * 4
         multiplicity_target = [1, 1, 1, 21, 42, 21, 124, 372, 372, 124]
 
-        self.assertEqual([orb['order'] for orb in self.cs.orbit_data], order_target)
-        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.orbit_data], radii_target)
-        self.assertEqual([orb['multiplicity'] for orb in self.cs.orbit_data], multiplicity_target)
+        self.assertEqual([orb['order'] for orb in self.cs.as_list], order_target)
+        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.as_list], radii_target)
+        self.assertEqual([orb['multiplicity'] for orb in self.cs.as_list],
+                         multiplicity_target)
 
     def test_merge_orbits_fails_for_self_merge(self):
         """ Tests that merging orbit with itself fails. """
@@ -960,9 +953,10 @@ class TestClusterSpaceMergedOrbitsSublattices(unittest.TestCase):
         radii_target = [0] * 3 + [1.0] + [1.4142135623730951] * 2
         multiplicity_target = [1, 1, 1, 38, 21, 21]
 
-        self.assertEqual([orb['order'] for orb in self.cs.orbit_data], order_target)
-        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.orbit_data], radii_target)
-        self.assertEqual([orb['multiplicity'] for orb in self.cs.orbit_data], multiplicity_target)
+        self.assertEqual([orb['order'] for orb in self.cs.as_list], order_target)
+        self.assertAlmostEqualList([orb['radius'] for orb in self.cs.as_list], radii_target)
+        self.assertEqual([orb['multiplicity'] for orb in self.cs.as_list],
+                         multiplicity_target)
 
     def test_merge_orbits_fails_for_self_merge(self):
         """ Tests that merging orbit with itself fails. """
@@ -1011,6 +1005,78 @@ class TestClusterSpaceMergedOrbitsSublattices(unittest.TestCase):
         self.assertEqual(self.cs._input_chemical_symbols,
                          cs_read._input_chemical_symbols)
         self.assertEqual(len(self.cs), len(cs_read))
+
+
+@pytest.fixture
+def cluster_space_fcc():
+    prim = bulk('Au', crystalstructure='fcc', a=4.01)
+    return ClusterSpace(prim, [8, 5], ['Au', 'Pd'])
+
+
+@pytest.fixture
+def cluster_space_rocksalt():
+    prim = bulk('NaCl', crystalstructure='rocksalt', a=4.01)
+    return ClusterSpace(prim, [5, 3], [['Na', 'K'], ['Cl', 'I']])
+
+
+def test_to_dataframe_fcc(cluster_space_fcc):
+    df = cluster_space_fcc.to_dataframe()
+    assert isinstance(df, DataFrame)
+    assert len(df) == 16
+    data = {
+        0: [[0, 1]],
+        1: [[0, 1]],
+        2: [[1.417749,  6],
+            [2.005000,  3],
+            [2.455613, 12],
+            [2.835498,  6],
+            [3.170183, 12],
+            [3.472762,  4],
+            [3.751012, 24]],
+        3: [[1.637076, 8],
+            [1.854526, 12],
+            [1.982172, 24],
+            [2.262583, 24],
+            [2.453891, 24],
+            [2.663409, 24],
+            [2.835498, 8]]
+        }
+    for order in data:
+        radii = np.array(data[order]).T[0]
+        multiplicities = np.array(data[order]).T[1]
+        df2 = df[df.order == order]
+        assert np.allclose(df2.radius, radii, atol=1e-5)
+        assert all(df2.multiplicity == multiplicities)
+
+
+def test_to_dataframe_rocksalt(cluster_space_rocksalt):
+    df = cluster_space_rocksalt.to_dataframe()
+    assert isinstance(df, DataFrame)
+    assert len(df) == 16
+
+    counts = {0: 1, 1: 2, 2: 9, 3: 4}
+    for order, count in counts.items():
+        df2 = df[df.order == order]
+        assert count == len(df2)
+
+    df2 = df[df.order == 2]
+    radii = [1.002500, 1.417749, 1.417749, 1.736381, 2.005000,
+             2.005000, 2.241658, 2.455613, 2.455613]
+    multiplicities = [6, 6, 6, 8, 3, 3, 24, 12, 12]
+    sublattices = [['B', 'A'], ['B', 'B'], ['A', 'A'], ['B', 'A'], ['B', 'B'],
+                   ['A', 'A'], ['B', 'A'], ['B', 'B'], ['A', 'A']]
+    assert np.allclose(radii, df2.radius)
+    assert all(multiplicities == df2.multiplicity)
+    for sl1, sl2 in zip(sublattices, df2.sublattices):
+        assert sl1 == sl2
+
+
+def test_repr_html_rocksalt(cluster_space_rocksalt):
+    s = cluster_space_rocksalt._repr_html_()
+    assert '<h4>Cluster Space</h4>' in s
+    assert '<tr><td style="text-align: left;">Space group</td><td>Fm-3m (225)</td></tr>' in s
+    assert '<tr><td style="text-align: left;">Total number of parameters</td><td>16</td></tr>' in s
+    assert '<td style="text-align: left;">fractional_position_tolerance</td><td>2e-06</td>' in s
 
 
 if __name__ == '__main__':

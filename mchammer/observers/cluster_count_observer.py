@@ -12,37 +12,28 @@ from mchammer.observers.base_observer import BaseObserver
 
 
 class ClusterCountObserver(BaseObserver):
-    """
-    This class represents a cluster count observer.
+    """This class represents a cluster count observer.
 
     A cluster count observer enables one to keep track of the
     occupation of clusters along the trajectory sampled by a Monte
-    Carlo (MC) simulation. For example, using this observer, several
-    canonical MC simulations could be carried out at different
-    temperatures and the temperature dependence of the number of
-    nearest neigbhors of a particular species could be accessed with
-    this observer.
+    Carlo (MC) simulation. For example, given several canonical MC
+    simulations representing different temperatures, this observer can
+    be used to access the temperature dependence of the number of
+    nearest neigbhors of a particular species.
 
     Parameters
     ----------
-    cluster_space : icet.ClusterSpace
-     cluster space to define the clusters to be counted
-    structure : ase.Atoms
-        defines the lattice that the observer will work on
-    interval : int
-        observation interval during the Monte Carlo simulation
-    orbit_indices : List[int]
-        only include orbits up to the orbit with this index
-        (default is to include all orbits)
-
-    Attributes
-    ----------
-    tag : str
-        human readable observer name
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulation, then the Ensemble object
-        will set the interval.
+    cluster_space
+        Cluster space to define the clusters to be counted.
+    structure
+        Defines the lattice that the observer will work on.
+    orbit_indices
+        Only include orbits up to the orbit with this index.
+        By default all orbits are included.
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulations, then the :class:`Ensemble` object
+        will determine the interval.
     """
 
     def __init__(self, cluster_space: ClusterSpace,

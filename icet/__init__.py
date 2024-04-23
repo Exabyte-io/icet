@@ -17,6 +17,8 @@ __email__ = 'icet@materialsmodeling.org'
 __status__ = 'Stable'
 __url__ = 'http://icet.materialsmodeling.org/'
 
-__all__ = ['ClusterSpace',
-           'ClusterExpansion',
-           'StructureContainer']
+__all__ = [
+    'ClusterSpace',
+    'ClusterExpansion',
+    'StructureContainer',
+]

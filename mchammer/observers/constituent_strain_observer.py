@@ -4,27 +4,18 @@ from ase import Atoms
 
 
 class ConstituentStrainObserver(BaseObserver):
-    """
-    This class represents a constituent strain observer.
-    It allows observation of constituent strain energy
-    separate from the energy calculated by the
-    cluster expansion.
+    """This class represents a constituent strain observer.  It allows
+    observation of constituent strain energy separate from the energy
+    calculated by the cluster expansion.
 
     Parameters
     ----------
     constituent_strain
-        ConstituentStrain object
+        :class:`ConstituentStrain` object.
     interval
-        observation interval during the Monte Carlo simulation
-
-    Attributes
-    ----------
-    tag : str
-        human readable observer name
-    interval : int
-        the observation interval. If None the ensemble object
-        will set the interval (if the observer is used in a
-        Monte Carlo simulation)
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulations, then the :class:`Ensemble` object
+        will determine the interval.
     """
 
     def __init__(self,
@@ -34,14 +25,12 @@ class ConstituentStrainObserver(BaseObserver):
         self.constituent_strain = constituent_strain
 
     def get_observable(self, structure: Atoms) -> dict:
-        """
-        Returns the constituent strain energy
-        for a given atomic configuration.
+        """Returns the constituent strain energy for a given atomic configuration.
 
         Parameters
         ----------
         structure
-            input atomic structure
+            Input atomic structure.
         """
         cs = self.constituent_strain.get_constituent_strain(structure.get_atomic_numbers())
         cs = {'constituent_strain_energy': cs * len(structure)}

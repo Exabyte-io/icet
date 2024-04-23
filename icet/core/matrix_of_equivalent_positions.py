@@ -25,12 +25,16 @@ class MatrixOfEquivalentPositions:
     This class handles a matrix of equivalent positions given the symmetry
     elements of an atomic structure.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
-    translations : np.ndarray
-        Translational symmetry elements
-    rotations: np.ndarray
-        Rotational symmetry elements
+    translations
+        Translational symmetry elements.
+    rotations
+        Rotational symmetry elements.
     """
 
     def __init__(self, translations: np.ndarray, rotations: np.ndarray):
@@ -50,8 +54,8 @@ class MatrixOfEquivalentPositions:
         Parameters
         ----------
         fractional_positions
-            Atomic positions in fractional coordinates
-            Dimensions: (number of atoms, 3 fractional coordinates)
+            Atomic positions in fractional coordinates.
+            Dimensions: (number of atoms, 3 fractional coordinates).
         """
         positions = np.dot(self.rotations, fractional_positions.transpose())
         positions = np.moveaxis(positions, 2, 0)
@@ -61,7 +65,7 @@ class MatrixOfEquivalentPositions:
 
     def get_equivalent_positions(self) -> np.ndarray:
         """
-        Returns matrix of equivalent positions. Each row corresponds
+        Returns the matrix of equivalent positions. Each row corresponds
         to a set of symmetry equivalent positions. The entry in the
         first column is commonly treated as the representative position.
         Dimensions: (number of atoms, number of symmetries, 3 fractional coordinates)
@@ -75,25 +79,25 @@ def matrix_of_equivalent_positions_from_structure(structure: Atoms,
                                                   symprec: float,
                                                   find_primitive: bool = True) \
         -> Tuple[np.ndarray, Structure, List]:
-    """Sets up a matrix of equivalent positions from an Atoms object.
+    """Sets up a matrix of equivalent positions from an :class:`Atoms <ase.Atoms>` object.
 
     Parameters
     ----------
     structure
-        input structure
+        Input structure.
     cutoff
-        cutoff radius
+        Cutoff radius.
     find_primitive
-        if True the symmetries of the primitive structure will be employed
+        If ``True`` the symmetries of the primitive structure will be employed.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
     position_tolerance
-        tolerance applied when comparing positions in Cartesian coordinates
+        Tolerance applied when comparing positions in Cartesian coordinates.
 
     Returns
     -------
-    The tuple that is returned comprises the matrix of equivalent positions,
-    the primitive structure, and the neighbor list.
+        The tuple that is returned comprises the matrix of equivalent positions,
+        the primitive structure, and the neighbor list.
     """
 
     structure = structure.copy()
@@ -141,17 +145,17 @@ def _get_lattice_site_matrix_of_equivalent_positions(
     Parameters
     ----------
     structure
-        primitive structure
+        Primitive structure.
     matrix_of_equivalent_positions
-        matrix of equivalent positions with fractional coordinates format entries
+        Matrix of equivalent positions with fractional coordinates format entries.
     fractional_position_tolerance
-        tolerance applied when evaluating distances in fractional coordinates
+        Tolerance applied when evaluating distances in fractional coordinates.
     prune
-        if True the matrix of equivalent positions will be pruned
+        If ``True`` the matrix of equivalent positions will be pruned.
 
     Returns
     -------
-    matrix of equivalent positions in row major order with entries in lattice site format
+        Matrix of equivalent positions in row major order with entries in lattice site format.
     """
     eqpos_frac = matrix_of_equivalent_positions.get_equivalent_positions()
 
@@ -188,7 +192,7 @@ def _prune_matrix_of_equivalent_positions(matrix_of_equivalent_positions: List[L
     Parameters
     ----------
     matrix_of_equivalent_positions
-        permutation matrix with LatticeSite type entries
+        Permutation matrix with :class:`LatticeSite` type entries.
     """
 
     for i in range(len(matrix_of_equivalent_positions)):
@@ -205,15 +209,14 @@ def _prune_matrix_of_equivalent_positions(matrix_of_equivalent_positions: List[L
 def _fractional_to_cartesian(fractional_coordinates: List[List[float]],
                              cell: np.ndarray) -> List[float]:
     """
-    Converts cell metrics from fractional to cartesian coordinates.
+    Converts cell metrics from fractional to Cartesian coordinates.
 
     Parameters
     ----------
     fractional_coordinates
-        list of fractional coordinates
-
+        List of fractional coordinates.
     cell
-        cell metric
+        Cell metric.
     """
     cartesian_coordinates = [np.dot(frac, cell)
                              for frac in fractional_coordinates]

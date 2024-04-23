@@ -99,6 +99,15 @@ class TestDataContainer(unittest.TestCase):
             self.dc.get_average('trajectory')
         self.assertTrue('trajectory is not scalar' in str(context.exception))
 
+    def test_repr_html(self):
+        ret = self.dc._repr_html_()
+        target = """<h4>Data Container</h4><table border="1" class="dataframe"><thead><tr><th style="text-align: left;">Field</th><th>Value</th></tr></thead><tbody><tr><td style="text-align: left;">Type</td><td>DataContainer</td></tr><tr><td style="text-align: left;">number_of_atoms</td><td>8</td></tr><tr><td style="text-align: left;">temperature</td><td>375.15</td></tr><tr>"""  # noqa
+        self.assertTrue(ret.startswith(target))
+        target = """</tr><tr><td style="text-align: left;">seed</td><td>144</td></tr>"""
+        self.assertTrue(target in ret)
+        target = """<tr><td style="text-align: left;">Number of rows in data</td><td>0</td></tr>"""
+        self.assertTrue(target in ret)
+
 
 if __name__ == '__main__':
     unittest.main()

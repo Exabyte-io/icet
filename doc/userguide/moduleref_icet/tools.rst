@@ -45,8 +45,6 @@ Generation of special structures
 
 .. automodule:: icet.tools.structure_generation
    :members:
-   :undoc-members:
-   :inherited-members:
 
 
 .. index::
@@ -58,8 +56,6 @@ Ground state finder
 
 .. autoclass:: icet.tools.ground_state_finder.GroundStateFinder
    :members:
-   :undoc-members:
-   :inherited-members:
 
 
 .. index::

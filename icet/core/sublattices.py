@@ -15,14 +15,18 @@ class Sublattice:
     sublattice. A sublattice is always supercell specific since
     it contains lattice indices.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
     chemical_symbols
-        the allowed species on this sublattice
+        The allowed species on this sublattice.
     indices
-        the lattice indices the sublattice consists of
+        The lattice indices the sublattice consists of.
     symbol
-        string used to mark the sublattice
+        String used to mark the sublattice.
     """
 
     def __init__(self,
@@ -57,18 +61,22 @@ class Sublattices:
     This class stores and provides information about the sublattices
     of a structure.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
     allowed_species
-        list of the allowed species on each site of the primitve
+        List of the allowed species on each site of the primitve
         structure. For example this can be the chemical_symbols from
-        a cluster space
+        a cluster space.
     primitive_structure
-        the primitive structure the allowed species reference to
+        The primitive structure the allowed species reference to.
     structure
-        the structure that the sublattices will be based on
+        The structure that the sublattices will be based on.
     fractional_position_tolerance
-        tolerance applied when comparing positions in fractional coordinates
+        Tolerance applied when comparing positions in fractional coordinates.
     """
 
     def __init__(self,
@@ -131,14 +139,13 @@ class Sublattices:
         Parameters
         ----------
         index
-            index of site in the structure
+            Index of site in the structure.
         """
         return self._index_to_sublattice[index]
 
     @property
     def allowed_species(self) -> List[List[str]]:
-        """Lists of the allowed species on each sublattice, in order.
-        """
+        """Lists of the allowed species on each sublattice in order. """
         return deepcopy(self._allowed_species)
 
     def get_sublattice_sites(self, index: int) -> List[int]:
@@ -148,7 +155,7 @@ class Sublattices:
         Parameters
         ----------
         index
-            index of the sublattice
+            Index of the sublattice.
         """
         return self[index].indices
 
@@ -158,7 +165,7 @@ class Sublattices:
         Parameters
         -----------
         index
-            lattice site index
+            Lattice site index.
         """
         return self[self._index_to_sublattice[index]].chemical_symbols
 
@@ -168,7 +175,7 @@ class Sublattices:
         Parameters
         -----------
         index
-            lattice site index
+            Lattice site index.
         """
         return self[self._index_to_sublattice[index]].atomic_numbers
 
@@ -183,7 +190,7 @@ class Sublattices:
         return [sl for sl in self if len(sl.chemical_symbols) == 1]
 
     def assert_occupation_is_allowed(self, chemical_symbols: List[str]):
-        """Asserts that the current occupation obeys the sublattices."""
+        """ Asserts that the current occupation obeys the sublattices. """
         if len(chemical_symbols) != len(self._structure):
             raise ValueError(f'Length of input chemical symbols ({len(chemical_symbols)}) does not'
                              f' match length of supercell ({len(self._structure)}')

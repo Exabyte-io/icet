@@ -15,23 +15,21 @@ class TargetClusterVectorAnnealing:
     towards a target cluster vector. Because it is impossible
     to know *a priori* which supercell shape accomodates the best
     match, this ensemble allows the annealing to be done for multiple
-    :class:`ase.Atoms` objects at the same time.
+    :class:`Atoms <ase.Atoms>` objects at the same time.
 
     Parameters
     ----------
     structure
-        atomic configurations to be used in the Monte Carlo simulation;
-        also defines the initial occupation vectors
+        Atomic configurations to be used in the Monte Carlo simulation;
+        also defines the initial occupation vectors.
     calculators
-        calculators corresponding to each :class:`Atoms <ase.Atoms>`
-        object
+        Calculators corresponding to each :class:`Atoms <ase.Atoms>` object.
     T_start
-        artificial temperature at which annealing is started
-    T_stop : float
-        artificial temperature at which annealing is stopped
-    random_seed : int
-        seed for random number generator used in the Monte Carlo
-        simulation
+        Artificial temperature at which annealing is started.
+    T_stop
+        Artificial temperature at which annealing is stopped.
+    random_seed
+        Seed for random number generator used in the Monte Carlo simulation.
     """
 
     def __init__(self, structure: List[Atoms],
@@ -82,13 +80,13 @@ class TargetClusterVectorAnnealing:
 
     def generate_structure(self, number_of_trial_steps: int = None) -> Atoms:
         """
-        Run a structure annealing simulation.
+        Runs a structure annealing simulation.
 
         Parameters
         ----------
         number_of_trial_steps
-            Total number of trial steps to perform. If None,
-            run (on average) 3000 steps per supercell
+            Total number of trial steps to perform. If ``None``
+            run (on average) 3000 steps per supercell.
         """
         if number_of_trial_steps is None:
             self._n_steps = 3000 * len(self._sub_ensembles)
@@ -152,8 +150,7 @@ class TargetClusterVectorAnnealing:
         Parameters
         ----------
         potential_diff
-            change in the thermodynamic potential associated
-            with the trial step
+            Change in the thermodynamic potential associated with the trial step.
         """
         if potential_diff < 0:
             return True
@@ -170,40 +167,40 @@ class TargetClusterVectorAnnealing:
 
     @property
     def T_start(self) -> float:
-        """ Starting temperature """
+        """ Starting temperature. """
         return self._T_start
 
     @property
     def T_stop(self) -> float:
-        """ Stop temperature """
+        """ Stop temperature. """
         return self._T_stop
 
     @property
     def n_steps(self) -> int:
-        """ Number of steps to carry out """
+        """ Number of steps to carry out. """
         return self._n_steps
 
     @property
     def total_trials(self) -> int:
-        """ Number of steps carried out so far """
+        """ Number of steps carried out so far. """
         return self._total_trials
 
     @property
     def accepted_trials(self) -> int:
-        """ Number of accepted trials carried out so far """
+        """ Number of accepted trials carried out so far. """
         return self._accepted_trials
 
     @property
     def current_score(self) -> float:
-        """ Current target vector score """
+        """ Current target vector score. """
         return self._current_score
 
     @property
     def best_score(self) -> float:
-        """ Best target vector score found so far """
+        """ Best target vector score found so far. """
         return self._best_score
 
     @property
     def best_structure(self) -> float:
-        """ Structure most closely matching target vector so far """
+        """ Structure most closely matching target vector so far. """
         return self._best_structure

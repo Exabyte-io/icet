@@ -132,28 +132,28 @@ class TestTVCalculatorBinaryHCP(unittest.TestCase):
 
     def test_compare_cluster_vectors(self):
         """Test compare_cluster_vector function."""
-        orbit_data = self.cs.orbit_data
+        as_list = self.cs.as_list
         cv_1 = np.array(range(0, len(self.cs)))
         cv_2 = cv_1
         optimality_weight = 3.0
-        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+        score = compare_cluster_vectors(cv_1, cv_2, as_list,
                                         optimality_weight=optimality_weight)
         self.assertAlmostEqual(score, - 2.0 * optimality_weight)
 
-        orbit_data = self.cs.orbit_data
+        as_list = self.cs.as_list
         cv_1 = np.array(range(0, len(self.cs)))
         cv_2 = cv_1
         optimality_weight = None
-        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+        score = compare_cluster_vectors(cv_1, cv_2, as_list,
                                         weights=np.linspace(3, 5, len(cv_1)),
                                         optimality_weight=optimality_weight)
         self.assertAlmostEqual(score, 0)
 
-        orbit_data = self.cs.orbit_data
+        as_list = self.cs.as_list
         cv_1 = np.array(range(0, len(self.cs)))
         cv_2 = cv_1 + 1.0
         optimality_weight = 2.5
-        score = compare_cluster_vectors(cv_1, cv_2, orbit_data,
+        score = compare_cluster_vectors(cv_1, cv_2, as_list,
                                         optimality_weight=optimality_weight)
         self.assertAlmostEqual(score, len(self.cs))
 

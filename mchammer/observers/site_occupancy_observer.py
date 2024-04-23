@@ -15,34 +15,23 @@ class SiteOccupancyObserver(BaseObserver):
 
     Parameters
     ----------
-    cluster_space : icet.ClusterSpace
-        cluster space from which the allowed species are extracted
-
-    structure : ase.Atoms
-        supercell consistent with primitive structure in cluster space; used
-        to determine which species are allowed on each site
-
-    sites : dict(str, list(int))
-        dictionary containing lists of sites that are to be considered;
-        the keys will be taken as the names of the sites; the indices refer
-        to the primitive structure associated with the cluster space
-
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulation, then the Ensemble object
-        will set the interval.
-
-    Attributes
-    ----------
-    tag : str
-        name of observer
-
-    interval : int
-        observation interval
+    cluster_space
+        Cluster space from which the allowed species are extracted.
+    structure
+        Supercell consistent with primitive structure in :attr:`cluster_space`.
+        Used to determine which species are allowed on each site.
+    sites
+        Dictionary containing lists of sites that are to be considered.
+        The keys will be taken as the names of the sites; the indices refer
+        to the primitive structure associated with the cluster space.
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulation, then the
+        :class:`Ensemble` object will determine the interval.
 
     Example
     -------
-    The following snippet illustrate how to use the site occupancy factor (SOF)
+    The following snippet illustrates how to use the site occupancy factor (SOF)
     observer in a Monte Carlo simulation of a surface slab. Here, the SOF
     observer is used to monitor the concentrations of different species at the
     surface, the first subsurface layer, and the remaining 'bulk'. A minimal
@@ -99,8 +88,7 @@ class SiteOccupancyObserver(BaseObserver):
                  structure: Atoms,
                  sites: Dict[str, List[int]],
                  interval: int = None) -> None:
-        super().__init__(interval=interval, return_type=dict,
-                         tag='SiteOccupancyObserver')
+        super().__init__(interval=interval, return_type=dict, tag='SiteOccupancyObserver')
 
         self._sites = {site: sorted(indices)
                        for site, indices in sites.items()}
@@ -116,10 +104,10 @@ class SiteOccupancyObserver(BaseObserver):
         Parameters
         ----------
         cluster_space
-            Cluster space implicitly defining allowed species
+            Cluster space implicitly defining allowed species.
         structure
             Specific supercell (consistent with cluster_space) whose
-            allowed species are to be determined
+            allowed species are to be determined.
         """
 
         primitive_structure = Structure.from_atoms(cluster_space.primitive_structure)
@@ -161,7 +149,7 @@ class SiteOccupancyObserver(BaseObserver):
         Parameters
         ----------
         structure
-            input atomic structure.
+            Input atomic structure.
         """
 
         chemical_symbols = np.array(structure.get_chemical_symbols())

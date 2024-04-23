@@ -24,8 +24,8 @@ def generate_target_structure_from_supercells(cluster_space: ClusterSpace,
                                               random_start: bool = True,
                                               tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space`` and a ``target_cluster_vector`` and one
-    or more ``supercells``, generate a structure that as closely as
+    Given a :attr:`cluster_space` and a :attr:`target_cluster_vector` and one
+    or more :attr:`supercells`, generate a structure that as closely as
     possible matches that cluster vector.
 
     Internally the function uses a simulated annealing algorithm and the
@@ -37,39 +37,39 @@ def generate_target_structure_from_supercells(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        a cluster space defining the lattice to be occupied
+        A cluster space defining the lattice to be occupied.
     supercells
-        list of one or more supercells among which an optimal
-        structure will be searched for
+        List of one or more supercells among which an optimal
+        structure will be searched for.
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     target_cluster_vector
-        cluster vector that the generated structure should match as
-        closely as possible
+        Cluster vector that the generated structure should match as
+        closely as possible.
     T_start
-        artificial temperature at which the simulated annealing starts
+        Artificial temperature at which the simulated annealing starts.
     T_stop
-        artifical temperature at which the simulated annealing stops
+        Artifical temperature at which the simulated annealing stops.
     n_steps
-        total number of Monte Carlo steps in the simulation
+        Total number of Monte Carlo steps in the simulation.
     optimality_weight
-        controls weighting :math:`L` of perfect correlations, see
-        :class:`mchammer.calculators.TargetVectorCalculator`
+        Controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`.
     random_seed
-        seed for the random number generator used in the Monte Carlo simulation
+        Seed for the random number generator used in the Monte Carlo simulation
         and used for initializing the occupation of the supercells if
-        random_start is True
+        random_start is ``True``.
     random_start
-        randomly occupy starting structure, can be disabled
-        if the user prefers to pass an initial structure
+        Randomly occupy starting structure, can be disabled
+        if the user prefers to pass an initial structure.
     tol
-        Numerical tolerance
+        Numerical tolerance.
     """
     target_concentrations = _validate_concentrations(target_concentrations, cluster_space)
 
@@ -122,7 +122,7 @@ def generate_target_structure(cluster_space: ClusterSpace,
                               random_seed: int = None,
                               tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space`` and a ``target_cluster_vector``, generate
+    Given a :attr:`cluster_space` and a :attr:`target_cluster_vector`, generate
     a structure that as closely as possible matches that cluster vector.
     The search is performed among all inequivalent supercells shapes up
     to a certain size.
@@ -136,43 +136,42 @@ def generate_target_structure(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        a cluster space defining the lattice to be occupied
+        Cluster space defining the lattice to be occupied.
     max_size
-        maximum supercell size
+        Maximum supercell size.
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     target_cluster_vector
-        cluster vector that the generated structure should match as
-        closely as possible
+        Cluster vector that the generated structure should match as
+        closely as possible.
     include_smaller_cells
-        if True, search among all supercell sizes including
-        ``max_size``, else search only among those exactly matching
-        ``max_size``
+        If ``True``, search among all supercell sizes including
+        :attr:`max_size`, else search only among those exactly matching
+        :attr:`max_size`
     pbc
         Periodic boundary conditions for each direction, e.g.,
         ``(True, True, False)``. The axes are defined by
-        the cell of ``cluster_space.primitive_structure``.
+        the cell of :attr:`cluster_space.primitive_structure``.
         Default is periodic boundary in all directions.
     T_start
-        artificial temperature at which the simulated annealing starts
+        Artificial temperature at which the simulated annealing starts.
     T_stop
-        artifical temperature at which the simulated annealing stops
+        Artifical temperature at which the simulated annealing stops.
     n_steps
-        total number of Monte Carlo steps in the simulation
+        Total number of Monte Carlo steps in the simulation.
     optimality_weight
-        controls weighting :math:`L` of perfect correlations, see
-        :class:`mchammer.calculators.TargetVectorCalculator`
+        Controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`.
     random_seed
-        seed for the random number generator used in the
-        Monte Carlo simulation
+        Seed for the random number generator used in the Monte Carlo simulation.
     tol
-        Numerical tolerance
+        Numerical tolerance.
     """
     target_concentrations = _validate_concentrations(target_concentrations, cluster_space)
 
@@ -229,14 +228,14 @@ def generate_sqs_from_supercells(cluster_space: ClusterSpace,
                                  random_start: bool = True,
                                  tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space`` and one or more ``supercells``, generate
+    Given a :attr:`cluster_space`` and one or more :attr:`supercells`, generate
     a special quasirandom structure (SQS), i.e., a structure that for
     the provided supercells size provides the best possible
     approximation to a random alloy [ZunWeiFer90]_.
 
     In the present case, this means that the generated structure will
     have a cluster vector that as closely as possible matches the
-    cluster vector of an infintely large randomly occupated supercell.
+    cluster vector of an infintely large randomly occupied supercell.
     Internally the function uses a simulated annealing algorithm and the
     difference between two cluster vectors is calculated with the
     measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
@@ -246,36 +245,36 @@ def generate_sqs_from_supercells(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        a cluster space defining the lattice to be occupated
+        Cluster space defining the lattice to be occupied.
     supercells
-        list of one or more supercells among which an optimal
-        structure will be searched for
+        List of one or more supercells among which an optimal
+        structure will be searched for.
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     T_start
-        artificial temperature at which the simulated annealing starts
+        Artificial temperature at which the simulated annealing starts.
     T_stop
-        artifical temperature at which the simulated annealing stops
+        Artifical temperature at which the simulated annealing stops.
     n_steps
-        total number of Monte Carlo steps in the simulation
+        Total number of Monte Carlo steps in the simulation.
     optimality_weight
-        controls weighting :math:`L` of perfect correlations, see
-        :class:`mchammer.calculators.TargetVectorCalculator`
+        Controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`.
     random_seed
-        seed for the random number generator used in the Monte Carlo simulation
+        Seed for the random number generator used in the Monte Carlo simulation
         and used for initializing the occupation of the supercells if
-        random_start is True
+        random_start is ``True``.
     random_start
-        randomly occupy starting structure, can be disabled
-        if the user prefers to pass an initial structure
+        Randomly occupy starting structure, can be disabled
+        if the user prefers to pass an initial structure.
     tol
-        Numerical tolerance
+        Numerical tolerance.
     """
 
     sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
@@ -304,13 +303,13 @@ def generate_sqs(cluster_space: ClusterSpace,
                  random_seed: int = None,
                  tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space``, generate a special quasirandom structure
+    Given a :attr:`cluster_space`, generate a special quasirandom structure
     (SQS), i.e., a structure that for a given supercell size provides
     the best possible approximation to a random alloy [ZunWeiFer90]_.
 
     In the present case, this means that the generated structure will
     have a cluster vector that as closely as possible matches the
-    cluster vector of an infintely large randomly occupated supercell.
+    cluster vector of an infintely large randomly occupied supercell.
     Internally the function uses a simulated annealing algorithm and the
     difference between two cluster vectors is calculated with the
     measure suggested by A. van de Walle et al. in Calphad **42**, 13-18
@@ -320,40 +319,40 @@ def generate_sqs(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        a cluster space defining the lattice to be occupated
+        Cluster space defining the lattice to be occupied.
     max_size
-        maximum supercell size
+        Maximum supercell size.
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     include_smaller_cells
-        if True, search among all supercell sizes including
-        ``max_size``, else search only among those exactly matching
-        ``max_size``
+        If ``True``, search among all supercell sizes including
+        :attr:`max_size`, else search only among those exactly matching
+        :attr:`max_size`
     pbc
         Periodic boundary conditions for each direction, e.g.,
         ``(True, True, False)``. The axes are defined by
         the cell of ``cluster_space.primitive_structure``.
         Default is periodic boundary in all directions.
     T_start
-        artificial temperature at which the simulated annealing starts
+        Artificial temperature at which the simulated annealing starts.
     T_stop
-        artifical temperature at which the simulated annealing stops
+        Artifical temperature at which the simulated annealing stops.
     n_steps
-        total number of Monte Carlo steps in the simulation
+        Total number of Monte Carlo steps in the simulation.
     optimality_weight
-        controls weighting :math:`L` of perfect correlations, see
-        :class:`mchammer.calculators.TargetVectorCalculator`
+        Controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`.
     random_seed
-        seed for the random number generator used in the
-        Monte Carlo simulation
+        Seed for the random number generator used in the
+        Monte Carlo simulation.
     tol
-        Numerical tolerance
+        Numerical tolerance.
     """
 
     sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
@@ -379,7 +378,7 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace,
                                 optimality_weight: float = 1.0,
                                 tol: float = 1e-5) -> Atoms:
     """
-    Given a ``cluster_space``, generate a special quasirandom structure
+    Given a :attr:`cluster_space`, generate a special quasirandom structure
     (SQS), i.e., a structure that for a given supercell size provides
     the best possible approximation to a random alloy [ZunWeiFer90]_.
 
@@ -399,31 +398,31 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        a cluster space defining the lattice to be occupied
+        Cluster space defining the lattice to be occupied.
     max_size
-        maximum supercell size
+        Maximum supercell size.
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     include_smaller_cells
-        if True, search among all supercell sizes including
-        ``max_size``, else search only among those exactly matching
-        ``max_size``
+        if ``True`` search among all supercell sizes including
+        :attr:`max_size`, else search only among those exactly matching
+        :attr:`max_size`.
     pbc
         Periodic boundary conditions for each direction, e.g.,
         ``(True, True, False)``. The axes are defined by
         the cell of ``cluster_space.primitive_structure``.
         Default is periodic boundary in all directions.
     optimality_weight
-        controls weighting :math:`L` of perfect correlations, see
-        :class:`mchammer.calculators.TargetVectorCalculator`
+        Controls weighting :math:`L` of perfect correlations, see
+        :class:`mchammer.calculators.TargetVectorCalculator`.
     tol
-        Numerical tolerance
+        Numerical tolerance.
     """
     target_concentrations = _validate_concentrations(target_concentrations, cluster_space)
     sqs_vector = _get_sqs_cluster_vector(cluster_space=cluster_space,
@@ -450,7 +449,7 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace,
     c_sum = sum(c[0] for c in cr.values())
     assert abs(c_sum - 1) < tol  # Should never happen, but...
 
-    orbit_data = cluster_space.orbit_data
+    as_list = cluster_space.as_list
     best_score = 1e9
 
     if include_smaller_cells:
@@ -471,7 +470,7 @@ def generate_sqs_by_enumeration(cluster_space: ClusterSpace,
                                           concentration_restrictions=cr):
         cv = cluster_space.get_cluster_vector(structure)
         score = compare_cluster_vectors(cv_1=cv, cv_2=sqs_vector,
-                                        orbit_data=orbit_data,
+                                        as_list=as_list,
                                         optimality_weight=optimality_weight,
                                         tol=tol)
 
@@ -486,24 +485,24 @@ def occupy_structure_randomly(structure: Atoms, cluster_space: ClusterSpace,
                               random_seed: int = None) -> None:
     """
     Occupy a structure with quasirandom order but fulfilling
-    ``target_concentrations``.
+    :attr:`target_concentrations`.
 
     Parameters
     ----------
     structure
-        ASE Atoms object that will be occupied randomly
+        ASE Atoms object that will be occupied randomly.
     cluster_space
-        cluster space (needed as it carries information about sublattices)
+        Cluster space (needed as it carries information about sublattices).
     target_concentrations
-        concentration of each species in the target structure, per
+        Concentration of each species in the target structure, per
         sublattice (for example ``{'Au': 0.5, 'Pd': 0.5}`` for a
         single sublattice Au-Pd structure, or
         ``{'A': {'Au': 0.5, 'Pd': 0.5}, 'B': {'H': 0.25, 'X': 0.75}}``
         for a system with two sublattices.
         The symbols defining sublattices ('A', 'B' etc) can be
-        found by printing the `cluster_space`
+        found by printing the :attr:`cluster_space`.
     random_seed
-        seed for the random number generator)
+        Seed for the random number generator.
     """
     rng = np.random.default_rng(random_seed)
     target_concentrations = _validate_concentrations(cluster_space=cluster_space,
@@ -550,17 +549,16 @@ def _validate_concentrations(concentrations: dict,
     Parameters
     ----------
     concentrations
-        concentration specification
+        Concentration specification.
     cluster_space
-        cluster space to check against
+        Cluster space to check against.
     tol
-        Numerical tolerance
+        Numerical tolerance.
 
     Returns
     -------
-    target concentrations
         An adapted version of concentrations, which is always a dictionary
-        even if there is only one sublattice
+        even if there is only one sublattice.
     """
     sls = cluster_space.get_sublattices(cluster_space.primitive_structure)
 
@@ -598,18 +596,18 @@ def _concentrations_fit_structure(structure: Atoms,
                                   tol: float = 1e-5) -> bool:
     """
     Check if specified concentrations are commensurate with a
-    certain supercell (including sublattices)
+    certain supercell (including sublattices).
 
     Parameters
     ----------
     structure
-        atomic configuration to be checked
+        Atomic configuration to be checked.
     cluster_space
-        corresponding cluster space
+        Corresponding cluster space.
     concentrations
-        which concentrations, per sublattice, e.g., ``{'A': {'Ag': 0.3, 'Au': 0.7}}``
+        Which concentrations, per sublattice, e.g., ``{'A': {'Ag': 0.3, 'Au': 0.7}}``.
     tol
-        numerical tolerance
+        Numerical tolerance.
     """
     # Check that concentrations are OK in each sublattice
     for sublattice in cluster_space.get_sublattices(structure):
@@ -632,10 +630,10 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
     Parameters
     ----------
     cluster_space
-        the kind of lattice to be occupied
+        The kind of lattice to be occupied.
     target_concentrations
-        concentration of each species in the target structure,
-        per sublattice (for example `{'A': {'Ag': 0.5, 'Pd': 0.5}}`)
+        Concentration of each species in the target structure,
+        per sublattice (for example `{'A': {'Ag': 0.5, 'Pd': 0.5}}`).
     """
     target_concentrations = _validate_concentrations(concentrations=target_concentrations,
                                                      cluster_space=cluster_space)
@@ -670,13 +668,13 @@ def _get_sqs_cluster_vector(cluster_space: ClusterSpace,
 
     # For every orbit, calculate average cluster function
     cv = [1.0]
-    for orbit in cluster_space.orbit_data:
+    for orbit in cluster_space.as_list:
         if orbit['order'] < 1:
             continue
 
         # What sublattices are there in this orbit?
         sublattices = [all_sublattices[sublattice_to_index[letter]]
-                       for letter in orbit['sublattices'].split('-')]
+                       for letter in orbit['sublattices']]
 
         # What chemical symbols do these sublattices refer to?
         symbol_groups = [sublattice.chemical_symbols for sublattice in sublattices]

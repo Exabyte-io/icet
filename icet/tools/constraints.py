@@ -1,15 +1,15 @@
+import itertools
 import numpy as np
 from scipy.linalg import null_space
-import itertools
 
 
 class Constraints:
-    """ Class for handling linear constraints with right hand side equal to zero.
+    """ Class for handling linear constraints with right-hand-side equal to zero.
 
     Parameters
     ----------
     n_params
-        number of parameters in model
+        Number of parameters in model.
 
     Example
     -------
@@ -45,28 +45,28 @@ class Constraints:
         self.constraint_vectors = np.eye(n_params)
 
     def transform(self, A: np.ndarray) -> np.ndarray:
-        """ Transform array to constrained parameter space
+        """ Transform array to constrained parameter space.
 
         Parameters
         ----------
         A
-            array to be transformed
+            Array to be transformed.
          """
         return A.dot(self.constraint_vectors)
 
     def inverse_transform(self, A: np.ndarray) -> np.ndarray:
         """ Inverse transform array from constrained parameter space
-        to unconstrained space
+        to unconstrained space.
 
         Parameters
         ----------
         A
-            array to be inversed transformed
+            Array to be inverse transformed.
         """
         return self.constraint_vectors.dot(A)
 
     def add_constraint(self, M: np.ndarray) -> None:
-        """ Add a constraint matrix and resolve for the constraint space
+        """ Add a constraint matrix and resolve for the constraint space.
 
         Parameters
         ----------
@@ -81,15 +81,15 @@ class Constraints:
 
 def get_mixing_energy_constraints(cluster_space) -> Constraints:
     """
-    A cluster expansion of *mixing energy* should ideally predict zero energy
-    for concentration 0 and 1. This function constructs a :class:`Constraints`
-    object that enforces that condition during fitting.
+    A cluster expansion of the *mixing energy* should ideally predict zero energy
+    for concentrations 0 and 1. This function constructs a :class:`Constraints`
+    object that enforces that condition during training.
 
     Parameters
     ----------
-    cluster_space : ClusterSpace
+    cluster_space
         Cluster space corresponding to cluster expansion for which constraints
-        should be imposed
+        should be imposed.
 
     Example
     -------
