@@ -255,29 +255,29 @@ PYBIND11_MODULE(_icet, m)
         Parameters
         ----------
         structure : Structure
-            Atomic structure from which this orbit is derived
+            Structure from which this orbit is derived.
         clusters : List[List[LatticeSite]]
-            A list of groups of sites, where each group is a cluster
+            A list of groups of sites, where each group is a cluster.
         allowed_permutations : List[List[int]]
-            A list of the permutations allowed for this orbit
-            (for example, if [0, 2, 1] is in this list, the
-            multi-component vector [0, 1, 0] is the same as
-            [0, 0, 1])
+            A list of the permutations allowed for this orbit.
+            For example, if ``[0, 2, 1]`` is in this list, the
+            multi-component vector ``[0, 1, 0]`` is the same as
+            ``[0, 0, 1]``.
         )pbdoc")
         .def(py::init<const std::vector<Cluster>,
                       const std::set<std::vector<int>>>())
         .def_property_readonly(
             "representative_cluster",
             &Orbit::representativeCluster,
-            "cluster to which all other symmetry equivalent clusters can be related")
+            "Cluster to which all other symmetry equivalent clusters can be related.")
         .def_property_readonly(
             "order",
             &Orbit::order,
-            "number of sites in the representative cluster")
+            "Number of sites in the representative cluster.")
         .def_property_readonly(
             "radius",
             &Orbit::radius,
-            "radius of the representative cluster")
+            "Radius of the representative cluster.")
         .def_property_readonly(
             "allowed_permutations",
             [](const Orbit &orbit)
@@ -288,17 +288,17 @@ PYBIND11_MODULE(_icet, m)
                 return retPermutations;
             },
             R"pbdoc(
-             Gets the list of equivalent permutations for this orbit. If this
-             orbit is a triplet and the permutation [0, 2, 1] exists this means
-             that the lattice sites [s1, s2, s3] are equivalent to [s1, s3,
-             s2] This will have the effect that for a ternary CE the
-             multi-component vector (0, 1, 0) will not be considered separately
-             since it is equivalent to (0, 0, 1).
+             List of equivalent permutations for this orbit. If this
+             orbit is a triplet and the permutation ``[0, 2, 1]`` exists this means
+             that the lattice sites ``[s1, s2, s3]`` are equivalent to ``[s1, s3,
+             s2]``. This will have the effect that for a ternary cluster expansion the
+             multi-component vector ``(0, 1, 0)`` will not be considered separately
+             since it is equivalent to ``(0, 0, 1)``.
              )pbdoc")
         .def_property_readonly(
             "clusters",
             &Orbit::clusters,
-            "list of the clusters in this orbit")
+            "List of the clusters in this orbit.")
         .def_property_readonly(
             "cluster_vector_elements",
             [](const Orbit &orbit)
@@ -344,10 +344,10 @@ PYBIND11_MODULE(_icet, m)
              Parameters
              ----------
              structure : Structure
-                Structure to count clusters for
+                Input structure.
              site_index_for_double_counting_correction : int
-                Avoid double counting clusters containing this index
-                (default -1, no such correction)
+                Avoid double counting clusters containing this index.
+                Default: -1, i.e., no such correction.
              )pbdoc",
             py::arg("structure"),
             py::arg("site_index_for_double_counting_correction") = -1)
@@ -360,9 +360,9 @@ PYBIND11_MODULE(_icet, m)
              Parameters
              ----------
              offset : List[int]
-                offset in multiples of the cell vectors of
+                Offset in multiples of the cell vectors of
                 the structure used to define the clusters in this orbit
-                (typically the primitive structure)
+                (typically the primitive structure).
              )pbdoc")
         .def("__len__", &Orbit::size)
         .def("__str__",
@@ -521,7 +521,7 @@ PYBIND11_MODULE(_icet, m)
              Parameters
              ----------
              offset : list(int)
-                 Offset in terms of primitive cell vectors
+                 Offset in terms of primitive cell vectors.
              self_contained : bool
                  If this orbit list will be used on its own to calculate local cluster vectors or
                  differences in cluster vector, this parameter needs to be true (if false, not all
@@ -570,9 +570,9 @@ PYBIND11_MODULE(_icet, m)
              Parameters
              ----------
              structure : _icet.Structure
-                 atomic configuration
+                 Atomic configuration.
              fractional_position_tolerance : float
-                 tolerance applied when comparing positions in fractional coordinates
+                 Tolerance applied when comparing positions in fractional coordinates.
              )pbdoc",
             py::arg("structure"),
             py::arg("fractional_position_tolerance"))
@@ -588,9 +588,9 @@ PYBIND11_MODULE(_icet, m)
              Parameters
              ----------
              index1 : int
-                 index of the first orbit in the orbit list of the cluster space
+                 Index of the first orbit in the orbit list of the cluster space.
              index2 : int
-                 index of the second orbit in the orbit list of the cluster space
+                 Index of the second orbit in the orbit list of the cluster space.
              )pbdoc",
             py::arg("index1"),
             py::arg("index2"))

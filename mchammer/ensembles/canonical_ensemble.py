@@ -10,7 +10,7 @@ from .thermodynamic_base_ensemble import ThermodynamicBaseEnsemble
 
 
 class CanonicalEnsemble(ThermodynamicBaseEnsemble):
-    """Instances of this class allow one to simulate systems in the
+    r"""Instances of this class allow one to simulate systems in the
     canonical ensemble (:math:`N_iVT`), i.e. at constant temperature
     (:math:`T`), number of atoms of each species (:math:`N_i`), and
     volume (:math:`V`).
@@ -20,7 +20,7 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
 
     .. math::
 
-        \\rho_{\\text{C}} \\propto \\exp [ - E / k_B T ].
+        \rho_{\text{C}} \propto \exp [ - E / k_B T ].
 
     Since the concentrations or equivalently the number of atoms of each
     species is held fixed in the canonical ensemble, a trial step must
@@ -30,9 +30,9 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
 
     .. math::
 
-        P = \\min \\{ 1, \\, \\exp [ - \\Delta E / k_B T  ] \\},
+        P = \min \{ 1, \, \exp [ - \Delta E / k_B T  ] \},
 
-    where :math:`\\Delta E` is the change in potential energy caused by the
+    where :math:`\Delta E` is the change in potential energy caused by the
     swap.
 
     The canonical ensemble provides an ideal framework for studying the
@@ -41,7 +41,7 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
     temperature can conveniently be studied by simulating at that temperature.
     The canonical ensemble is also a convenient tool for "optimizing" a
     system, i.e., finding its lowest energy chemical ordering. In practice,
-    this is usually achieved by simulated annealing, i.e. the system is
+    this is usually achieved by simulated annealing, i.e., the system is
     equilibrated at a high temperature, after which the temperature is
     continuously lowered until the acceptance probability is almost zero. In a
     well-behaved system, the chemical ordering at that point corresponds to a
@@ -50,44 +50,45 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    temperature : float
-        temperature :math:`T` in appropriate units [commonly Kelvin]
-    boltzmann_constant : float
+    structure
+        Stomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    temperature
+        Temperature :math:`T` in appropriate units, commonly Kelvin.
+    boltzmann_constant
         Boltzmann constant :math:`k_B` in appropriate
-        units, i.e. units that are consistent
+        units, i.e., units that are consistent
         with the underlying cluster expansion
-        and the temperature units [default: eV/K]
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the ensemble
-        will be written to; if the file exists it will be read, the
+        and the temperature units. Default: eV/K.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the ensemble
+        will be written to. If the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        updated/overwritten.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
-        the data [default: 600 s]
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+        the data. Default: 600 s.
+    ensemble_data_write_interval
+        Interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the atomic
+        (i.e., usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the atomic
         configuration is written to the data container.
-    sublattice_probabilities : List[float]
-        probability for picking a sublattice when doing a random swap.
+        Default: Number of sites in the :attr:`structure`.
+    sublattice_probabilities
+        Probability for picking a sublattice when doing a random swap.
         This should be as long as the number of sublattices and should
         sum up to 1.
 
@@ -169,7 +170,7 @@ class CanonicalEnsemble(ThermodynamicBaseEnsemble):
 
     @property
     def temperature(self) -> float:
-        """ Current temperature """
+        """ Current temperature. """
         return self._ensemble_parameters['temperature']
 
     def _do_trial_step(self):

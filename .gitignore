@@ -3,6 +3,8 @@ doc/_build/
 doc/userguide/build*
 __pycache__/
 .ipynb_checkpoints
+public*
+Untitled*
 
 # pypi/setup.py installation related
 *.egg-info
@@ -25,6 +27,8 @@ htmlcov
 *.pyc
 *.swp
 *.DS_Store
+.#*
+#.*
 
 *.dc
 *.ce

@@ -21,7 +21,6 @@ the structure_container.py file
 """
 
 import os
-import sys
 import tempfile
 import unittest
 import numpy as np
@@ -227,13 +226,49 @@ index | user_tag    | n_atoms | chemical formula | Au atoms | energy    | volume
         self.assertEqual(strip_surrounding_spaces(target),
                          strip_surrounding_spaces(retval))
 
-    def test_print_overview(self):
-        """Tests print_overview functionality."""
-        with StringIO() as capturedOutput:
-            sys.stdout = capturedOutput  # redirect stdout
-            self.sc.print_overview()
-            sys.stdout = sys.__stdout__  # reset redirect
-            self.assertTrue('Structure Container' in capturedOutput.getvalue())
+    def test_repr_html(self):
+        """Tests _repr_html_ method."""
+        retval = self.sc._repr_html_()
+        target = """
+<h4>Structure Container</h4><p>Total number of structures: 4</p><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>user_tag</th>
+      <th>natoms</th>
+      <th>formula</th>
+      <th>energy</th>
+      <th>volume</th>
+      <th>Au atoms</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Structure 0</td>
+      <td>8</td>
+      <td>Ag8</td>
+      <td>0.012675</td>
+      <td>136.835858</td>
+      <td>0</td>
+    </tr>
+"""  # noqa
+        self.assertTrue(strip_surrounding_spaces(retval).startswith(
+            strip_surrounding_spaces(target)))
 
     def test_cluster_space(self):
         """Tests cluster space functionality."""
@@ -333,6 +368,69 @@ class TestFitStructure(unittest.TestCase):
         """Tests properties attribute."""
         properties = self.fit_structure.properties
         self.assertTrue(isinstance(properties, dict))
+
+    def test_str(self):
+        """Tests __str__ method."""
+        retval = self.fit_structure.__str__()
+        target = """
+================= Fit Structure ==================
+ user tag               : struct1
+ energy                 : 0.0126746
+ cell metric            : [0.   4.09 4.09]
+                        : [4.09 0.   4.09]
+                        : [4.09 4.09 0.  ]
+ sites                  : 0 Ag [0. 0. 0.]
+                        : 1 Ag [2.045 2.045 0.   ]
+                        : 2 Ag [2.045 0.    2.045]
+                        : 3 Ag [4.09  2.045 2.045]
+                        : 4 Ag [0.    2.045 2.045]
+                        : 5 Ag [2.045 4.09  2.045]
+                        : 6 Ag [2.045 2.045 4.09 ]
+                        : 7 Ag [4.09 4.09 4.09]
+==================================================
+"""  # noqa
+        self.assertEqual(strip_surrounding_spaces(target),
+                         strip_surrounding_spaces(retval))
+
+    def test_repr_html(self):
+        """Tests _repr_html_ method."""
+        retval = self.fit_structure._repr_html_()
+        target = """
+<h4>FitStructure</h4><table border="1" class="dataframe"><thead><tr><th style="text-align: left;">Property</th><th>Value</th></tr></thead><tbody><tr><td style="text-align: left;">user tag</td><td>struct1</td></tr><tr><td style="text-align: left;">energy</td><td>0.0126746</td></tr></tbody></table><table border="1" class="dataframe"><thead><tr><th style="text-align: left;">Cell</th></tr></thead><tbody><tr><td>0.0</td><td>4.09</td><td>4.09</td></tr><tr><td>4.09</td><td>0.0</td><td>4.09</td></tr><tr><td>4.09</td><td>4.09</td><td>0.0</td></tr></tbody></table><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Species</th>
+      <th>Position x</th>
+      <th>Position y</th>
+      <th>Position z</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>Ag</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+"""  # noqa
+        self.assertTrue(strip_surrounding_spaces(retval).startswith(
+            strip_surrounding_spaces(target)))
 
     def test_getattr(self):
         """Tests custom getattr function."""

@@ -10,12 +10,14 @@ from .vcsgc_ensemble import VCSGCEnsemble
 from .wang_landau_ensemble import WangLandauEnsemble
 from .thermodynamic_integration_ensemble import ThermodynamicIntegrationEnsemble
 
-__all__ = ['CanonicalEnsemble',
-           'CanonicalAnnealing',
-           'HybridEnsemble',
-           'SemiGrandCanonicalEnsemble',
-           'SGCAnnealing',
-           'TargetClusterVectorAnnealing',
-           'VCSGCEnsemble',
-           'WangLandauEnsemble',
-           'ThermodynamicIntegrationEnsemble']
+__all__ = [
+    'CanonicalEnsemble',
+    'CanonicalAnnealing',
+    'HybridEnsemble',
+    'SemiGrandCanonicalEnsemble',
+    'SGCAnnealing',
+    'TargetClusterVectorAnnealing',
+    'VCSGCEnsemble',
+    'WangLandauEnsemble',
+    'ThermodynamicIntegrationEnsemble',
+]

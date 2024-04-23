@@ -31,7 +31,7 @@ class GroundStateFinder:
     <https://python-mip.readthedocs.io>`_. Python-MIP can be used together
     with `Gurobi <https://www.gurobi.com/>`_, which is not open source
     but issues academic licenses free of charge. Pleaase note that
-    Gurobi needs to be installed separately. The `GroundStateFinder` works
+    Gurobi needs to be installed separately. The :class:`GroundStateFinder` works
     also without Gurobi, but if performance is critical, Gurobi is highly
     recommended.
 
@@ -50,17 +50,15 @@ class GroundStateFinder:
 
     Parameters
     ----------
-    cluster_expansion : ClusterExpansion
-        cluster expansion for which to find ground states
-    structure : Atoms
-        atomic configuration
-    solver_name : str, optional
-        'gurobi', alternatively 'grb', or 'cbc', searches for available
-        solvers if not informed
-    verbose : bool, optional
-        whether to display solver messages on the screen
-        (default: True)
-
+    cluster_expansion
+        Cluster expansion for which to find ground states.
+    structure
+        Atomic configuration.
+    solver_name
+        ``'gurobi'``, ``'grb'`` or ``'cbc'``. Searches for available
+        solvers if no value is provided.
+    verbose
+        If ``True`` print solver messages to stdout.
 
     Example
     -------
@@ -154,17 +152,17 @@ class GroundStateFinder:
                      solver_name: str,
                      verbose: bool) -> mip.Model:
         """
-        Build a Python-MIP model based on the provided structure
+        Build a Python-MIP model based on the provided structure.
 
         Parameters
         ----------
         structure
-            atomic configuration
+            Atomic configuration.
         solver_name
-            'gurobi', alternatively 'grb', or 'cbc', searches for
-            available solvers if not informed
+            ``'gurobi'``, ``'grb'`` or ``'cbc'``. Searches for available
+            solvers if no value is provided.
         verbose
-            whether to display solver messages on the screen
+            If ``True`` print solver messages to stdout.
         """
 
         # Create cluster maps
@@ -230,12 +228,12 @@ class GroundStateFinder:
         """
         Create maps that include information regarding which sites and orbits
         are associated with each cluster as well as the number of clusters per
-        orbit
+        orbit.
 
         Parameters
         ----------
         structure
-            atomic configuration
+            Atomic configuration.
         """
         # Generate full orbit list
         lolg = LocalOrbitListGenerator(
@@ -274,23 +272,22 @@ class GroundStateFinder:
         self._nclusters_per_orbit = nclusters_per_orbit
 
     def _get_total_energy(self, cluster_instance_activities: List[int]) -> List[float]:
-        """
-        Calculates the total energy using the expression based on binary
-        variables
+        r"""
+        Calculates the total energy using the expression based on binary variables.
 
         .. math::
 
-            H({\\boldsymbol x}, {\\boldsymbol E})=E_0+
-            \\sum\\limits_j\\sum\\limits_{{\\boldsymbol c}
-            \\in{\\boldsymbol C}_j}E_jy_{{\\boldsymbol c}},
+            H({\boldsymbol x}, {\boldsymbol E})=E_0+
+            \sum\limits_j\sum\limits_{{\boldsymbol c}
+            \in{\boldsymbol C}_j}E_jy_{{\boldsymbol c}},
 
-        where (:math:`y_{{\\boldsymbol c}}=
-        \\prod\\limits_{i\\in{\\boldsymbol c}}x_i`).
+        where (:math:`y_{{\boldsymbol c}}=
+        \prod\limits_{i\in{\boldsymbol c}}x_i`).
 
         Parameters
         ----------
         cluster_instance_activities
-            list of cluster instance activities, (:math:`y_{{\\boldsymbol c}}`)
+            list of cluster instance activities, (:math:`y_{{\boldsymbol c}}`)
         """
 
         E = [0.0 for _ in self._transformed_parameters]
@@ -308,25 +305,25 @@ class GroundStateFinder:
                          species_count: Dict[str, int] = None,
                          max_seconds: float = inf,
                          threads: int = 0) -> Atoms:
-        """
-        Finds the ground state for a given structure and species count, which
-        refers to the `count_species`, if provided when initializing the
-        instance of this class, or the first species in the list of chemical
-        symbols for the active sublattice.
+        """Finds the ground state for a given structure and species count. If
+        :attr:`species_count` is not provided when initializing the
+        instance of this class the first species in the list of
+        chemical symbols for the active sublattice will be used.
 
         Parameters
         ----------
         species_count
-            dictionary with count for one of the species on each active
+            Dictionary with count for one of the species on each active
             sublattice. If no count is provided for a sublattice, the
             concentration is allowed to vary.
         max_seconds
-            maximum runtime in seconds (default: inf)
+            Maximum runtime in seconds.
         threads
-            number of threads to be used when solving the problem, given that a
-            positive integer has been provided. If set to 0 the solver default
-            configuration is used while -1 corresponds to all available
+            Number of threads to be used when solving the problem, given that a
+            positive integer has been provided. If set to :math:`0` the solver default
+            configuration is used while :math:`-1` corresponds to all available
             processing cores.
+
         """
         if species_count is None:
             species_count = {}
@@ -402,10 +399,10 @@ class GroundStateFinder:
 
     @property
     def optimization_status(self) -> mip.OptimizationStatus:
-        """Optimization status"""
+        """ Optimization status. """
         return self._optimization_status
 
     @property
     def model(self) -> mip.Model:
-        """Python-MIP model"""
+        """ Python-MIP model. """
         return self._model.copy()

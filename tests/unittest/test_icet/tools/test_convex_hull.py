@@ -46,6 +46,21 @@ class TestConvexHull(unittest.TestCase):
                                                           energy_tolerance)
         self.assertEqual(len(extracted), 1)
 
+    def test_str(self):
+        target = """============= Convex Hull ==============
+ dimensions               : 1
+ number of points         : 3
+ smallest concentration   : 0.0
+ largest concentration    : 1.0
+========================================"""
+        ret = str(self.ch)
+        self.assertEqual(ret, target)
+
+    def test_repr_html(self):
+        target = """<h4>Convex Hull</h4><table border="1" class="dataframe"><tbody><tr><td style="text-align: left;">Dimensions</td><td>1</td></tr><tr><td style="text-align: left;">Number of points</td><td>3</td></tr><tr><td style="text-align: left;">Smallest concentration</td><td>0.0</td></tr><tr><td style="text-align: left;">Largest concentration</td><td>1.0</td></tr></tbody></table>"""   # noqa
+        ret = self.ch._repr_html_()
+        self.assertEqual(ret, target)
+
 
 class TestConvexHullTernary(unittest.TestCase):
     """Container for tests of the class functionality."""
@@ -90,6 +105,21 @@ class TestConvexHullTernary(unittest.TestCase):
                                                           energy_tolerance)
         self.assertEqual(len(extracted), 1)
         self.assertEqual(extracted[0], 1)
+
+    def test_str(self):
+        target = """============= Convex Hull ==============
+ dimensions               : 2
+ number of points         : 4
+ smallest concentration   : 0.0
+ largest concentration    : 1.0
+========================================"""
+        ret = str(self.ch)
+        self.assertEqual(ret, target)
+
+    def test_repr_html(self):
+        target = """<h4>Convex Hull</h4><table border="1" class="dataframe"><tbody><tr><td style="text-align: left;">Dimensions</td><td>2</td></tr><tr><td style="text-align: left;">Number of points</td><td>4</td></tr><tr><td style="text-align: left;">Smallest concentration</td><td>0.0</td></tr><tr><td style="text-align: left;">Largest concentration</td><td>1.0</td></tr></tbody></table>"""   # noqa
+        ret = self.ch._repr_html_()
+        self.assertEqual(ret, target)
 
 
 if __name__ == '__main__':

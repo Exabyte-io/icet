@@ -27,13 +27,13 @@ def _translate_labelings(
     Parameters
     ----------
     labeling
-        labeling to be translated
+        Labeling to be translated.
     snf
-        SmithNormalForm object
+        SmithNormalForm object.
     nsites
-        number of sites in the primitive cell
+        Number of sites in the primitive cell.
     include_self
-        if True original labeling will be included
+        If ``True`` original labeling will be included.
     """
 
     # Compute size of each block within which translations occur
@@ -73,11 +73,11 @@ def _get_all_labelings(snf: SmithNormalForm,
     Parameters
     ----------
     snf
-        SmithNormalForm object
+        SmithNormalForm object.
     labeling_generator
-        LabelingGenerator object
+        :class:`LabelingGenerator` object.
     nsites
-        number of sites per primitive cell
+        Number of sites per primitive cell.
     """
     labelings = []
     for labeling in labeling_generator.yield_labelings(snf.ncells):
@@ -111,14 +111,14 @@ def _permute_labeling(labeling: tuple, snf: SmithNormalForm,
     Parameters
     ----------
     labeling
-        labeling to be rotated
+        Labeling to be rotated.
     snf
-        SmithNormalForm object
+        SmithNormalForm object.
     transformation
-        transformation consisting of rotation, translation and basis
-        shift
+        Transformation consisting of rotation, translation and basis
+        shift.
     nsites
-        number of sites in the primitive cell
+        Nnumber of sites in the primitive cell.
     """
 
     # Calculate transformation imposed by LRL multiplication
@@ -154,15 +154,15 @@ def _yield_unique_labelings(labelings: List[int], snf: SmithNormalForm,
     Parameters
     ----------
     labelkeys
-        list of hash keys to labelings that may still contain labelings
+        List of hash keys to labelings that may still contain labelings
         that are equivalent under rotations that leave the supercell
-        shape unchanged
+        shape unchanged.
     snf
-        SmithNormalForm object
+        SmithNormalForm object.
     hnf
-        HermiteNormalForm object
+        HermiteNormalForm object.
     nsites
-        number of sites in the primitive cell
+        Number of sites in the primitive cell.
     """
     saved_labelings = []
     for labeling in labelings:
@@ -212,19 +212,19 @@ def _labeling_to_ase_atoms(labeling: tuple, hnf: HermiteNormalForm,
     Parameters
     ---------
     labeling
-        permutation of index of elements
+        Permutation of index of elements.
     hnf
-        HNF object defining the supercell
+        HNF object defining the supercell.
     cell
-        basis vectors of primtive cell listed row-wise
+        Basis vectors of primtive cell listed row-wise.
     new_cell
         new cell shape
     basis
-        scaled coordinates to all sites in the primitive cell
+        Scaled coordinates to all sites in the primitive cell.
     chemical_symbols
-        list of elements, e.g. ``['Au', 'Ag']``
+        List of elements, e.g. ``['Au', 'Ag']``.
     pbc
-        periodic boundary conditions of the primitive structure
+        Periodic boundary conditions of the primitive structure.
     """
     a = hnf.H[0, 0]
     b = hnf.H[1, 0]
@@ -272,11 +272,11 @@ def _get_symmetry_operations(structure: Atoms,
     Parameters
     ----------
     structure
-        structure for which symmetry operations are sought
+        Structure for which symmetry operations are sought.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
     position_tolerance
-        tolerance applied when comparing positions in Cartesian coordinates
+        Tolerance applied when comparing positions in Cartesian coordinates.
     """
     symmetries = get_symmetry(ase_atoms_to_spglib_cell(structure), symprec=symprec)
     assert symmetries, ('spglib.get_symmetry() failed. Please make sure that'
@@ -348,14 +348,14 @@ def enumerate_structures(structure: Atoms,
     """
     Yields a sequence of enumerated structures. The function generates
     *all* inequivalent structures that are permissible given a certain
-    lattice. Using the ``chemical_symbols`` and
-    ``concentration_restrictions`` keyword arguments it is possible to
+    lattice. Using the :attr:`chemical_symbols` and
+    :attr:`concentration_restrictions` keyword arguments it is possible to
     specify which chemical_symbols are to be included on which site and
     in which concentration range.
 
     The function is sensitive to the boundary conditions of the input
     structure. An enumeration of, for example, a surface can thus be
-    performed by setting ``structure.pbc = [True, True, False]``.
+    performed by setting :attr:`structure.pbc = [True, True, False]`.
 
     The algorithm implemented here was developed by Gus L. W. Hart and
     Rodney W. Forcade in Phys. Rev. B **77**, 224115 (2008)
@@ -364,29 +364,29 @@ def enumerate_structures(structure: Atoms,
     Parameters
     ----------
     structure
-        primitive structure from which derivative superstructures should
-        be generated
+        Primitive structure from which derivative superstructures should
+        be generated.
     sizes
-        number of sites (included in enumeration)
+        Number of sites (included in enumeration).
     chemical_symbols
-        chemical species with which to decorate the structure, e.g.,
-        ``['Au', 'Ag']``; see below for more examples
+        Chemical species with which to decorate the structure, e.g.,
+        ``['Au', 'Ag']``; see below for more examples.
     concentration_restrictions
-        allowed concentration range for one or more element in
-        `chemical_symbols`, e.g., ``{'Au': (0, 0.2)}`` will only
+        Allowed concentration range for one or more element in
+        :attr:`chemical_symbols`, e.g., ``{'Au': (0, 0.2)}`` will only
         enumerate structures in which the Au content is between 0 and
-        20 %; here, concentration is always defined as the number of
+        20 %. Here, concentration is always defined as the number of
         atoms of the specified kind divided by the number of *all*
         atoms.
     niggli_reduction
-        if True perform a Niggli reduction with spglib for each
-        structure; the default is ``True`` if ``structure`` is periodic in
+        If ``True`` perform a Niggli reduction with spglib for each
+        structure. The default is ``True`` if :attr:`structure` is periodic in
         all directions, ``False`` otherwise.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
     position_tolerance
-        tolerance applied when comparing positions in Cartesian coordinates;
-        by default this value is set equal to `symprec`
+        Tolerance applied when comparing positions in Cartesian coordinates;
+        by default this value is set equal to :attr:`symprec`.
 
     Examples
     --------
@@ -514,7 +514,7 @@ def enumerate_supercells(structure: Atoms,
 
     The function is sensitive to the boundary conditions of the input
     structure. An enumeration of, for example, a surface can thus be
-    performed by setting ``structure.pbc = [True, True, False]``.
+    performed by setting :attr:`structure.pbc = [True, True, False]`.
 
     The algorithm is based on Gus L. W. Hart and
     Rodney W. Forcade in Phys. Rev. B **77**, 224115 (2008)
@@ -523,19 +523,18 @@ def enumerate_supercells(structure: Atoms,
     Parameters
     ----------
     structure
-        primitive structure from which supercells should be
-        generated
+        Primitive structure from which supercells should be generated.
     sizes
-        number of sites (included in enumeration)
+        Number of sites (included in enumeration).
     niggli_reduction
-        if True perform a Niggli reduction with spglib for each
-        supercell; the default is ``True`` if ``structure`` is periodic in
+        If ``True`` perform a Niggli reduction with spglib for each
+        supercell. The default is ``True`` if :attr:`structure` is periodic in
         all directions, ``False`` otherwise.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
     position_tolerance
-        tolerance applied when comparing positions in Cartesian coordinates;
-        by default this value is set equal to `symprec`
+        Tolerance applied when comparing positions in Cartesian coordinates.
+        By default this value is set equal to :attr:`symprec`.
 
     Examples
     --------

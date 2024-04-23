@@ -7,5 +7,4 @@ Structure containers
 
 .. autoclass:: icet.StructureContainer
    :members:
-   :undoc-members:
-   :inherited-members:
+   :noindex:

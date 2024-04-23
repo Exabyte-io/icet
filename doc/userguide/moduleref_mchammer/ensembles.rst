@@ -20,7 +20,6 @@ Canonical ensemble
 
 .. autoclass:: CanonicalEnsemble
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -35,7 +34,6 @@ Canonical annealing
 
 .. autoclass:: CanonicalAnnealing
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -51,7 +49,6 @@ Semi-grand canonical ensemble
 
 .. autoclass:: SemiGrandCanonicalEnsemble
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -67,7 +64,6 @@ Variance-constrained semi-grand canonical ensemble
 
 .. autoclass:: VCSGCEnsemble
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -82,7 +78,6 @@ Hybrid ensemble
 
 .. autoclass:: HybridEnsemble
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -99,7 +94,6 @@ For analysis functions see :ref:`here <data_container_analysis_functions>`.
 
 .. autoclass:: WangLandauEnsemble
    :members:
-   :undoc-members:
    :inherited-members:
 
 .. autofunction:: mchammer.ensembles.wang_landau_ensemble.get_bins_for_parallel_simulations
@@ -112,5 +106,4 @@ For analysis functions see :ref:`here <data_container_analysis_functions>`.
 
 .. autoclass:: ThermodynamicIntegrationEnsemble
    :members:
-   :undoc-members:
    :inherited-members:

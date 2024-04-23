@@ -15,4 +15,3 @@
    ensembles
    observers
    data_containers
-   configuration_manager

@@ -1,6 +1,5 @@
-
 # Base image
-FROM python:3.8
+FROM python:3.9
 
 # 1. Base packages
 # 2. Packages for testing
@@ -14,6 +13,7 @@ RUN \
     graphviz \
     pandoc \
     zip
+
 # Packages for testing
 # Packages needed for icet
 # Packages for building documentation
@@ -43,13 +43,9 @@ RUN \
   && \
   pip3 install --upgrade \
     breathe \
-    cloud_sptheme \
     nbsphinx \
     sphinx \
     sphinx-rtd-theme \
     sphinx_autodoc_typehints \
     sphinx_sitemap \
-    sphinxcontrib-bibtex \
-  && \
-  pip3 install --upgrade \
-    jinja2==3.0.3
+    sphinxcontrib-bibtex

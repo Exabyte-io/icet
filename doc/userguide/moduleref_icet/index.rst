@@ -1,4 +1,4 @@
-.. _moduleref_cet:
+.. _moduleref_icet:
 
 .. index::
    single: Function reference; User interface; icet

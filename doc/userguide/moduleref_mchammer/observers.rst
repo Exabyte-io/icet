@@ -18,8 +18,8 @@ SiteOccupancyObserver
 
 .. autoclass:: SiteOccupancyObserver
    :members:
-   :undoc-members:
    :inherited-members:
+   :noindex:
 
 
 .. index::
@@ -31,9 +31,8 @@ BinaryShortRangeOrderObserver
 
 .. autoclass:: BinaryShortRangeOrderObserver
    :members:
-   :undoc-members:
    :inherited-members:
-
+   :noindex:
 
 .. index::
    single: Class reference; StructureFactorObserver
@@ -44,16 +43,16 @@ StructureFactorObserver
 
 .. autoclass:: StructureFactorObserver
    :members:
-   :undoc-members:
    :inherited-members:
+   :noindex:
 
 ClusterCountObserver
 --------------------
 
 .. autoclass:: ClusterCountObserver
    :members:
-   :undoc-members:
    :inherited-members:
+   :noindex:
 
 
 .. index::
@@ -65,8 +64,8 @@ ClusterExpansionObserver
 
 .. autoclass:: ClusterExpansionObserver
    :members:
-   :undoc-members:
    :inherited-members:
+   :noindex:
 
 
 .. index::
@@ -78,5 +77,5 @@ ConstituentStrainObserver
 
 .. autoclass:: ConstituentStrainObserver
    :members:
-   :undoc-members:
    :inherited-members:
+   :noindex:

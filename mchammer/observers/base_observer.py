@@ -13,32 +13,43 @@ class BaseObserver(ABC):
 
     Parameters
     ----------
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulation, then the Ensemble object
-        will set the interval.
-    tag : str
-        human readable tag used for identifying the observer
-
-    Attributes
-    ----------
-    tag : str
-        human readable tag used for identifying the observer
-    interval : int
-        the observation interval
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulation, then the :class:`Ensemble` object
+        will determine the interval.
+    tag
+        Human-readable tag used for identifying the observer.
     """
 
     def __init__(self,
                  return_type: type,
                  interval: int = None,
                  tag: str = 'BaseObserver') -> None:
-        self.tag = tag
-        self.interval = interval
+        self._tag = tag
+        self._interval = interval
         self._return_type = return_type
 
     @property
+    def tag(self) -> str:
+        """ Human-readable tag used for identifying the observer. """
+        return self._tag
+
+    @tag.setter
+    def tag(self, tag: str) -> None:
+        self._tag = tag
+
+    @property
+    def interval(self) -> int:
+        """ Observation interval. """
+        return self._interval
+
+    @interval.setter
+    def interval(self, interval: int) -> None:
+        self._interval = interval
+
+    @property
     def return_type(self) -> type:
-        """Data type of the observed data."""
+        """ Data type of the observed data. """
         return self._return_type
 
     @abstractmethod
@@ -61,7 +72,7 @@ class BaseObserver(ABC):
         raise NotImplementedError
 
     def __str__(self) -> str:
-        """ string representation of BaseObserver. """
+        """ String representation of object. """
         width = 60
         name = self.__class__.__name__
         s = [' {} '.format(name).center(width, '=')]

@@ -12,7 +12,7 @@ from mchammer.calculators.base_calculator import BaseCalculator
 
 
 class ClusterExpansionCalculator(BaseCalculator):
-    """A ClusterExpansionCalculator object enables the efficient
+    """A :class:`ClusterExpansionCalculator` object enables the efficient
     calculation of properties described by a cluster expansion. It is
     specific for a particular (supercell) structure and commonly
     employed when setting up a Monte Carlo simulation, see
@@ -23,23 +23,23 @@ class ClusterExpansionCalculator(BaseCalculator):
     however, considers changes in the *total* energy of the
     system. The default behavior is therefore to multiply the output
     of the cluster expansion by the number of sites. This behavior can
-    be changed via the ``scaling`` keyword parameter.
+    be changed via the :attr:`scaling` keyword parameter.
 
     Parameters
     ----------
-    structure : ase.Atoms
-        structure for which to set up the calculator
-    cluster_expansion : ClusterExpansion
-        cluster expansion from which to build calculator
+    structure
+        Structure for which to set up the calculator.
+    cluster_expansion
+        Cluster expansion from which to build calculator.
     name
-        human-readable identifier for this calculator
+        Human-readable identifier for this calculator.
     scaling
-        scaling factor applied to the property value predicted by the
-        cluster expansion
+        Scaling factor applied to the property value predicted by the
+        cluster expansion.
     use_local_energy_calculator
-        evaluate energy changes using only the local environment; this method
-        is generally *much* faster; unless you know what you are doing do *not*
-        set this option to `False`
+        Evaluate energy changes using only the local environment; this method
+        is generally *much* faster. Unless you know what you are doing do *not*
+        set this option to ``False``.
     """
 
     def __init__(self,
@@ -74,7 +74,7 @@ class ClusterExpansionCalculator(BaseCalculator):
 
     @property
     def cluster_expansion(self) -> ClusterExpansion:
-        """ cluster expansion from which calculator was constructed """
+        """ Cluster expansion from which calculator was set up. """
         return self._cluster_expansion
 
     def calculate_total(self, *, occupations: List[int]) -> float:
@@ -85,7 +85,7 @@ class ClusterExpansionCalculator(BaseCalculator):
         Parameters
         ----------
         occupations
-            the entire occupation vector (i.e. list of atomic species)
+            The entire occupation vector (i.e., list of atomic species).
         """
 
         cv = self.cpp_calc.get_cluster_vector(occupations)
@@ -96,16 +96,16 @@ class ClusterExpansionCalculator(BaseCalculator):
                          new_site_occupations: List[int]) -> float:
         """
         Calculates and returns the sum of the contributions to the property
-        due to the sites specified in `local_indices`
+        due to the sites specified in :attr:`sites`.
 
         Parameters
         ----------
         sites
-            index of sites at which occupations will be changed
+            Indices of sites at which occupations will be changed.
         current_occupations
-            entire occupation vector (atomic numbers) before change
+            Entire occupation vector (atomic numbers) before change.
         new_site_occupations
-            atomic numbers after change at the sites defined by `sites`
+            Atomic numbers after change at the sites defined by :attr:`sites`.
         """
         occupations = np.array(current_occupations)
 
@@ -131,17 +131,16 @@ class ClusterExpansionCalculator(BaseCalculator):
     def _calculate_partial_change(self, occupations: List[int], flip_index: int,
                                   new_occupation: int):
         """
-        Internal method to calculate the local contribution for one
-        index.
+        Internal method to calculate the local contribution for one site index.
 
         Parameters
         ----------
         occupations
-            entire occupation vector
+            Entire occupation vector.
         flip_index
-            lattice index for site where a flipped has occurred
+            Lattice index for site where a flipped has occurred.
         new_occupation
-            atomic number of new occupation at site `flip_index`
+            Atomic number of new occupation at site :attr:`flip_index`.
         """
         cv_change = self.cpp_calc.get_cluster_vector_change(occupations=occupations,
                                                             flip_index=flip_index,
@@ -151,5 +150,5 @@ class ClusterExpansionCalculator(BaseCalculator):
 
     @property
     def sublattices(self) -> Sublattices:
-        """Sublattices of the calculators structure."""
+        """ Sublattices of the calculator structure. """
         return self._sublattices

@@ -1,13 +1,14 @@
 import os
-import sys
 import tempfile
 import unittest
 from io import StringIO
 
-from icet import ClusterSpace, ClusterExpansion
+import numpy as np
+import pytest
 from ase.build import bulk
 from ase import Atoms  # NOQA (needed for eval(retval))
-import numpy as np
+from icet import ClusterSpace, ClusterExpansion
+from pandas import DataFrame
 
 
 def strip_surrounding_spaces(input_string):
@@ -67,8 +68,8 @@ class TestClusterExpansion(unittest.TestCase):
         """Tests orders property."""
         self.assertEqual(self.ce.orders, list(range(len(self.cutoffs) + 2)))
 
-    def test_property_to_dataframe(self):
-        """Tests to_dataframe() property."""
+    def test_to_dataframe(self):
+        """Tests orbits_as_dataframe property."""
         df = self.ce.to_dataframe()
         self.assertIn('radius', df.columns)
         self.assertIn('order', df.columns)
@@ -78,6 +79,15 @@ class TestClusterExpansion(unittest.TestCase):
     def test_get__clusterspace_copy(self):
         """Tests get cluster space copy."""
         self.assertEqual(str(self.ce.get_cluster_space_copy()), str(self.cs))
+
+    def test_cutoffs(self):
+        """Tests cutoffs property."""
+        self.assertEqual(self.ce.cutoffs, self.cutoffs)
+
+    def test_chemical_symbols(self):
+        """Tests chemical_symbols property."""
+        target = [['Au', 'Pd']]
+        self.assertEqual(self.ce.chemical_symbols, target)
 
     def test_property_parameters(self):
         """Tests parameters properties."""
@@ -245,14 +255,6 @@ index | order |  radius  | multiplicity | orbit_index | multicomponent_vector | 
 
         self.assertEqual(strip_surrounding_spaces(target), strip_surrounding_spaces(retval))
 
-    def test_print_overview(self):
-        """Tests print_overview functionality."""
-        with StringIO() as capturedOutput:
-            sys.stdout = capturedOutput  # redirect stdout
-            self.ce.print_overview()
-            sys.stdout = sys.__stdout__  # reset redirect
-            self.assertTrue('Cluster Expansion' in capturedOutput.getvalue())
-
 
 class TestClusterExpansionTernary(unittest.TestCase):
     """Container for tests of the class functionality."""
@@ -317,6 +319,37 @@ class TestClusterExpansionTernary(unittest.TestCase):
         """ Test primitive_structure property.. """
         prim = self.cs.primitive_structure
         self.assertEqual(prim, self.ce.primitive_structure)
+
+
+@pytest.fixture
+def cluster_expansion_fcc():
+    prim = bulk('Au', crystalstructure='fcc', a=4.01)
+    cs = ClusterSpace(prim, [8, 5], ['Au', 'Pd'])
+    return ClusterExpansion(cs, list(range(len(cs))))
+
+
+def test_to_dataframe_fcc(cluster_expansion_fcc):
+    df = cluster_expansion_fcc.to_dataframe()
+    orders = [0, 1, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3]
+    radii = [0.000000, 0.000000, 1.417749, 2.005000, 2.455613,
+             2.835498, 3.170183, 3.472762, 3.751012, 1.637076, 1.854526,
+             1.982172, 2.262583, 2.453891, 2.663409, 2.835498]
+    multiplicities = [1, 1, 6, 3, 12, 6, 12, 4, 24, 8, 12, 24, 24, 24, 24, 8]
+    ecis = [0.000000, 1.000000, 0.333333, 1.000000, 0.333333,
+            0.833333, 0.500000, 1.750000, 0.333333, 1.125000, 0.833333,
+            0.458333, 0.500000, 0.541667, 0.583333, 1.875000]
+    assert isinstance(df, DataFrame)
+    assert len(df) == 16
+    assert all(df.order == orders)
+    assert all(df.multiplicity == multiplicities)
+    assert np.allclose(df.radius, radii)
+    assert np.allclose(df.eci, ecis)
+
+
+def test_repr_html_fcc(cluster_expansion_fcc):
+    s = cluster_expansion_fcc._repr_html_()
+    target = """<h4>Cluster Expansion</h4><table border="1" class="dataframe"><thead><tr><th style="text-align: left;">Field</th><th>Value</th></tr></thead><tbody><tr><td style="text-align: left;">Space group</td><td>Fm-3m (225)</td></tr><tr><td style="text-align: left;">Sublattice A</td><td>('Au', 'Pd')</td></tr><tr><td style="text-align: left;">Cutoffs</td><td>[8, 5]</td></tr><tr><td style="text-align: left;">Total number of parameters (nonzero)</td><td>16 (15)</td></tr><tr><td style="text-align: left;">Number of parameters of order 0 (nonzero)</td><td>1 (0)</td></tr><tr><td style="text-align: left;">Number of parameters of order 1 (nonzero)</td><td>1 (1)</td></tr><tr><td style="text-align: left;">Number of parameters of order 2 (nonzero)</td><td>7 (7)</td></tr><tr><td style="text-align: left;">Number of parameters of order 3 (nonzero)</td><td>7 (7)</td></tr><tr><td style="text-align: left;">fractional_position_tolerance</td><td>2e-06</td></tr><tr><td style="text-align: left;">position_tolerance</td><td>1e-05</td></tr><tr><td style="text-align: left;">symprec</td><td>1e-05</td></tr></tbody></table>"""  # noqa
+    assert s.startswith(target)
 
 
 if __name__ == '__main__':

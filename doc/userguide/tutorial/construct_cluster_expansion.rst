@@ -63,10 +63,15 @@ site. Examples for this approach can be found in the :class:`ClusterSpace
   sake of simplicity. In general this is *not* the preferred approach to
   assembling a data set.
 
-As with many other :program:`icet` objects, it is possible to print core
-information in a tabular format by simply calling the :func:`print` function
-with the instance of interest as input argument. For the case at hand, the
-output should look as follows::
+.. tip::
+
+  As with many other :program:`icet` objects, it is possible to print core
+  information in a tabular format by simply calling the :func:`print` function
+  with the instance of interest as input argument. When using jupyter notebooks
+  you can also use the :func:`display` command which renders the output in a
+  visually more appealing format.
+
+For the case at hand, the output of the :func:`print` command should look as follows::
 
    ====================================== Cluster Space ======================================
     space group                            : Fm-3m (225)

@@ -20,15 +20,15 @@ def get_scaled_positions(positions: np.ndarray,
     Parameters
     ----------
     positions
-        atomic positions in cartesian coordinates
+        Atomic positions in Cartesian coordinates.
     cell
-        cell metric
+        Cell metric.
     wrap
-        if True, positions outside the unit cell will be wrapped into
+        If ``True`` positions outside the unit cell will be wrapped into
         the cell in the directions with periodic boundary conditions
         such that the scaled coordinates are between zero and one.
     pbc
-        periodic boundary conditions flags
+        Periodic boundary conditions.
     """
 
     fractional = np.linalg.solve(cell.T, positions.T).T
@@ -54,13 +54,13 @@ def get_primitive_structure(structure: Atoms,
     Parameters
     ----------
     structure
-        input atomic structure
+        Input atomic structure.
     no_idealize
-        if True lengths and angles are not idealized
+        If ``True`` lengths and angles are not idealized.
     to_primitive
-        convert to primitive structure
+        If ``True`` convert to primitive structure.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
     """
     structure_copy = structure.copy()
     structure_as_tuple = ase_atoms_to_spglib_cell(structure_copy)
@@ -88,9 +88,9 @@ def get_fractional_positions_from_neighbor_list(
     Parameters
     ----------
     structure
-        input atomic structure
+        Input atomic structure.
     neighbor_list
-        list of lattice neighbors of the input structure
+        List of lattice neighbors of the input structure.
     """
     neighbor_positions = []
     fractional_positions = []
@@ -115,14 +115,14 @@ def get_fractional_positions_from_neighbor_list(
 
 def get_position_from_lattice_site(structure: Atoms, lattice_site: LatticeSite):
     """
-    Gets the corresponding position from the lattice site.
+    Returns the corresponding position from the lattice site.
 
     Parameters
     ---------
     structure
-        input atomic structure
+        Input atomic structure.
     lattice_site
-        specific lattice site of the input structure
+        Specific lattice site of the input structure.
     """
     return structure[lattice_site.index].position + \
         np.dot(lattice_site.unitcell_offset, structure.cell)
@@ -131,14 +131,14 @@ def get_position_from_lattice_site(structure: Atoms, lattice_site: LatticeSite):
 def fractional_to_cartesian(structure: Atoms,
                             frac_positions: List[Vector]) -> np.ndarray:
     """
-    Turns fractional positions into cartesian positions.
+    Converts fractional positions into Cartesian positions.
 
     Parameters
     ----------
     structure
-        input atomic structure
+        Input atomic structure.
     frac_positions
-        fractional positions
+        Fractional positions.
     """
     return np.dot(frac_positions, structure.cell)
 
@@ -149,18 +149,21 @@ def get_permutation(container: Sequence[T],
     Returns the permuted version of container.
     """
     if len(permutation) != len(container):
-        raise RuntimeError('Container and permutation'
-                           ' not of same size {} != {}'.format(
-                               len(container), len(permutation)))
+        raise RuntimeError('Container and permutation not of same size.'
+                           f'{len(container)} != {len(permutation)}')
     if len(set(permutation)) != len(permutation):
         raise Exception
     return [container[s] for s in permutation]
 
 
 def ase_atoms_to_spglib_cell(structure: Atoms) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """
-    Returns a tuple of three components: cell metric, atomic positions, and
-    atomic species of the input ASE Atoms object.
+    """Returns a tuple comprising three components, corresponding to cell
+    metric, atomic positions, and atomic species.
+
+    Parameters
+    ----------
+    structure
+        Input atomic structure.
     """
     return (structure.cell, structure.get_scaled_positions(), structure.get_atomic_numbers())
 
@@ -168,23 +171,17 @@ def ase_atoms_to_spglib_cell(structure: Atoms) -> Tuple[np.ndarray, np.ndarray, 
 def get_occupied_primitive_structure(structure: Atoms,
                                      allowed_species: List[List[str]],
                                      symprec: float) -> Tuple[Atoms, List[Tuple[str, ...]]]:
-    """
-    Returns an occupied primitive structure.
-    Will put hydrogen on sublattice 1, Helium on sublattice 2 and
-    so on
+    """Returns an occupied primitive structure with hydrogen on
+    sublattice 1, Helium on sublattice 2 and so on
 
     Parameters
     ----------
     structure
-        input structure
+        Input structure.
     allowed_species
-        chemical symbols that are allowed on each site
+        Chemical symbols that are allowed on each site.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
-
-    Todo
-    ----
-    simplify the revert back to unsorted symbols
+        Tolerance imposed when analyzing the symmetry using spglib.
     """
     if len(structure) != len(allowed_species):
         raise ValueError(
@@ -217,7 +214,7 @@ def atomic_number_to_chemical_symbol(numbers: List[int]) -> List[str]:
     Parameters
     ----------
     numbers
-        atomic numbers
+        Atomic numbers.
     """
 
     symbols = [chemical_symbols[number] for number in numbers]
@@ -231,7 +228,7 @@ def chemical_symbols_to_numbers(symbols: List[str]) -> List[int]:
     Parameters
     ----------
     symbols
-        chemical symbols
+        Chemical symbols.
     """
 
     numbers = [chemical_symbols.index(symbols) for symbols in symbols]
@@ -254,7 +251,7 @@ def get_wyckoff_sites(structure: Atoms,
     will usually reduce the symmetry substantially. If one is
     interested in the symmetry of the underlying structure one can
     control how occupations are handled. To this end, one can provide
-    the ``map_occupations`` keyword argument. The latter must be a
+    the :attr:`map_occupations` keyword argument. The latter must be a
     list, each entry of which is a list of species that should be
     treated as indistinguishable. As a shortcut, if *all* species
     should be treated as indistinguishable one can provide an empty
@@ -264,14 +261,14 @@ def get_wyckoff_sites(structure: Atoms,
     Parameters
     ----------
     structure
-        input structure, note that the occupation of the sites is
-        included in the symmetry analysis
+        Input structure. Note that the occupation of the sites is
+        included in the symmetry analysis.
     map_occupations
-        each sublist in this list specifies a group of chemical
+        Each sublist in this list specifies a group of chemical
         species that shall be treated as indistinguishable for the
-        purpose of the symmetry analysis
+        purpose of the symmetry analysis.
     symprec
-        tolerance imposed when analyzing the symmetry using spglib
+        Tolerance imposed when analyzing the symmetry using spglib.
 
     Examples
     --------
@@ -313,7 +310,7 @@ def get_wyckoff_sites(structure: Atoms,
 
     Since Ga and Al occupy the same sublattice, they should, however,
     be treated as indistinguishable for the purpose of the symmetry
-    analysis, which can be achieved via the ``map_occupations``
+    analysis, which can be achieved via the :attr:`map_occupations`
     keyword::
 
         >>> print(get_wyckoff_sites(structure, map_occupations=[['Ga', 'Al'], ['As']]))

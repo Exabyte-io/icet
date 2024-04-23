@@ -90,5 +90,3 @@ Interface
 
 .. autoclass:: ClusterSpace
    :members:
-   :undoc-members:
-   :inherited-members:

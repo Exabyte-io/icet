@@ -4,10 +4,7 @@
 Publications
 ************
 
-This page compiles publications that have utilized :program:`icet`.
-If you want your own publication to show up in this list, please send
-an email with the subject line "New publication: <paper title>" to
-icet@materialsmodeling.org.
+This page compiles some publications that have utilized :program:`icet`.
 
 .. [XII]
    | E. Fransson, M. Gren, and G. Wahnström
@@ -18,13 +15,13 @@ icet@materialsmodeling.org.
 .. [XI]
    | P. Ekborg-Tanner and P. Erhart
    | *Hydrogen-Driven Surface Segregation in Pd Alloys from Atomic-Scale Simulations*
-   | Journal of Physical Chemstry C **125**, 17248 (2021)
+   | Journal of Physical Chemistry C **125**, 17248 (2021)
    | `doi: 10.1021/acs.jpcc.1c00575 <https://doi.org/10.1021/acs.jpcc.1c00575>`_
 
 .. [X]
    | J. Brorsson, Y. Zhang, A. E. C. Palmqvist, and P. Erhart
    | *Order–Disorder Transition in Inorganic Clathrates Controls Electrical Transport Properties*
-   | Chemstry of Materials **33**, 4500 (2021)
+   | Chemistry of Materials **33**, 4500 (2021)
    | `doi: 10.1021/acs.chemmater.1c00731 <https://doi.org/10.1021/acs.chemmater.1c00731>`_ 
 
 .. [IX]

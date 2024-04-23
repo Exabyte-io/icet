@@ -35,18 +35,16 @@ class Int64Encoder(json.JSONEncoder):
 class BaseDataContainer:
     """
     Base data container for storing information concerned with
-    Monte Carlo simulations performed with mchammer.
+    Monte Carlo simulations performed with :program:`mchammer`.
 
     Parameters
     ----------
-    structure : ase.Atoms
-        reference atomic structure associated with the data container
-
-    ensemble_parameters : dict
-        parameters associated with the underlying ensemble
-
-    metadata : dict
-        metadata associated with the data container
+    structure
+        Reference atomic structure associated with the data container.
+    ensemble_parameters
+        Parameters associated with the underlying ensemble.
+    metadata
+        Metadata associated with the data container.
     """
 
     def __init__(self, structure: Atoms,
@@ -74,14 +72,14 @@ class BaseDataContainer:
         Parameters
         ----------
         mctrial
-            current Monte Carlo trial step
+            Current Monte Carlo trial step.
         record
-            dictionary of tag-value pairs representing observations
+            Dictionary of tag-value pairs representing observations.
 
         Raises
         ------
         TypeError
-            if input parameters have the wrong type
+            If input parameters have the wrong type.
 
         """
         if not isinstance(mctrial, numbers.Integral):
@@ -108,27 +106,27 @@ class BaseDataContainer:
         self._data_list.append(row_data)
 
     def _update_last_state(self, last_step: int, occupations: List[int],
-                           accepted_trials: int, random_state: Any):
+                           accepted_trials: int, random_state: Any) -> None:
         """Updates last state of the simulation: last step, occupation vector
         and number of accepted trial steps.
 
         Parameters
         ----------
         last_step
-            last trial step
+            Last trial step.
         occupations
-            occupation vector observed during the last trial step
+            Occupation vector observed during the last trial step.
         accepted_trial
-            number of current accepted trial steps
+            Number of current accepted trial steps.
         random_state
-            tuple representing the last state of the random generator
+            Tuple representing the last state of the random generator.
         """
         self._last_state['last_step'] = last_step
         self._last_state['occupations'] = occupations
         self._last_state['accepted_trials'] = accepted_trials
         self._last_state['random_state'] = random_state
 
-    def apply_observer(self, observer: BaseObserver):
+    def apply_observer(self, observer: BaseObserver) -> None:
         """ Adds observer data from observer to data container.
 
         The observer will only be run for the mctrials for which the
@@ -139,7 +137,7 @@ class BaseDataContainer:
         Parameters
         ----------
         observer
-            observer to be used
+            Observer to be used.
         """
         for row_data in self._data_list:
             if 'occupations' in row_data:
@@ -161,26 +159,26 @@ class BaseDataContainer:
             -> Union[np.ndarray, List[Atoms], Tuple[np.ndarray, List[Atoms]]]:
         """Returns the accumulated data for the requested observables,
         including configurations stored in the data container. The latter
-        can be achieved by including 'trajectory' as one of the tags.
+        can be achieved by including ``'trajectory'`` as one of the tags.
 
         Parameters
         ----------
         tags
-            names of the requested properties
+            Names of the requested properties.
         start
-            minimum value of trial step to consider; by default the
+            Minimum value of trial step to consider. By default the
             smallest value in the mctrial column will be used.
 
         Raises
         ------
         ValueError
-            if tags is empty
+            If :attr:`tags` is empty.
         ValueError
-            if observables are requested that are not in data container
+            If observables are requested that are not in data container.
 
         Examples
         --------
-        Below the `get` method is illustrated but first we require a data container.
+        Below the :func:`get` method is illustrated but first we require a data container.
 
             >>> from ase.build import bulk
             >>> from icet import ClusterExpansion, ClusterSpace
@@ -205,12 +203,12 @@ class BaseDataContainer:
             >>> mc.run(100)  # carry out 100 trial swaps
 
         We can now access the data container by reading it from file by using
-        the `read` method. For the purpose of this example, however, we access
+        the :func:`read` method. For the purpose of this example, however, we access
         the data container associated with the ensemble directly.
 
             >>> dc = mc.data_container
 
-        The following lines illustrate how to use the `get` method
+        The following lines illustrate how to use the :func:`get` method
         for extracting data from the data container.
 
             >>> # obtain all values of the potential represented by
@@ -266,7 +264,7 @@ class BaseDataContainer:
 
     @property
     def data(self) -> pd.DataFrame:
-        """ pandas data frame (see :class:`pandas.DataFrame`) """
+        """ Data as :class:`pandas.DataFrame`. """
         if self._data_list:
             df = pd.DataFrame.from_records(self._data_list, index='mctrial',
                                            exclude=['occupations'])
@@ -278,27 +276,27 @@ class BaseDataContainer:
 
     @property
     def ensemble_parameters(self) -> dict:
-        """ parameters associated with Monte Carlo simulation """
+        """ Parameters associated with Monte Carlo simulation. """
         return self._ensemble_parameters.copy()
 
     @property
     def observables(self) -> List[str]:
-        """ observable names """
+        """ Observable names. """
         return list(self._observables)
 
     @property
     def metadata(self) -> dict:
-        """ metadata associated with data container """
+        """ Metadata associated with data container. """
         return self._metadata
 
     def write(self, outfile: Union[bytes, str]):
         """
-        Writes BaseDataContainer object to file.
+        Writes data container to file.
 
         Parameters
         ----------
         outfile
-            file to which to write
+            File to which to write.
         """
         self._metadata['date_last_backup'] = datetime.now().strftime('%Y-%m-%dT%H:%M:%S')
 
@@ -351,7 +349,7 @@ class BaseDataContainer:
         self._metadata['icet_version'] = icet_version
 
     def __str__(self):
-        """ string representation of data container """
+        """ String representation of data container. """
         width = 80
         s = []
         s += ['{s:=^{n}}'.format(s=' Data Container ', n=width)]
@@ -369,26 +367,44 @@ class BaseDataContainer:
         s += [''.center(width, '=')]
         return '\n'.join(s)
 
+    def _repr_html_(self) -> str:
+        """ HTML representation. Used, e.g., in jupyter notebooks. """
+        s = ['<h4>Data Container</h4>']
+        s += ['<table border="1" class="dataframe">']
+        s += ['<thead><tr><th style="text-align: left;">Field</th><th>Value</th></tr></thead>']
+        s += ['<tbody>']
+        data_container_type = str(self.__class__).split('.')[-1].replace("'>", '')
+        s += [f'<tr><td style="text-align: left;">Type</td><td>{data_container_type}</td></tr>']
+        for key, value in self._last_state.items():
+            if isinstance(value, int) or isinstance(value, float) or isinstance(value, str):
+                s += [f'<tr><td style="text-align: left;">{key}</td><td>{value}</td></tr>']
+        for key, value in sorted(self._ensemble_parameters.items()):
+            s += [f'<tr><td style="text-align: left;">{key}</td><td>{value}</td></tr>']
+        for key, value in sorted(self._metadata.items()):
+            s += [f'<tr><td style="text-align: left;">{key}</td><td>{value}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Number of rows in data</td>'
+              f'<td>{len(self.data)}</td></tr>']
+        s += ['</tbody>']
+        s += ['</table>']
+        return ''.join(s)
+
     @classmethod
-    # todo: cls and the return should be type hinted as BaseDataContainer.
-    # Unfortunately, this requires from __future__ import annotations, which
-    # in turn requires Python 3.8.
     def read(cls, infile: Union[str, BinaryIO, TextIO], old_format: bool = False):
         """Reads data container from file.
 
         Parameters
         ----------
         infile
-            file from which to read
+            File from which to read.
         old_format
-            If true use old json format to read runtime data; default to false
+            If ``True`` use old json format to read runtime data.
 
         Raises
         ------
         FileNotFoundError
-            if file is not found (str)
+            If :attr:`infile` is not found.
         ValueError
-            if file is of incorrect type (not a tarball)
+            If :attr:`file` is of incorrect type (not a tarball).
         """
         if isinstance(infile, str):
             filename = infile
@@ -451,7 +467,7 @@ class BaseDataContainer:
         warnings.warn('get_data is deprecated, use get instead', DeprecationWarning)
         return self.get(*args, **kwargs)
 
-    def get_trajectory(self, *args, **kwargs):
+    def get_trajectory(self, *args, **kwargs) -> List[Atoms]:
         """ Returns trajectory as a list of ASE Atoms objects."""
         warnings.simplefilter('always', DeprecationWarning)
         warnings.warn('get_trajectory is deprecated, use get instead', DeprecationWarning)

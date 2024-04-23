@@ -13,16 +13,16 @@ def get_neighbor_lists(structure: Union[Atoms, Structure],
                        cutoffs: List,
                        position_tolerance: float = 1e-5) -> List[List]:
     """
-    Returns a list of icet neighbor lists given a configuration and cutoffs.
+    Returns a list of :program:`icet` neighbor lists given a configuration and cutoffs.
 
     Parameters
     ----------
     structure
-        atomic configuration
+        Atomic configuration.
     cutoffs
-        positive floats indicating the cutoffs for the various clusters
+        Positive floats indicating the cutoffs for the various clusters.
     position_tolerance
-        tolerance applied when comparing positions in Cartesian coordinates
+        Tolerance applied when comparing positions in Cartesian coordinates.
     """
     # deal with different types of structure objects
     if isinstance(structure, Structure):

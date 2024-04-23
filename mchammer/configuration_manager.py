@@ -15,24 +15,22 @@ class ConfigurationManager(object):
     The ConfigurationManager owns and handles information pertaining to a
     configuration being sampled in a Monte Carlo simulation.
 
+    Note
+    ----
+    As a user you will usually not interact directly with objects of this type.
+
     Parameters
     ----------
-    structure : ase.Atoms
-        configuration to be handled
+    structure : Atoms
+        Configuration to be handled.
     sublattices : :class:`Sublattices <icet.core.sublattices.Sublattices>`
-        sublattices class used to define allowed occupations and so on
-
-    Todo
-    ----
-    * revise docstrings
+        Sublattices used to define allowed occupations and handle related information.
     """
 
     def __init__(self, structure: Atoms, sublattices: Sublattices) -> None:
-
         self._structure = structure.copy()
         self._occupations = self._structure.numbers
         self._sublattices = sublattices
-
         self._sites_by_species = self._get_sites_by_species()
 
     def _get_sites_by_species(self) -> List[Dict[int, List[int]]]:
@@ -51,17 +49,17 @@ class ConfigurationManager(object):
 
     @property
     def occupations(self) -> np.ndarray:
-        """ occupation vector of the configuration (copy) """
+        """ Occupation vector of the configuration (copy). """
         return self._occupations.copy()
 
     @property
     def sublattices(self) -> Sublattices:
-        """sublattices of the configuration"""
+        """ Sublattices of the configuration. """
         return self._sublattices
 
     @property
     def structure(self) -> Atoms:
-        """ atomic structure associated with configuration (copy) """
+        """ Atomic structure associated with configuration (copy). """
         structure = self._structure.copy()
         structure.set_atomic_numbers(self.occupations)
         return structure
@@ -73,21 +71,21 @@ class ConfigurationManager(object):
         Parameters
         ---------
         sublattice_index
-            the sublattice for which the occupations should be returned
+            Sublattice by index for which the occupations should be returned.
         """
         sl = self.sublattices[sublattice_index]
         return list(self.occupations[sl.indices])
 
     def is_swap_possible(self, sublattice_index: int,
                          allowed_species: List[int] = None) -> bool:
-        """ Checks if swap is possible on specific sublattice.
+        """ Checks if a swap trial move is possible on a specific sublattice.
 
         Parameters
         ----------
         sublattice_index
-            index of sublattice to be checked
+            Index of sublattice to be checked.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
          """
         sl = self.sublattices[sublattice_index]
         if allowed_species is None:
@@ -103,29 +101,27 @@ class ConfigurationManager(object):
         """Returns two random sites (first element of tuple) and their
         occupation after a swap (second element of tuple).  The new
         configuration will obey the occupation constraints associated
-        with the configuration mananger.
+        with the :class:`ConfigurationManager` object.
 
         Parameters
         ----------
         sublattice_index
-            sublattice from which to pick sites
+            Sublattice by index from which to pick sites.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
         """
         # pick the first site
         if allowed_species is None:
-            available_sites =\
-                self.sublattices[sublattice_index].indices
+            available_sites = self.sublattices[sublattice_index].indices
         else:
-            available_sites =\
-                [s for Z in allowed_species for s in
-                 self._get_sites_by_species()[sublattice_index][Z]]
+            available_sites = [
+                s for Z in allowed_species for s in
+                self._get_sites_by_species()[sublattice_index][Z]]
 
         try:
             site1 = random.choice(available_sites)
         except IndexError:
-            raise SwapNotPossibleError(
-                'Sublattice {} is empty.'.format(sublattice_index))
+            raise SwapNotPossibleError(f'Sublattice {sublattice_index} is empty.')
 
         # pick the second site
         if allowed_species is None:
@@ -151,17 +147,20 @@ class ConfigurationManager(object):
 
         return ([site1, site2], [self._occupations[site2], self._occupations[site1]])
 
-    def get_flip_state(self, sublattice_index: int,
-                       allowed_species: List[int] = None) -> Tuple[int, int]:
+    def get_flip_state(
+            self,
+            sublattice_index: int,
+            allowed_species: List[int] = None,
+    ) -> Tuple[int, int]:
         """
         Returns a site index and a new species for the site.
 
         Parameters
         ----------
         sublattice_index
-            index of sublattice from which to pick a site
+            Index of sublattice from which to pick a site.
         allowed_species
-            list of atomic numbers for allowed species
+            List of atomic numbers for allowed species.
         """
         if allowed_species is None:
             available_sites = self._sublattices[sublattice_index].indices
@@ -179,7 +178,7 @@ class ConfigurationManager(object):
                 set([self._occupations[site]])))
         return site, species
 
-    def update_occupations(self, sites: List[int], species: List[int]):
+    def update_occupations(self, sites: List[int], species: List[int]) -> None:
         """
         Updates the occupation vector of the configuration being sampled.
         This will change the state in both the configuration in the calculator
@@ -188,9 +187,9 @@ class ConfigurationManager(object):
         Parameters
         ----------
         sites
-            indices of sites of the configuration to change
+            Indices of sites of the configuration to change.
         species
-            new occupations by atomic number
+            New occupations by atomic number.
         """
 
         # Update sublattices

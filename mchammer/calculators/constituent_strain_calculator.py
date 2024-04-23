@@ -12,18 +12,18 @@ class ConstituentStrainCalculator(ClusterExpansionCalculator):
     Parameters
     ----------
     constituent_strain
-        ConstituentStrain object defining the strain energy
-        properties of the system; the supercell used to
-        create this object should corresponding to the one
+        :class:`ConstituentStrain` object defining the strain energy
+        properties of the system. The supercell used to
+        create this object should correspond to the one
         used when running Monte Carlo simulations with this
         calculator
     cluster_expansion
-        cluster expansion from which to build ClusterExpansionCalculator
+        Cluster expansion based on which to set up :class:`ClusterExpansionCalculator`.
     name
-        human-readable identifier for this calculator
+        Human-readable identifier for this calculator.
     scaling
-        scaling factor applied to the property value predicted by the
-        cluster expansion
+        Scaling factor applied to the property value predicted by the
+        cluster expansion.
     """
 
     def __init__(self, constituent_strain: ConstituentStrain,
@@ -44,7 +44,7 @@ class ConstituentStrainCalculator(ClusterExpansionCalculator):
         Parameters
         ----------
         occupations
-            the entire occupation vector (i.e. an array of atomic numbers as integers)
+            The entire occupation vector (i.e., an array of atomic numbers as integers).
         """
         e = super().calculate_total(occupations=occupations)
         e += len(occupations) * \
@@ -56,16 +56,16 @@ class ConstituentStrainCalculator(ClusterExpansionCalculator):
                          new_site_occupations: List[int]) -> float:
         """
         Calculates and returns the sum of the contributions to the property
-        due to the sites specified in `local_indices`
+        due to the sites specified in :attr:`sites`.
 
         Parameters
         ----------
         sites
-            index of sites at which occupations will be changed
+            Indices of sites at which occupations will be changed.
         current_occupations
-            entire occupation vector (atomic numbers) before change
+            Entire occupation vector (atomic numbers) before change.
         new_site_occupations
-            atomic numbers after change at the sites defined by `sites`
+            Atomic numbers after change at the sites defined by :attr:`sites`.
         """
         if len(new_site_occupations) > 1:
             raise NotImplementedError('Only single flips are currently allowed in '
@@ -79,9 +79,8 @@ class ConstituentStrainCalculator(ClusterExpansionCalculator):
         return e
 
     def accept_change(self):
-        """
-        Informs the ConstituentStrain object that the most
-        recent change was accepted, such that the new
-        structure factor can be stored.
+        """Informs the :class:`ConstituentStrain` object that the most recent
+        change was accepted, such that the new structure factor can be
+        stored.
         """
         self.constituent_strain.accept_change()

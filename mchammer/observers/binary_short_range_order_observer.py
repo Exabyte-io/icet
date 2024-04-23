@@ -16,30 +16,22 @@ class BinaryShortRangeOrderObserver(BaseObserver):
     This class represents a short range order (SRO) observer for a
     binary system.
 
-
     Parameters
     ----------
-    cluster_space : icet.ClusterSpace
-        cluster space used for initialization
-    structure : ase.Atoms
-        defines the lattice which the observer will work on
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulations, then the Ensemble object
-        will set the interval.
-    radius : float
-        the maximum radius  for the neigbhor shells considered
-
-    Attributes
-    ----------
-    tag : str
-        human readable observer name (`BinaryShortRangeOrderObserver`)
-    interval : int
-        observation interval
+    cluster_space
+        Cluster space used for initialization.
+    structure
+        Defines the lattice which the observer will work on.
+    radius
+        The maximum radius for the neigbhor shells considered.
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulations, then the :class:`Ensemble` object
+        will determine the interval.
 
     Example
     -------
-    The following snippet illustrate how to use the short-range order (SRO)
+    The following snippet illustrates how to use the short-range order (SRO)
     observer in a Monte Carlo simulation of a bulk supercell. Here, the
     parameters of the cluster expansion are set to emulate a simple Ising model
     in order to obtain an example that can be run without modification. In
@@ -69,18 +61,18 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         >>> mc = CanonicalEnsemble(structure=structure, calculator=calc, temperature=600,
         ...                        dc_filename='myrun_sro.dc')
 
-        # set up observer and attach it to the MC simulation
-        sro = BinaryShortRangeOrderObserver(cs, structure, interval=len(structure),
-                                            radius=4.3)
-        mc.attach_observer(sro)
+        >>> # set up observer and attach it to the MC simulation
+        >>> sro = BinaryShortRangeOrderObserver(cs, structure, interval=len(structure),
+                                                radius=4.3)
+        >>> mc.attach_observer(sro)
 
-        # run 1000 trial steps
-        mc.run(1000)
+        >>> # run 1000 trial steps
+        >>> mc.run(1000)
 
     After having run this snippet one can access the SRO parameters via the
     data container::
 
-        print(mc.data_container.data)
+        >>> print(mc.data_container.data)
     """
 
     def __init__(self, cluster_space, structure: Atoms,
@@ -119,7 +111,7 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         Parameters
         ----------
         structure
-            input atomic structure
+            Input atomic structure.
         """
 
         df = self._cluster_count_observer.get_cluster_counts(structure)
@@ -155,13 +147,12 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         return sro_parameters
 
     def _get_concentrations(self, structure: Atoms) -> Dict[str, float]:
-        """Returns concentrations for each species relative its
-        sublattice.
+        """Returns concentrations for each species relative its sublattice.
 
         Parameters
         ----------
         structure
-            the configuration that will be analyzed
+            The configuration to be analyzed.
         """
         occupation = np.array(structure.get_chemical_symbols())
         concentrations = {}
@@ -176,13 +167,12 @@ class BinaryShortRangeOrderObserver(BaseObserver):
         return concentrations
 
     def _get_atom_count(self, structure: Atoms) -> Dict[str, float]:
-        """Returns atom counts for each species relative its
-        sublattice.
+        """Returns atom counts for each species relative its sublattice.
 
         Parameters
         ----------
         structure
-            the configuration that will be analyzed
+            The configuration to be analyzed.
         """
         occupation = np.array(structure.get_chemical_symbols())
         counts = {}

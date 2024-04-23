@@ -54,7 +54,7 @@ Orbit::Orbit(const std::vector<Cluster> clusters,
 /**
 @brief Add a cluster to the orbit.
 @details Note that this function only appends the new cluster to the end without resorting.
-@param latticeSiteGroup Cluster to be added represented by a group of lattice sites
+@param cluster Cluster to be added represented by a group of lattice sites
 */
 void Orbit::addCluster(const Cluster &cluster)
 {
@@ -324,7 +324,8 @@ void Orbit::translate(const Vector3i &cellOffset)
     referring to the new structure. This map will successivelly be
     populated when executing the function, and is only used for
     reasons of performance.
-@fractionalPositionTolerance
+@param fractionalPositionTolerance
+    Tolerance applied when compariong fractional coordinates.
 **/
 void Orbit::transformToSupercell(std::shared_ptr<Structure> supercell,
                                  std::unordered_map<LatticeSite, LatticeSite> &primitiveToSupercellMap,

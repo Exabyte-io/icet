@@ -26,38 +26,39 @@ class BaseEnsemble(ABC):
 
     Parameters
     ----------
-    structure : :class:`Atoms <ase.Atoms>`
-        atomic configuration to be used in the Monte Carlo simulation;
-        also defines the initial occupation vector
-    calculator : :class:`BaseCalculator <mchammer.calculators.ClusterExpansionCalculator>`
-        calculator to be used for calculating the potential changes
-        that enter the evaluation of the Metropolis criterion
-    user_tag : str
-        human-readable tag for ensemble [default: None]
-    random_seed : int
-        seed for the random number generator used in the Monte Carlo
-        simulation
-    dc_filename : str
-        name of file the data container associated with the ensemble
-        will be written to; if the file exists it will be read, the
+    structure
+        Atomic configuration to be used in the Monte Carlo simulation;
+        also defines the initial occupation vector.
+    calculator
+        Calculator to be used for calculating the potential changes
+        that enter the evaluation of the Metropolis criterion.
+    user_tag
+        Human-readable tag for ensemble. Default: ``None``.
+    random_seed
+        Seed for the random number generator used in the Monte Carlo simulation.
+    dc_filename
+        Name of file the data container associated with the ensemble
+        will be written to. If the file exists it will be read, the
         data container will be appended, and the file will be
-        updated/overwritten
-    data_container_class : BaseDataContainer
-        used to initialize custom (ensemble specific) data container objects;
-        by default the class uses the generic BaseDataContainer class
-    data_container_write_period : float
-        period in units of seconds at which the data container is
-        written to file; writing periodically to file provides both
+        updated/overwritten.
+    data_container_class
+        Used to initialize custom (ensemble specific) data container objects.
+        By default the class uses the generic :class:`BaseDataContainer` class.
+    data_container_write_period
+        Period in units of seconds at which the data container is
+        written to file. Writing periodically to file provides both
         a way to examine the progress of the simulation and to back up
         the data.
-    ensemble_data_write_interval : int
-        interval at which data is written to the data container; this
+    ensemble_data_write_interval
+        Interval at which data is written to the data container. This
         includes for example the current value of the calculator
-        (i.e. usually the energy) as well as ensembles specific fields
-        such as temperature or the number of atoms of different species
-    trajectory_write_interval : int
-        interval at which the current occupation vector of the atomic
+        (i.e., usually the energy) as well as ensembles specific fields
+        such as temperature or the number of atoms of different species.
+        Default: Number of sites in the :attr:`structure`.
+    trajectory_write_interval
+        Interval at which the current occupation vector of the atomic
         configuration is written to the data container.
+        Default: Number of sites in the :attr:`structure`.
     """
 
     def __init__(self,
@@ -156,27 +157,27 @@ class BaseEnsemble(ABC):
 
     @property
     def structure(self) -> Atoms:
-        """ current configuration (copy) """
+        """ Current configuration (copy). """
         return self.configuration.structure
 
     @property
     def data_container(self) -> BaseDataContainer:
-        """ data container associated with ensemble """
+        """ Data container associated with ensemble. """
         return self._data_container
 
     @property
     def observers(self) -> Dict[str, BaseObserver]:
-        """ observers """
+        """ Observers. """
         return self._observers
 
     @property
     def calculator(self) -> BaseCalculator:
-        """ calculator attached to the ensemble """
+        """ Calculator attached to the ensemble. """
         return self._calculator
 
     @property
     def step(self) -> int:
-        """ current trial step counter """
+        """ Current trial step counter. """
         return self._step
 
     def run(self, number_of_trial_steps: int):
@@ -186,15 +187,15 @@ class BaseEnsemble(ABC):
         Parameters
         ----------
         number_of_trial_steps
-            number of MC trial steps to run in total
+            Number of MC trial steps to run in total.
         reset_step
-            if True the MC trial step counter and the data container will
+            If ``True`` the MC trial step counter and the data container will
             be reset to zero and empty, respectively.
 
         Raises
         ------
         TypeError
-            if `number_of_trial_steps` is not an int
+            If :attr:`number_of_trial_steps` is not an ``int``.
         """
 
         if not isinstance(number_of_trial_steps, int):
@@ -240,13 +241,12 @@ class BaseEnsemble(ABC):
             self.write_data_container(self._data_container_filename)
 
     def _run(self, number_of_trial_steps: int):
-        """Runs MC simulation for a number of trial steps without
-        interruption.
+        """Runs MC simulation for a number of trial steps without interruption.
 
         Parameters
         ----------
         number_of_trial_steps
-            number of trial steps to run without stopping
+            Number of trial steps to run without stopping.
         """
         for _ in range(number_of_trial_steps):
             accepted = self._do_trial_step()
@@ -260,7 +260,7 @@ class BaseEnsemble(ABC):
         Parameters
         ----------
         step
-            the current trial step
+            Current trial step.
         """
         row_dict = {}
 
@@ -296,12 +296,12 @@ class BaseEnsemble(ABC):
 
     @property
     def user_tag(self) -> Optional[str]:
-        """ tag used for labeling the ensemble """
+        """ Tag used for labeling the ensemble. """
         return self._user_tag
 
     @property
     def random_seed(self) -> int:
-        """ seed used to initialize random number generator """
+        """ Seed used to initialize random number generator. """
         return self._random_seed
 
     def _next_random_number(self) -> float:
@@ -310,8 +310,8 @@ class BaseEnsemble(ABC):
 
     @property
     def observer_interval(self) -> int:
-        """minimum number of steps to run Monte Carlo simulation without
-        interruption for observation
+        """ Minimum number of steps to run Monte Carlo simulation without
+        interruption for observation.
         """
         return self._observer_interval
 
@@ -343,22 +343,22 @@ class BaseEnsemble(ABC):
         else:
             return gcd(values[0], values[1])
 
-    def attach_observer(self, observer: BaseObserver, tag=None):
+    def attach_observer(self, observer: BaseObserver, tag: str = None):
         """
         Attaches an observer to the ensemble.
 
         If the observer does not have an observation interval,
-        then it will be set to the default_interval len(atoms).
+        then it will be set to the default_interval.
 
         Parameters
         ----------
         observer
-            observer instance to attach
+            Observer instance to attach.
         tag
-            name used in data container
+            Name used in data container.
         """
         if not isinstance(observer, BaseObserver):
-            raise TypeError('observer has the wrong type: {}'.format(type(observer)))
+            raise TypeError('observer has the wrong type: {type(observer))}')
 
         if observer.interval is None:
             observer.interval = self._default_interval
@@ -379,14 +379,14 @@ class BaseEnsemble(ABC):
         Parameters
         ----------
         sites
-            indices of sites of the configuration to change
+            Indices of sites of the configuration to change.
         species
-            new occupations (species) by atomic number
+            New occupations (species) by atomic number.
 
         Raises
         ------
         ValueError
-            if input lists are not of the same length
+            If input lists are not of the same length.
         """
 
         if len(sites) != len(species):
@@ -398,14 +398,16 @@ class BaseEnsemble(ABC):
         """Computes and returns the property change due to a change of
         the configuration.
 
-        _N.B.:_ This method leaves the configuration itself unchanged.
+        Note
+        ----
+        This method leaves the configuration itself unchanged.
 
         Parameters
         ----------
         sites
-            indices of sites to change
+            Indices of sites to change.
         species
-            new occupations (species) by atomic number
+            New occupations (species) by atomic number.
         """
         return self.calculator.calculate_change(sites=sites,
                                                 current_occupations=self.configuration.occupations,
@@ -418,13 +420,13 @@ class BaseEnsemble(ABC):
                 'acceptance_ratio': self._accepted_trials / self._ensemble_data_write_interval}
 
     def get_random_sublattice_index(self, probability_distribution) -> int:
-        """Returns a random sublattice index based on the weights of the
+        """ Returns a random sublattice index based on the weights of the
         sublattice.
 
         Parameters
         ----------
         probability_distribution
-            probability distributions for the sublattices
+            Probability distributions for the sublattices.
         """
         n_sublattices = len(self.sublattices)
         if len(probability_distribution) != n_sublattices:
@@ -463,7 +465,7 @@ class BaseEnsemble(ABC):
         Parameters
         ----------
         outfile
-            file to which to write
+            File to which to write.
         """
         self._data_container._update_last_state(
             last_step=self.step,
@@ -475,12 +477,12 @@ class BaseEnsemble(ABC):
 
     @property
     def ensemble_parameters(self) -> dict:
-        """Returns parameters associated with the ensemble."""
+        """ Parameters associated with the ensemble. """
         return self._ensemble_parameters.copy()
 
     @property
     def sublattices(self) -> Sublattices:
-        """sublattices for the configuration being sampled"""
+        """ Sublattices for the configuration being sampled. """
         return self.configuration.sublattices
 
     def _terminate_sampling(self) -> bool:
@@ -501,7 +503,7 @@ class BaseEnsemble(ABC):
         pass
 
     def __str__(self) -> str:
-        """ string representation of BaseEnsemble. """
+        """ String representation. """
         width = 60
         name = self.__class__.__name__
         s = [' {} '.format(name).center(width, '=')]
@@ -517,7 +519,8 @@ class BaseEnsemble(ABC):
 
 def dicts_equal(dict1: Dict, dict2: Dict, atol: float = 1e-12) -> bool:
     """Returns True (False) if two dicts are equal (not equal), if
-    float or integers are in the dicts then atol is used for comparing them."""
+    float or integers are in the dicts then atol is used for comparing them.
+    """
     if len(dict1) != len(dict2):
         return False
     for key in dict1.keys():

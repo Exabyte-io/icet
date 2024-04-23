@@ -28,8 +28,8 @@ class TestCEObserver(unittest.TestCase):
 
     def setUp(self):
         """Set up observer before each test."""
-        self.observer = ClusterExpansionObserver(
-            self.ce, tag='ce_band_gap', interval=10)
+        self.observer = ClusterExpansionObserver(self.ce, interval=10)
+        self.observer.tag = 'ce_band_gap'
 
     def test_property_tag(self):
         """Tests property tag."""

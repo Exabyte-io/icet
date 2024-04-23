@@ -22,22 +22,32 @@ class ClusterExpansion:
     Instances of this class allow one to predict the property of interest for
     a given structure.
 
-    **Note:** Each element of the parameter vector corresponds to an
-    effective cluster interaction (ECI) multiplied by the multiplicity of the
-    underlying orbit.
+    Note
+    ----
+    Each element of the parameter vector corresponds to an effective cluster
+    interaction (ECI) multiplied by the multiplicity of the underlying orbit.
 
     Attributes
     ----------
-    cluster_space : icet.ClusterSpace
-        cluster space that was used for constructing the cluster expansion
-    parameters : np.ndarray
-        parameter vector
+    cluster_space
+        Cluster space that was used for constructing the cluster expansion.
+    parameters
+        Parameter vector.
+    metadata
+        Metadata dictionary, user-defined metadata to be stored together
+        with cluster expansion. Will be pickled when CE is written to file.
+        By default contains icet version, username, hostname and date.
+
+    Raises
+    ------
+    ValueError
+        If :attr:`cluster_space` and :attr:`parameters` differ in length.
 
     Example
     -------
-    The following snippet illustrates the initialization and usage of
-    a ClusterExpansion object. Here, the parameters are taken to be a list
-    of ones. Usually, they would be obtained by training with
+    The following snippet illustrates the initialization and usage of a
+    :class:`ClusterExpansion` object. Here, the parameters are taken to be
+    a list of ones. Usually, they would be obtained by training with
     respect to a set of reference data::
 
        >>> from ase.build import bulk
@@ -59,25 +69,6 @@ class ClusterExpansion:
 
     def __init__(self, cluster_space: ClusterSpace, parameters: np.array,
                  metadata: dict = None) -> None:
-        """
-        Initializes a ClusterExpansion object.
-
-        Parameters
-        ----------
-        cluster_space
-            cluster space to be used for constructing the cluster expansion
-        parameters
-            parameter vector
-        metadata : dict
-            metadata dictionary, user-defined metadata to be stored together
-            with cluster expansion. Will be pickled when CE is written to file.
-            By default contains icet version, username, hostname and date.
-
-        Raises
-        ------
-        ValueError
-            if cluster space and parameters differ in length
-        """
         if len(cluster_space) != len(parameters):
             raise ValueError('cluster_space ({}) and parameters ({}) must have'
                              ' the same length'.format(len(cluster_space), len(parameters)))
@@ -94,75 +85,84 @@ class ClusterExpansion:
 
     def predict(self, structure: Union[Atoms, Structure]) -> float:
         """
-        Predicts the property of interest (e.g., the energy) for the input
-        structure using the cluster expansion.
+        Returns the property value predicted by the cluster expansion.
 
         Parameters
         ----------
         structure
-            atomic configuration
-
-        Returns
-        -------
-        float
-            property value of predicted by the cluster expansion
+            Atomic configuration.
         """
         cluster_vector = self._cluster_space.get_cluster_vector(structure)
         prop = np.dot(cluster_vector, self.parameters)
         return prop
 
     def get_cluster_space_copy(self) -> ClusterSpace:
-        """ Gets copy of cluster space on which cluster expansion is based """
+        """ Returns copy of cluster space on which cluster expansion is based. """
         return self._cluster_space.copy()
 
     def to_dataframe(self) -> pd.DataFrame:
-        """Returns representation of the cluster expansion in the form of a
-        DataFrame containing orbit information and effective cluster interactions
-        (ECIs)."""
-        rows = self._cluster_space.orbit_data
+        """Returns a representation of the cluster expansion in the form of a
+        DataFrame including effective cluster interactions (ECIs)."""
+        rows = self._cluster_space.as_list
         for row, param in zip(rows, self.parameters):
             row['parameter'] = param
             row['eci'] = param / row['multiplicity']
-        return pd.DataFrame(rows)
+        df = pd.DataFrame(rows)
+        del df['index']
+        return df
+
+    @property
+    def chemical_symbols(self) -> List[List[str]]:
+        """ Species identified by their chemical symbols (copy). """
+        return self._cluster_space.chemical_symbols.copy()
+
+    @property
+    def cutoffs(self) -> List[float]:
+        """
+        Cutoffs for different n-body clusters (copy). The cutoff radius (in
+        Ångstroms) defines the largest interatomic distance in a
+        cluster.
+        """
+        return self._cluster_space.cutoffs.copy()
 
     @property
     def orders(self) -> List[int]:
-        """ orders included in cluster expansion """
+        """ Orders included in cluster expansion. """
         return list(range(len(self._cluster_space.cutoffs) + 2))
 
     @property
     def parameters(self) -> List[float]:
-        """ parameter vector; each element of the parameter vector corresponds
+        """ Parameter vector. Each element of the parameter vector corresponds
         to an effective cluster interaction (ECI) multiplied by the
-        multiplicity of the respective orbit """
+        multiplicity of the respective orbit. """
         return self._parameters
 
     @property
     def metadata(self) -> dict:
-        """ metadata associated with cluster expansion """
+        """ Metadata associated with the cluster expansion. """
         return self._metadata
 
     @property
     def symprec(self) -> float:
-        """ tolerance imposed when analyzing the symmetry using spglib
-        (inherited from the underlying cluster space) """
+        """ Tolerance imposed when analyzing the symmetry using spglib
+        (inherited from the underlying cluster space). """
         return self._cluster_space.symprec
 
     @property
     def position_tolerance(self) -> float:
-        """ tolerance applied when comparing positions in Cartesian coordinates
-        (inherited from the underlying cluster space) """
+        """ Tolerance applied when comparing positions in Cartesian coordinates
+        (inherited from the underlying cluster space). """
         return self._cluster_space.position_tolerance
 
     @property
     def fractional_position_tolerance(self) -> float:
-        """ tolerance applied when comparing positions in fractional coordinates
-        (inherited from the underlying cluster space) """
+        """ Tolerance applied when comparing positions in fractional coordinates
+        (inherited from the underlying cluster space). """
         return self._cluster_space.fractional_position_tolerance
 
     @property
     def primitive_structure(self) -> Atoms:
-        """ primitive structure on which cluster expansion is based """
+        """ Primitive structure on which cluster expansion is based. """
         return self._cluster_space.primitive_structure.copy()
 
     def __len__(self) -> int:
@@ -213,13 +213,53 @@ class ClusterExpansion:
             t = [t for t in cluster_space_repr if re.match(pattern, t)]
             parameter = self._parameters[index]
             t += ['{s:^{n}}'.format(s=f'{parameter:9.3g}', n=par_col_width)]
-            eci = parameter / self._cluster_space.orbit_data[index]['multiplicity']
+            eci = parameter / self._cluster_space.as_list[index]['multiplicity']
             t += ['{s:^{n}}'.format(s=f'{eci:9.3g}', n=par_col_width)]
             s += [' | '.join(t)]
             index += 1
         s += [''.center(width, '=')]
 
         return '\n'.join(s)
+
+    def __str__(self) -> str:
+        """ String representation. """
+        return self._get_string_representation(print_threshold=50)
+
+    def _repr_html_(self) -> str:
+        """ HTML representation. Used, e.g., in jupyter notebooks. """
+        s = ['<h4>Cluster Expansion</h4>']
+        s += ['<table border="1" class="dataframe">']
+        s += ['<thead><tr><th style="text-align: left;">Field</th><th>Value</th></tr></thead>']
+        s += ['<tbody>']
+        s += ['<tr><td style="text-align: left;">Space group</td>'
+              f'<td>{self._cluster_space.space_group}</td></tr>']
+        for sl in self._cluster_space.get_sublattices(
+                self.primitive_structure).active_sublattices:
+            s += [f'<tr><td style="text-align: left;">Sublattice {sl.symbol}</td>'
+                  f'<td>{sl.chemical_symbols}</td></tr>']
+        s += ['<tr><td style="text-align: left;">Cutoffs</td>'
+              f'<td>{self._cluster_space.cutoffs}</td></tr>']
+
+        df = self.to_dataframe()
+        nzp_by_order = [np.count_nonzero(df[df.order == order].eci) for order in self.orders]
+        assert sum(nzp_by_order) == np.count_nonzero(self.parameters)
+        s += ['<tr><td style="text-align: left;">Total number of parameters (nonzero)</td>'
+              f'<td>{len(self)} ({sum(nzp_by_order)})</td></tr>']
+        for (order, npar), nzp in zip(
+                self._cluster_space.number_of_orbits_by_order.items(), nzp_by_order):
+            s += ['<tr><td style="text-align: left;">'
+                  f'Number of parameters of order {order} (nonzero)</td>'
+                  f'<td>{npar} ({nzp})</td></tr>']
+        s += ['<tr><td style="text-align: left;">fractional_position_tolerance</td>'
+              f'<td>{self._cluster_space.fractional_position_tolerance}</td></tr>']
+        s += ['<tr><td style="text-align: left;">position_tolerance</td>'
+              f'<td>{self._cluster_space.position_tolerance}</td></tr>']
+        s += ['<tr><td style="text-align: left;">symprec</td>'
+              f'<td>{self._cluster_space.symprec}</td></tr>']
+
+        s += ['</tbody>']
+        s += ['</table>']
+        return ''.join(s)
 
     def __repr__(self) -> str:
         """ Representation. """
@@ -229,45 +269,24 @@ class ClusterExpansion:
         s += ')'
         return s
 
-    def __str__(self) -> str:
-        """ string representation """
-        return self._get_string_representation(print_threshold=50)
-
-    def print_overview(self,
-                       print_threshold: int = None,
-                       print_minimum: int = 10) -> None:
-        """
-        Print an overview of the cluster expansion in terms of the orbits (order,
-        radius, multiplicity, corresponding ECI etc).
-
-        Parameters
-        ----------
-        print_threshold
-            if the number of orbits exceeds this number print dots
-        print_minimum
-            number of lines printed from the top and the bottom of the orbit
-            list if `print_threshold` is exceeded
-        """
-        print(self._get_string_representation(print_threshold=print_threshold,
-                                              print_minimum=print_minimum))
-
     def prune(self, indices: List[int] = None, tol: float = 0) -> None:
-        """
-        Removes orbits from the cluster expansion (CE), for which the absolute
-        values of the corresponding parameters are zero or close to zero. This
-        commonly reduces the computational cost for evaluating the CE and is
-        therefore recommended prior to using it in production. If the method
-        is called without arguments orbits will be pruned, for which the ECIs
-        are strictly zero. Less restrictive pruning can be achieved by setting
-        the `tol` keyword.
+        """Removes orbits from the cluster expansion, for which the absolute
+        values of the corresponding parameters are zero or close to
+        zero.  This commonly reduces the computational cost for
+        evaluating the cluster expansion.  It is therefore recommended
+        to apply this method prior to using the cluster expansion in
+        production.  If the method is called without arguments only
+        orbits will be pruned, for which the ECIs are strictly zero.
+        Less restrictive pruning can be achieved by setting the
+        :attr:`tol` keyword.
 
         Parameters
         ----------
         indices
-            indices of parameters to remove from the cluster expansion.
+            Indices of parameters to remove from the cluster expansion.
         tol
-            all orbits will be pruned for which the absolute parameter value(s)
-            is/are within this tolerance
+            All orbits will be pruned for which the absolute parameter value(s)
+            is/are within this tolerance.
         """
 
         # find orbit indices to be removed
@@ -332,12 +351,12 @@ class ClusterExpansion:
     @staticmethod
     def read(filename: str):
         """
-        Reads ClusterExpansion object from file.
+        Reads :class:`ClusterExpansion` object from file.
 
         Parameters
         ---------
         filename
-            file from which to read
+            File from which to read.
         """
         with tarfile.open(name=filename, mode='r') as tar_file:
             cs_file = tempfile.NamedTemporaryFile(delete=False)
@@ -359,7 +378,7 @@ class ClusterExpansion:
         return ce
 
     def _add_default_metadata(self):
-        """Adds default metadata to metadata dict."""
+        """ Adds default metadata to metadata dict. """
         import getpass
         import socket
         from datetime import datetime

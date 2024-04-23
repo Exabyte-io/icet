@@ -15,17 +15,17 @@ class KPoint:
     Parameters
     ----------
     kpt
-        k-point coordinates
+        k-point coordinates.
     multiplicity
-        Multiplicity of this k point
+        Multiplicity of this k-point.
     structure_factor
-        Current structure associated with this k point
-    damping
-        Damping at this k point in units of Angstrom
+        Current structure associated with this k-point.
     strain_energy_function
-        function that takes a concentration and a list of parameters
-        and returns strain energy
-    """
+        Function that takes a concentration and a list of parameters
+        and returns strain energy.
+    damping
+        Damping at this k-point in units of Ångstrom.
+   """
     def __init__(self, kpt: np.ndarray, multiplicity: float, structure_factor: float,
                  strain_energy_function: Callable[[float, List[float]], float],
                  damping: float):
@@ -39,7 +39,7 @@ class KPoint:
 
 
 class ConstituentStrain:
-    """
+    r"""
     Class for handling constituent strain in cluster expansions
     (see Laks et al., Phys. Rev. B **46**, 12587 (1992) [LakFerFro92]_).
     This makes it possible to use cluster expansions to describe systems
@@ -53,36 +53,36 @@ class ConstituentStrain:
         Defines supercell that will be used when
         calculating constituent strain.
     primitive_structure
-        The primitive structure that supercell is based on
+        Primitive structure the supercell is based on.
     chemical_symbols
-        List with chemical symbols involved, such as ``['Ag', 'Cu']``
+        List with chemical symbols involved, such as ``['Ag', 'Cu']``.
     concentration_symbol
         Chemical symbol used to define concentration,
-        such as ``'Ag'``
+        such as ``'Ag'``.
     strain_energy_function
         A function that takes two arguments, a list of parameters and
         concentration (e.g., ``[0.5, 0.5, 0.5]`` and ``0.3``),
         and returns the corresponding strain energy.
         The parameters are in turn determined by ``k_to_parameter_function``
         (see below). If ``k_to_parameter_function`` is None,
-        the parameters list will be the k point. For more information, see
+        the parameters list will be the k-point. For more information, see
         :ref:`this example <constituent_strain_example>`.
     k_to_parameter_function
-        A function that takes a k point as a list of three floats
-        and returns a parameter vector that will be fed into the
-        strain_energy_function (see above). If None, the k point
-        itself will be the parameter vector to strain_energy_function.
+        A function that takes a k-point as a list of three floats
+        and returns a parameter vector that will be fed into
+        :attr:`strain_energy_function` (see above). If ``None``, the k-point
+        itself will be the parameter vector to :attr:`strain_energy_function`.
         The purpose of this function is to be able to precompute
-        any factor in the strain energy that depends on k point
-        but not concentration. For more information, see
+        any factor in the strain energy that depends on the k-point
+        but not the concentration. For more information, see
         :ref:`this example <constituent_strain_example>`.
     damping
-        Damping factor :math:`\\eta` used to suppress impact of
-        large-magnitude k points by multiplying strain with
-        :math:`\\exp(-(\\eta \\mathbf{k})^2)` (unit Angstrom)
+        Damping factor :math:`\eta` used to suppress impact of
+        large-magnitude k-points by multiplying strain with
+        :math:`\exp(-(\eta \mathbf{k})^2)` (unit Ångstrom).
     tol
-        Numerical tolerance when comparing k points (units of
-        inverse Angstrom)
+        Numerical tolerance when comparing k-points (units of
+        inverse Ångstrom).
     """
 
     def __init__(self,
@@ -112,7 +112,7 @@ class ConstituentStrain:
         self.supercell = supercell
         self.concentration_number = ase_chemical_symbols.index(concentration_symbol)
 
-        # Initialize kpoints for this supercell
+        # Initialize k-points for this supercell
         self.kpoints = []
         initial_occupations = self.supercell.get_atomic_numbers()
         for kpt, multiplicity in _generate_k_points(primitive_structure, supercell, tol=tol):
@@ -139,26 +139,29 @@ class ConstituentStrain:
         """
         Calculate current concentration.
 
+        Parameters
+        ----------
         occupations
-            Current occupations
+            Current occupations.
         """
         return sum(occupations == self.concentration_number) / len(occupations)
 
     def _get_constituent_strain_term(self, kpoint: KPoint,
                                      occupations: List[int],
                                      concentration: float) -> float:
-        """
-        Calculate constituent strain corresponding to a specific k point.
-        That value is returned and also stored in the corresponding KPoint.
+        """Calculate constituent strain corresponding to a specific k-point.
+        That value is returned and also stored in the corresponding
+        :class:`KPoint <icet.tools.constituent_strain.KPoint>`.
 
         Parameters
         ----------
         kpoint
-            The k point to be calculated
+            The k-point to be calculated.
         occupations
-            Current occupations of the structure
+            Current occupations of the structure.
         concentration
-            Concentration in the structure
+            Concentration in the structure.
+
         """
         if abs(concentration) < 1e-9 or abs(1 - concentration) < 1e-9:
             kpoint.structure_factor = 0.0
@@ -180,8 +183,10 @@ class ConstituentStrain:
         """
         Calculate total constituent strain.
 
+        Parameters
+        ----------
         occupations
-            Current occupations
+            Current occupations.
         """
         c = self.get_concentration(occupations)
         E_CS = 0.0
@@ -198,24 +203,24 @@ class ConstituentStrain:
 
         .. warning ::
             This function is dependent on the internal state of the
-            ``ConstituentStrain`` object and **should typically only
+            :class:`ConstituentStrain` object and **should typically only
             be used internally by mchammer**. Specifically, the structure
             factor is saved internally to speed up computation.
-            The first time this function is called, ``occupations``
+            The first time this function is called, :attr:`occupations`
             must be the same array as was used to initialize the
-            ``ConstituentStrain`` object, or the same as was last used
-            when ``get_constituent_strain`` was called. After the
+            :class:`ConstituentStrain` object, or the same as was last used
+            when :func:`get_constituent_strain` was called. After the
             present function has been called, the same occupations vector
-            need to be used the next time as well, unless `accept_change`
-            has been called, in which case `occupations` should incorporate
+            need to be used the next time as well, unless :func:`accept_change`
+            has been called, in which case :attr:`occupations` should incorporate
             the changes implied by the previous call to the function.
 
         Parameters
         ----------
         occupations
-            Occupations before change
+            Occupations before change.
         atom_index
-            Index of site the occupation of which is to be changed
+            Index of site the occupation of which is to be changed.
         """
         # Determine concentration before and after
         n = sum(occupations == self.concentration_number)
@@ -259,14 +264,14 @@ class ConstituentStrain:
     def accept_change(self) -> None:
         """
         Update structure factor for each kpoint to the value
-        in ``structure_factor_after``. This makes it possible to
+        in :attr:`structure_factor_after`. This makes it possible to
         efficiently calculate changes in constituent strain with
-        the ``get_constituent_strain_change`` function; this function
+        the :func:`get_constituent_strain_change` function; this function
         should be called if the last occupations used to call
-        ``get_constituent_strain_change`` should be the starting point
-        for the next call of ``get_constituent_strain_change``.
+        :func:`get_constituent_strain_change` should be the starting point
+        for the next call of :func:`get_constituent_strain_change`.
         This is taken care of automatically by the Monte Carlo
-        simulations in mchammer.
+        simulations in :program:`mchammer`.
         """
         for kpoint in self.kpoints:
             kpoint.structure_factor = kpoint.structure_factor_after
@@ -276,22 +281,22 @@ def _generate_k_points(primitive_structure: Atoms,
                        supercell: Atoms,
                        tol: float) -> Tuple[np.ndarray, float]:
     """
-    Generate all k points in the 1BZ of the primitive cell
+    Generate all k-points in the 1BZ of the primitive cell
     that potentially correspond to a nonzero structure factor.
-    These are all the k points that are integer multiples of
+    These are all the k-points that are integer multiples of
     the reciprocal supercell.
 
     Parameters
     ----------
     primitive_structure
-        Primitive structure that the supercell is based on
+        Primitive structure that the supercell is based on.
     supercell
-        Supercell of primitive structure
+        Supercell of primitive structure.
     """
     reciprocal_primitive = np.linalg.inv(primitive_structure.cell)  # column vectors
     reciprocal_supercell = np.linalg.inv(supercell.cell)  # column vectors
 
-    # How many k points are there?
+    # How many k-points are there?
     # This information is needed to know when to stop looking for more,
     # i.e., it implicitly determines the iteration limits.
     nkpoints = int(round(np.linalg.det(reciprocal_primitive)
@@ -302,11 +307,11 @@ def _generate_k_points(primitive_structure: Atoms,
     found_kpoints = [np.array([0., 0., 0.])]
     covered_nkpoints = 1
 
-    # Now loop until we have found all k points.
+    # Now loop until we have found all k-points.
     # We loop by successively increasing the sum of the
     # absolute values of the components of the reciprocal
     # supercell vectors, and we stop when we have
-    # found the correct number of k points.
+    # found the correct number of k-points.
     component_sum = 0
     while covered_nkpoints < nkpoints:
         component_sum += 1
@@ -323,7 +328,7 @@ def _generate_k_points(primitive_structure: Atoms,
                 k = _translate_to_1BZ(k, reciprocal_primitive, tol=tol)
                 equivalent_kpoints = _find_equivalent_kpoints(k, reciprocal_primitive, tol=tol)
 
-                # Have we already found this k point?
+                # Have we already found this k-point?
                 found = False
                 for k in equivalent_kpoints:
                     for k_comp in found_kpoints:
@@ -334,14 +339,14 @@ def _generate_k_points(primitive_structure: Atoms,
                     if found:
                         break
                 else:
-                    # Then this is a new k point
+                    # Then this is a new k-point
                     # Yield it and its equivalent friends
                     covered_nkpoints += 1
                     for k in equivalent_kpoints:
                         found_kpoints.append(k)
                         yield k, 1 / len(equivalent_kpoints)
 
-        # Break if we have found all k points
+        # Break if we have found all k-points
         assert covered_nkpoints <= nkpoints
         if covered_nkpoints == nkpoints:
             break
@@ -370,7 +375,7 @@ def _ordered_combinations(s: int, n: int) -> List[int]:
 
 def _translate_to_1BZ(kpt: np.ndarray, primitive: np.ndarray, tol: float) -> np.ndarray:
     """
-    Translate k point into 1BZ by translating it by
+    Translate k-point into 1BZ by translating it by
     primitive lattice vectors and testing if that takes
     us closer to gamma. The algorithm works by recursion
     such that we keep translating until we no longer get
@@ -385,11 +390,11 @@ def _translate_to_1BZ(kpt: np.ndarray, primitive: np.ndarray, tol: float) -> np.
         column vectors
     tol
         numerical tolerance when comparing k-points (units of
-        inverse Angstrom)
+        inverse Ångstrom)
 
     Returns
     -------
-    the k point translated into 1BZ
+    the k-point translated into 1BZ
     """
     original_distance_from_gamma = np.linalg.norm(kpt)
     min_distance_from_gamma = original_distance_from_gamma
@@ -425,12 +430,12 @@ def _find_equivalent_kpoints(kpt: np.ndarray,
     primitive
         primitive reciprocal lattice vectors as columns
     tol
-        numerical tolerance when comparing k points (units of
-        inverse Angstrom)
+        numerical tolerance when comparing k-points (units of
+        inverse Ångstrom)
 
     Returns
     -------
-    list of equivalent k points
+    list of equivalent k-points
     """
     original_norm = np.linalg.norm(kpt)
     equivalent_kpoints = [kpt]

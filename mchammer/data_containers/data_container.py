@@ -8,18 +8,16 @@ from ..data_analysis import analyze_data
 class DataContainer(BaseDataContainer):
     """
     Data container for storing information concerned with
-    Monte Carlo simulations performed with mchammer.
+    Monte Carlo simulations performed with :program:`mchammer`.
 
     Parameters
     ----------
-    structure : ase.Atoms
-        reference atomic structure associated with the data container
-
-    ensemble_parameters : dict
-        parameters associated with the underlying ensemble
-
-    metadata : dict
-        metadata associated with the data container
+    structure
+        Reference atomic structure associated with the data container.
+    ensemble_parameters
+        Parameters associated with the underlying ensemble.
+    metadata
+        Metadata associated with the data container.
     """
 
     def analyze_data(self, tag: str, start: int = None, max_lag: int = None) -> dict:
@@ -29,30 +27,30 @@ class DataContainer(BaseDataContainer):
         Parameters
         ----------
         tag
-            tag of field over which to average
+            Tag of field over which to average.
         start
-            minimum value of trial step to consider; by default the
+            Minimum value of trial step to consider. By default the
             smallest value in the mctrial column will be used.
         max_lag
-            maximum lag between two points in data series, by default the
+            Maximum lag between two points in data series. By default the
             largest length of the data series will be used.
-            Used for computing autocorrelation
+            Used for computing autocorrelation.
 
         Raises
         ------
         ValueError
-            if observable is requested that is not in data container
+            If observable is requested that is not in data container.
         ValueError
-            if observable is not scalar
+            If observable is not scalar.
         ValueError
-            if observations is not evenly spaced
+            If observations is not evenly spaced.
 
         Returns
         -------
         dict
-            calculated properties of the data including mean,
+            Calculated properties of the data including mean,
             standard_deviation, correlation_length and error_estimate
-            (95% confidence)
+            (95% confidence).
         """
 
         # get data for tag
@@ -77,17 +75,17 @@ class DataContainer(BaseDataContainer):
         Parameters
         ----------
         tag
-            tag of field over which to average
+            Tag of field over which to average.
         start
-            minimum value of trial step to consider; by default the
+            Minimum value of trial step to consider. By default the
             smallest value in the mctrial column will be used.
 
         Raises
         ------
         ValueError
-            if observable is requested that is not in data container
+            If observable is requested that is not in data container.
         ValueError
-            if observable is not scalar
+            If observable is not scalar.
         """
         if tag in ['trajectory', 'occupations']:
             raise ValueError('{} is not scalar'.format(tag))

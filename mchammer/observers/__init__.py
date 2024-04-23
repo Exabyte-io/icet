@@ -5,9 +5,11 @@ from .structure_factor_observer import StructureFactorObserver
 from .site_occupancy_observer import SiteOccupancyObserver
 from .constituent_strain_observer import ConstituentStrainObserver
 
-__all__ = ['ClusterExpansionObserver',
-           'ClusterCountObserver',
-           'BinaryShortRangeOrderObserver',
-           'StructureFactorObserver',
-           'SiteOccupancyObserver',
-           'ConstituentStrainObserver']
+__all__ = [
+    'ClusterExpansionObserver',
+    'ClusterCountObserver',
+    'BinaryShortRangeOrderObserver',
+    'StructureFactorObserver',
+    'SiteOccupancyObserver',
+    'ConstituentStrainObserver',
+]

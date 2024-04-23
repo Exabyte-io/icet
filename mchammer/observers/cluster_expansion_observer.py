@@ -16,27 +16,17 @@ class ClusterExpansionObserver(BaseObserver):
 
     Parameters
     ----------
-    cluster_expansion : :class:`icet.ClusterExpansion` cluster expansion model
-        to be used for observation
-    tag : str
-        human readable observer name (default: `ClusterExpansionObserver`)
-    interval : int
-        observation interval during the Monte Carlo simulation
-
-    Attributes
-    ----------
-    tag : str
-        name of observer
-    interval : int
-        the observation interval, defaults to None meaning that if the
-        observer is used in a Monte Carlo simulation, then the Ensemble object
-        will set the interval.
+    cluster_expansion
+        Cluster expansion to be used for observation.
+    interval
+        Observation interval. Defaults to ``None`` meaning that if the
+        observer is used in a Monte Carlo simulations, then the :class:`Ensemble` object
+        will determine the interval.
     """
 
     def __init__(self, cluster_expansion: ClusterExpansion,
-                 interval: int = None,
-                 tag: str = 'ClusterExpansionObserver') -> None:
-        super().__init__(interval=interval, return_type=float, tag=tag)
+                 interval: int = None) -> None:
+        super().__init__(interval=interval, return_type=float, tag='ClusterExpansionObserver')
         self._cluster_expansion = cluster_expansion
 
     def get_observable(self, structure: Atoms) -> float:
@@ -47,6 +37,6 @@ class ClusterExpansionObserver(BaseObserver):
         Parameters
         ----------
         structure
-            input atomic structure.
+            Input atomic structure.
         """
         return self._cluster_expansion.predict(structure)

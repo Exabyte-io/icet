@@ -3,9 +3,9 @@ from typing import List
 
 import numpy as np
 from ase import Atoms
-from ..core.orbit import Orbit
-from ..core.orbit_list import OrbitList
-from ..core.lattice_site import LatticeSite
+from icet.core.orbit import Orbit
+from icet.core.orbit_list import OrbitList
+from icet.core.lattice_site import LatticeSite
 
 
 def _is_site_group_in_orbit(orbit: Orbit, site_group: List[LatticeSite]) -> bool:
@@ -15,9 +15,9 @@ def _is_site_group_in_orbit(orbit: Orbit, site_group: List[LatticeSite]) -> bool
     Parameters
     ----------
     orbit
-        orbit
+        Orbit.
     site_group
-        sites to be searched for
+        Sites to be searched for.
     """
 
     # Ensure that the number of sites matches the order of the orbit
@@ -56,19 +56,19 @@ def _is_site_group_in_orbit(orbit: Orbit, site_group: List[LatticeSite]) -> bool
 
 def get_transformation_matrix(structure: Atoms,
                               full_orbit_list: OrbitList) -> np.ndarray:
-    """
+    r"""
     Determines the matrix that transforms the cluster functions in the form
-    of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their binary
-    equivalents, (:math:`x_i\\in\\{0,1\\}`). The form is obtained by
-    performing the substitution (:math:`\\sigma_i=1-2x_i`) in the
-    cluster expansion expression of the total energy.
+    of spin variables, :math:`\sigma_i\in\{-1,1\}`, to their binary
+    equivalents, :math:`x_i\in\{0,1\}`.  The form is obtained by
+    performing the substitution (:math:`\sigma_i=1-2x_i`) in the
+    cluster expansion expression of the predicted property (commonly the energy).
 
     Parameters
     ----------
     structure
-        atomic configuration
+        Atomic configuration.
     full_orbit_list
-        full orbit list
+        Full orbit list.
     """
     # Go through all clusters associated with each active orbit and
     # determine its contribution to each orbit
@@ -118,20 +118,20 @@ def get_transformation_matrix(structure: Atoms,
 def transform_parameters(structure: Atoms,
                          full_orbit_list: OrbitList,
                          parameters: np.ndarray) -> np.ndarray:
-    """
+    r"""
     Transforms the list of parameters, obtained using cluster functions in the
-    form of of spin variables, (:math:`\\sigma_i\\in\\{-1,1\\}`), to their
+    form of of spin variables, :math:`\sigma_i\in\{-1,1\}`, to their
     equivalents for the case of binary variables,
-    (:math:`x_i\\in\\{0,1\\}`).
+    :math:`x_i\in\{0,1\}`.
 
     Parameters
     ----------
     structure
-        atomic configuration
+        Atomic configuration.
     full_orbit_list
-        full orbit list
+        Full orbit list.
     parameters
-        parameter vector (spin variables)
+        Parameter vector (spin variables).
     """
     A = get_transformation_matrix(structure, full_orbit_list)
     return np.dot(A, parameters)

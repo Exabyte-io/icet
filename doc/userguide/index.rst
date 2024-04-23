@@ -73,6 +73,7 @@ For questions and help please use the `icet discussion forum on matsci.org <http
 
    moduleref_icet/index
    moduleref_mchammer/index
+   moduleref_core/index
 
 .. toctree::
    :maxdepth: 2

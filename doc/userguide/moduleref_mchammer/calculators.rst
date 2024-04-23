@@ -19,7 +19,6 @@ ClusterExpansionCalculator
 
 .. autoclass:: ClusterExpansionCalculator
    :members:
-   :undoc-members:
    :inherited-members:
 
 .. _constituent_strain_calculator:
@@ -34,7 +33,6 @@ ConstituentStrainCalculator
 
 .. autoclass:: ConstituentStrainCalculator
    :members:
-   :undoc-members:
    :inherited-members:
 
 
@@ -50,7 +48,6 @@ TargetVectorCalculator
 
 .. autoclass:: mchammer.calculators.TargetVectorCalculator
    :members:
-   :undoc-members:
    :inherited-members:
 
 .. autofunction:: mchammer.calculators.compare_cluster_vectors
