@@ -42,7 +42,6 @@ RUN \
     xdoctest \
   && \
   pip3 install --upgrade \
-    breathe \
     nbsphinx \
     sphinx \
     sphinx-rtd-theme \

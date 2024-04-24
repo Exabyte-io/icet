@@ -597,9 +597,7 @@ PYBIND11_MODULE(_icet, m)
 
         .def_property_readonly("species_maps", &ClusterSpace::getSpeciesMaps)
         .def("_get_primitive_structure", &ClusterSpace::primitiveStructure)
-        .def("evaluate_cluster_function",
-             &ClusterSpace::evaluateClusterFunction,
-             "Evaluates a cluster function.")
+        .def("evaluate_cluster_function", &ClusterSpace::evaluateClusterFunction)
         .def("__len__", &ClusterSpace::size);
 
     py::class_<ClusterExpansionCalculator>(m, "_ClusterExpansionCalculator")
