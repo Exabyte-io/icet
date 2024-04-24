@@ -12,7 +12,6 @@ sys.path.insert(0, os.path.abspath('../../tutorial'))
 sys.path.insert(0, os.path.abspath('../../examples'))
 
 extensions = [
-    'breathe',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.coverage',
