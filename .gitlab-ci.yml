@@ -10,6 +10,39 @@ variables:
 .build:
   stage: build
 
+build:macos:
+  before_script:
+    - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
+    - export PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH
+  extends: .build
+  script:
+    - pip3 install --target=$INSTDIR_MACOS .
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - local_installation_macos/
+  only:
+    - schedules
+  tags:
+    - macos
+
+build:windows:
+  before_script:
+    - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
+    - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
+    - Set-Alias -Name pip3 -Value pip
+  extends: .build
+  script:
+    - pip3 install --target=$INSTDIR_WINDOWS .
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - local_installation_windows/
+  only:
+    - schedules
+  tags:
+    - windowsvm
+
 build:linux:
   before_script:
     - export PYTHONPATH=$PWD/$INSTDIR_LINUX:${PYTHONPATH}
@@ -21,39 +54,7 @@ build:linux:
     paths:
       - local_installation_linux/
   tags:
-    - linux
-
-# build:macos:
-#   before_script:
-#     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
-#   extends: .build
-#   script:
-#     - pip3 install --target=$INSTDIR_MACOS .
-#   artifacts:
-#     expire_in: 2 days
-#     paths:
-#       - local_installation_macos/
-#   only:
-#     - schedules
-#   tags:
-#     - macos
-
-# build:windows:
-#   before_script:
-#     - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
-#     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
-#     - Set-Alias -Name pip3 -Value pip
-#   extends: .build
-#   script:
-#     - pip3 install --target=$INSTDIR_WINDOWS .
-#   artifacts:
-#     expire_in: 2 days
-#     paths:
-#       - local_installation_windows/
-#   only:
-#     - schedules
-#   tags:
-#     - windowsvm
+    - saas-linux-small-amd64
 
 #------------------- test stage -------------------
 
@@ -68,14 +69,33 @@ build:linux:
     - coverage report -m --omit=icet/tools/constituent_strain_helper_functions.py
     - coverage html --omit=icet/tools/constituent_strain_helper_functions.py
 
-basic_tests:linux:
+basic_tests:macos:
   before_script:
-    - export PYTHONPATH=$PWD/$INSTDIR_LINUX:${PYTHONPATH}
+    - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
+    - export PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH
   extends: .basic_tests
   needs:
-    - build:linux
+    - build:macos
   tags:
-    - linux
+    - macos
+  only:
+    - schedules
+  artifacts:
+    expire_in: 2 days
+    reports:
+      junit: report.xml
+
+basic_tests:windows:
+  before_script:
+    - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
+    - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
+  extends: .basic_tests
+  needs:
+    - build:windows
+  tags:
+    - windowsvm
+  only:
+    - schedules
   artifacts:
     expire_in: 2 days
     paths:
@@ -83,44 +103,25 @@ basic_tests:linux:
     reports:
       junit: report.xml
 
-# basic_tests:macos:
-#   before_script:
-#     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
-#   extends: .basic_tests
-#   needs:
-#     - build:macos
-#   tags:
-#     - macos
-#   only:
-#     - schedules
-#   artifacts:
-#     expire_in: 2 days
-#     reports:
-#       junit: report.xml
-
-# basic_tests:windows:
-#   before_script:
-#     - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
-#     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
-#   extends: .basic_tests
-#   needs:
-#     - build:windows
-#   tags:
-#     - windowsvm
-#   only:
-#     - schedules
-#   artifacts:
-#     expire_in: 2 days
-#     paths:
-#       - htmlcov/
-#     reports:
-#       junit: report.xml
-
+basic_tests:linux:
+  before_script:
+    - export PYTHONPATH=$PWD/$INSTDIR_LINUX:${PYTHONPATH}
+  extends: .basic_tests
+  needs:
+    - build:linux
+  tags:
+    - saas-linux-small-amd64
+  artifacts:
+    expire_in: 2 days
+    paths:
+      - htmlcov/
+    reports:
+      junit: report.xml
 
 benchmarks_examples:
   stage: test
   tags:
-    - linux
+    - saas-linux-small-amd64
   only:
     - schedules
   needs:
@@ -147,7 +148,7 @@ benchmarks_examples:
   before_script:
     - export PYTHONPATH=$PWD/$INSTDIR_LINUX:${PYTHONPATH}
   tags:
-    - linux
+    - saas-linux-small-amd64
   needs:
     - build:linux
   script:
@@ -166,7 +167,7 @@ test_notebooks:schedules:
 style_check:linux:
   stage: test
   tags:
-    - linux
+    - saas-linux-small-amd64
   needs:
     - build:linux
   script:
@@ -175,7 +176,7 @@ style_check:linux:
 test_documentation:
   stage: test
   tags:
-    - linux
+    - saas-linux-small-amd64
   needs:
     - build:linux
   except:
@@ -199,7 +200,7 @@ include:
 
 code_quality:
   tags:
-    - linux
+    - saas-linux-small-amd64
   artifacts:
     paths: [gl-code-quality-report.json]
 
@@ -208,7 +209,7 @@ code_quality:
 pages:
   stage: deploy
   tags:
-    - linux
+    - saas-linux-small-amd64
   artifacts:
     expire_in: 14 days
     paths:
