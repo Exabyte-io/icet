@@ -322,6 +322,9 @@ class ClusterSpace(_ClusterSpace):
         s += ')'
         return s
 
+    def __getitem__(self, ind: int):
+        return self.as_list[ind]
+
     @property
     def symprec(self) -> float:
         """ Tolerance imposed when analyzing the symmetry using spglib. """
@@ -454,7 +457,7 @@ class ClusterSpace(_ClusterSpace):
         size_after = len(self._orbit_list)
         assert size_before - len(indices) == size_after
 
-    def _prune_orbit_list(self, indices: List[int]) -> None:
+    def prune_orbit_list(self, indices: List[int]) -> None:
         """
         Prunes the internal orbit list and maintains the history.
 
@@ -678,6 +681,12 @@ class ClusterSpace(_ClusterSpace):
                     orbit_indices.add(indices)
         return False
 
+    def get_multiplicities(self) -> List[int]:
+        """
+        Get multiplicities for each cluster space element as a list.
+        """
+        return [elem['multiplicity'] for elem in self.as_list]
+
     def write(self, filename: str) -> None:
         """
         Saves cluster space to a file.
@@ -754,14 +763,14 @@ class ClusterSpace(_ClusterSpace):
             if isinstance(items['pruning_history'][0], tuple):
                 for key, value in items['pruning_history']:
                     if key == 'prune':
-                        cs._prune_orbit_list(value)
+                        cs.prune_orbit_list(value)
                     elif key == 'merge':
                         # It is safe to ignore permutations here because otherwise
                         # the orbits could not have been merged in the first place.
                         cs.merge_orbits(value, ignore_permutations=True)
             else:  # for backwards compatibility
                 for value in items['pruning_history']:
-                    cs._prune_orbit_list(value)
+                    cs.prune_orbit_list(value)
 
         return cs
 
@@ -775,7 +784,7 @@ class ClusterSpace(_ClusterSpace):
 
         for key, value in self._pruning_history:
             if key == 'prune':
-                cs_copy._prune_orbit_list(value)
+                cs_copy.prune_orbit_list(value)
             elif key == 'merge':
                 # It is safe to ignore permutations here because otherwise
                 # the orbits could not have been merged in the first place.

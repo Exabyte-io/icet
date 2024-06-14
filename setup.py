@@ -137,7 +137,7 @@ if __name__ == '__main__':
                           'numba',
                           'pandas>=0.23',
                           'spglib>1.12.0',
-                          'trainstation>=0.2'],
+                          'trainstation>=1.1'],
         packages=find_packages(),
         cmdclass={'build_ext': BuildExt},
         zip_safe=False,

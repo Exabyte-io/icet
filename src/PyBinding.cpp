@@ -365,31 +365,6 @@ PYBIND11_MODULE(_icet, m)
                 (typically the primitive structure).
              )pbdoc")
         .def("__len__", &Orbit::size)
-        .def("__str__",
-             [](const Orbit &orbit)
-             {
-                 std::ostringstream msg;
-                 msg << "order: " << orbit.order() << std::endl;
-                 msg << "multiplicity: " << orbit.size() << std::endl;
-                 msg << "radius: " << orbit.radius() << std::endl;
-                 msg << "representative_cluster:" << std::endl;
-                 for (const auto &site : orbit.representativeCluster().latticeSites())
-                 {
-                     msg << "    site: " << site << std::endl;
-                 }
-                 msg << "clusters:" << std::endl;
-                 int k = -1;
-                 for (const auto &cluster : orbit.clusters())
-                 {
-                     k += 1;
-                     msg << "  cluster: " << k << std::endl;
-                     for (const auto &site : cluster.latticeSites())
-                     {
-                         msg << "    site: " << site << std::endl;
-                     }
-                 }
-                 return msg.str();
-             })
         .def(py::self < py::self)
         .def(py::self += py::self);
 
