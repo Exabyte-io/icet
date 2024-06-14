@@ -8,6 +8,7 @@ from collections import Counter
 import numpy as np
 
 from _icet import _OrbitList
+from icet.core.orbit import Orbit # noqa
 from ase import Atoms
 from icet.core.local_orbit_list_generator import LocalOrbitListGenerator
 from icet.core.neighbor_list import get_neighbor_lists
@@ -106,17 +107,19 @@ class OrbitList(_OrbitList):
         A copy of the primitive structure to which the lattice sites in
         the orbits are referenced to.
         """
-        return self._primitive_structure.copy()
+        return self.get_structure().to_atoms()
 
     def __str__(self):
         """ String representation. """
         s = []
         s += ['Number of orbits: {}'.format(len(self))]
         for k, orbit in enumerate(self.orbits):
-            c = self.orbits[k].representative_cluster.__str__()
-            s += [f'orbit: {k:3}   order: {orbit.order:3}'
-                  f'   multiplicity: {len(orbit):3}   representative_cluster: {c}']
+            s += [f'Orbit {k}:']
+            s += [f'\t{s_tmp}' for s_tmp in orbit.__str__().split('\n')][:-1]
         return '\n'.join(s)
+
+    def __getitem__(self, ind: int):
+        return self.get_orbit(ind)
 
     def get_supercell_orbit_list(self,
                                  structure: Atoms,

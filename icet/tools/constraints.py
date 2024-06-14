@@ -29,7 +29,8 @@ class Constraints:
         >>> # Define constraints
         >>> c = Constraints(n_params=n_params)
         >>> M = np.zeros((1, n_params))
-        >>> M[0, [2, 4]] = 1
+        >>> M[0, 2] = 1
+        >>> M[0, 4] = -1
         >>> c.add_constraint(M)
 
         >>> # Do the actual fit and finally extract parameters

@@ -310,7 +310,7 @@ class ClusterExpansion:
                 safe_to_remove_params += df.index[df['orbit_index'] == oi].tolist()
 
         # prune cluster space
-        self._cluster_space._prune_orbit_list(indices=safe_to_remove_orbits)
+        self._cluster_space.prune_orbit_list(indices=safe_to_remove_orbits)
         self._parameters = self._parameters[np.setdiff1d(
             np.arange(len(self._parameters)), safe_to_remove_params)]
         assert len(self._parameters) == len(self._cluster_space)

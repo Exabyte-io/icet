@@ -105,6 +105,41 @@ class TestOrbit(unittest.TestCase):
         """Tests geometrical size of orbit."""
         self.orbit_pair.radius
 
+    def test_distances(self):
+        """Tests distances of orbit"""
+        self.assertAlmostEqual(self.orbit_pair.distances,
+                               [2.8637824058532715])
+        self.assertAlmostEqual(self.orbit_pair_two_clusters.all_distances,
+                               [[2.8637824058532715], [2.8637824058532715]])
+
+    def test_sites(self):
+        """Tests sites of orbit"""
+        self.assertAlmostEqual(self.orbit_pair.sites,
+                               [0, 0])
+        self.assertAlmostEqual(self.orbit_pair_two_clusters.all_sites,
+                               [[0, 0], [0, 0]])
+
+    def test_site_offsets(self):
+        """Tests site offsets of orbit"""
+        site_offsets = [list(o) for o in self.orbit_pair.site_offsets]
+        self.assertAlmostEqual(site_offsets, [[0, 0, 0], [1, 0, 0]])
+
+        all_site_offsets = [[list(o) for o in os] for os in
+                            self.orbit_pair_two_clusters.all_site_offsets]
+        self.assertAlmostEqual(all_site_offsets,
+                               [[[0, 0, 0], [1, 0, 0]], [[0, 0, 0], [1, 0, 0]]])
+
+    def test_positions(self):
+        """Tests positions of orbit"""
+        positions = [list(p) for p in self.orbit_pair.positions]
+        self.assertAlmostEqual(positions,
+                               [[0., 0., 0.], [0., 2.025, 2.025]])
+        all_positions = [[list(p) for p in ps] for ps in
+                         self.orbit_pair_two_clusters.all_positions]
+        self.assertAlmostEqual(all_positions,
+                               [[[0., 0., 0.], [0., 2.025, 2.025]],
+                                [[0., 0., 0.], [0., 2.025, 2.025]]])
+
     def test_translate(self):
         """Tests translation by an offset."""
         offset = np.array((1, 1, 1))

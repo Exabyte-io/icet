@@ -22,9 +22,11 @@ command line::
    training_set_generation
    mapping_structures
    sqs_generation
-   customizing_cluster_spaces
    cluster_vectors
    training_of_ce
+   training_ce_with_constraints
+   customizing_cluster_spaces
+   bayesian_cluster_expansions
    constituent_strain
    data_container
    hybrid_ensembles

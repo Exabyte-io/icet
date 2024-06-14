@@ -476,7 +476,7 @@ index | order |  radius  | multiplicity | orbit_index | multicomponent_vector | 
         """Tests pruning internal orbit list."""
         orig_size = len(self.cs.orbit_list)
         prune_indices = [0, 1, 3, 2]
-        self.cs._prune_orbit_list(indices=prune_indices)
+        self.cs.prune_orbit_list(indices=prune_indices)
         self.assertEqual(orig_size - len(prune_indices), len(self.cs.orbit_list))
 
     def test_copy(self):
@@ -561,6 +561,11 @@ index | order |  radius  | multiplicity | orbit_index | multicomponent_vector | 
                     self.assertTrue(cs.is_supercell_self_interacting(structure))
                 else:
                     self.assertFalse(cs.is_supercell_self_interacting(structure))
+
+    def test_get_multiplicites(self):
+        """ Test get_multiplicities function. """
+        mult = [1, 1, 6, 8, 2]
+        self.assertEqual(self.cs.get_multiplicities(), mult)
 
 
 class TestClusterSpaceTernary(unittest.TestCase):
