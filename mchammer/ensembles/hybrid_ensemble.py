@@ -20,9 +20,10 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
     In particular, a dictionary should be provided for each ensemble,
     which must include the type (:attr:`ensemble`) as well as the index of
     the sublattice (:attr:`sublattice_index`). In addition, it is possible
-    to provide a list of allowed symbols (:attr:`allowed_symbols`), which
-    must represent a subset of the elements that can occupy the sites
-    on the specified sublattice. Note that additional arguments are
+    to provide lists of allowed symbols (:attr:`allowed_symbols`) and site
+    indices (:attr:`allowed_sites`) for the trial steps. Here the allowed
+    symbols must represent a subset of the elements that can occupy the sites on
+    the specified sublattice. Note that additional arguments are
     required for the SGC and VCSGC ensembles, namely chemical
     potentials (:attr:`chemical_potentials`) for the former and constraint
     parameters (:attr:`phis` and :attr:`kappa`) for the latter. For more detailed
@@ -69,6 +70,8 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
               interest (required).
             * :attr:`allowed_symbols`: List of allowed chemical symbols.
               Default: read from :class:`ClusterSpace`.
+            * :attr:`allowed_sites`: List of allowed sites.
+              Default: all sites.
             * :attr:`chemical_potentials`: Dictionary of chemical
               potentials for each species :math:`\mu_i`.
               The key denotes the species, the value
@@ -250,6 +253,7 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
               and upercase letters or any combination thereof are accepted
             * 'sublattice_index', index for the sublattice of interest
             * 'allowed_symbols', list of allowed chemical symbols
+            * 'allowed_sites', list of indices of allowed sites
             * 'chemical_potentials', a dictionary of chemical potentials for each species
               :math:`\mu_i`; the key denotes the species, the value specifies the chemical
               potential in units that are consistent with the underlying cluster expansion
@@ -282,12 +286,12 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
             self._ensemble_parameters[tag] = ensemble
 
             # check that all required keys, and no unknown keys, are present
-            keys = ['ensemble', 'sublattice_index', 'allowed_symbols']
+            keys = ['ensemble', 'sublattice_index', 'allowed_symbols', 'allowed_sites']
             if ensemble == 'semi-grand':
                 keys = ['chemical_potentials'] + keys
             elif ensemble == 'vcsgc':
                 keys = ['phis', 'kappa'] + keys
-            for key in keys[:-1]:
+            for key in keys[:-2]:
                 if key not in ensemble_spec:
                     raise ValueError(f"The dictionary {ensemble_spec} lacks the key '{key}',"
                                      f' which is required for {ensemble} ensembles')
@@ -328,6 +332,10 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
             if 'allowed_symbols' in ensemble_spec:
                 ensemble_arg['allowed_symbols'] = ensemble_spec['allowed_symbols']
 
+            # record the allowed sites
+            if 'allowed_sites' in ensemble_spec:
+                ensemble_arg['allowed_sites'] = ensemble_spec['allowed_sites']
+
             ensemble_args.append(ensemble_arg)
 
         self._ensemble_args = ensemble_args
@@ -349,6 +357,10 @@ class HybridEnsemble(ThermodynamicBaseEnsemble):
                 del self._ensemble_args[i]['allowed_symbols']
             else:
                 self._ensemble_args[i]['allowed_species'] = None
+
+            # handle lack of allowed sites
+            if 'allowed_sites' not in self._ensemble_args[i]:
+                self._ensemble_args[i]['allowed_sites'] = None
 
             if self._ensemble_args[i]['ensemble'] == 'vcsgc':
                 # Check that each sublattice has N - 1 phis

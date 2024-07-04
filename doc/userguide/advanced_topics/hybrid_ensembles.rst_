@@ -1,0 +1,19 @@
+.. _advanced_topics_parallel_monte_carlo_simulations:
+.. highlight:: python
+.. index::
+   single: Advanced topics; Hybrid ensembles
+
+Hybrid ensembles
+================
+
+In systems with multiple sublattices, it can sometimes be advantageous to use different thermodynamical ensembles for different sublattices in a single Monte Carlo simulation.
+This can for example be relevant in systems in which one sublattice does not exchange atoms with the environment (closed system) while the other does (open system).
+Metallic alloys exposed to hydrogen are examples where this is often the case (for an example, see [RahLofFra21]_).
+This tutorial demonstrates how sublattice specific ensembles can be used in :program:`mchammer` using the :class:`HybridEnsemble <mchammer.ensembles.HybridEnsemble>` class.
+It is also shown how this class can be used to control the involved species and sites in a Monte Carlo simulation. 
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents
+
+   hybrid_ensembles_nb

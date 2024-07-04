@@ -273,6 +273,7 @@ class TestEnsemble(unittest.TestCase):
             self.assertEqual(self.ensemble._ensemble_args[i]['ensemble'], ensemble_spec['ensemble'])
             self.assertEqual(self.ensemble._ensemble_args[i]['sublattice_index'], 0)
             self.assertIsNone(self.ensemble._ensemble_args[i]['allowed_species'])
+            self.assertIsNone(self.ensemble._ensemble_args[i]['allowed_sites'])
         self.assertDictEqual(self.ensemble._ensemble_args[1]['chemical_potentials'],
                              get_chemical_potentials(self.chemical_potentials))
         self.assertDictEqual(self.ensemble._ensemble_args[2]['phis'], get_phis(self.phis))
@@ -508,6 +509,7 @@ class TestEnsembleTernaryFCC(unittest.TestCase):
                                      [13, 31])
             else:
                 self.assertIsNone(self.ensemble._ensemble_args[i]['allowed_species'])
+            self.assertIsNone(self.ensemble._ensemble_args[i]['allowed_sites'])
         self.assertDictEqual(self.ensemble._ensemble_args[1]['chemical_potentials'],
                              get_chemical_potentials(self.chemical_potentials))
         self.assertDictEqual(self.ensemble._ensemble_args[2]['phis'], get_phis(self.phis))
