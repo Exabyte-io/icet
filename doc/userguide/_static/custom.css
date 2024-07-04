@@ -39,6 +39,16 @@
     background: #e7cee4 !important;
 }
 
+.label { /* citation keys */
+    border-top: solid 3px #e7cee4ff;
+    background: #e7cee433;
+    font-weight: bold;
+    padding: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
+    color: black;
+}
+
 html.writer-html5 .rst-content dl[class]:not(.option-list):not(.field-list):not(.footnote):not(.glossary):not(.simple)>dt { /* class definitions */
     border-top: solid 3px #00c895;
     background: #e6f5f1;

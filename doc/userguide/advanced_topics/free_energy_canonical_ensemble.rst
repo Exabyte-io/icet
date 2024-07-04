@@ -3,7 +3,7 @@
 .. index::
    single: Examples; Thermodynamic-integration and temperature-integration simulations
 
-Thermodynamic-integration and temperature-integration simulations
+Thermodynamic integration and temperature-integration simulations
 =================================================================
 
 This example illustrates how to carry out Thermodynamic-Integration (TI) and Temperature-Integration (TEI) simulations with :program:`icet` in the canonical ensemble. 

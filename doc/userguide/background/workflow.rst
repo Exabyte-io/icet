@@ -17,10 +17,14 @@ Workflow
 
 .. note::
 
-    This page provides an overview of the :program:`icet` workflow. For detailed
-    instructions on how to use :program:`icet`, please see the :ref:`tutorial
-    section <tutorial>`. Further applications are discussed in the
-    :ref:`advanced topics <advanced_topics>` section.
+    This page provides an overview of the :program:`icet` workflow. For a detailed
+    introduction on how to use :program:`icet`, please see the :ref:`tutorial
+    section <tutorial>`. Further use cases and features are discussed in the advanced
+    topics section with more detailed information regarding :ref:`generating structures
+    <advanced_topics_structure_generation>`, the :ref:`construction of cluster expansion
+    models <advanced_topics_ce_construction>`, and the :ref:`sampling of such models
+    <advanced_topics_sampling>`.
+
 
 Overview
 ========

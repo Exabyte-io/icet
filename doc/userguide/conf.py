@@ -70,6 +70,10 @@ intersphinx_mapping = \
 
 # Settings for nbsphinx
 nbsphinx_execute = 'never'
+nbsphinx_prolog = """
+.. _{{ env.doc2path(env.docname, base=None) }}:
+
+"""
 
 # Options for doxygen incorporation
 breathe_projects = {'icet': '../apidoc/xml/'}
