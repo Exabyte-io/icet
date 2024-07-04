@@ -63,9 +63,16 @@ For questions and help please use the `icet discussion forum on matsci.org <http
    background/index
    installation
    tutorial/index
-   advanced_topics/index
    faq
    credits
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced topics
+
+   advanced_topics/structure_generation
+   advanced_topics/ce_construction
+   advanced_topics/sampling
 
 .. toctree::
    :maxdepth: 2

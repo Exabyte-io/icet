@@ -84,8 +84,8 @@ Cluster expansions
 
    MCS
    MCSs
-         A Monte Carlo sweep (MCS) is defined as :math:`N_{sites}` MC trial
-         steps, where :math:`N_{sites}` is the number of sites in the system.
+         A Monte Carlo sweep (MCS) is defined as :math:`N_\mathrm{sites}` MC trial
+         steps, where :math:`N_\mathrm{sites}` is the number of sites in the system.
 
    SQS   
          Special quasirandom structures, alloy supercells that mimic a

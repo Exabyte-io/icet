@@ -5,7 +5,7 @@ Credits
 *******
 
 **icet** has been developed at the Department of Physics at Chalmers University of Technology (Gothenburg, Sweden), in collaboration with the Data Analysis group at the `Data Management and Software Center of the European Spallation Source <https://europeanspallationsource.se/data-management-software#data-analysis-modelling>`_ (Copenhagen, Denmark).
-The `conda-forge` recipes have been generously set up by `Jan Janssen <https://github.com/jan-janssen/>`_ at the *Max-Planck-Institut für Eisenforschung* (Düsseldorf, Germany).
+The `conda-forge` recipes have been generously set up by `Jan Janssen <https://github.com/jan-janssen/>`_.
 
 When using :program:`icet` in your research please cite the following paper:
 
@@ -14,9 +14,16 @@ When using :program:`icet` in your research please cite the following paper:
 | Advanced Theory and Simulations **2**, 1900015 (2019)
 | `doi: 10.1002/adts.201900015 <https://doi.org/10.1002/adts.201900015>`_
 
+There is also an extensive tutorial paper:
+
+| P. Ekborg-Tanner, P. Rosander, E. Fransson, and P. Erhart
+| *Construction and sampling of alloy cluster expansions - A tutorial*
+| arXiv:2405.14787 (2024)
+| `doi: 10.48550/arXiv.2405.14787 <https://doi.org/10.48550/arXiv.2405.14787>`_
+
 You should also cite relevant background literature.
 The following list provides an incomplete set of examples.
-Please also consult the `bibliography page <bibliography>` and the original papers to ensure that credit is given where credit is due.
+Please also consult the :ref:`bibliography page <bibliography>` and the original papers to ensure that credit is given where credit is due.
 
 
 Structure enumeration
