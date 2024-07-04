@@ -9,9 +9,9 @@ from .core.structure_container import StructureContainer
 
 __project__ = 'icet'
 __description__ = 'A Pythonic approach to cluster expansions'
-__copyright__ = '2022'
+__copyright__ = '2024'
 __license__ = 'Mozilla Public License 2.0 (MPL 2.0)'
-__version__ = '2.2'
+__version__ = '3.0'
 __maintainer__ = 'The icet developers team'
 __email__ = 'icet@materialsmodeling.org'
 __status__ = 'Stable'
