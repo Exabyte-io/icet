@@ -21,6 +21,11 @@ class ClusterCountObserver(BaseObserver):
     be used to access the temperature dependence of the number of
     nearest neigbhors of a particular species.
 
+    The outputted cluster counts come in a dictionary format which keys like
+    ``0_Al``, ``0_Cu``, ``1_Al_Al``, ``1_Al_Cu``, ``1_Cu_Al``, ``1_Cu_Cu``, etc,
+    where the number indicates the orbit index and the symbols indicate the elements for this orbit.
+    The values of the dictionary contains the number of the such clusters found in the structure.
+
     Parameters
     ----------
     cluster_space
