@@ -181,7 +181,7 @@ An `error estimate <https://en.wikipedia.org/wiki/Standard_error>`_ of the
 average can be calculated via
 
 .. math::
-    \mathrm{error} = \frac{t \sigma }{\sqrt{Ns}},
+    \mathrm{error} = \frac{t \sigma }{\sqrt{N/s}},
 
 where :math:`\sigma` is the standard deviation, :math:`N` the number of
 samples, :math:`s` the correlation length and :math:`t` is the `t-factor
