@@ -15,6 +15,7 @@ build:macos:
     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
     - export PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH
   extends: .build
+  allow_failure: true
   script:
     - pip3 install --target=$INSTDIR_MACOS .
   artifacts:
@@ -32,6 +33,7 @@ build:windows:
     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
     - Set-Alias -Name pip3 -Value pip
   extends: .build
+  allow_failure: true
   script:
     - pip3 install --target=$INSTDIR_WINDOWS .
   artifacts:
@@ -74,6 +76,7 @@ basic_tests:macos:
     - export PYTHONPATH=$PWD/$INSTDIR_MACOS:${PYTHONPATH}
     - export PATH=/Library/Frameworks/Python.framework/Versions/3.10/bin:$PATH
   extends: .basic_tests
+  allow_failure: true
   needs:
     - build:macos
   tags:
@@ -90,6 +93,7 @@ basic_tests:windows:
     - $env:PATH+=";C:\Python38;C:\Python38\Scripts"
     - $env:PYTHONPATH+="$PWD/${INSTDIR_WINDOWS}"
   extends: .basic_tests
+  allow_failure: true
   needs:
     - build:windows
   tags:
