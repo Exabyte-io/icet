@@ -5,9 +5,8 @@ Cluster expansions
 
 This page provides a short introduction to cluster expansions. For more
 extensive descriptions, please consult for example [SanDucGra84]_, [Wal09]_ or
-[AngMunRah19]_. A simpler introduction to the subject can be found in the
-first part of `this tutorial <https://th.fhi-berlin.mpg.de/sitesub/meetings
-/dft-workshop-2015/uploads/Meeting/July-22_Tutorial_6.pdf>`_.
+[AngMunRah19]_.
+A comprehensive tutorial can be found in [EkbRosFra24]_.
 
 .. index::
    single: Cluster expansion; Formalism

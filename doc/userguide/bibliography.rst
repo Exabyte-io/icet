@@ -33,6 +33,13 @@ Bibliography
 | Signal Processing Magazine, IEEE **25**, 201 (2008)
 | `doi: 10.1109/MSP.2007.914731 <http://dx.doi.org/10.1109/MSP.2007.914731>`_
 
+.. [EkbRosFra24]
+
+| P. Ekborg-Tanner, P. Rosander, E. Fransson, and P. Erhart
+| *Construction and sampling of alloy cluster expansions - A tutorial*
+| PRX Energy **3**, 042001 (2024)
+| `doi: 10.1103/PRXEnergy.3.042001 <https://doi.org/10.1103/PRXEnergy.3.042001>`_
+
 .. [FreAstKon16]
 
 | R. Freitas, M. Asta and M. Koning

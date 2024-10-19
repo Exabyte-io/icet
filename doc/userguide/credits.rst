@@ -17,9 +17,9 @@ When using :program:`icet` in your research please cite the following paper:
 There is also an extensive tutorial paper:
 
 | P. Ekborg-Tanner, P. Rosander, E. Fransson, and P. Erhart
-| *Construction and sampling of alloy cluster expansions – A tutorial*
-| arXiv:2405.14787 (2024)
-| `doi: 10.48550/arXiv.2405.14787 <https://doi.org/10.48550/arXiv.2405.14787>`_
+| *Construction and sampling of alloy cluster expansions - A tutorial*
+| PRX Energy **3**, 042001 (2024)
+| `doi: 10.1103/PRXEnergy.3.042001 <https://doi.org/10.1103/PRXEnergy.3.042001>`_
 
 You should also cite relevant background literature.
 The following list provides an incomplete set of examples.
