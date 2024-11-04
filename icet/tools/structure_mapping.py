@@ -350,6 +350,18 @@ def _match_positions(structure: Atoms, reference: Atoms) -> Tuple[Atoms, float, 
                                    'two closest sites.')
                     warning = 'possible_ambiguity_in_mapping'
 
+    ###### Mike Waters
+    remove_translation = True
+    if remove_translation:
+        displacements = np.array(displacements)
+        trans = displacements.mean(axis=0)
+        displacements = displacements - trans
+        displacement_magnitudes = np.sqrt( (displacements**2).sum(axis=1) )
+        print(trans)
+        print('displacements', displacements)
+        print('displacement_magnitudes',   displacement_magnitudes)
+    ####### /Mike Waters
+
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
     mapped.new_array('Displacement', displacements, float, shape=(3, ))
     mapped.new_array('Displacement_Magnitude', displacement_magnitudes, float)
