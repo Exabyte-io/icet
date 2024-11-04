@@ -268,8 +268,8 @@ def _get_reference_supercell(structure: Atoms,
 
 
 def _match_positions(
-        structure: Atoms, 
-        reference: Atoms, 
+        structure: Atoms,
+        reference: Atoms,
         remove_translation: bool = True) \
         -> Tuple[Atoms, float, float]:
     """Matches the atoms in the input :attr:`structure` to the sites in the
@@ -366,7 +366,7 @@ def _match_positions(
         displacements = np.array(displacements)
         trans = displacements.mean(axis=0)
         displacements = displacements - trans
-        displacement_magnitudes = np.sqrt( (displacements**2).sum(axis=1) )
+        displacement_magnitudes = np.sqrt((displacements**2).sum(axis=1))
 
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
     mapped.new_array('Displacement', displacements, float, shape=(3, ))
