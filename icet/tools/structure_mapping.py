@@ -40,7 +40,8 @@ def map_structure_to_reference(structure: Atoms,
                                inert_species: List[str] = None,
                                tol_positions: float = 1e-4,
                                suppress_warnings: bool = False,
-                               assume_no_cell_relaxation: bool = False) \
+                               assume_no_cell_relaxation: bool = False,
+                               remove_translation: bool = True) \
         -> Tuple[Atoms, dict]:
     """Maps a structure onto a reference structure.
     This is often desirable when, for example, a structure has been
@@ -87,6 +88,9 @@ def map_structure_to_reference(structure: Atoms,
         If ``False`` volume and cell metric of the input structure are rescaled
         to match the reference structure. This can be unnecessary (and
         counterproductive) for some structures, e.g., with many vacancies.
+    remove_translation
+        If ``True`` mean translation between rescaled input structure and 
+        primitive structure is subtracted from displacements.
 
         Note
         ----
@@ -133,7 +137,8 @@ def map_structure_to_reference(structure: Atoms,
 
     # Match positions
     mapped_structure, drmax, dravg, warning = _match_positions(structure_scaled,
-                                                               reference_supercell)
+                                                               reference_supercell,
+                                                               remove_translation)
 
     if warning:
         warnings = [warning]
@@ -262,7 +267,11 @@ def _get_reference_supercell(structure: Atoms,
     return reference_supercell, P
 
 
-def _match_positions(structure: Atoms, reference: Atoms) -> Tuple[Atoms, float, float]:
+def _match_positions(
+        structure: Atoms, 
+        reference: Atoms, 
+        remove_translation: bool = True) \
+        -> Tuple[Atoms, float, float]:
     """Matches the atoms in the input :attr:`structure` to the sites in the
     :attr:`reference` structure. The function returns tuple the first element of which
     is a copy of the :attr:`reference` structure, in which the chemical species are
@@ -276,6 +285,9 @@ def _match_positions(structure: Atoms, reference: Atoms) -> Tuple[Atoms, float, 
         Structure with relaxed positions.
     reference
         Structure with idealized positions.
+    remove_translation
+        If ``True`` mean translation between structure and  reference is 
+        subtracted from displacements.
 
     Raises
     ------
@@ -350,17 +362,11 @@ def _match_positions(structure: Atoms, reference: Atoms) -> Tuple[Atoms, float, 
                                    'two closest sites.')
                     warning = 'possible_ambiguity_in_mapping'
 
-    ###### Mike Waters
-    remove_translation = True
     if remove_translation:
         displacements = np.array(displacements)
         trans = displacements.mean(axis=0)
         displacements = displacements - trans
         displacement_magnitudes = np.sqrt( (displacements**2).sum(axis=1) )
-        print(trans)
-        print('displacements', displacements)
-        print('displacement_magnitudes',   displacement_magnitudes)
-    ####### /Mike Waters
 
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
     mapped.new_array('Displacement', displacements, float, shape=(3, ))
