@@ -364,9 +364,10 @@ def _match_positions(
 
     if remove_translation:
         displacements = np.array(displacements)
-        trans = displacements.mean(axis=0)
-        displacements = displacements - trans
-        displacement_magnitudes = np.sqrt((displacements**2).sum(axis=1))
+        if not displacements.any(None):
+            trans = displacements.mean(axis=0)
+            displacements = displacements - trans
+            displacement_magnitudes = np.sqrt((displacements**2).sum(axis=1))
 
     displacement_magnitudes = np.array(displacement_magnitudes, dtype=np.float64)
     mapped.new_array('Displacement', displacements, float, shape=(3, ))
