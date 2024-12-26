@@ -1,8 +1,6 @@
-from numba import njit
 import numpy as np
 
 
-@njit
 def redlich_kister(x: float, *coeffs: float) -> float:
     """
     Evaluate Redlich-Kister polynomial
@@ -41,7 +39,6 @@ def redlich_kister_vector(x: np.ndarray, *coeffs: float) -> float:
     return np.array([redlich_kister(xi, *coeffs) for xi in x])
 
 
-@njit
 def _get_structure_factor(occupations: np.ndarray,
                           positions: np.ndarray,
                           kpt: np.ndarray,
@@ -74,7 +71,6 @@ def _get_structure_factor(occupations: np.ndarray,
     return S / len(occupations)
 
 
-@njit
 def _get_partial_structure_factor(kpt: np.ndarray, position: np.ndarray, natoms: int) -> float:
     """
     Get a term in structure factor sum specific to a
