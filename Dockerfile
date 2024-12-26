@@ -33,7 +33,6 @@ RUN \
   pip3 install --upgrade \
     ase \
     mip \
-    numba \
     numpy \
     pandas \
     scikit-learn \

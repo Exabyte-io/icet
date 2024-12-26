@@ -134,7 +134,6 @@ if __name__ == '__main__':
         install_requires=['ase',
                           'numpy',
                           'scipy',
-                          'numba',
                           'pandas>=0.23',
                           'spglib>1.12.0',
                           'trainstation>=1.1'],

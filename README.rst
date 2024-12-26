@@ -41,7 +41,6 @@ Please consult the `installation section of the user guide <https://icet.materia
 **icet** is based on Python3 and invokes functionality from other Python libraries including
 `ase <https://wiki.fysik.dtu.dk/ase>`_,
 `pandas <https://pandas.pydata.org/>`_,
-`numba <https://numba.pydata.org/>`_,
 `numpy <http://www.numpy.org/>`_,
 `scipy <https://www.scipy.org/>`_,
 `spglib <https://atztogo.github.io/spglib/>`_, and
